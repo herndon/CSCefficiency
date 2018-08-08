@@ -38,7 +38,7 @@ def CalculateOverallScaleNum(tree_):
 file_in = TFile.Open(args[0],"read")
 file_dummy = TFile.Open(TemporaryOutputFile,"RECREATE")
 print 'apply cut dummy: ',MuTrackPairCut
-tree_in_dummy = file_in.Get(TreeName).CopyTree( MuTrackPairCut )
+tree_in_dummy = file_in.Get("aodDump/Fraction").CopyTree( MuTrackPairCut )
 tree_in=tree_in_dummy.CloneTree(0)
 
 if RunOnMC:

@@ -54,11 +54,9 @@ gStyle.SetFrameBorderSize(0)
 gStyle.SetStatBorderSize(0)
 gStyle.SetTitleBorderSize(0)
 
-
-
 #TagProbeFitResult="2015C_newAlign_withHLTIsoTkMu_matchOtherStationsORME13/TnP_"+dir_+"_"#Those files are the TagProbeFitTreeAnalyzer outputs.
 TagProbeFitResult="TnP_"+dir_+"_"
-#Group="Chambers"
+Group="Chambers"
 
 if "Chambers" in Group:
   chambers=[]
@@ -110,14 +108,14 @@ cms_label = ROOT.TPaveText(0.06, 0.84, 0.9, 1.0, "NDC")
 unshitify(cms_label)
 cms_label.SetTextSize(0.03)
 cms_label.SetTextAlign(12)
-cms_label.AddText("CMS Preliminary                                                  #sqrt{s}=13 TeV,  2017B")
-
+#cms_label.AddText("CMS Preliminary                                                  #sqrt{s}=13 TeV,  L=720 pb^{-1}")
+cms_label.AddText("CMS Preliminary                                                                   simulation (DY)")
 
 # by Nick:
 #Float_t rgb[300] = {0}
 rgb=zeros(300, dtype=float)
 #pEff=zeros(100, dtype=int)
-pEff = numpy.ndarray( [100],dtype=numpy.float32)
+pEff = numpy.ndarray( [100.],dtype=numpy.float32)
 paletteSize = 100
 nContours   = 100
 
@@ -180,7 +178,7 @@ if len(args)>0:
             Postfix="_MCTruth"
         else:
             Postfix=args[1]
-    ResultPlotsFileName=Prefix+ResultPlotsFileName.replace(".root",Postfix+".root")
+    ResultPlotsFileName=Prefix+"../"+ResultPlotsFileName.replace(".root",Postfix+".root")
 
 file_out=TFile.Open(ResultPlotsFileName,'RECREATE')
 
@@ -190,16 +188,13 @@ phischeme="shiftedphi"
 #phischeme="tracks_phi"
 if "pt" in Group:
     binning="pt"
-    plotname="tracks_pt_PLOT"
+    plotname="tracks_pt_PLOT_"+etascheme+"_bin0_&_"+phischeme+"_bin0"
 elif "eta" in Group:
     binning="eta"
-    plotname=etascheme+"_PLOT"
+    plotname=etascheme+"_PLOT_"+phischeme+"_bin0_&_tracks_pt_bin0"
 elif "phi" in Group:
     binning="phi"
-    plotname=phischeme+"_PLOT"
-elif "PV" in Group:
-    binning="PV"
-    plotname="numberOfPrimaryVertices_PLOT"
+    plotname=phischeme+"_PLOT_"+etascheme+"_bin0_&_tracks_pt_bin0"
 else:
     plotname=phischeme+"_bin0__"+etascheme+"_bin0__tracks_pt_bin0__VoigtianPlusExpo"
 
@@ -334,42 +329,85 @@ if "Stations" in Group:
         LCTCanvas.cd()
         LCTEff.SetMarkerStyle(8)
         LCTEff.SetMarkerSize(.5)
+
         LCTEff.Draw("AP")
         cms_label.Draw()
         for st in range(1,n_stations+1):
            binnum=SEGEff.GetXaxis().FindBin(st)
            SEGEff.GetXaxis().SetBinLabel( binnum,stations[st][1] )
            LCTEff.GetXaxis().SetBinLabel( binnum,stations[st][1] )
-        SEGEff.GetXaxis().SetTitle("Ring")
-        SEGEff.GetYaxis().SetTitle("Chamber within ring")
-
         file_out.cd()
         if LCTEff:
            LCTEff.Write("LCTEff")
         if SEGEff:
            SEGEff.Write("SEGEff")
 elif "Chambers" in Group:
-    SEGEff=TH2F("SEGEff","CSC Segment Reconstruction Efficiency (%)",36,1,37,20,-9,9)
+#    SEGEff=TH2F("SEGEff","segment efficiency",36,1,37,20,-9,9)
+
+    SEGEff=TH2Poly("SEGEff","segment efficiency",0.5,36.5,0.5,20.5)
+#    SEGEff=TH2Poly("SEGEff","segment efficiency")
+#    SEGEff.AddBin(0.5,1.5,1.5,2.5)
+#    SEGEff.AddBin(3.5,1.5,4.5,2.5)
+
     SEGEff.SetMarkerSize(0.7)
+    SEGEff.SetLineColor(2)
+#    SEGEff.SetMarkerColor(2)
     gStyle.SetPaintTextFormat("4.1f")
     SEGEff.SetContour(500)
-    SEGEff_upErr=TH2F("SEGEff_upErr","segment efficiency uperror",36,1,37,20,-8.7,9.3)
+#    SEGEff_upErr=TH2F("SEGEff_upErr","segment efficiency uperror",36,1,37,20,-8.7,9.3)
+    SEGEff_upErr=TH2Poly("SEGEff_upErr","segment efficiency",0.5,36.5,0.8,20.8)
+#    SEGEff_upErr.AddBin(0.5,1.2,1.5,2.2)
+#    SEGEff_upErr.AddBin(3.5,1.2,4.5,2.2)
     SEGEff_upErr.SetMarkerSize(0.45)
-    SEGEff_downErr=TH2F("SEGEff_downErr","segment efficiency loerror",36,1,37,20,-9.3,8.7)
+    SEGEff_upErr.SetLineColor(2)
+#    SEGEff_downErr=TH2F("SEGEff_downErr","segment efficiency loerror",36,1,37,20,-9.3,8.7)
+    SEGEff_downErr=TH2Poly("SEGEff_downErr","segment efficiency",0.5,36.5,0.2,20.2)
+#    SEGEff_downErr.AddBin(0.5,1.8,1.5,2.8)
+#    SEGEff_downErr.AddBin(3.5,1.8,4.5,2.8)
     SEGEff_downErr.SetMarkerSize(0.45)
+    SEGEff_downErr.SetLineColor(2)
     SEGEff.GetYaxis().SetTickLength(0)
-    Chambers_  = ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"]
+#    Chambers_  = ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"]
+    Chambers_  = ["0", "#pi/2" , "#pi", "3#pi/2" , "2#pi"]
     Rings_ = ["ME-42","ME-41","ME-32","ME-31","ME-22","ME-21","ME-13","ME-12","ME-11B","ME-11A","ME+11A","ME+11B","ME+12","ME+13","ME+21","ME+22","ME+31","ME+32","ME+41","ME+42"]
-    for ich in range(36):
-        SEGEff.GetXaxis().SetBinLabel(ich+1,Chambers_[ich])
-        SEGEff_upErr.GetXaxis().SetBinLabel(ich+1,Chambers_[ich])
-        SEGEff.GetXaxis().SetBinLabel(ich+1,Chambers_[ich])
     for irg in range(20):
-        SEGEff.GetYaxis().SetBinLabel(irg+1,Rings_[irg])
-        SEGEff_upErr.GetYaxis().SetBinLabel(irg+1,Rings_[irg])
-        SEGEff_downErr.GetYaxis().SetBinLabel(irg+1,Rings_[irg])
+      for ich in range(36):
+        x1=(ich+1)-0.5
+        x2=(ich+1)+0.5
+        y1=(irg+1)-0.5
+        y2=(irg+1)+0.5
+        if irg in (1,3,5,14,16,18):
+          x1=x1+(ich)
+          x2=x2+(ich+1)
+          if ich>17:
+            continue
+
+        print "bins: ", x1," ", y1, " ", x2," ", y2
+        SEGEff.AddBin(x1,y1,x2,y2)
+        y1=(irg+1)-0.5+0.3
+        y2=(irg+1)+0.5+0.3    
+        print "bins up: ", x1," ", y1, " ", x2," ", y2
+        SEGEff_upErr.AddBin(x1,y1,x2,y2)
+        y1=(irg+1)-0.5-0.3
+        y2=(irg+1)+0.5-0.3    
+        SEGEff_downErr.AddBin(x1,y1,x2,y2)
+        print "bins down: ", x1," ", y1, " ", x2," ", y2
+        
+    for ich in range(5):
+        if ich==0:
+          SEGEff.GetXaxis().SetBinLabel((ich)*24+ich+1,Chambers_[ich])
+        SEGEff.GetXaxis().SetBinLabel((ich)*24+ich,Chambers_[ich])
+#        SEGEff_upErr.GetXaxis().SetBinLabel(ich+1,Chambers_[ich])
+#        SEGEff.GetXaxis().SetBinLabel(ich+1,Chambers_[ich])
+    for irg in range(20):
+        SEGEff.GetYaxis().SetBinLabel((irg+1)*5-2,Rings_[irg])
+#        SEGEff_upErr.GetYaxis().SetBinLabel(irg+1,Rings_[irg])
+#        SEGEff_downErr.GetYaxis().SetBinLabel(irg+1,Rings_[irg])
+    SEGEff.GetXaxis().LabelsOption("hh")
+    LCTCanvas=TCanvas("lct efficiency","lct efficiency",1500,1000)
+    LCTCanvas.cd()
     LCTEff=SEGEff.Clone("LCTEff")
-    LCTEff.SetTitle("CSC Trigger Primitive Efficiency (%)")
+    LCTEff.SetTitle("LCT efficiency")
     LCTEff_upErr=SEGEff_upErr.Clone("LCTEff_upErr")
     LCTEff_downErr=SEGEff_downErr.Clone("LCTEff_downErr")
     LCTEff.GetYaxis().SetTickLength(0)
@@ -396,64 +434,114 @@ elif "Chambers" in Group:
         iBin_y=RingToYMap[(st,rg)]
         iBin_y=11+iBin_y if ec else 10-iBin_y
         eff=Effs[0]*100.
-	if Effs[0]<0.00001:
-	    Effs[0]=0.00001
-        if Effs[3]<0.00001:
-            Effs[3]=0.00001
-        LCTEff.GetYaxis().SetTitle("Ring")
-        LCTEff.GetXaxis().SetTitle("Chamber within ring")
-        LCTEff.GetYaxis().SetTitleOffset(1.35)
-	LCTEff.SetBinContent(ch,iBin_y,Effs[0]*100.);
+        print "ch: ",ch, " iBin_y: ", iBin_y,"   eff: ",Effs[3]*100.
+        if iBin_y in (2,4,6,15,17,19):
+          ch=ch*2
+          print "   ----------> moving to ch: ",ch, "  iBin_y: ", iBin_y,"   eff: ",Effs[3]*100.
+	LCTEff.Fill(ch,iBin_y,Effs[0]*100.);
+#	if (Effs[0]>0.999):
+#	    LCTEff.Fill(ch,iBin_y,100.);
         if (eff>0):
-            LCTEff_downErr.SetBinContent(ch,iBin_y,Effs[1]*100.);
-            LCTEff_upErr.SetBinContent(ch,iBin_y,Effs[2]*100.);
+            LCTEff_downErr.Fill(ch,iBin_y,Effs[1]*100.);
+            LCTEff_upErr.Fill(ch,iBin_y,Effs[2]*100.);
         eff=Effs[3]*100.
-        if Effs[3]<0.00001:
-            Effs[3]=0.00001
-	SEGEff.SetBinContent(ch,iBin_y,Effs[3]*100.);
+          
+	SEGEff.Fill(ch,iBin_y,Effs[3]*100.);
+#        if (Effs[3]>0.999):
+#            SEGEff.Fill(ch,iBin_y,100);
+
+        print "fill: ", ch," ", iBin_y," : ",Effs[3]*100.
         if (eff>0):             
-            SEGEff_downErr.SetBinContent(ch,iBin_y,Effs[4]*100.);
-            SEGEff_upErr.SetBinContent(ch,iBin_y,Effs[5]*100.);
+            SEGEff_downErr.Fill(ch,iBin_y,Effs[4]*100.);
+            SEGEff_upErr.Fill(ch,iBin_y,Effs[5]*100.);
     gStyle.SetPaintTextFormat("4.1f")
     SegCanvas=TCanvas("segment efficiency","segment efficiency",1500,1000)
     SegCanvas.cd()
-    
-    SEGEff.GetYaxis().SetTitle("Ring")
-    SEGEff.GetXaxis().SetTitle("Chamber within ring")
-    SEGEff.GetYaxis().SetTitleOffset(1.35)
-#    SEGEff.SetTitle("")
+#    SEGEff.Fill(1.5,-8.5,90.)
+#    SEGEff.Fill(3.,-8.5,80.)
+
+#    SEGEff.Draw("COLZ,TEXT")
+#    SEGEff_upErr.Draw("TEXT,SAME")
+#    SEGEff_downErr.Draw("TEXT,SAME")
+    SEGEff.SetLineColor(0)
 
     SEGEff.Draw("COLZ,TEXT")
-    SEGEff_upErr.Draw("TEXT,SAME")
-    SEGEff_downErr.Draw("TEXT,SAME")
+#    SEGEff_upErr.Draw("TEXT,SAME")
+#    SEGEff_downErr.Draw("TEXT,SAME")
     SEGEff.SetMaximum(100)
     SEGEff.SetMinimum(0)
     cms_label.Draw()
 
-    LCTCanvas=TCanvas("lct efficiency","lct efficiency",1500,1000)
+
+#    TList *bins = LCTEff.GetBins()
+#    TIter Next(bins)
+#    TObject *obj
+#    TLCTEFFolyBin *b
+#    TGraph *g
+#    while ((obj = Next())) {
+#        b = (TLCTEFFolyBin*)obj
+#        g = (TGraph*)b->GetPolygon()
+#        if (g) g->SetLineWidth(0)
+#    }
+
+#    LCTCanvas=TCanvas("lct efficiency","lct efficiency",1500,1000)
     LCTCanvas.cd()
+   
+    """ 
+    print "============> remove line"
+    # remove anojing line!
+    bins = LCTEff.GetBins()
+    #        TIter Next(bins)
+    Next=TIter(bins)
+    #        TObject *obj
+    #        TLCTEFFolyBin *b
+    #        TGraph *g
+    print "try to remove line.."
+    while (( Next())): 
+#    while (( obj=Next())):
+      print "   object.. "
+      #          b = (TH2PolyBin*)obj
+      b = TH2PolyBin(Next())
+#      b = TH2PolyBin(obj)
+      g = b.GetPolygon()
+      if (g):
+        print "      remove line   object.. "
+        g.SetLineWidth(0)
+      if (g):
+        g.SetLineColor(0)
+      print "          next "
+    """
+    
+    print "  done!"
+#    LCTCanvas=TCanvas("lct efficiency","lct efficiency",1500,1000)
+#    LCTCanvas.cd()
     LCTEff.Draw("COLZ,TEXT")
     LCTEff_upErr.Draw("TEXT,SAME")
     LCTEff_downErr.Draw("TEXT,SAME")
     LCTEff.SetMaximum(100)
     LCTEff.SetMinimum(0)
     cms_label.Draw()
-
+    print "place 1"
     file_out.cd()
-    SegCanvas.Write()
-    SegCanvas.SaveAs("SegCanvas_2D.pdf")
-    SegCanvas.SaveAs("SegCanvas_2D.root")
-    SegCanvas.SaveAs("SegCanvas_2D.C")
-    LCTCanvas.Write()
-    LCTCanvas.SaveAs("LCTCanvas_2D.pdf")
-    LCTCanvas.SaveAs("LCTCanvas_2D.root")
-    LCTCanvas.SaveAs("LCTCanvas_2D.C")
+#    SegCanvas.Write()
+#    SegCanvas.SaveAs("SegCanvas_2D_Run2015D_1910_HLTIsoTkMu_fixedGanging_matchingORME13_testPoly.pdf")
+#    SegCanvas.SaveAs("SegCanvas_2D_Run2015D_1910_HLTIsoTkMu_fixedGanging_matchingORME13_testPoly.root")
+#    SegCanvas.SaveAs("SegCanvas_2D_Run2015D_1910_HLTIsoTkMu_fixedGanging_matchingORME13_testPoly.C")
+    print "place 2"
+#    LCTEff.SaveAs("test.pdf") 
+#    LCTCanvas.Write(LCTEff) # problem!
+    print "place 2a"
+    LCTCanvas.SaveAs("LCTCanvas_2D_JSON_May27_LCTfixed_testPoly.pdf")
+#    LCTCanvas.SaveAs("LCTCanvas_2D_Run2015D_1910_HLTIsoTkMu_fixedGanging_matchingORME13_testPoly.root")
+#    LCTCanvas.SaveAs("LCTCanvas_2D_Run2015D_1910_HLTIsoTkMu_fixedGanging_matchingORME13_testPoly.C")
+    print "place 3"
     SEGEff.Write()
     SEGEff_upErr.Write()
     SEGEff_downErr.Write()
-    LCTEff.Write()
+    LCTEff.Write("LCTEff")
     LCTEff_upErr.Write()
     LCTEff_downErr.Write()
+    print "place 4"
 elif "pt" in Group or "eta" in Group or "phi" in Group:
     filename_=Prefix+TagProbeFitResult+"AllStations.root"
     print "pt/eta/phi eff reading file: ",f_in
@@ -473,3 +561,4 @@ elif "pt" in Group or "eta" in Group or "phi" in Group:
 #raw_input("Plots are saved in "+ResultPlotsFileName+". Press ENTER to exit")
 print "Plots are saved in",ResultPlotsFileName+"."
 file_out.Close()
+print "closed file"
