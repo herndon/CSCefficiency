@@ -9,6 +9,7 @@ from ROOT import SetOwnership
 from Config import *
 
 gROOT.SetStyle("Plain")
+gROOT.SetBatch(1);
 gStyle.SetPaintTextFormat("0.3g")
 gStyle.SetOptStat(0)
 tdrstyle.setTDRStyle()
@@ -39,8 +40,8 @@ cms_label = ROOT.TPaveText(0.15, 0.95, 0.9, 1.0, "NDC")
 unshitify(cms_label)
 cms_label.SetTextSize(0.03)
 cms_label.SetTextAlign(12)
-#cms_label.AddText("CMS Preliminary 2018                       #sqrt{s}=13 TeV");
-cms_label.AddText("CMS Preliminary 2018                       cosmics");
+cms_label.AddText("CMS Preliminary 2018                       #sqrt{s}=13 TeV");
+#cms_label.AddText("CMS Preliminary 2018                       cosmics");
 
 dir=""
 
@@ -123,6 +124,8 @@ for obj in (1,2):
             histo.SetTitle(";%s;efficiency"%variable);
             histo.SetMinimum(0.7) 
             histo.GetYaxis().SetRangeUser(0.7,1.05)
+            if "eta" in Group:
+                histo.GetXaxis().SetRangeUser(0.8, 2.5)
             histo.GetXaxis().SetTitle(X_axis)
             histo.GetYaxis().SetTitleOffset(1.6)
             histo.GetXaxis().SetTitleOffset(1.4)

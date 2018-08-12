@@ -33,6 +33,7 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring()
 )
 
+'''
 process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
      reportEvery = cms.untracked.int32(1000),
      limit = cms.untracked.int32(1)
@@ -40,6 +41,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 process.MessageLogger.cerr.default = cms.untracked.PSet(
      limit = cms.untracked.int32(1)
 )
+'''
 
 process.options = cms.untracked.PSet(
 
@@ -98,7 +100,7 @@ process.aodDump = cms.EDAnalyzer('TPTrackMuonSys',
                                  TrackAssociatorParameterBlock,
                                  MuonSegmentMatcher,
                                  TrackExtractor=cms.PSet(MIsoTrackExtractorBlock),
-                                 rootFileName   = cms.untracked.string('CSCPFG_Ineff_DATA_test_1.root'),
+                                 rootFileName   = cms.untracked.string('CSCeff.root'),
                                  CSCUseTimingCorrections = cms.bool( True ),
                                  CSCUseGasGainCorrections = cms.bool( True ),
                                  isMC            = cms.untracked.bool(False),
@@ -126,12 +128,13 @@ process.outputstep = cms.EndPath(process.aodDump)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.outputstep)
+#process.schedule = cms.Schedule(process.endjob_step, process.outputstep)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-process.options.numberOfThreads=cms.untracked.uint32(4)
-process.options.numberOfStreams=cms.untracked.uint32(0)
+#process.options.numberOfThreads=cms.untracked.uint32(4)
+#process.options.numberOfStreams=cms.untracked.uint32(0)
 
 # customisation of the process.
 
@@ -153,3 +156,8 @@ process=convertToUnscheduled(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+
+# Output
+process.TFileService = cms.Service('TFileService',
+                                   fileName = cms.string('CSCeff_1.root')
+                                   )
