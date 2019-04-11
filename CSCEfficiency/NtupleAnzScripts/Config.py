@@ -5,18 +5,19 @@ RunOnMC=False
 RunOnNewAlign=True
 RunLCTeff=False
 Resonance="Z"#options are "Z","JPsi"
-#Group="Stationspt"#options are "Chambers","Stations","pt","eta","phi","Stationspt","Stationsmomentum","Stationseta","Stationsphi" 
+#Group="StationsPV"#options are "Chambers","Stations","pt","eta","phi","Stationspt","Stationsmomentum","Stationseta","Stationsphi" 
 #Group="Stationsmomentum"#options are "Chambers","Stations","pt","eta","phi","Stationspt","Stationseta","Stationsphi","StationsPV","Stationsmomentum"
-Group="Stationsphi"#options are "Chambers","Stations","pt","eta","phi","Stationspt","Stationseta","Stationsphi","StationsPV","Stationsmomentum"
+Group="Stationsphi" #options are "Chambers","Stations","pt","eta","phi","Stationspt","Stationseta","Stationsphi","StationsPV","Stationsmomentum"
 CalculateSystematic=True#whether calculate the systematic for data; for MC, it will be turned off automatically
 DataPileupRootFileName="CMSRun2012C_Cert_201554-202305_8TeV_PromptReco_Collisions12_JSON_MuonPhys.root"
 pileup_mc=[2.344E-05,2.344E-05,2.344E-05,2.344E-05,4.687E-04,4.687E-04,7.032E-04,9.414E-04,1.234E-03,1.603E-03,2.464E-03,3.250E-03,5.021E-03,6.644E-03,8.502E-03,1.121E-02,1.518E-02,2.033E-02,2.608E-02,3.171E-02,3.667E-02,4.060E-02,4.338E-02,4.520E-02,4.641E-02,4.735E-02,4.816E-02,4.881E-02,4.917E-02,4.909E-02,4.842E-02,4.707E-02,4.501E-02,4.228E-02,3.896E-02,3.521E-02,3.118E-02,2.702E-02,2.287E-02,1.885E-02,1.508E-02,1.166E-02,8.673E-03,6.190E-03,4.222E-03,2.746E-03,1.698E-03,9.971E-04,5.549E-04,2.924E-04,1.457E-04,6.864E-05,3.054E-05,1.282E-05,5.081E-06,1.898E-06,6.688E-07,2.221E-07,6.947E-08,2.047E-08]
 #from SimGeneral.MixingModule.mix_2012_Startup_50ns_PoissonOOTPU_cfi import mix
 #pileup_mc=mix.input.nbPileupEvents.probValue
-TreeName="Fraction"
+TreeName="aodDump/Fraction" # normal TnP ntuples
+#TreeName="Fraction" # test ntuple
 sampleweight=1.
 ptbin=[3,6,10,20,40,60,80,100,200,500,1000] #pt binning
-PVbin=[0,5,10,15,20,25,50] #pt binning
+PVbin=[0,5,10,15,20,30,40,50,60,100] #PV binning
 pbin=[3,6,10,20,40,60,80,100,200,500,1000] #p binning
 momentumbin=[3,6,10,20,40,60,80,100,200,500,1000] #p binning
 
@@ -35,7 +36,27 @@ momentumbin=[3,6,10,20,40,60,80,100,200,500,1000] #p binning
 #etabin3=[-2.4,-2.1,-1.6,-1.2,-1.05,-0.9,-0.6,-0.3,-0.2,0.2, 0.3, 0.6, 0.9, 1.05, 1.2, 1.6, 2.1, 2.4]
 #etabin4=[-2.4,-2.1,-1.6,-1.2,-1.05,-0.9,-0.6,-0.3,-0.2,0.2, 0.3, 0.6, 0.9, 1.05, 1.2, 1.6, 2.1, 2.4]
 
-etabin1=[ 0,0.85,1.18,1.3,1.5,1.7,1.9,2.1,2.4 ] #station 1 eta binning 
+etabinME1=[ 0,
+          0.85,
+          1.18,
+          1.3, 1.35, 1.4, 1.45,
+          1.5, 1.55, 1.6, 1.65,
+          1.7, 1.75, 1.8, 1.85,
+          1.9, 1.95, 2.0, 2.05,
+          2.1, 2.15, 2.2, 2.25, 2.3, 2.35,
+          2.4 ] #station 1 eta binning for ME1 rings
+#etabinME1=[1.5, 1.525, 1.55, 1.575,
+#           1.6, 1.625, 1.65, 1.675,
+#           1.7, 1.725, 1.75, 1.775,
+#           1.8, 1.825, 1.85, 1.875,
+#           1.9, 1.925, 1.95, 1.975,
+#           2.0, 2.025, 2.05, 2.075,
+#           2.1, 2.125, 2.15, 2.175,
+#           2.2, 2.225, 2.25, 2.275,
+#           2.3, 2.325, 2.35, 2.375,
+#           2.4, 2.425, 2.45, 2.475,
+#           2.5]
+etabin1=[ 0,0.85,1.18,1.3,1.5,1.7,1.9,2.1,2.4 ] #station 1 eta binning
 etabin2=[ 0,0.95,1.2,1.4,1.6,1.8,2.0,2.2,2.4 ] #station 2 eta binning
 etabin3=[ 0,0.9,1.08,1.3,1.5,1.72,1.9,2.2,2.4 ] #station 3 eta binning
 etabin4=[ 0,0.9,1.15,1.4,1.6,1.78,2.0,2.2,2.4 ] #station 4 eta binning
@@ -117,11 +138,19 @@ else:
 #MuTrackPairCut=InvariantMass+"&&"+"( tracks_e > 8. && iSameVtx && minDRHLTAllSingleMu < 0.01 && dRTkMu1 < 10. && dRTkMu1 > 0.2 ) "#default
 MuTrackPairCut=InvariantMass+"&&"+"( tracks_e > 8. && minDRHLTAllSingleMu < 0.01 && dRTkMu1 < 10. && dRTkMu1 > 0.2 ) "#default
 
-RemoveHVproblematicChambersPlus="!(CSCEndCapPlus && ((CSCRg1==1 && CSCCh1==03) || (CSCRg1==2 && CSCCh1==13) || (CSCRg1==2 && CSCCh1==21) || (CSCRg1==2 && CSCCh1==31) || (CSCRg1==2 && CSCCh1==20) || (CSCRg1==3 && CSCCh1==11) || (CSCRg1==4 && CSCCh1==7) || (CSCRg1==4 && CSCCh1==17) || (CSCRg1==4 && CSCCh1==20) || (CSCRg1==4 && CSCCh1==29) || (CSCRg2==1 && CSCCh2==3) || (CSCRg2==2 && CSCCh2==15) || (CSCRg2==2 && CSCCh2==19) || (CSCRg2==2 && CSCCh2==23) || (CSCRg3==1 && CSCCh3==7) || (CSCRg3==1 && CSCCh3==11) || (CSCRg3==1 && CSCCh3==13) || (CSCRg3==2 && CSCCh3==7) || (CSCRg3==2 && CSCCh3==15) || (CSCRg3==2 && CSCCh3==19) || (CSCRg3==2 && CSCCh3==19) || (CSCRg3==2 && CSCCh3==29) || (CSCRg4==1 && CSCCh4==15) || (CSCRg4==2 && CSCCh4==32) || (CSCRg3==1 && CSCCh3==12)))"
+RemoveHVproblematicChambersPlus = "!(CSCEndCapPlus && ((CSCRg1==2 && CSCCh1==13) || (CSCRg1==2 && CSCCh1==21) || (CSCRg1==2 && CSCCh1==31) || (CSCRg1==2 && CSCCh1==20) || (CSCRg1==3 && CSCCh1==11) || (CSCRg1==4 && CSCCh1==7) || (CSCRg1==4 && CSCCh1==17) || (CSCRg1==4 && CSCCh1==20) || (CSCRg1==4 && CSCCh1==29) || (CSCRg2==1 && CSCCh2==3) || (CSCRg2==2 && CSCCh2==5) || (CSCRg2==2 && CSCCh2==15) || (CSCRg2==2 && CSCCh2==19) || (CSCRg3==1 && CSCCh3==7) || (CSCRg3==2 && CSCCh3==19) || (CSCRg3==2 && CSCCh3==29) || (CSCRg4==1 && CSCCh4==15) || (CSCRg4==2 && CSCCh4==32)))"
 
-RemoveHVproblematicChambersMinus="!(!CSCEndCapPlus && (( CSCRg1==1 && CSCCh1==5) || ( CSCRg1==1 && CSCCh1==23) || ( CSCRg1==2 && CSCCh1==8) || ( CSCRg1==2 && CSCCh1==26) || ( CSCRg1==2 && CSCCh1==33) || ( CSCRg1==3 && CSCCh1==15) || ( CSCRg1==3 && CSCCh1==22) || ( CSCRg1==3 && CSCCh1==25) || ( CSCRg1==4 && CSCCh1==11) || ( CSCRg1==4 && CSCCh1==23) || ( CSCRg2==1 && CSCCh2==3) || ( CSCRg2==1 && CSCCh2==8) || ( CSCRg2==1 && CSCCh2==9) || ( CSCRg2==1 && CSCCh2==10) || ( CSCRg2==1 && CSCCh2==17) || ( CSCRg2==2 && CSCCh2==1) || ( CSCRg2==2 && CSCCh2==3) || ( CSCRg2==2 && CSCCh2==32) || ( CSCRg3==1 && CSCCh3==9) || ( CSCRg3==1 && CSCCh3==13) || ( CSCRg4==1 && CSCCh4==1) || ( CSCRg4==1 && CSCCh4==11) || ( CSCRg4==1 && CSCCh4==15) || ( CSCRg4==2 && CSCCh4==1) || ( CSCRg4==2 && CSCCh4==8) || ( CSCRg4==2 && CSCCh4==21) || ( CSCRg4==2 && CSCCh4==27) || ( CSCRg4==2 && CSCCh4==34) || ( CSCRg3==1 && CSCCh3==18)))"
+#RemoveHVproblematicChambersPlus = ""
+
+#ChamberSubset = "(CSCEndCapPlus && (CSCRg1==1 || CSCRg1==2 || CSCRg1==3 || CSCRg1==4)"
+
+RemoveHVproblematicChambersMinus = "!(!CSCEndCapPlus && (( CSCRg1==1 && CSCCh1==5) || ( CSCRg1==2 && CSCCh1==33) || ( CSCRg1==4 && CSCCh1==11) || ( CSCRg1==4 && CSCCh1==25) || ( CSCRg2==1 && CSCCh2==3) || ( CSCRg2==1 && CSCCh2==9) || ( CSCRg2==2 && CSCCh2==1) || ( CSCRg2==2 && CSCCh2==3) || ( CSCRg3==1 && CSCCh3==9) || ( CSCRg3==1 && CSCCh3==13) || ( CSCRg4==1 && CSCCh4==1) || ( CSCRg4==1 && CSCCh4==11) || ( CSCRg4==1 && CSCCh4==15) || ( CSCRg4==2 && CSCCh4==1) || ( CSCRg4==2 && CSCCh4==8) || ( CSCRg4==2 && CSCCh4==14) || ( CSCRg4==2 && CSCCh4==21) || ( CSCRg4==2 && CSCCh4==34)))"
+
+#RemoveHVproblematicChambersMinus = ""
 
 MuTrackPairCut=MuTrackPairCut+" && "+RemoveHVproblematicChambersPlus+" && "+RemoveHVproblematicChambersMinus
+
+#MuTrackPairCut=MuTrackPairCut+" && "+ChamberSubset
 
 if RunOnMC:
   CalculateSystematic=False
@@ -217,6 +246,7 @@ elif "Chambers" in Group:
         else: #ME11,12,13,22,32 have 36 chambers
           chambers_=range(1,37)
         for ch_ in chambers_:
+          #if (st_==1 and rg_==1): # If you only want to run 1 ring, etc...
           chambers.append( "ME%s%d_%d_%d"%( '+' if (ec_) else '-', st_, rg_, ch_ ) )
   n_chambers=len(chambers)
 else:
@@ -240,7 +270,7 @@ def ConvertCLogicalExp(Expression_):
   return Expression_.replace("&&"," and ").replace("||"," or ").replace("!="," is not ").replace("!"," not ")
 
 
-print "Binning: \n\033[93m pt:",ptbin,"\n\033[93m p:",pbin,"\n\033[95m Station 1 eta:",etabin1,"\n Station 2 eta:",etabin2,"\n Station 3 eta:",etabin3,"\n Station 4 eta:",etabin4,"\n \033[97mphi:",phibin,"\033[0m"
+print "Binning: \n\033[93m pt:",ptbin,"\n\033[93m p:",pbin,"\n\033[95m Station 1 eta:",etabin1,"\n Station 2 eta:",etabin2,"\n Station 3 eta:",etabin3,"\n Station 4 eta:",etabin4,"\n ME1 plots eta:",etabinME1,"\n \033[97mphi:",phibin,"\033[0m"
 
 def Getch():
   import sys, tty, termios
