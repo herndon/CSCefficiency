@@ -42,6 +42,8 @@ saveJPsi         = cms.untracked.bool(False),
 farmoutAnalysisJobs  --input-files-per-job=1  --skip-existing-output CSCeff_job $CMSSW_BASE $CMSSW_BASE/src/CSCEfficiency/create_ntuple.py --input-file-list=$CMSSW_BASE/src/CSCEfficiency/[list_of_file_names] 'inputFiles=$inputFileNames' 'outputFile=$outputFileName' --assume-input-files-exist --vsize-limit=7000
 </pre>
 
+There is a CRAB submission file [CRABsubmit.py](CSCEfficiency/CRABsubmit.py). Also be sure to check the global tag, which may require a more recent CMSSW release.
+
 ## Make the Efficiency plots
 1. Setup  [Config.py](CSCEfficiency/NtupleAnzScripts/Config.py).
    1. Setup for Data or for MC:
