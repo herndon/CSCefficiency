@@ -2,7 +2,7 @@
 ====================
 
 ## About
---- tested in CMSSW_9_2_3_patch2
+--- tested in CMSSW_10_1_2_patch2
 * It is based on the tag-and-probe method using the Z pole or the J/ψ pole;
 * The efficiency obtained is the CSC detector efficiency times the efficiency that the muon is not scattered.
 * Need RAW information to get the LCT efficiency. RECO or AOD sample is not good.
@@ -18,19 +18,19 @@
    
 ## Installation
 <pre>
-cmsrel CMSSW_9_2_3_patch2
-cd CMSSW_9_2_3_patch2/src
+cmsrel CMSSW_10_1_2_patch2
+cd CMSSW_10_1_2_patch2/src
 cmsenv
 mkdir CSCEfficiency
-git clone https://github.com/senka/CSC_eff_9_2_3_patch2 CSCEfficiency
+git clone https://github.com/stremreich/CSCefficiency CSCEfficiency
 scramv1 b
 </pre>
 
 ## Make the Ntuple
-1. Config file [Run_2017_92X_dataRun2_July6ReReco_PixelCommissioning_v2_condor.py](CSCEfficiency/Run_2017_92X_dataRun2_July6ReReco_PixelCommissioning_v2_condor.py). 
-The default output file name is 'CSCPFG_Ineff_DATA.root' ---
+1. Modify the config file [create_ntuple.py](CSCEfficiency/create_ntuple.py). 
+The output file name can be changed in the following line ---
 <pre>
-process.aoddump.rootFileName=cms.untracked.string('CSCPFG_Ineff_DATA.root')
+process.aoddump.rootFileName=cms.untracked.string('ntuple.root')
 </pre>
 
 Choose if you want to save Z or/and J/psi events: 
@@ -39,14 +39,9 @@ saveZ            = cms.untracked.bool(True),
 saveJPsi         = cms.untracked.bool(False),
 </pre>
 
-2. Run [Run_2017_92X_dataRun2_July6ReReco_PixelCommissioning_v2_condor.py](CSCEfficiency/Run_2017_92X_dataRun2_July6ReReco_PixelCommissioning_v2_condor.py) using condor:
+2. Run [create_ntuple.py](CSCEfficiency/create_ntuple.py). CRAB is recommended, but you may be able to run on Condor as well:
 <pre>
-farmoutAnalysisJobs  --input-files-per-job=1  --skip-existing-output CSCeff_job $CMSSW_BASE $CMSSW_BASE/src/CSCEfficiency/recoOnlyRun2017B_92X_dataRun2_Prompt_v4_condor.py --input-file-list=$CMSSW_BASE/src/CSCEfficiency/output_RAW_files_Jun26_1file 'inputFiles=$inputFileNames' 'outputFile=$outputFileName' --assume-input-files-exist --vsize-limit=7000
-</pre>
-
-or locally [Run_2017_test2_PixComm_local.py](CSCEfficiency/Run_2017_test2_PixComm_local.py):
-<pre>
-cmsRun Run_2017_test2_PixComm_local.py
+farmoutAnalysisJobs  --input-files-per-job=1  --skip-existing-output CSCeff_job $CMSSW_BASE $CMSSW_BASE/src/CSCEfficiency/create_ntuple.py --input-file-list=$CMSSW_BASE/src/CSCEfficiency/[list_of_file_names] 'inputFiles=$inputFileNames' 'outputFile=$outputFileName' --assume-input-files-exist --vsize-limit=7000
 </pre>
 
 After all jobs finished, combine the output root files into one:
@@ -101,24 +96,28 @@ hadd Ntuple.root CSCPFG_Ineff_DATA*.root
    6. result file (do not need to change): The variable is `ResultPlotsFileName`
    7. Station categorizing method: variable `station` is a python dictionary. The format of each component in the dictionary is "key(index):(logic expression in C style,name,color,station number)". e.g.,
    <pre>
-   stations={
+stations={
     ......
     2:("( CSCRg1==1 )","ME11B",kRed-9,1),
     ......}
    </pre>
 2. Categorize the data and run the tag-and-probe package in CMSSW:
    <pre> cd NtupleAnzScripts
-   python Step1_matchOtherStationsORME13.py Ntuple.root output_dir
+   python Step1_matchOtherStationsORME13.py Ntuple.root output_dir group_var
    </pre>
-   The command above will run the efficiency calculation for the segment efficiecny measurement. For LCT efficiency additional requiremnet is used for the probe: there should be no other tracker track that is closer to LCT. So to run efficiency calculation for the LCT efficiecny measurement run like:
+   The command above will run the efficiency calculation for the segment efficiecny measurement. For LCT efficiency an additional requirement is used for the probe: there should be no other tracker track that is closer to LCT. So to run efficiency calculation for the LCT efficiecny measurement run with the LCT option:
    <pre> cd NtupleAnzScripts
-   python Step1_matchOtherStationsORME13.py Ntuple.root output_dir LCT
+   python Step1_matchOtherStationsORME13.py Ntuple.root output_dir LCT group_var
    </pre>
+   At present you need to provide the "Group" variable you set in Config.py in the command line as well. This was originally used to be able to run multiple tag and probe processes simultaneously, but has since been broken on login0X machines. For now, only run one type of TnP binning at a time.
    
 3. Wait until all jobs finished. Use `ps -f` to check. Make sure you have output files called TnP_NtupleAnzScripts_bla.root for all your stations/chambers. If any file is missing you can rerun the TnP fit. Example for ME11: 
 <pre>
 nohup cmsRun TagandProbe.py Tmp_NtupleAnzScriptsME11.root 1 &
 </pre>
+(The 1 option is the station #)
+
+There is also a shell script [rerun.sh](CSCEfficiency/NtupleAnzScripts/rerun.sh) for use in re-running entire groups of chamber TnP files. Be careful not to start too many background jobs, even though they should be fairly quick individually.
 4. Make the plot:
    <pre>
    python Step2_PlotAll_pallete.py input_dir 
@@ -138,7 +137,8 @@ nohup cmsRun TagandProbe.py Tmp_NtupleAnzScriptsME11.root 1 &
    * Example2(for systematic -- bkg modeling): python Step2_PlotAll.py . bkg
    * Example3(for systematic -- sig modeling): python Step2_PlotAll.py . sig
    * Example4(MCTruth): python Step2_PlotAll.py ~/home/xxxxx/ mc
-
+-->
+<!--
 ## Organize the Result Plots
 To combine the data and MC results into one plot, one can use [DATAMCPlot.py](NtupleAnzScripts/DATAMCPlot.py). It oragnizes the plots made by [Step2_PlotAll.py](NtupleAnzScripts/Step2_PlotAll.py). The usage is
 <pre>
@@ -151,11 +151,13 @@ python DATAMCPlot.py datafile mcfile plotname
 I suggest to put the datafile and the mcfile in different directories. This script will use the  [Config.py](NtupleAnzScripts/Config.py) in the datafile directory. If no Config.py or no \__init\__.py is found in the datafile directory, it will use the Config.py in the current directory.
 -->
 
+<!--
 ## Study the Variables in the Ntuple
 This part is only for **experts** who want to find out a problem or know more. Here only list a breif discription for each script because **experts** are able to read the python script themselves. With the following python scipts, one can study the variables and their correlations in the Ntuple, e.g., the distance between the track and the LCT/segment.
 * [MatchStudy.py](NtupleAnzScripts/ExpertsOnly/MatchStudy.py) can be used to study the variables in category of stations. While using this, the `Group` should be set to "Stations" in [Config.py](NtupleAnzScripts/Config.py).
 * [MatchStudy_Chamber.py](NtupleAnzScripts/ExpertsOnly/MatchStudy_Chamber.py) can be used to study the variables in category of chambers. While using this, the `Group` should be set to "Chambers" in [Config.py](NtupleAnzScripts/Config.py).
 * [RateStudy.py](NtupleAnzScripts/ExpertsOnly/RateStudy.py) can be used to study the simulation truth counting efficiency versus any variables in the Ntuple. The purpose is to find out the correlations between the efficiency and variables in the Ntuple.
 * [Systematic1D.py](NtupleAnzScripts/ExpertsOnly/Systematic1D.py) is to calculate the systematic uncertainties from different sources and get the final results with both systematic and statistic uncertainties. The input files are the plots made by [Step2_PlotAll.py](NtupleAnzScripts/Step2_PlotAll.py). See "the advanced usage" of [Step2_PlotAll.py](NtupleAnzScripts/Step2_PlotAll.py):
+-->
 
 
