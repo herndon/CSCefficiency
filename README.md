@@ -13,8 +13,6 @@
     - [Installation](#installation)
     - [Make the Ntuple](#make-the-ntuple)
     - [Make the Efficiency Plots](#make-the-efficiency-plots)
-    - [Organize the Result Plots](#organize-the-result-plots)
-    - [Study the Variables in the Ntuple](#study-the-variables-in-the-ntuple)
    
 ## Installation
 <pre>
@@ -44,21 +42,18 @@ saveJPsi         = cms.untracked.bool(False),
 farmoutAnalysisJobs  --input-files-per-job=1  --skip-existing-output CSCeff_job $CMSSW_BASE $CMSSW_BASE/src/CSCEfficiency/create_ntuple.py --input-file-list=$CMSSW_BASE/src/CSCEfficiency/[list_of_file_names] 'inputFiles=$inputFileNames' 'outputFile=$outputFileName' --assume-input-files-exist --vsize-limit=7000
 </pre>
 
-After all jobs finished, combine the output root files into one:
-<pre>
-hadd Ntuple.root CSCPFG_Ineff_DATA*.root
-</pre>
-
 ## Make the Efficiency plots
 1. Setup  [Config.py](CSCEfficiency/NtupleAnzScripts/Config.py).
    1. Setup for Data or for MC:
    <pre>
     RunOnMC=False # or True
    </pre>
+   
    2. Setup using Z resonance or using J/ψ resonance:
    <pre>
    Resonance="Z" # or "JPsi"
    </pre>
+   
    3. Setup how to categorize the data:
    <pre>
    Group="Chambers" #x axis: stations; y axis: efficiency
@@ -90,17 +85,22 @@ hadd Ntuple.root CSCPFG_Ineff_DATA*.root
       <td>"pt","eta", or "phi"</td><td>pt,|η|,ϕ</td><td>efficiency</td><td></td><td>make one plot for all stations, not tested yet</td>
     </tr>-->
    </table> 
+   
    4. Arrange space for the temporary file (you may change the path but not the file name): 
       It may take two times the size of the Ntuple file space. The variable is `TemporaryOutputFile`. By default, it will use the linux         temporary path: /tmp/.
+      
    5. Tag and probe file (do not need to change): The variable is `TagProbeFitResult`.
+   
    6. result file (do not need to change): The variable is `ResultPlotsFileName`
-   7. Station categorizing method: variable `station` is a python dictionary. The format of each component in the dictionary is "key(index):(logic expression in C style,name,color,station number)". e.g.,
+   
+   7. Station categorizing method: variable `station` is a python dictionary. The format of each component in the dictionary is "key(index):(logic expression in C style,name,color,station number)". e.g.
    <pre>
-stations={
-    ......
-    2:("( CSCRg1==1 )","ME11B",kRed-9,1),
-    ......}
+    stations={
+        ......
+        2:("( CSCRg1==1 )","ME11B",kRed-9,1),
+        ......}
    </pre>
+   
 2. Categorize the data and run the tag-and-probe package in CMSSW:
    <pre> cd NtupleAnzScripts
    python Step1_matchOtherStationsORME13.py Ntuple.root output_dir group_var
@@ -115,7 +115,7 @@ stations={
 <pre>
 nohup cmsRun TagandProbe.py Tmp_NtupleAnzScriptsME11.root 1 &
 </pre>
-(The 1 option is the station #)
+(The '1' option is the station #)
 
 There is also a shell script [rerun.sh](CSCEfficiency/NtupleAnzScripts/rerun.sh) for use in re-running entire groups of chamber TnP files. Be careful not to start too many background jobs, even though they should be fairly quick individually.
 4. Make the plot:
@@ -128,36 +128,3 @@ There is also a shell script [rerun.sh](CSCEfficiency/NtupleAnzScripts/rerun.sh)
    python plotAllEff_afterStep2.py output_plot_name
    </pre>
    
-   <!--
-   Advanced Usage of [Step2_PlotAll.py](NtupleAnzScripts/Step2_PlotAll.py):
-   <pre> python Step2_PlotAll.py arg1 arg2 </pre>
-   * arg1 is the name of the directory that stores the TagandProbe result files;
-   * arg2 is the postfix of the root TDirectory name in the TagandProbe result root file, for lct, the TDirectory name is "lct_effV"+arg2 and for segment, the TDirectory name is "seg_effV"+arg2. Moreover, arg2 can also be specified as "bkg" or "sig" for background and signal modeling;
-   * Example1(plot default efficiencies): python Step2_PlotAll.py
-   * Example2(for systematic -- bkg modeling): python Step2_PlotAll.py . bkg
-   * Example3(for systematic -- sig modeling): python Step2_PlotAll.py . sig
-   * Example4(MCTruth): python Step2_PlotAll.py ~/home/xxxxx/ mc
--->
-<!--
-## Organize the Result Plots
-To combine the data and MC results into one plot, one can use [DATAMCPlot.py](NtupleAnzScripts/DATAMCPlot.py). It oragnizes the plots made by [Step2_PlotAll.py](NtupleAnzScripts/Step2_PlotAll.py). The usage is
-<pre>
-python DATAMCPlot.py datafile mcfile plotname
-</pre>
-* datafile is the result root file from data;
-* mcfile is the result root file from simulation. If the keyword `MCTruth` appears in the file name, the simulation couting efficiency for real muons will be plotted. In that case, the plotname will be changed to plotname+"_MCTruth" automatically in the script. So one should still use the same plotname while calculating MCTruth.
-* plotname is the name of the plot saved in the result root file, e.g. "ME12+13seg_effV" for segment efficiency or "ME12+13lct_effV" for lct efficiency.
-
-I suggest to put the datafile and the mcfile in different directories. This script will use the  [Config.py](NtupleAnzScripts/Config.py) in the datafile directory. If no Config.py or no \__init\__.py is found in the datafile directory, it will use the Config.py in the current directory.
--->
-
-<!--
-## Study the Variables in the Ntuple
-This part is only for **experts** who want to find out a problem or know more. Here only list a breif discription for each script because **experts** are able to read the python script themselves. With the following python scipts, one can study the variables and their correlations in the Ntuple, e.g., the distance between the track and the LCT/segment.
-* [MatchStudy.py](NtupleAnzScripts/ExpertsOnly/MatchStudy.py) can be used to study the variables in category of stations. While using this, the `Group` should be set to "Stations" in [Config.py](NtupleAnzScripts/Config.py).
-* [MatchStudy_Chamber.py](NtupleAnzScripts/ExpertsOnly/MatchStudy_Chamber.py) can be used to study the variables in category of chambers. While using this, the `Group` should be set to "Chambers" in [Config.py](NtupleAnzScripts/Config.py).
-* [RateStudy.py](NtupleAnzScripts/ExpertsOnly/RateStudy.py) can be used to study the simulation truth counting efficiency versus any variables in the Ntuple. The purpose is to find out the correlations between the efficiency and variables in the Ntuple.
-* [Systematic1D.py](NtupleAnzScripts/ExpertsOnly/Systematic1D.py) is to calculate the systematic uncertainties from different sources and get the final results with both systematic and statistic uncertainties. The input files are the plots made by [Step2_PlotAll.py](NtupleAnzScripts/Step2_PlotAll.py). See "the advanced usage" of [Step2_PlotAll.py](NtupleAnzScripts/Step2_PlotAll.py):
--->
-
-
