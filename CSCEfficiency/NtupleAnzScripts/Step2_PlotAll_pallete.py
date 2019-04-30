@@ -22,6 +22,8 @@ gROOT.SetStyle("Plain")
 gStyle.SetPaintTextFormat("4.1f")
 gStyle.SetOptStat(0)
 
+gROOT.SetBatch(1)
+
 gStyle.SetFrameBorderMode(0)
 gStyle.SetCanvasBorderMode(0)
 gStyle.SetPadBorderMode(0)
@@ -110,7 +112,7 @@ cms_label = ROOT.TPaveText(0.06, 0.84, 0.9, 1.0, "NDC")
 unshitify(cms_label)
 cms_label.SetTextSize(0.03)
 cms_label.SetTextAlign(12)
-cms_label.AddText("CMS Preliminary                                                  #sqrt{s}=13 TeV,  2017B")
+cms_label.AddText("CMS Preliminary                                                  #sqrt{s}=13 TeV,  2018D")
 
 
 # by Nick:

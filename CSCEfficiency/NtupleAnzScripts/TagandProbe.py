@@ -8,6 +8,8 @@
 #Station=[0-4] station 0 means "or" combination of several stations
 import sys
 
+print "test"
+
 if sys.argv[0] == "python" or sys.argv[0] == "cmsRun":
     args=sys.argv[1:]
 else:
@@ -15,14 +17,21 @@ else:
 
 from Config import TreeName
 
+TreeName = "Fraction" # quick fix, I don't know why it's different...
+
 if len(args)>1:
     ClassifiedTreeFile=args[1]
 
 if len(args)>2:
-    from Config import ptbin,momentumbin,PVbin,etabin1,etabin2,etabin3,etabin4,phibin  #import the pt,eta,phi binning
+    from Config import ptbin,momentumbin,PVbin,etabinME1,etabin1,etabin2,etabin3,etabin4,phibin  #import the pt,eta,phi binning
     station=int(args[2])
     if station<=1:
-        etabin=etabin1
+        if "ME1.root" in args[1]:
+            print "Using station 1 binning"
+            etabin=etabin1
+        else:
+            print "Using ring ME1 binning"
+            etabin=etabinME1
     elif station==2:
         etabin=etabin2
     elif station==3:
