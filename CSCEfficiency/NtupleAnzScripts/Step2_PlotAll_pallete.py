@@ -19,10 +19,11 @@ from  numpy import *
 import numpy
 from Config import *
 gROOT.SetStyle("Plain")
-gStyle.SetPaintTextFormat("4.1f")
-gStyle.SetOptStat(0)
 
 gROOT.SetBatch(1)
+
+gStyle.SetPaintTextFormat("4.1f")
+gStyle.SetOptStat(0)
 
 gStyle.SetFrameBorderMode(0)
 gStyle.SetCanvasBorderMode(0)
@@ -56,11 +57,13 @@ gStyle.SetFrameBorderSize(0)
 gStyle.SetStatBorderSize(0)
 gStyle.SetTitleBorderSize(0)
 
-
+import sys,os,re
+if (sys.argv[0] == "python"): args=sys.argv[2:]
+else: args=sys.argv[1:]
 
 #TagProbeFitResult="2015C_newAlign_withHLTIsoTkMu_matchOtherStationsORME13/TnP_"+dir_+"_"#Those files are the TagProbeFitTreeAnalyzer outputs.
 TagProbeFitResult="TnP_"+dir_+"_"
-#Group="Chambers"
+Group = args[1]
 
 if "Chambers" in Group:
   chambers=[]
@@ -157,10 +160,6 @@ for i in range(paletteSize):
 #gStyle.SetPalette(paletteSize, pEff)
 
 
-import sys,os,re
-if (sys.argv[0] == "python"): args=sys.argv[2:]
-else: args=sys.argv[1:]
-
 #Prefix="/scratch/senka/CSCeff_condor_RunC_matching/"
 Prefix="/afs/hep.wisc.edu/cms/senka/CMSSW_7_4_7/src/CSCEfficiency/CSCEfficiency/NtupleAnzScripts/"
 Postfix=""
@@ -173,6 +172,7 @@ if len(args)>0:
     Prefix=args[0]
     if Prefix[-1] != "/":
         Prefix+="/"
+        '''
     if len(args)>1:
         if args[1] == "bkg":
             Postfix="_BkgModeling"
@@ -182,6 +182,7 @@ if len(args)>0:
             Postfix="_MCTruth"
         else:
             Postfix=args[1]
+        '''
     ResultPlotsFileName=Prefix+ResultPlotsFileName.replace(".root",Postfix+".root")
 
 file_out=TFile.Open(ResultPlotsFileName,'RECREATE')
@@ -228,6 +229,9 @@ def GetBinnedEffPlot(f_in,path="lct_effV",effcat="fit_eff",st_=0,name_=plotname)
     #we are going to fix the bugs in tagandprobe package in the following code
     #1 - recreate the arrays
     nbins=plot_.GetN()
+    #if "ME11B" in f_in.GetName():
+    #  nbins = nbins - 6
+    #print "nbins: ", nbins
     xval=zeros(nbins, dtype=float)
     xerr=zeros(nbins, dtype=float)
     yerrhi=zeros(nbins, dtype=float)
@@ -235,11 +239,18 @@ def GetBinnedEffPlot(f_in,path="lct_effV",effcat="fit_eff",st_=0,name_=plotname)
     #2 - the y values are correct
     Y=plot_.GetY()
     #3 - find the corresponding first bin in the predefined bins for the plot_ first bin0
-    exec( "bins=%sbin%s"%(binning,str(st_) if binning=="eta" else "") )
+    #print "filename: ", (f_in.GetName())
+    if st_ == 1 and "ME1.root" not in (f_in.GetName()):
+      #print "ME1 ring plot binning"
+      exec( "bins=%sbinME%s"%(binning,str(st_) if binning=="eta" else "") )
+    else:
+      #print "Normal Station plot binning"
+      exec( "bins=%sbin%s"%(binning,str(st_) if binning=="eta" else "") )
     X=plot_.GetX()
     for abin in bins:
         if X[0]<abin:
             firstbin=bins.index(abin)-1
+            #print "firstbin: ", firstbin
             break
     #4 - fill the yerror bars from the correct input (only for fit efficiency)
     if effcat=="fit_eff":
@@ -268,13 +279,26 @@ def GetBinnedEffPlot(f_in,path="lct_effV",effcat="fit_eff",st_=0,name_=plotname)
             ikey = list_.After(ikey);
     #5 - fill the correct x values from the binning 
     for ibin in range(nbins):
+        #print "ibin: ", ibin
         xval[ibin]=(bins[ibin+firstbin]+bins[ibin+firstbin+1])/2.
         xerr[ibin]=abs(bins[ibin+firstbin+1]-bins[ibin+firstbin])/2.
+        #print "xval: ", xval[ibin]
+    #5.5 - set values outside of physical eta range to zero
+    for ibin in range(nbins):
+      if "ME12+13" in f_in.GetName() and ibin > 6:
+        Y[ibin] = 0.0;
+      elif "ME11B" in f_in.GetName() and (ibin < 0 or ibin > 10):
+        Y[ibin] = 0.0;
+      elif "ME11A" in f_in.GetName() and ibin < 11:
+        Y[ibin] = 0.0;
+    #print Y
     #6 - remake the TGraph
     plotname_=f_in.GetName().replace(Prefix+TagProbeFitResult,"")[:-5]+path
     outputplot=TGraphAsymmErrors(nbins, xval, Y, xerr, xerr, yerrlo, yerrhi)
     outputplot.SetName(plotname_)
     outputplot.SetTitle(outputplot.GetName())
+    #if "eta" in Group:
+      #outputplot.GetXaxis().SetRangeUser(0.8, 2.5)
     outputplot.GetXaxis().SetTitle(dummyplot_.GetXaxis().GetTitle())
     outputplot.GetYaxis().SetTitle(dummyplot_.GetYaxis().GetTitle())
     outputplot.GetYaxis().SetTitleOffset(1.2)
@@ -303,7 +327,7 @@ if "Stations" in Group:
             continue
         f_in=TFile(filename_,"READ");
         categoryname="cnt_eff" if Postfix=="_MCTruth" else "fit_eff"
-        if "pt" in Group or "eta" in Group or "phi" in Group:
+        if "pt" in Group or "eta" in Group or "phi" in Group or "PV" in Group:
             LCTEff=GetBinnedEffPlot(f_in, "lct_effV"+Postfix,categoryname,stations[idx][3])
             SEGEff=GetBinnedEffPlot(f_in, "seg_effV"+Postfix,categoryname,stations[idx][3])
             file_out.cd()
@@ -314,10 +338,11 @@ if "Stations" in Group:
         else:
             Effs.append( GetEff(f_in, "lct_effV"+Postfix,categoryname)+GetEff(f_in,"seg_effV"+Postfix,categoryname) )
             f_in.Close()
-    if not ("pt" in Group or "eta" in Group or "phi" in Group):
+    if not ("pt" in Group or "eta" in Group or "phi" in Group or "PV" in Group):
         Effs=array(Effs).transpose()*100.
         xval=array(range(1,n_stations+1))*1.0
         xerr=zeros(n_stations, dtype=float)
+        print Effs
         SEGEff=TGraphAsymmErrors(n_stations, xval, array(Effs[0]), xerr, xerr, array(Effs[1]), array(Effs[2]))
         LCTEff=TGraphAsymmErrors(n_stations, xval, array(Effs[3]), xerr, xerr, array(Effs[4]), array(Effs[5]))
         SegCanvas=TCanvas("segment efficiency","segment efficiency",500,500)
@@ -456,9 +481,9 @@ elif "Chambers" in Group:
     LCTEff.Write()
     LCTEff_upErr.Write()
     LCTEff_downErr.Write()
-elif "pt" in Group or "eta" in Group or "phi" in Group:
+elif "pt" in Group or "eta" in Group or "phi" in Group or "PV" in Group:
     filename_=Prefix+TagProbeFitResult+"AllStations.root"
-    print "pt/eta/phi eff reading file: ",f_in
+    print "pt/eta/phi/PV eff reading file: ",f_in
     if not os.path.isfile(filename_):
         print filename_+" is not found, skip.. "
     else:
