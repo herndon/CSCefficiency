@@ -4,8 +4,11 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: RECO -s RAW2DIGI,L1Reco,RECO --runUnscheduled --nThreads 4 --data --era Run2_2017 --scenario pp --conditions 92X_dataRun2_Prompt_v4 --eventcontent RECO --datatier RECO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017 --filein file:/hdfs/store/user/senka/CSC_2017data/1670035E-CD52-E711-AA85-02163E014522.root -n 100 --python_filename=recoOnlyRun2017B.py
 
-#import sys
-#input=sys.argv[2]
+import sys
+#input_file=sys.argv[2]
+#print(input_file)
+#output_file=sys.argv[3]
+#print(output_file)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -28,15 +31,15 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring()
    #fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2018A/SingleMuon/RAW-RECO/ZMu-PromptReco-v1/000/315/257/00000/2A55950E-524B-E811-9C89-FA163E679A44.root'),
-   # fileNames = cms.untracked.vstring(input),
-   #fileNames = cms.untracked.vstring('file://100events_ME11_LCT_noSEG.root'),
+   #fileNames = cms.untracked.vstring(input_file),
+   #fileNames = cms.untracked.vstring('file:/hdfs/store/user/strembat/CSCntuples/323492-32361586.root'),
 )
 
 
@@ -45,16 +48,31 @@ process.source = cms.Source("PoolSource",
 #    limit = cms.untracked.int32(1000)
 #)
 
+# Memory check
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+                                        ignoreTotal = cms.untracked.int32(1),
+                                        #jobReportOutputOnly = cms.untracked.bool(True),
+                                        #showMallocInfo = cms.untracked.bool(True),
+                                        #oncePerEventMode = cms.untracked.bool(True),
+                                        #moduleMemorySummary = cms.untracked.bool(True)
+)
 
-# --- Activate LogVerbatim IN CSCSegment
-process.MessageLogger.categories.append("CSCSegment")
 process.MessageLogger.destinations = cms.untracked.vstring("cout")
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
-    default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
-    FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    CSCSegment = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+    default   = cms.untracked.PSet( limit = cms.untracked.int32(0))
 )   
+
+
+# --- Activate LogVerbatim IN CSCSegment
+#process.MessageLogger.categories.append("CSCSegment")
+#process.MessageLogger.destinations = cms.untracked.vstring("cout")
+#process.MessageLogger.cout = cms.untracked.PSet(
+#    threshold = cms.untracked.string("INFO"),
+#    default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
+#    FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+#    CSCSegment = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+#)   
 
 process.options = cms.untracked.PSet(
 
@@ -84,7 +102,7 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Prompt_v9', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v11', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -172,6 +190,6 @@ process = customiseEarlyDelete(process)
 
 # Output
 process.TFileService = cms.Service('TFileService',
- #   fileName = cms.string('CSCeff_SingleMuon_2018A_v1.root')
-    fileName = cms.string('test.root')
+    fileName = cms.string('CSC_TnP_ntuple.root')
+    #fileName = cms.string(output_file)
 )   
