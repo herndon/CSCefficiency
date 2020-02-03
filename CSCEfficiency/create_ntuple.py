@@ -36,10 +36,20 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring()
+                            #fileNames = cms.untracked.vstring()
    #fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2018A/SingleMuon/RAW-RECO/ZMu-PromptReco-v1/000/315/257/00000/2A55950E-524B-E811-9C89-FA163E679A44.root'),
    #fileNames = cms.untracked.vstring(input_file),
    #fileNames = cms.untracked.vstring('file:/hdfs/store/user/strembat/CSCntuples/323492-32361586.root'),
+                            fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/322/356/00000/E2D82F4E-91B4-E811-81E9-02163E010DC4.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/325/175/00000/6955FAD4-96B1-5D4E-AB63-ADB5C7ABCFAE.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/325/172/00000/FF018C80-477C-CA44-99F0-04F809E1BA0B.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/325/170/00000/FF16CA16-2249-7947-8597-269F40986785.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/321/219/00000/A631D7AD-53A1-E811-9206-FA163EF83AB3.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/324/878/00000/0A6EB8D9-447E-2E44-A17A-BAB86CE554A0.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/324/846/00000/EEDDB501-E05A-1F41-829E-1B7B27C2D8AF.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/325/175/00000/6955FAD4-96B1-5D4E-AB63-ADB5C7ABCFAE.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/325/172/00000/FF018C80-477C-CA44-99F0-04F809E1BA0B.root',
+                                                              'root://cms-xrd-global.cern.ch/store/data/Run2018D/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/325/170/00000/FE61264B-DA70-6A45-BCF6-0FEE6656DD1B.root'),
 )
 
 
