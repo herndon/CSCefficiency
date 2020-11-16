@@ -1,0 +1,2489 @@
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(1200)
+gStyle->SetCanvasDefW(1600)
+
+
+segEffPTStation1CRing0->SetTitle("     CSC Segement Efficiency vs p_{T}         Run 2, 2018")
+segEffPTStation1CRing0->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffPTStation1CRing0->GetXaxis()->SetRangeUser(10.0,200.0)
+segEffPTStation1CRing0->SetLineColor(kRed)
+segEffPTStation1CRing0->SetMarkerColor(kRed)
+segEffPTStation1CRing0->SetMarkerStyle(8)
+segEffPTStation1CRing0->SetMarkerSize(0.75)
+segEffPTStation1CRing0->Draw("PE1")
+segEffPTStation1CRing1->SetLineColor(kOrange-3)
+segEffPTStation1CRing1->SetMarkerColor(kOrange-3)
+segEffPTStation1CRing1->SetMarkerStyle(8)
+segEffPTStation1CRing1->SetMarkerSize(0.75)
+segEffPTStation1CRing1->Draw("PE1 SAME")
+segEffPTStation1CRing2->SetLineColor(kBlue)
+segEffPTStation1CRing2->SetMarkerColor(kBlue)
+segEffPTStation1CRing2->SetMarkerStyle(8)
+segEffPTStation1CRing2->SetMarkerSize(0.75)
+segEffPTStation1CRing2->Draw("PE1 SAME")
+segEffPTStation1CRing3->SetMarkerStyle(8)
+segEffPTStation1CRing3->SetMarkerSize(0.75)
+segEffPTStation1CRing3->Draw("PE1 SAME")
+
+TLegend *legendSegPT = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPT->AddEntry(segEffPTStation1CRing0,"ME11a");
+legendSegPT->AddEntry(segEffPTStation1CRing1,"ME11b");
+legendSegPT->AddEntry(segEffPTStation1CRing2,"ME12");
+legendSegPT->AddEntry(segEffPTStation1CRing3,"ME13");
+legendSegPT->Draw();
+c1->Print("CSCSegEff2018ME1vsPt.png")
+
+
+
+segEffPTStation2CRing1->SetTitle("     CSC Segement Efficiency vs p_{T}         Run 2, 2018D")
+segEffPTStation2CRing1->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffPTStation2CRing1->GetXaxis()->SetRangeUser(10.0,200.0)
+segEffPTStation2CRing1->SetLineColor(kRed)
+segEffPTStation2CRing1->SetMarkerColor(kRed)
+segEffPTStation2CRing1->SetMarkerStyle(8)
+segEffPTStation2CRing1->SetMarkerSize(0.75)
+segEffPTStation2CRing1->Draw("PE1")
+segEffPTStation3CRing1->SetLineColor(kOrange-3)
+segEffPTStation3CRing1->SetMarkerColor(kOrange-3)
+segEffPTStation3CRing1->SetMarkerStyle(8)
+segEffPTStation3CRing1->SetMarkerSize(0.75)
+segEffPTStation3CRing1->Draw("PE1 SAME")
+segEffPTStation4CRing1->SetLineColor(kOrange)
+segEffPTStation4CRing1->SetMarkerColor(kOrange)
+segEffPTStation4CRing1->SetMarkerStyle(8)
+segEffPTStation4CRing1->SetMarkerSize(0.75)
+segEffPTStation4CRing1->Draw("PE1 SAME")
+segEffPTStation2CRing2->SetLineColor(kAzure+6)
+segEffPTStation2CRing2->SetMarkerColor(kAzure+6)
+segEffPTStation2CRing2->SetMarkerStyle(8)
+segEffPTStation2CRing2->SetMarkerSize(0.75)
+segEffPTStation2CRing2->Draw("PE1 SAME")
+segEffPTStation3CRing2->SetLineColor(kBlue)
+segEffPTStation3CRing2->SetMarkerColor(kBlue)
+segEffPTStation3CRing2->SetMarkerStyle(8)
+segEffPTStation3CRing2->SetMarkerSize(0.75)
+segEffPTStation3CRing2->Draw("PE1 SAME")
+segEffPTStation4CRing2->SetLineColor(kBlue+2)
+segEffPTStation4CRing2->SetMarkerColor(kBlue+2)
+segEffPTStation4CRing2->SetMarkerStyle(8)
+segEffPTStation4CRing2->SetMarkerSize(0.75)
+segEffPTStation4CRing2->Draw("PE1 SAME")
+
+TLegend *legendSegPT2 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPT2->AddEntry(segEffPTStation2CRing1,"ME21");
+legendSegPT2->AddEntry(segEffPTStation3CRing1,"ME31");
+legendSegPT2->AddEntry(segEffPTStation4CRing1,"ME41");
+legendSegPT2->AddEntry(segEffPTStation2CRing2,"ME22");
+legendSegPT2->AddEntry(segEffPTStation3CRing2,"ME32");
+legendSegPT2->AddEntry(segEffPTStation4CRing2,"ME42");
+legendSegPT2->Draw();
+
+c1->Print("CSCSegEff2018ME234vsPt.png")
+
+
+LCTEffPTStation1CRing0->SetTitle("     CSC LCT Efficiency vs p_{T}         Run 2, 2018")
+LCTEffPTStation1CRing0->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffPTStation1CRing0->GetXaxis()->SetRangeUser(10.0,200.0)
+LCTEffPTStation1CRing0->SetLineColor(kRed)
+LCTEffPTStation1CRing0->SetMarkerColor(kRed)
+LCTEffPTStation1CRing0->SetMarkerStyle(8)
+LCTEffPTStation1CRing0->SetMarkerSize(0.75)
+LCTEffPTStation1CRing0->Draw("PE1")
+LCTEffPTStation1CRing1->SetLineColor(kOrange-3)
+LCTEffPTStation1CRing1->SetMarkerColor(kOrange-3)
+LCTEffPTStation1CRing1->SetMarkerStyle(8)
+LCTEffPTStation1CRing1->SetMarkerSize(0.75)
+LCTEffPTStation1CRing1->Draw("PE1 SAME")
+LCTEffPTStation1CRing2->SetLineColor(kBlue)
+LCTEffPTStation1CRing2->SetMarkerColor(kBlue)
+LCTEffPTStation1CRing2->SetMarkerStyle(8)
+LCTEffPTStation1CRing2->SetMarkerSize(0.75)
+LCTEffPTStation1CRing2->Draw("PE1 SAME")
+LCTEffPTStation1CRing3->SetMarkerStyle(8)
+LCTEffPTStation1CRing3->SetMarkerSize(0.75)
+LCTEffPTStation1CRing3->Draw("PE1 SAME")
+
+
+
+
+TLegend *legendLCTPT = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTPT->AddEntry(LCTEffPTStation1CRing0,"ME11a");
+legendLCTPT->AddEntry(LCTEffPTStation1CRing1,"ME11b");
+legendLCTPT->AddEntry(LCTEffPTStation1CRing2,"ME12");
+legendLCTPT->AddEntry(LCTEffPTStation1CRing3,"ME13");
+legendLCTPT->Draw();
+
+c1->Print("CSCLCTEff2018ME1vsPt.png")
+
+
+
+
+LCTEffPTStation2CRing1->SetTitle("     CSC LCT Efficiency vs p_{T}         Run 2, 2018D")
+LCTEffPTStation2CRing1->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffPTStation2CRing1->GetXaxis()->SetRangeUser(10.0,200.0)
+LCTEffPTStation2CRing1->SetLineColor(kRed)
+LCTEffPTStation2CRing1->SetMarkerColor(kRed)
+LCTEffPTStation2CRing1->SetMarkerStyle(8)
+LCTEffPTStation2CRing1->SetMarkerSize(0.75)
+LCTEffPTStation2CRing1->Draw("PE1")
+LCTEffPTStation3CRing1->SetLineColor(kOrange-3)
+LCTEffPTStation3CRing1->SetMarkerColor(kOrange-3)
+LCTEffPTStation3CRing1->SetMarkerStyle(8)
+LCTEffPTStation3CRing1->SetMarkerSize(0.75)
+LCTEffPTStation3CRing1->Draw("PE1 SAME")
+LCTEffPTStation4CRing1->SetLineColor(kOrange)
+LCTEffPTStation4CRing1->SetMarkerColor(kOrange)
+LCTEffPTStation4CRing1->SetMarkerStyle(8)
+LCTEffPTStation4CRing1->SetMarkerSize(0.75)
+LCTEffPTStation4CRing1->Draw("PE1 SAME")
+LCTEffPTStation2CRing2->SetLineColor(kAzure+6)
+LCTEffPTStation2CRing2->SetMarkerColor(kAzure+6)
+LCTEffPTStation2CRing2->SetMarkerStyle(8)
+LCTEffPTStation2CRing2->SetMarkerSize(0.75)
+LCTEffPTStation2CRing2->Draw("PE1 SAME")
+LCTEffPTStation3CRing2->SetLineColor(kBlue)
+LCTEffPTStation3CRing2->SetMarkerColor(kBlue)
+LCTEffPTStation3CRing2->SetMarkerStyle(8)
+LCTEffPTStation3CRing2->SetMarkerSize(0.75)
+LCTEffPTStation3CRing2->Draw("PE1 SAME")
+LCTEffPTStation4CRing2->SetLineColor(kBlue+2)
+LCTEffPTStation4CRing2->SetMarkerColor(kBlue+2)
+LCTEffPTStation4CRing2->SetMarkerStyle(8)
+LCTEffPTStation4CRing2->SetMarkerSize(0.75)
+LCTEffPTStation4CRing2->Draw("PE1 SAME")
+
+
+
+TLegend *legendLCTPT2 = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTPT2->AddEntry(LCTEffPTStation2CRing1,"ME21");
+legendLCTPT2->AddEntry(LCTEffPTStation3CRing1,"ME31");
+legendLCTPT2->AddEntry(LCTEffPTStation4CRing1,"ME41");
+legendLCTPT2->AddEntry(LCTEffPTStation2CRing2,"ME22");
+legendLCTPT2->AddEntry(LCTEffPTStation3CRing2,"ME32");
+legendLCTPT2->AddEntry(LCTEffPTStation4CRing2,"ME42");
+legendLCTPT2->Draw();
+
+c1->Print("CSCLCTEff2018ME234vsPt.png")
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+
+segEffEtaStation1CRing0->SetTitle("     CSC Segement Efficiency vs #eta         Run 2, 2018")
+segEffEtaStation1CRing0->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffEtaStation1CRing0->GetXaxis()->SetRangeUser(10.0,200.0)
+segEffEtaStation1CRing0->SetLineColor(kRed)
+segEffEtaStation1CRing0->SetMarkerColor(kRed)
+segEffEtaStation1CRing0->SetMarkerStyle(8)
+segEffEtaStation1CRing0->SetMarkerSize(0.75)
+segEffEtaStation1CRing0->Draw("PE1")
+segEffEtaStation1CRing1->SetLineColor(kOrange-3)
+segEffEtaStation1CRing1->SetMarkerColor(kOrange-3)
+segEffEtaStation1CRing1->SetMarkerStyle(8)
+segEffEtaStation1CRing1->SetMarkerSize(0.75)
+segEffEtaStation1CRing1->Draw("PE1 SAME")
+segEffEtaStation1CRing2->SetLineColor(kBlue)
+segEffEtaStation1CRing2->SetMarkerColor(kBlue)
+segEffEtaStation1CRing2->SetMarkerStyle(8)
+segEffEtaStation1CRing2->SetMarkerSize(0.75)
+segEffEtaStation1CRing2->Draw("PE1 SAME")
+segEffEtaStation1CRing3->SetMarkerStyle(8)
+segEffEtaStation1CRing3->SetMarkerSize(0.75)
+segEffEtaStation1CRing3->Draw("PE1 SAME")
+
+
+TLegend *legendSegEta = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta->AddEntry(segEffEtaStation1CRing0,"ME11a");
+legendSegEta->AddEntry(segEffEtaStation1CRing1,"ME11b");
+legendSegEta->AddEntry(segEffEtaStation1CRing2,"ME12");
+legendSegEta->AddEntry(segEffEtaStation1CRing3,"ME13");
+legendSegEta->Draw();
+
+c1->Print("CSCSegEff2018ME1vsEta.png")
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_dcfebremoved.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+segEffEtaStation2CRing3->SetTitle("     CSC Segement Efficiency vs #eta         Run 2")
+segEffEtaStation2CRing3->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffEtaStation2CRing3->GetXaxis()->SetRangeUser(1.55,2.5)
+segEffEtaStation2CRing3->SetLineColor(kRed)
+segEffEtaStation2CRing3->SetMarkerColor(kRed)
+segEffEtaStation2CRing3->SetMarkerStyle(8)
+segEffEtaStation2CRing3->Draw("PE1")
+segEffEtaStation3CRing3->SetLineColor(kOrange-3)
+segEffEtaStation3CRing3->SetMarkerColor(kOrange-3)
+segEffEtaStation3CRing3->SetMarkerStyle(8)
+segEffEtaStation3CRing3->Draw("PE1 SAME")
+
+
+segEffEtaStation2CRing0->SetTitle("     CSC Segement Efficiency vs #eta         Run 2")
+segEffEtaStation2CRing0->SetLineColor(kRed)
+segEffEtaStation2CRing0->SetMarkerColor(kRed)
+segEffEtaStation2CRing0->SetMarkerStyle(24)
+segEffEtaStation2CRing0->Draw("PE1 SAME")
+segEffEtaStation3CRing0->SetLineColor(kOrange-3)
+segEffEtaStation3CRing0->SetMarkerColor(kOrange-3)
+segEffEtaStation3CRing0->SetMarkerStyle(24)
+segEffEtaStation3CRing0->Draw("PE1 SAME")
+
+
+TLegend *legendSegEta1 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta1->AddEntry(segEffEtaStation2CRing3,"ME11a Odd");
+legendSegEta1->AddEntry(segEffEtaStation3CRing3,"ME11b Odd");
+legendSegEta1->AddEntry(segEffEtaStation2CRing0,"ME11a Even");
+legendSegEta1->AddEntry(segEffEtaStation3CRing0,"ME11b Even");
+legendSegEta1->Draw();
+
+c1->Print("CSCSegEff2018ME1vsEta_eo.png")
+
+
+yySegStation2Ring0->Draw("BOX")
+yySegStation3Ring0->SetLineColor(kRed)
+yySegStation3Ring0->Draw("BOXSAME")
+c1->Print("ME11abevent.pdf")
+
+yySegStation2Ring3->Draw("BOX")
+yySegStation3Ring3->SetLineColor(kRed)
+yySegStation3Ring3->Draw("BOXSAME")
+c1->Print("ME11abodd.pdf")
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_dcfebremoved_badme-21removed.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+segEffEtaStation2CRing1->SetTitle("     CSC Segement Efficiency vs #eta         Run 2, 2018")
+segEffEtaStation2CRing1->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffEtaStation2CRing1->GetXaxis()->SetRangeUser(10.0,200.0)
+segEffEtaStation2CRing1->SetLineColor(kRed)
+segEffEtaStation2CRing1->SetMarkerColor(kRed)
+segEffEtaStation2CRing1->SetMarkerStyle(8)
+segEffEtaStation2CRing1->SetMarkerSize(0.75)
+segEffEtaStation2CRing1->Draw("PE1")
+segEffEtaStation3CRing1->SetLineColor(kOrange-3)
+segEffEtaStation3CRing1->SetMarkerColor(kOrange-3)
+segEffEtaStation3CRing1->SetMarkerStyle(8)
+segEffEtaStation3CRing1->SetMarkerSize(0.75)
+segEffEtaStation3CRing1->Draw("PE1 SAME")
+segEffEtaStation4CRing1->SetLineColor(kOrange)
+segEffEtaStation4CRing1->SetMarkerColor(kOrange)
+segEffEtaStation4CRing1->SetMarkerStyle(8)
+segEffEtaStation4CRing1->SetMarkerSize(0.75)
+segEffEtaStation4CRing1->Draw("PE1 SAME")
+segEffEtaStation2CRing2->SetLineColor(kAzure+6)
+segEffEtaStation2CRing2->SetMarkerColor(kAzure+6)
+segEffEtaStation2CRing2->SetMarkerStyle(8)
+segEffEtaStation2CRing2->SetMarkerSize(0.75)
+segEffEtaStation2CRing2->Draw("PE1 SAME")
+segEffEtaStation3CRing2->SetLineColor(kBlue)
+segEffEtaStation3CRing2->SetMarkerColor(kBlue)
+segEffEtaStation3CRing2->SetMarkerStyle(8)
+segEffEtaStation3CRing2->SetMarkerSize(0.75)
+segEffEtaStation3CRing2->Draw("PE1 SAME")
+segEffEtaStation4CRing2->SetLineColor(kBlue+2)
+segEffEtaStation4CRing2->SetMarkerColor(kBlue+2)
+segEffEtaStation4CRing2->SetMarkerStyle(8)
+segEffEtaStation4CRing2->SetMarkerSize(0.75)
+segEffEtaStation4CRing2->Draw("PE1 SAME")
+
+
+
+TLegend *legendSegEta2 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta2->AddEntry(segEffEtaStation2CRing1,"ME21");
+legendSegEta2->AddEntry(segEffEtaStation3CRing1,"ME31");
+legendSegEta2->AddEntry(segEffEtaStation4CRing1,"ME41");
+legendSegEta2->AddEntry(segEffEtaStation2CRing2,"ME22");
+legendSegEta2->AddEntry(segEffEtaStation3CRing2,"ME32");
+legendSegEta2->AddEntry(segEffEtaStation4CRing2,"ME42");
+legendSegEta2->Draw();
+c1->Print("CSCSegEff2018ME234vsEta_badme21removed.png")
+
+
+
+
+LCTEffEtaStation1CRing0->SetTitle("     CSC LCT Efficiency vs #eta         Run 2, 2018D")
+LCTEffEtaStation1CRing0->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffEtaStation1CRing0->SetLineColor(kRed)
+LCTEffEtaStation1CRing0->SetMarkerColor(kRed)
+LCTEffEtaStation1CRing0->Draw("PE1")
+LCTEffEtaStation1CRing1->SetLineColor(kOrange-3)
+LCTEffEtaStation1CRing1->SetMarkerColor(kOrange-3)
+LCTEffEtaStation1CRing1->Draw("PE1 SAME")
+LCTEffEtaStation1CRing2->SetLineColor(kBlue)
+LCTEffEtaStation1CRing2->SetMarkerColor(kBlue)
+LCTEffEtaStation1CRing2->Draw("PE1 SAME")
+LCTEffEtaStation1CRing3->Draw("PE1 SAME")
+
+TLegend *legendLCTEta = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTEta->AddEntry(LCTEffEtaStation1CRing0,"ME11a");
+legendLCTEta->AddEntry(LCTEffEtaStation1CRing1,"ME11b");
+legendLCTEta->AddEntry(LCTEffEtaStation1CRing2,"ME12");
+legendLCTEta->AddEntry(LCTEffEtaStation1CRing3,"ME13");
+legendLCTEta->Draw();
+
+c1->Print("CSCLCTEff2018DME1vsEta.png")
+
+
+LCTEffEtaStation2CRing1->SetTitle("     CSC LCT Efficiency vs #eta         Run 2, 2018D")
+LCTEffEtaStation2CRing1->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffEtaStation2CRing1->SetLineColor(kRed)
+LCTEffEtaStation2CRing1->SetMarkerColor(kRed)
+LCTEffEtaStation2CRing1->Draw("PE1")
+LCTEffEtaStation3CRing1->SetLineColor(kOrange-3)
+LCTEffEtaStation3CRing1->SetMarkerColor(kOrange-3)
+LCTEffEtaStation3CRing1->Draw("PE1 SAME")
+LCTEffEtaStation4CRing1->SetLineColor(kOrange)
+LCTEffEtaStation4CRing1->SetMarkerColor(kOrange)
+LCTEffEtaStation4CRing1->Draw("PE1 SAME")
+LCTEffEtaStation2CRing2->SetLineColor(kAzure+6)
+LCTEffEtaStation2CRing2->SetMarkerColor(kAzure+6)
+LCTEffEtaStation2CRing2->Draw("PE1 SAME")
+LCTEffEtaStation3CRing2->SetLineColor(kBlue)
+LCTEffEtaStation3CRing2->SetMarkerColor(kBlue)
+LCTEffEtaStation3CRing2->Draw("PE1 SAME")
+LCTEffEtaStation4CRing2->SetLineColor(kBlue+1)
+LCTEffEtaStation4CRing2->SetMarkerColor(kBlue+1)
+LCTEffEtaStation4CRing2->Draw("PE1 SAME")
+
+TLegend *legendLCTEta2 = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTEta2->AddEntry(LCTEffEtaStation2CRing1,"ME21");
+legendLCTEta2->AddEntry(LCTEffEtaStation3CRing1,"ME31");
+legendLCTEta2->AddEntry(LCTEffEtaStation4CRing1,"ME41");
+legendLCTEta2->AddEntry(LCTEffEtaStation2CRing2,"ME22");
+legendLCTEta2->AddEntry(LCTEffEtaStation3CRing2,"ME32");
+legendLCTEta2->AddEntry(LCTEffEtaStation4CRing2,"ME42");
+legendLCTEta2->Draw();
+c1->Print("CSCLCTEff2018DME234vsEta_badme21.png")
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+segEff2DStationRingChamber->SetMarkerSize(0.5)
+const char *Rings[20] = {"ME-42","ME-41","ME-32","ME-31","ME-22","ME-21","ME-13","ME-12","ME-11B","ME-11A","ME+11A","ME+11B","ME+12","ME+13","ME+21","ME+22","ME+31","ME+32","ME+41","ME+42"}
+for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i+1,Rings[i]);}
+segEff2DStationRingChamber->GetXaxis()->SetTitle("Chamber #");
+segEff2DStationRingChamber->GetYaxis()->SetTitle("Ring ");
+segEff2DStationRingChamber->GetYaxis()->SetTitleOffset(1.45);
+segEff2DStationRingChamber->GetXaxis()->SetTickLength(0.015);
+segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.015);
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+segEff2DStationRingChamber->SetTitle("CSC Segment Efficiency 2D by Chamber & Ring        Run 2")
+
+
+
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+
+
+segEffEtaStation1Ring0->SetTitle("     CSC Segement Efficiency vs p_{T}         Run 2, 2018D")
+segEffEtaStation1Ring0->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffEtaStation1Ring0->GetXaxis()->SetRangeUser(10.0,200.0)
+segEffEtaStation1Ring0->SetLineColor(kRed)
+segEffEtaStation1Ring0->SetMarkerColor(kRed)
+segEffEtaStation1Ring0->Draw("PE1")
+segEffEtaStation1Ring1->SetLineColor(kOrange-3)
+segEffEtaStation1Ring1->SetMarkerColor(kOrange-3)
+segEffEtaStation1Ring1->Draw("PE1 SAME")
+segEffEtaStation1Ring2->SetLineColor(kBlue)
+segEffEtaStation1Ring2->SetMarkerColor(kBlue)
+segEffEtaStation1Ring2->Draw("PE1 SAME")
+segEffEtaStation1Ring3->Draw("PE1 SAME")
+
+TLegend *legendSegPT = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPT->AddEntry(segEffPTStation1Ring0,"ME11a");
+legendSegPT->AddEntry(segEffPTStation1Ring1,"ME11b");
+legendSegPT->AddEntry(segEffPTStation1Ring2,"ME12");
+legendSegPT->AddEntry(segEffPTStation1Ring3,"ME13");
+legendSegPT->Draw();
+c1->Print("CSCSegEff2018DME1vsPt.png")
+
+
+
+segEffPTStation2Ring1->SetTitle("     CSC Segement Efficiency vs p_{T}         Run 2, 2018D")
+segEffPTStation2Ring1->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffPTStation2Ring1->GetXaxis()->SetRangeUser(10.0,200.0)
+segEffPTStation2Ring1->SetLineColor(kRed)
+segEffPTStation2Ring1->SetMarkerColor(kRed)
+segEffPTStation2Ring1->Draw("PE1")
+segEffPTStation3Ring1->SetLineColor(kOrange-3)
+segEffPTStation3Ring1->SetMarkerColor(kOrange-3)
+segEffPTStation3Ring1->Draw("PE1 SAME")
+segEffPTStation4Ring1->SetLineColor(kOrange)
+segEffPTStation4Ring1->SetMarkerColor(kOrange)
+segEffPTStation4Ring1->Draw("PE1 SAME")
+segEffPTStation2Ring2->SetLineColor(kAzure+6)
+segEffPTStation2Ring2->SetMarkerColor(kAzure+6)
+segEffPTStation2Ring2->Draw("PE1 SAME")
+segEffPTStation3Ring2->SetLineColor(kBlue)
+segEffPTStation3Ring2->SetMarkerColor(kBlue)
+segEffPTStation3Ring2->Draw("PE1 SAME")
+segEffPTStation4Ring2->SetLineColor(kBlue+1)
+segEffPTStation4Ring2->SetMarkerColor(kBlue+1)
+segEffPTStation4Ring2->Draw("PE1 SAME")
+
+TLegend *legendSegPT2 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPT2->AddEntry(segEffPTStation2Ring1,"ME21");
+legendSegPT2->AddEntry(segEffPTStation3Ring1,"ME31");
+legendSegPT2->AddEntry(segEffPTStation4Ring1,"ME41");
+legendSegPT2->AddEntry(segEffPTStation2Ring2,"ME22");
+legendSegPT2->AddEntry(segEffPTStation3Ring2,"ME32");
+legendSegPT2->AddEntry(segEffPTStation4Ring2,"ME42");
+legendSegPT2->Draw();
+
+
+c1->Print("CSCSegEff2018DME234vsPt.png")
+
+
+
+
+LCTEffPTStation1Ring0->SetTitle("     CSC LCT Efficiency vs p_{T}         Run 2, 2018D")
+LCTEffPTStation1Ring0->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffPTStation1Ring0->GetXaxis()->SetRangeUser(10.0,200.0)
+LCTEffPTStation1Ring0->SetLineColor(kRed)
+LCTEffPTStation1Ring0->SetMarkerColor(kRed)
+LCTEffPTStation1Ring0->Draw("PE1")
+LCTEffPTStation1Ring1->SetLineColor(kOrange-3)
+LCTEffPTStation1Ring1->SetMarkerColor(kOrange-3)
+LCTEffPTStation1Ring1->Draw("PE1 SAME")
+LCTEffPTStation1Ring2->SetLineColor(kBlue)
+LCTEffPTStation1Ring2->SetMarkerColor(kBlue)
+LCTEffPTStation1Ring2->Draw("PE1 SAME")
+LCTEffPTStation1Ring3->Draw("PE1 SAME")
+
+TLegend *legendLCTPT = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTPT->AddEntry(LCTEffPTStation1Ring0,"ME11a");
+legendLCTPT->AddEntry(LCTEffPTStation1Ring1,"ME11b");
+legendLCTPT->AddEntry(LCTEffPTStation1Ring2,"ME12");
+legendLCTPT->AddEntry(LCTEffPTStation1Ring3,"ME13");
+legendLCTPT->Draw();
+
+c1->Print("CSCLCTEff2018DME1vsPt.png")
+
+
+
+LCTEffPTStation2Ring1->SetTitle("     CSC LCT Efficiency vs p_{T}         Run 2, 2018D")
+LCTEffPTStation2Ring1->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffPTStation2Ring1->GetXaxis()->SetRangeUser(10.0,200.0)
+LCTEffPTStation2Ring1->SetLineColor(kRed)
+LCTEffPTStation2Ring1->SetMarkerColor(kRed)
+LCTEffPTStation2Ring1->Draw("PE1")
+LCTEffPTStation3Ring1->SetLineColor(kOrange-3)
+LCTEffPTStation3Ring1->SetMarkerColor(kOrange-3)
+LCTEffPTStation3Ring1->Draw("PE1 SAME")
+LCTEffPTStation4Ring1->SetLineColor(kOrange)
+LCTEffPTStation4Ring1->SetMarkerColor(kOrange)
+LCTEffPTStation4Ring1->Draw("PE1 SAME")
+LCTEffPTStation2Ring2->SetLineColor(kAzure+6)
+LCTEffPTStation2Ring2->SetMarkerColor(kAzure+6)
+LCTEffPTStation2Ring2->Draw("PE1 SAME")
+LCTEffPTStation3Ring2->SetLineColor(kBlue)
+LCTEffPTStation3Ring2->SetMarkerColor(kBlue)
+LCTEffPTStation3Ring2->Draw("PE1 SAME")
+LCTEffPTStation4Ring2->SetLineColor(kBlue+1)
+LCTEffPTStation4Ring2->SetMarkerColor(kBlue+1)
+LCTEffPTStation4Ring2->Draw("PE1 SAME")
+
+TLegend *legendLCTPT2 = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTPT2->AddEntry(LCTEffPTStation2Ring1,"ME21");
+legendLCTPT2->AddEntry(LCTEffPTStation3Ring1,"ME31");
+legendLCTPT2->AddEntry(LCTEffPTStation4Ring1,"ME41");
+legendLCTPT2->AddEntry(LCTEffPTStation2Ring2,"ME22");
+legendLCTPT2->AddEntry(LCTEffPTStation3Ring2,"ME32");
+legendLCTPT2->AddEntry(LCTEffPTStation4Ring2,"ME42");
+legendLCTPT2->Draw();
+
+c1->Print("CSCLCTEff2018DME234vsPt.png")
+
+
+
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_dcfebremoved.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+segEffEtaStation1Ring0->SetTitle("     CSC Segement Efficiency vs #eta        Run 2")
+segEffEtaStation1Ring0->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffEtaStation1Ring0->SetLineColor(kRed)
+segEffEtaStation1Ring0->SetMarkerColor(kRed)
+segEffEtaStation1Ring0->Draw("PE1")
+segEffEtaStation1Ring1->SetLineColor(kOrange-3)
+segEffEtaStation1Ring1->SetMarkerColor(kOrange-3)
+segEffEtaStation1Ring1->Draw("PE1 SAME")
+segEffEtaStation1Ring2->SetLineColor(kBlue)
+segEffEtaStation1Ring2->SetMarkerColor(kBlue)
+segEffEtaStation1Ring2->Draw("PE1 SAME")
+segEffEtaStation1Ring3->Draw("PE1 SAME")
+
+TLegend *legendSegEta = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta->AddEntry(segEffEtaStation1Ring0,"ME11a");
+legendSegEta->AddEntry(segEffEtaStation1Ring1,"ME11b");
+legendSegEta->AddEntry(segEffEtaStation1Ring2,"ME12");
+legendSegEta->AddEntry(segEffEtaStation1Ring3,"ME13");
+legendSegEta->Draw();
+
+c1->Print("CSCSegEff2018ME1vsEta.png")
+
+
+
+segEffEtaStation2Ring3->SetTitle("     CSC Segement Efficiency vs #eta         Run 2")
+segEffEtaStation2Ring3->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffEtaStation2Ring3->GetXaxis()->SetRangeUser(1.55,2.5)
+segEffEtaStation2Ring3->SetLineColor(kRed)
+segEffEtaStation2Ring3->SetMarkerColor(kRed)
+segEffEtaStation2Ring3->SetMarkerStyle(8)
+segEffEtaStation2Ring3->Draw("PE1")
+segEffEtaStation3Ring3->SetLineColor(kOrange-3)
+segEffEtaStation3Ring3->SetMarkerColor(kOrange-3)
+segEffEtaStation3Ring3->SetMarkerStyle(8)
+segEffEtaStation3Ring3->Draw("PE1 SAME")
+
+
+segEffEtaStation2Ring0->SetTitle("     CSC Segement Efficiency vs #eta         Run 2")
+segEffEtaStation2Ring0->SetLineColor(kRed)
+segEffEtaStation2Ring0->SetMarkerColor(kRed)
+segEffEtaStation2Ring0->SetMarkerStyle(24)
+segEffEtaStation2Ring0->Draw("PE1 SAME")
+segEffEtaStation3Ring0->SetLineColor(kOrange-3)
+segEffEtaStation3Ring0->SetMarkerColor(kOrange-3)
+segEffEtaStation3Ring0->SetMarkerStyle(24)
+segEffEtaStation3Ring0->Draw("PE1 SAME")
+
+
+TLegend *legendSegEta1 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta1->AddEntry(segEffEtaStation2Ring3,"ME11a Odd");
+legendSegEta1->AddEntry(segEffEtaStation3Ring3,"ME11b Odd");
+legendSegEta1->AddEntry(segEffEtaStation2Ring0,"ME11a Even");
+legendSegEta1->AddEntry(segEffEtaStation3Ring0,"ME11b Even");
+legendSegEta1->Draw();
+
+c1->Print("CSCSegEff2018ME1vsEta_eo.png")
+
+
+yySegStation2Ring0->Draw("BOX")
+yySegStation3Ring0->SetLineColor(kRed)
+yySegStation3Ring0->Draw("BOXSAME")
+c1->Print("ME11abevent.pdf")
+
+yySegStation2Ring3->Draw("BOX")
+yySegStation3Ring3->SetLineColor(kRed)
+yySegStation3Ring3->Draw("BOXSAME")
+c1->Print("ME11abodd.pdf")
+
+
+
+segEffEtaStation2Ring1->SetTitle("     CSC Segement Efficiency vs #eta         Run 2, 2018D")
+segEffEtaStation2Ring1->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffEtaStation2Ring1->SetLineColor(kRed)
+segEffEtaStation2Ring1->SetMarkerColor(kRed)
+segEffEtaStation2Ring1->Draw("PE1")
+segEffEtaStation3Ring1->SetLineColor(kOrange-3)
+segEffEtaStation3Ring1->SetMarkerColor(kOrange-3)
+segEffEtaStation3Ring1->Draw("PE1 SAME")
+segEffEtaStation4Ring1->SetLineColor(kOrange)
+segEffEtaStation4Ring1->SetMarkerColor(kOrange)
+segEffEtaStation4Ring1->Draw("PE1 SAME")
+segEffEtaStation2Ring2->SetLineColor(kAzure+6)
+segEffEtaStation2Ring2->SetMarkerColor(kAzure+6)
+segEffEtaStation2Ring2->Draw("PE1 SAME")
+segEffEtaStation3Ring2->SetLineColor(kBlue)
+segEffEtaStation3Ring2->SetMarkerColor(kBlue)
+segEffEtaStation3Ring2->Draw("PE1 SAME")
+segEffEtaStation4Ring2->SetLineColor(kBlue+1)
+segEffEtaStation4Ring2->SetMarkerColor(kBlue+1)
+segEffEtaStation4Ring2->Draw("PE1 SAME")
+
+TLegend *legendSegEta2 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta2->AddEntry(segEffEtaStation2Ring1,"ME21");
+legendSegEta2->AddEntry(segEffEtaStation3Ring1,"ME31");
+legendSegEta2->AddEntry(segEffEtaStation4Ring1,"ME41");
+legendSegEta2->AddEntry(segEffEtaStation2Ring2,"ME22");
+legendSegEta2->AddEntry(segEffEtaStation3Ring2,"ME32");
+legendSegEta2->AddEntry(segEffEtaStation4Ring2,"ME42");
+legendSegEta2->Draw();
+c1->Print("CSCSegEff2018DME234vsEta.png")
+
+
+
+
+LCTEffEtaStation1Ring0->SetTitle("     CSC LCT Efficiency vs #eta         Run 2, 2018D")
+LCTEffEtaStation1Ring0->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffEtaStation1Ring0->SetLineColor(kRed)
+LCTEffEtaStation1Ring0->SetMarkerColor(kRed)
+LCTEffEtaStation1Ring0->Draw("PE1")
+LCTEffEtaStation1Ring1->SetLineColor(kOrange-3)
+LCTEffEtaStation1Ring1->SetMarkerColor(kOrange-3)
+LCTEffEtaStation1Ring1->Draw("PE1 SAME")
+LCTEffEtaStation1Ring2->SetLineColor(kBlue)
+LCTEffEtaStation1Ring2->SetMarkerColor(kBlue)
+LCTEffEtaStation1Ring2->Draw("PE1 SAME")
+LCTEffEtaStation1Ring3->Draw("PE1 SAME")
+
+TLegend *legendLCTEta = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTEta->AddEntry(LCTEffEtaStation1Ring0,"ME11a");
+legendLCTEta->AddEntry(LCTEffEtaStation1Ring1,"ME11b");
+legendLCTEta->AddEntry(LCTEffEtaStation1Ring2,"ME12");
+legendLCTEta->AddEntry(LCTEffEtaStation1Ring3,"ME13");
+legendLCTEta->Draw();
+
+c1->Print("CSCLCTEff2018DME1vsEta.png")
+
+
+LCTEffEtaStation2Ring1->SetTitle("     CSC LCT Efficiency vs #eta         Run 2, 2018D")
+LCTEffEtaStation2Ring1->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffEtaStation2Ring1->SetLineColor(kRed)
+LCTEffEtaStation2Ring1->SetMarkerColor(kRed)
+LCTEffEtaStation2Ring1->Draw("PE1")
+LCTEffEtaStation3Ring1->SetLineColor(kOrange-3)
+LCTEffEtaStation3Ring1->SetMarkerColor(kOrange-3)
+LCTEffEtaStation3Ring1->Draw("PE1 SAME")
+LCTEffEtaStation4Ring1->SetLineColor(kOrange)
+LCTEffEtaStation4Ring1->SetMarkerColor(kOrange)
+LCTEffEtaStation4Ring1->Draw("PE1 SAME")
+LCTEffEtaStation2Ring2->SetLineColor(kAzure+6)
+LCTEffEtaStation2Ring2->SetMarkerColor(kAzure+6)
+LCTEffEtaStation2Ring2->Draw("PE1 SAME")
+LCTEffEtaStation3Ring2->SetLineColor(kBlue)
+LCTEffEtaStation3Ring2->SetMarkerColor(kBlue)
+LCTEffEtaStation3Ring2->Draw("PE1 SAME")
+LCTEffEtaStation4Ring2->SetLineColor(kBlue+1)
+LCTEffEtaStation4Ring2->SetMarkerColor(kBlue+1)
+LCTEffEtaStation4Ring2->Draw("PE1 SAME")
+
+TLegend *legendLCTEta2 = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTEta2->AddEntry(LCTEffEtaStation2Ring1,"ME21");
+legendLCTEta2->AddEntry(LCTEffEtaStation3Ring1,"ME31");
+legendLCTEta2->AddEntry(LCTEffEtaStation4Ring1,"ME41");
+legendLCTEta2->AddEntry(LCTEffEtaStation2Ring2,"ME22");
+legendLCTEta2->AddEntry(LCTEffEtaStation3Ring2,"ME32");
+legendLCTEta2->AddEntry(LCTEffEtaStation4Ring2,"ME42");
+legendLCTEta2->Draw();
+c1->Print("CSCLCTEff2018DME234vsEta.png")
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+segEff2DStationRingChamber->SetMarkerSize(0.5)
+const char *Rings[20] = {"ME-42","ME-41","ME-32","ME-31","ME-22","ME-21","ME-13","ME-12","ME-11B","ME-11A","ME+11A","ME+11B","ME+12","ME+13","ME+21","ME+22","ME+31","ME+32","ME+41","ME+42"}
+for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i+1,Rings[i]);}
+segEff2DStationRingChamber->GetXaxis()->SetTitle("Chamber #");
+segEff2DStationRingChamber->GetYaxis()->SetTitle("Ring ");
+segEff2DStationRingChamber->GetYaxis()->SetTitleOffset(1.45);
+segEff2DStationRingChamber->GetXaxis()->SetTickLength(0.015);
+segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.015);
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(1200)
+gStyle->SetCanvasDefW(1600)
+
+segEff2DStationRingChamber->SetTitle("CSC Segment Efficiency 2D by Chamber & Ring        Run 2, 2018")
+segEff2DStationRingChamber->SetMarkerSize(0.75)
+segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
+segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.0)
+segEff2DStationRingChamber->Draw("COLZ TEXT")
+c1->Print("CSCSegEff2018D2DRingChamber_withoutbadChambers.png")
+
+
+LCTEff2DStationRingChamber->SetTitle("CSC LCT Efficiency 2D by Chamber & Ring        Run 2, 2018")
+LCTEff2DStationRingChamber->SetMarkerSize(0.75)
+LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
+LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.0)
+LCTEff2DStationRingChamber->Draw("COLZ TEXT")
+c1->Print("CSCLCTEff2018D2DRingChamber_withoutbadChambers.png")
+
+
+
+lin + 2 gaus
+Fit differences Gaussian Sigma 1.17% Bias -0.04% 
+Fit differences Gaussian Sigma 0.65% Bias -0.02% 
+
+exp +2 gaus, from small set of converged fits
+Fit differences Gaussian Sigma 0.79% Bias +0.03% 
+Fit differences Gaussian Sigma 0.32% Bias -0.1% to 0.1%
+
+
+zMassSegDenStation2Ring1Chamber8->Draw()
+TF1 * f1 = new TF1("myfunc", "[0] / sqrt(2.0 * TMath::Pi()) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3] + x*[4]", 76.0, 106.0);
+f1->SetParNames("Constant","Mean","Sigma","p0","p1");
+f1->SetParameters(1000.0,zMassSegDenStation2Ring1Chamber8->GetMean(),zMassSegDenStation2Ring1Chamber8->GetRMS(),2.,20.0,-0.05);
+zMassSegDenStation2Ring1Chamber8->Fit("myfunc")
+
+zMassSegNumStation1Ring0Chamber4->Draw()
+f1->SetParameters(1000.0,zMassSegNumStation1Ring0Chamber4->GetMean(),zMassSegNumStation1Ring0Chamber4->GetRMS(),2.,20.0,-0.05);
+zMassSegNumStation2Ring1Chamber8->Fit("myfunc")
+
+
+TF1 * f2 = new TF1("myfunc2", "[0] / sqrt(2.0 * TMath::Pi()) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3] + x*[4] + [5] / sqrt(2.0 * TMath::Pi()) / [7] * exp(-(x-[6])*(x-[6])/2./[7]/[7])", 76.0, 106.0);
+f2->SetParNames("Constant","Mean","Sigma","p0","p1","Constant2","Mean2","Sigma2");
+f2->SetParameters(zMassSegDenStation2Ring1Chamber8->Integral()*0.8,zMassSegDenStation2Ring1Chamber8->GetMean(),zMassSegDenStation2Ring1Chamber8->GetRMS(),20.0,-0.05,zMassSegDenStation2Ring1Chamber8->Integral()*0.2,zMassSegDenStation2Ring1Chamber8->GetMean(),zMassSegDenStation2Ring1Chamber8->GetRMS()*1.5);
+zMassSegNumStation2Ring1Chamber8->Fit("myfunc2")
+
+
+
+f2->SetParameters(zMassSegDenStation2Ring1Chamber7->Integral()*0.8,zMassSegDenStation2Ring1Chamber7->GetMean(),zMassSegDenStation2Ring1Chamber7->GetRMS(),20.0,-0.5,zMassSegDenStation2Ring1Chamber7->Integral()*0.2,zMassSegDenStation2Ring1Chamber7->GetMean(),zMassSegDenStation2Ring1Chamber7->GetRMS()*2.0);
+f2->SetParLimits(3,0.0,1000.0)
+f2->SetParLimits(4,-2.0,0.0)
+f2->SetParLimits(0,0.0,zMassSegDenStation2Ring1Chamber7->Integral())
+f2->SetParLimits(5,0.0,zMassSegDenStation2Ring1Chamber7->Integral())
+zMassSegDenStation2Ring1Chamber7->Fit("myfunc2")
+
+
+f2->SetParameters(zMassSegNumStation2Ring1Chamber7->Integral()*0.8,zMassSegNumStation2Ring1Chamber7->GetMean(),zMassSegNumStation2Ring1Chamber7->GetRMS(),20.0,-0.5,zMassSegNumStation2Ring1Chamber7->Integral()*0.2,zMassSegNumStation2Ring1Chamber7->GetMean(),zMassSegNumStation2Ring1Chamber7->GetRMS()*2.0);
+f2->SetParLimits(3,0.0,1000.0)
+f2->SetParLimits(4,-2.0,0.0)
+f2->SetParLimits(0,0.0,zMassSegNumStation2Ring1Chamber7->Integral())
+f2->SetParLimits(5,0.0,zMassSegNumStation2Ring1Chamber7->Integral())
+zMassSegNumStation2Ring1Chamber7->Fit("myfunc2")
+
+
+TF1 * f3 = new TF1("myfunc3", "[0] / sqrt(2.0 * TMath::Pi()) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + exp([3] + x*[4]) + [5] / sqrt(2.0 * TMath::Pi()) / [7] * exp(-(x-[6])*(x-[6])/2./[7]/[7])", 76.0, 106.0);
+f3->SetParNames("Constant","Mean","Sigma","p0","p1","Constant2","Mean2","Sigma2");
+f3->SetParameters(zMassSegDenStation4Ring1Chamber8->Integral()*0.8,zMassSegDenStation4Ring1Chamber8->GetMean(),zMassSegDenStation4Ring1Chamber8->GetRMS(),5.0,-0.5,zMassSegDenStation4Ring1Chamber8->Integral()*0.2,zMassSegDenStation4Ring1Chamber8->GetMean(),zMassSegDenStation4Ring1Chamber8->GetRMS()*1.5);
+
+f3->SetParLimits(0,0.0,zMassSegDenStation4Ring1Chamber7->Integral())
+f3->SetParLimits(5,0.0,zMassSegDenStation4Ring1Chamber7->Integral())
+f3->SetParLimits(3,0.0,100.0)
+f3->SetParLimits(4,-2.0,0.0)
+
+zMassSegDenStation4Ring1Chamber8->Fit("myfunc3")
+
+
+
+f2->SetParameters(zMassSegDenStation2Ring1Chamber7->Integral()*0.8,zMassSegDenStation2Ring1Chamber7->GetMean(),zMassSegDenStation2Ring1Chamber7->GetRMS(),20.0,-0.5,zMassSegDenStation2Ring1Chamber7->Integral()*0.2,zMassSegDenStation2Ring1Chamber7->GetMean(),zMassSegDenStation2Ring1Chamber7->GetRMS()*2.0);
+f2->SetParLimits(3,0.0,1000.0)
+f2->SetParLimits(4,-2.0,0.0)
+f2->SetParLimits(0,0.0,zMassSegDenStation2Ring1Chamber7->Integral())
+f2->SetParLimits(5,0.0,zMassSegDenStation2Ring1Chamber7->Integral())
+zMassSegDenStation2Ring1Chamber7->Fit("myfunc2")
+
+
+
+LCTEff2DStationRingChamber->SetMarkerSize(0.5)
+
+LCTEff2DStationRingChamber->Draw("COLZ TEXTE")
+
+
+c1->Print("CSCLCTEff2018D2DRingChamber_wobadChambers.png")
+f1->SetParameters(700.,hist->GetMean(),hist->GetRMS(),2.);
+
+
+
+See effect most clearly in LCS ME11a
+  worse in odd chambers on the plus side
+segEffLCSStation2Ring0->Draw("")
+segEffLCSStation2Ring3->Draw("SAME")
+segEffLCSStationM2Ring3->Draw("SAME")
+segEffLCSStationP2Ring3->Draw("SAME")
+
+segEffLCYStation2Ring0->Draw("")
+segEffLCYStation2Ring3->Draw("SAME")
+
+segEffLCYStation1Ring0->Draw("")
+segEffLCYStation1Ring1->Draw("SAME")
+
+
+
+segEffChamberStationM1Ring0->Draw("")
+segEffChamberStationP1Ring0->Draw("SAME")
+
+
+chamber minus (plus? yes plus) 7, 20 and 29 have low efficiency.  May need to remove them
+
+May be an plus side vs minus side fill error
+Also 11 the other side
+
+I put endcap minus in 0-3 and endcap plus in 4-7
+I put the plus bins in the bottom of the histogram
+I put the minus bins in the top of the histogram
+which is wrong
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_RU2.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+segEffPVStation1CRing0->SetTitle("     CSC Segement Efficiency vs PV         Run 2, 2018")
+segEffPVStation1CRing0->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,60.0)
+segEffPVStation1CRing0->SetLineColor(kRed)
+segEffPVStation1CRing0->SetMarkerColor(kRed)
+segEffPVStation1CRing0->SetMarkerStyle(8)
+segEffPVStation1CRing0->SetMarkerSize(0.75)
+segEffPVStation1CRing0->Draw("PE1")
+segEffPVStation1CRing1->SetLineColor(kOrange-3)
+segEffPVStation1CRing1->SetMarkerColor(kOrange-3)
+segEffPVStation1CRing1->SetMarkerStyle(8)
+segEffPVStation1CRing1->SetMarkerSize(0.75)
+segEffPVStation1CRing1->Draw("PE1 SAME")
+segEffPVStation1CRing2->SetLineColor(kBlue)
+segEffPVStation1CRing2->SetMarkerColor(kBlue)
+segEffPVStation1CRing2->SetMarkerStyle(8)
+segEffPVStation1CRing2->SetMarkerSize(0.75)
+segEffPVStation1CRing2->Draw("PE1 SAME")
+segEffPVStation1CRing3->SetMarkerStyle(8)
+segEffPVStation1CRing3->SetMarkerSize(0.75)
+segEffPVStation1CRing3->Draw("PE1 SAME")
+
+
+
+TLegend *legendSegPV = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPV->AddEntry(segEffPVStation1CRing0,"ME11a");
+legendSegPV->AddEntry(segEffPVStation1CRing1,"ME11b");
+legendSegPV->AddEntry(segEffPVStation1CRing2,"ME12");
+legendSegPV->AddEntry(segEffPVStation1CRing3,"ME13");
+legendSegPV->Draw();
+c1->Print("CSCSegEff2018ME1vsPV.png")
+
+
+
+Station 1 ring 0 ME11a
+zMassSegDenStation1Ring0PV3->Draw()
+zMassSegNumStation1Ring0PV3->Draw("SAME")
+c1->Print("massInPVBin3ME11a.png")
+zMassSegNumStation1Ring0PV3->Divide(zMassSegDenStation1Ring0PV3)
+zMassSegNumStation1Ring0PV3->Draw()
+c1->Print("effvsmassInPVBin3ME11a.png")
+zMassSegDenStation1Ring0PV3->Integral()
+37264.0
+zMassSegDenStation1Ring0PV8->Draw()
+zMassSegNumStation1Ring0PV8->Draw("SAME")
+c1->Print("massInPVBin8ME11a.png")
+zMassSegNumStation1Ring0PV8->Divide(zMassSegDenStation1Ring0PV8)
+zMassSegNumStation1Ring0PV8->Draw()
+c1->Print("effvsmassInPVBin8ME11a.png")
+zMassSegNumStation1Ring0PV9->Divide(zMassSegDenStation1Ring0PV9)
+zMassSegNumStation1Ring0PV9->Draw()
+c1->Print("effvsmassInPVBin9ME11a.png")
+zMassSegDenStation1Ring0PV8->Integral()
+183405.
+zMassSegDenStation1Ring0PV3->Integral()/zMassSegDenStation1Ring0PV8->Integral()
+0.203179
+
+
+zMassSegDenStation1Ring1PV3->Integral()/zMassSegDenStation1Ring1PV8->Integral()
+
+Station 2 ring 2 ME21
+zMassSegDenStation2Ring1PV3->Draw()
+zMassSegNumStation2Ring1PV3->Draw("SAME")
+c1->Print("massInPVBin3ME21.png")
+zMassSegNumStation2Ring1PV3->Divide(zMassSegDenStation2Ring1PV3)
+zMassSegNumStation2Ring1PV3->Draw()
+c1->Print("effvsmassInPVBin3ME21a.png")
+zMassSegDenStation2Ring1PV3->Integral()
+66043.0
+zMassSegDenStation2Ring1PV8->Draw()
+zMassSegNumStation2Ring1PV8->Draw("SAME")
+c1->Print("massInPVBin8ME21.png")
+zMassSegNumStation2Ring1PV8->Divide(zMassSegDenStation2Ring1PV8)
+zMassSegNumStation2Ring1PV8->Draw()
+c1->Print("effvsmassInPVBin8ME21a.png")
+zMassSegNumStation2Ring1PV7->Divide(zMassSegDenStation2Ring1PV7)
+zMassSegNumStation2Ring1PV7->Draw()
+c1->Print("effvsmassInPVBin7ME21a.png")
+zMassSegNumStation2Ring1PV9->Divide(zMassSegDenStation2Ring1PV9)
+zMassSegNumStation2Ring1PV9->Draw()
+c1->Print("effvsmassInPVBin9ME21a.png")
+
+zMassSegDenStation2Ring1PV8->Integral()
+327801
+zMassSegDenStation2Ring1PV3->Integral()/zMassSegDenStation2Ring1PV8->Integral()
+0.201473
+
+ME11a
+zMassSegDenStation1Ring0PV1->Integral()/zMassSegDenStation2Ring1PV1->Integral()
+zMassSegDenStation1Ring0PV2->Integral()/zMassSegDenStation2Ring1PV2->Integral()
+zMassSegDenStation1Ring0PV3->Integral()/zMassSegDenStation2Ring1PV3->Integral()
+zMassSegDenStation1Ring0PV4->Integral()/zMassSegDenStation2Ring1PV4->Integral()
+zMassSegDenStation1Ring0PV5->Integral()/zMassSegDenStation2Ring1PV5->Integral()
+zMassSegDenStation1Ring0PV6->Integral()/zMassSegDenStation2Ring1PV6->Integral()
+zMassSegDenStation1Ring0PV7->Integral()/zMassSegDenStation2Ring1PV7->Integral()
+zMassSegDenStation1Ring0PV8->Integral()/zMassSegDenStation2Ring1PV8->Integral()
+zMassSegDenStation1Ring0PV9->Integral()/zMassSegDenStation2Ring1PV9->Integral()
+zMassSegDenStation1Ring0PV10->Integral()/zMassSegDenStation2Ring1PV10->Integral()
+zMassSegDenStation1Ring0PV11->Integral()/zMassSegDenStation2Ring1PV11->Integral()
+
+root [109] zMassSegDenStation1Ring0PV1->Integral()/zMassSegDenStation2Ring1PV1->Integral()
+(double) 0.557248
+root [110] zMassSegDenStation1Ring0PV2->Integral()/zMassSegDenStation2Ring1PV2->Integral()
+(double) 0.549076
+root [111] zMassSegDenStation1Ring0PV3->Integral()/zMassSegDenStation2Ring1PV3->Integral()
+(double) 0.564238
+root [112] zMassSegDenStation1Ring0PV4->Integral()/zMassSegDenStation2Ring1PV4->Integral()
+(double) 0.567963
+root [113] zMassSegDenStation1Ring0PV5->Integral()/zMassSegDenStation2Ring1PV5->Integral()
+(double) 0.564462
+root [114] zMassSegDenStation1Ring0PV6->Integral()/zMassSegDenStation2Ring1PV6->Integral()
+(double) 0.566502
+root [115] zMassSegDenStation1Ring0PV7->Integral()/zMassSegDenStation2Ring1PV7->Integral()
+(double) 0.561079
+root [116] zMassSegDenStation1Ring0PV8->Integral()/zMassSegDenStation2Ring1PV8->Integral()
+(double) 0.559501
+root [117] zMassSegDenStation1Ring0PV9->Integral()/zMassSegDenStation2Ring1PV9->Integral()
+(double) 0.557774
+root [118] zMassSegDenStation1Ring0PV10->Integral()/zMassSegDenStation2Ring1PV10->Integral()
+(double) 0.558712
+root [119] zMassSegDenStation1Ring0PV11->Integral()/zMassSegDenStation2Ring1PV11->Integral()
+(double) 0.561029
+
+zMassSegDenStation1Ring0PV1->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV1->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV2->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV2->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV3->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV3->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV4->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV4->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV5->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV5->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV6->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV6->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV7->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV7->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV8->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV8->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV9->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV9->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV10->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV10->Integral(76.0,81.0)
+zMassSegDenStation1Ring0PV11->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV11->Integral(76.0,81.0)
+
+root [160] zMassSegDenStation1Ring0PV1->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV1->Integral(76.0,81.0)
+(double) 0.642857
+root [133] zMassSegDenStation1Ring0PV2->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV2->Integral(76.0,81.0)
+(double) 0.624822
+root [134] zMassSegDenStation1Ring0PV3->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV3->Integral(76.0,81.0)
+(double) 0.640525
+root [135] zMassSegDenStation1Ring0PV4->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV4->Integral(76.0,81.0)
+(double) 0.644206
+root [136] zMassSegDenStation1Ring0PV5->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV5->Integral(76.0,81.0)
+(double) 0.648874
+root [137] zMassSegDenStation1Ring0PV6->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV6->Integral(76.0,81.0)
+(double) 0.647245
+root [138] zMassSegDenStation1Ring0PV7->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV7->Integral(76.0,81.0)
+(double) 0.626802
+root [139] zMassSegDenStation1Ring0PV8->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV8->Integral(76.0,81.0)
+(double) 0.643897
+root [140] zMassSegDenStation1Ring0PV9->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV9->Integral(76.0,81.0)
+(double) 0.625418
+root [141] zMassSegDenStation1Ring0PV10->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV10->Integral(76.0,81.0)
+(double) 0.629182
+root [142] zMassSegDenStation1Ring0PV11->Integral(76.0,81.0)/zMassSegDenStation2Ring1PV11->Integral(76.0,81.0)
+(double) 0.650515
+
+zMassSegDenStation1Ring0PV1->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV1->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV2->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV2->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV3->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV3->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV4->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV4->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV5->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV5->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV6->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV6->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV7->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV7->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV8->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV8->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV9->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV9->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV10->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV10->Integral(101.0,106.0)
+zMassSegDenStation1Ring0PV11->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV11->Integral(101.0,106.0)
+root [158] zMassSegDenStation1Ring0PV1->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV1->Integral(101.0,106.0)
+(double) 0.333333
+root [159] zMassSegDenStation1Ring0PV2->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV2->Integral(101.0,106.0)
+(double) 0.510638
+root [145] zMassSegDenStation1Ring0PV3->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV3->Integral(101.0,106.0)
+(double) 0.531616
+root [146] zMassSegDenStation1Ring0PV4->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV4->Integral(101.0,106.0)
+(double) 0.547321
+root [147] zMassSegDenStation1Ring0PV5->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV5->Integral(101.0,106.0)
+(double) 0.585430
+root [148] zMassSegDenStation1Ring0PV6->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV6->Integral(101.0,106.0)
+(double) 0.590756
+root [149] zMassSegDenStation1Ring0PV7->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV7->Integral(101.0,106.0)
+(double) 0.575231
+root [150] zMassSegDenStation1Ring0PV8->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV8->Integral(101.0,106.0)
+(double) 0.561084
+root [151] zMassSegDenStation1Ring0PV9->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV9->Integral(101.0,106.0)
+(double) 0.545215
+root [152] zMassSegDenStation1Ring0PV10->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV10->Integral(101.0,106.0)
+(double) 0.603261
+root [153] zMassSegDenStation1Ring0PV11->Integral(101.0,106.0)/zMassSegDenStation2Ring1PV11->Integral(101.0,106.0)
+(double) 0.541045
+
+
+
+
+
+or
+zMassSegDenStation1Ring1PV1->Integral()/zMassSegDenStation2Ring1PV1->Integral()
+zMassSegDenStation1Ring1PV2->Integral()/zMassSegDenStation2Ring1PV2->Integral()
+zMassSegDenStation1Ring1PV3->Integral()/zMassSegDenStation2Ring1PV3->Integral()
+zMassSegDenStation1Ring1PV4->Integral()/zMassSegDenStation2Ring1PV4->Integral()
+zMassSegDenStation1Ring1PV5->Integral()/zMassSegDenStation2Ring1PV5->Integral()
+zMassSegDenStation1Ring1PV6->Integral()/zMassSegDenStation2Ring1PV6->Integral()
+zMassSegDenStation1Ring1PV7->Integral()/zMassSegDenStation2Ring1PV7->Integral()
+zMassSegDenStation1Ring1PV8->Integral()/zMassSegDenStation2Ring1PV8->Integral()
+zMassSegDenStation1Ring1PV9->Integral()/zMassSegDenStation2Ring1PV9->Integral()
+zMassSegDenStation1Ring1PV10->Integral()/zMassSegDenStation2Ring1PV10->Integral()
+zMassSegDenStation1Ring1PV11->Integral()/zMassSegDenStation2Ring1PV11->Integral()
+
+root [121] zMassSegDenStation1Ring1PV1->Integral()/zMassSegDenStation2Ring1PV1->Integral()
+(double) 1.27994
+root [122] zMassSegDenStation1Ring1PV2->Integral()/zMassSegDenStation2Ring1PV2->Integral()
+(double) 1.28977
+root [123] zMassSegDenStation1Ring1PV3->Integral()/zMassSegDenStation2Ring1PV3->Integral()
+(double) 1.28089
+root [124] zMassSegDenStation1Ring1PV4->Integral()/zMassSegDenStation2Ring1PV4->Integral()
+(double) 1.28019
+root [125] zMassSegDenStation1Ring1PV5->Integral()/zMassSegDenStation2Ring1PV5->Integral()
+(double) 1.28802
+root [126] zMassSegDenStation1Ring1PV6->Integral()/zMassSegDenStation2Ring1PV6->Integral()
+(double) 1.28731
+root [127] zMassSegDenStation1Ring1PV7->Integral()/zMassSegDenStation2Ring1PV7->Integral()
+(double) 1.28741
+root [128] zMassSegDenStation1Ring1PV8->Integral()/zMassSegDenStation2Ring1PV8->Integral()
+(double) 1.28778
+root [129] zMassSegDenStation1Ring1PV9->Integral()/zMassSegDenStation2Ring1PV9->Integral()
+(double) 1.28507
+root [130] zMassSegDenStation1Ring1PV10->Integral()/zMassSegDenStation2Ring1PV10->Integral()
+(double) 1.29180
+root [131] zMassSegDenStation1Ring1PV11->Integral()/zMassSegDenStation2Ring1PV11->Integral()
+(double) 1.29043
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+segEffPVStation2CRing1->SetTitle("     CSC Segement Efficiency vs PV         Run 2, 2018")
+segEffPVStation2CRing1->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,60.0)
+segEffPVStation2CRing1->SetLineColor(kRed)
+segEffPVStation2CRing1->SetMarkerColor(kRed)
+segEffPVStation2CRing1->SetMarkerStyle(8)
+segEffPVStation2CRing1->SetMarkerSize(0.75)
+segEffPVStation2CRing1->Draw("PE1")
+segEffPVStation3CRing1->SetLineColor(kOrange-3)
+segEffPVStation3CRing1->SetMarkerColor(kOrange-3)
+segEffPVStation3CRing1->SetMarkerStyle(8)
+segEffPVStation3CRing1->SetMarkerSize(0.75)
+segEffPVStation3CRing1->Draw("PE1 SAME")
+segEffPVStation4CRing1->SetLineColor(kOrange)
+segEffPVStation4CRing1->SetMarkerColor(kOrange)
+segEffPVStation4CRing1->SetMarkerStyle(8)
+segEffPVStation4CRing1->SetMarkerSize(0.75)
+segEffPVStation4CRing1->Draw("PE1 SAME")
+segEffPVStation2CRing2->SetLineColor(kAzure+6)
+segEffPVStation2CRing2->SetMarkerColor(kAzure+6)
+segEffPVStation2CRing2->SetMarkerStyle(8)
+segEffPVStation2CRing2->SetMarkerSize(0.75)
+segEffPVStation2CRing2->Draw("PE1 SAME")
+segEffPVStation3CRing2->SetLineColor(kBlue)
+segEffPVStation3CRing2->SetMarkerColor(kBlue)
+segEffPVStation3CRing2->SetMarkerStyle(8)
+segEffPVStation3CRing2->SetMarkerSize(0.75)
+segEffPVStation3CRing2->Draw("PE1 SAME")
+segEffPVStation4CRing2->SetLineColor(kBlue+2)
+segEffPVStation4CRing2->SetMarkerColor(kBlue+2)
+segEffPVStation4CRing2->SetMarkerStyle(8)
+segEffPVStation4CRing2->SetMarkerSize(0.75)
+segEffPVStation4CRing2->Draw("PE1 SAME")
+
+
+
+TLegend *legendsegPV2 = new TLegend(0.75,0.7,0.9,0.9);
+legendsegPV2->AddEntry(segEffPVStation2CRing1,"ME21");
+legendsegPV2->AddEntry(segEffPVStation3CRing1,"ME31");
+legendsegPV2->AddEntry(segEffPVStation4CRing1,"ME41");
+legendsegPV2->AddEntry(segEffPVStation2CRing2,"ME22");
+legendsegPV2->AddEntry(segEffPVStation3CRing2,"ME32");
+legendsegPV2->AddEntry(segEffPVStation4CRing2,"ME42");
+legendsegPV2->Draw();
+c1->Print("CSCsegEff2018ME234vsPV.png")
+
+
+
+
+
+
+LCTEffPVStation1CRing0->SetTitle("     CSC LCT Efficiency vs PV         Run 2, 2018")
+LCTEffPVStation1CRing0->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,60.0)
+LCTEffPVStation1CRing0->SetLineColor(kRed)
+LCTEffPVStation1CRing0->SetMarkerColor(kRed)
+LCTEffPVStation1CRing0->SetMarkerStyle(8)
+LCTEffPVStation1CRing0->SetMarkerSize(0.75)
+LCTEffPVStation1CRing0->Draw("PE1")
+LCTEffPVStation1CRing1->SetLineColor(kOrange-3)
+LCTEffPVStation1CRing1->SetMarkerColor(kOrange-3)
+LCTEffPVStation1CRing1->SetMarkerStyle(8)
+LCTEffPVStation1CRing1->SetMarkerSize(0.75)
+LCTEffPVStation1CRing1->Draw("PE1 SAME")
+LCTEffPVStation1CRing2->SetLineColor(kBlue)
+LCTEffPVStation1CRing2->SetMarkerColor(kBlue)
+LCTEffPVStation1CRing2->SetMarkerStyle(8)
+LCTEffPVStation1CRing2->SetMarkerSize(0.75)
+LCTEffPVStation1CRing2->Draw("PE1 SAME")
+LCTEffPVStation1CRing3->SetMarkerStyle(8)
+LCTEffPVStation1CRing3->SetMarkerSize(0.75)
+segEffPVStation1CRing3->Draw("PE1 SAME")
+
+
+TLegend *legendLCTPV = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTPV->AddEntry(LCTEffPVStation1CRing0,"ME11a");
+legendLCTPV->AddEntry(LCTEffPVStation1CRing1,"ME11b");
+legendLCTPV->AddEntry(LCTEffPVStation1CRing2,"ME12");
+legendLCTPV->AddEntry(LCTEffPVStation1CRing3,"ME13");
+legendLCTPV->Draw();
+c1->Print("CSCLCTEff2018DME1vsPV.png")
+
+
+
+
+
+
+LCTEffPVStation2CRing1->SetTitle("     CSC LCT Efficiency vs PV         Run 2, 2018")
+LCTEffPVStation2CRing1->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,60.0)
+LCTEffPVStation2CRing1->SetLineColor(kRed)
+LCTEffPVStation2CRing1->SetMarkerColor(kRed)
+LCTEffPVStation2CRing1->SetMarkerStyle(8)
+LCTEffPVStation2CRing1->SetMarkerSize(0.75)
+LCTEffPVStation2CRing1->Draw("PE1")
+LCTEffPVStation3CRing1->SetLineColor(kOrange-3)
+LCTEffPVStation3CRing1->SetMarkerColor(kOrange-3)
+LCTEffPVStation3CRing1->SetMarkerStyle(8)
+LCTEffPVStation3CRing1->SetMarkerSize(0.75)
+LCTEffPVStation3CRing1->Draw("PE1 SAME")
+LCTEffPVStation4CRing1->SetLineColor(kOrange)
+LCTEffPVStation4CRing1->SetMarkerColor(kOrange)
+LCTEffPVStation4CRing1->SetMarkerStyle(8)
+LCTEffPVStation4CRing1->SetMarkerSize(0.75)
+LCTEffPVStation4CRing1->Draw("PE1 SAME")
+LCTEffPVStation2CRing2->SetLineColor(kAzure+6)
+LCTEffPVStation2CRing2->SetMarkerColor(kAzure+6)
+LCTEffPVStation2CRing2->SetMarkerStyle(8)
+LCTEffPVStation2CRing2->SetMarkerSize(0.75)
+LCTEffPVStation2CRing2->Draw("PE1 SAME")
+LCTEffPVStation3CRing2->SetLineColor(kBlue)
+LCTEffPVStation3CRing2->SetMarkerColor(kBlue)
+LCTEffPVStation3CRing2->SetMarkerStyle(8)
+LCTEffPVStation3CRing2->SetMarkerSize(0.75)
+LCTEffPVStation3CRing2->Draw("PE1 SAME")
+LCTEffPVStation4CRing2->SetLineColor(kBlue+2)
+LCTEffPVStation4CRing2->SetMarkerColor(kBlue+2)
+LCTEffPVStation4CRing2->SetMarkerStyle(8)
+LCTEffPVStation4CRing2->SetMarkerSize(0.75)
+LCTEffPVStation4CRing2->Draw("PE1 SAME")
+
+
+
+TLegend *legendLCTPV2 = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTPV2->AddEntry(LCTEffPVStation2CRing1,"ME21");
+legendLCTPV2->AddEntry(LCTEffPVStation3CRing1,"ME31");
+legendLCTPV2->AddEntry(LCTEffPVStation4CRing1,"ME41");
+legendLCTPV2->AddEntry(LCTEffPVStation2CRing2,"ME22");
+legendLCTPV2->AddEntry(LCTEffPVStation3CRing2,"ME32");
+legendLCTPV2->AddEntry(LCTEffPVStation4CRing2,"ME42");
+legendLCTPV2->Draw();
+
+c1->Print("CSCLCTEff2018ME234vsPV.png")
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+segEffILStation1Ring0->SetTitle("     CSC Segement Efficiency vs IL         Run 2, 2018")
+segEffILStation1Ring0->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffILStation1Ring0->GetXaxis()->SetRangeUser(0.0,22000)
+segEffILStation1Ring0->SetLineColor(kRed)
+segEffILStation1Ring0->SetMarkerColor(kRed)
+segEffILStation1Ring0->SetMarkerStyle(8)
+segEffILStation1Ring0->SetMarkerSize(0.75)
+segEffILStation1Ring0->Draw("PE1")
+segEffILStation1Ring1->SetLineColor(kOrange-3)
+segEffILStation1Ring1->SetMarkerColor(kOrange-3)
+segEffILStation1Ring1->SetMarkerStyle(8)
+segEffILStation1Ring1->SetMarkerSize(0.75)
+segEffILStation1Ring1->Draw("PE1 SAME")
+segEffILStation1Ring2->SetLineColor(kBlue)
+segEffILStation1Ring2->SetMarkerColor(kBlue)
+segEffILStation1Ring2->SetMarkerStyle(8)
+segEffILStation1Ring2->SetMarkerSize(0.75)
+segEffILStation1Ring2->Draw("PE1 SAME")
+segEffILStation1Ring3->SetMarkerStyle(8)
+segEffILStation1Ring3->SetMarkerSize(0.75)
+segEffILStation1Ring3->Draw("PE1 SAME")
+
+
+
+TLegend *legendSegIL = new TLegend(0.75,0.7,0.9,0.9);
+legendSegIL->AddEntry(segEffILStation1Ring0,"ME11a");
+legendSegIL->AddEntry(segEffILStation1Ring1,"ME11b");
+legendSegIL->AddEntry(segEffILStation1Ring2,"ME12");
+legendSegIL->AddEntry(segEffILStation1Ring3,"ME13");
+legendSegIL->Draw();
+c1->Print("CSCSegEff2018ME1vsIL.png")
+
+
+
+
+LCTEffILStation1Ring0->SetTitle("     CSC LCTement Efficiency vs IL         Run 2, 2018")
+LCTEffILStation1Ring0->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffILStation1Ring0->GetXaxis()->SetRangeUser(0.0,22000)
+LCTEffILStation1Ring0->SetLineColor(kRed)
+LCTEffILStation1Ring0->SetMarkerColor(kRed)
+LCTEffILStation1Ring0->SetMarkerStyle(8)
+LCTEffILStation1Ring0->SetMarkerSize(0.75)
+LCTEffILStation1Ring0->Draw("PE1")
+LCTEffILStation1Ring1->SetLineColor(kOrange-3)
+LCTEffILStation1Ring1->SetMarkerColor(kOrange-3)
+LCTEffILStation1Ring1->SetMarkerStyle(8)
+LCTEffILStation1Ring1->SetMarkerSize(0.75)
+LCTEffILStation1Ring1->Draw("PE1 SAME")
+LCTEffILStation1Ring2->SetLineColor(kBlue)
+LCTEffILStation1Ring2->SetMarkerColor(kBlue)
+LCTEffILStation1Ring2->SetMarkerStyle(8)
+LCTEffILStation1Ring2->SetMarkerSize(0.75)
+LCTEffILStation1Ring2->Draw("PE1 SAME")
+LCTEffILStation1Ring3->SetMarkerStyle(8)
+LCTEffILStation1Ring3->SetMarkerSize(0.75)
+LCTEffILStation1Ring3->Draw("PE1 SAME")
+
+
+
+
+TLegend *legendLCTIL = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTIL->AddEntry(LCTEffILStation1Ring0,"ME11a");
+legendLCTIL->AddEntry(LCTEffILStation1Ring1,"ME11b");
+legendLCTIL->AddEntry(LCTEffILStation1Ring2,"ME12");
+legendLCTIL->AddEntry(LCTEffILStation1Ring3,"ME13");
+legendLCTIL->Draw();
+c1->Print("CSCLCTEff2018ME1vsIL.png")
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+segEffIsoStation1CRing0->SetTitle("     CSC Segement Efficiency vs Iso         Run 2, 2018")
+segEffIsoStation1CRing0->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffIsoStation1CRing0->GetXaxis()->SetRangeUser(0.0,60.0)
+segEffIsoStation1CRing0->SetLineColor(kRed)
+segEffIsoStation1CRing0->SetMarkerColor(kRed)
+segEffIsoStation1CRing0->SetMarkerStyle(8)
+segEffIsoStation1CRing0->SetMarkerSize(0.75)
+segEffIsoStation1CRing0->Draw("PE1")
+segEffIsoStation1CRing1->SetLineColor(kOrange-3)
+segEffIsoStation1CRing1->SetMarkerColor(kOrange-3)
+segEffIsoStation1CRing1->SetMarkerStyle(8)
+segEffIsoStation1CRing1->SetMarkerSize(0.75)
+segEffIsoStation1CRing1->Draw("PE1 SAME")
+segEffIsoStation1CRing2->SetLineColor(kBlue)
+segEffIsoStation1CRing2->SetMarkerColor(kBlue)
+segEffIsoStation1CRing2->SetMarkerStyle(8)
+segEffIsoStation1CRing2->SetMarkerSize(0.75)
+segEffIsoStation1CRing2->Draw("PE1 SAME")
+segEffIsoStation1CRing3->SetMarkerStyle(8)
+segEffIsoStation1CRing3->SetMarkerSize(0.75)
+segEffIsoStation1CRing3->Draw("PE1 SAME")
+
+
+
+TLegend *legendSegIso = new TLegend(0.75,0.7,0.9,0.9);
+legendSegIso->AddEntry(segEffIsoStation1CRing0,"ME11a");
+legendSegIso->AddEntry(segEffIsoStation1CRing1,"ME11b");
+legendSegIso->AddEntry(segEffIsoStation1CRing2,"ME12");
+legendSegIso->AddEntry(segEffIsoStation1CRing3,"ME13");
+legendSegIso->Draw();
+c1->Print("CSCSegEff2018ME1vsIso.png")
+
+
+
+
+
+
+LCTEffIsoStation2CRing1->SetTitle("     CSC LCT Efficiency vs Iso         Run 2, 2018")
+LCTEffIsoStation2CRing1->GetYaxis()->SetRangeUser(0.8,1.02)
+LCTEffIsoStation2CRing1->GetXaxis()->SetRangeUser(0.0,60.0)
+LCTEffIsoStation2CRing1->SetLineColor(kRed)
+LCTEffIsoStation2CRing1->SetMarkerColor(kRed)
+LCTEffIsoStation2CRing1->SetMarkerStyle(8)
+LCTEffIsoStation2CRing1->SetMarkerSize(0.75)
+LCTEffIsoStation2CRing1->Draw("PE1")
+LCTEffIsoStation3CRing1->SetLineColor(kOrange-3)
+LCTEffIsoStation3CRing1->SetMarkerColor(kOrange-3)
+LCTEffIsoStation3CRing1->SetMarkerStyle(8)
+LCTEffIsoStation3CRing1->SetMarkerSize(0.75)
+LCTEffIsoStation3CRing1->Draw("PE1 SAME")
+LCTEffIsoStation4CRing1->SetLineColor(kOrange)
+LCTEffIsoStation4CRing1->SetMarkerColor(kOrange)
+LCTEffIsoStation4CRing1->SetMarkerStyle(8)
+LCTEffIsoStation4CRing1->SetMarkerSize(0.75)
+LCTEffIsoStation4CRing1->Draw("PE1 SAME")
+LCTEffIsoStation2CRing2->SetLineColor(kAzure+6)
+LCTEffIsoStation2CRing2->SetMarkerColor(kAzure+6)
+LCTEffIsoStation2CRing2->SetMarkerStyle(8)
+LCTEffIsoStation2CRing2->SetMarkerSize(0.75)
+LCTEffIsoStation2CRing2->Draw("PE1 SAME")
+LCTEffIsoStation3CRing2->SetLineColor(kBlue)
+LCTEffIsoStation3CRing2->SetMarkerColor(kBlue)
+LCTEffIsoStation3CRing2->SetMarkerStyle(8)
+LCTEffIsoStation3CRing2->SetMarkerSize(0.75)
+LCTEffIsoStation3CRing2->Draw("PE1 SAME")
+LCTEffIsoStation4CRing2->SetLineColor(kBlue+2)
+LCTEffIsoStation4CRing2->SetMarkerColor(kBlue+2)
+LCTEffIsoStation4CRing2->SetMarkerStyle(8)
+LCTEffIsoStation4CRing2->SetMarkerSize(0.75)
+LCTEffIsoStation4CRing2->Draw("PE1 SAME")
+
+
+
+TLegend *legendLCTIso2 = new TLegend(0.75,0.7,0.9,0.9);
+legendLCTIso2->AddEntry(LCTEffIsoStation2CRing1,"ME21");
+legendLCTIso2->AddEntry(LCTEffIsoStation3CRing1,"ME31");
+legendLCTIso2->AddEntry(LCTEffIsoStation4CRing1,"ME41");
+legendLCTIso2->AddEntry(LCTEffIsoStation2CRing2,"ME22");
+legendLCTIso2->AddEntry(LCTEffIsoStation3CRing2,"ME32");
+legendLCTIso2->AddEntry(LCTEffIsoStation4CRing2,"ME42");
+legendLCTIso2->Draw();
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+segEffRunStation1Ring0->SetTitle("     CSC Segement Efficiency vs Run         Run 2,  2018D")
+segEffRunStation1Ring0->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffRunStation1Ring0->SetLineColor(kRed)
+segEffRunStation1Ring0->SetMarkerColor(kRed)
+segEffRunStation1Ring0->Draw("PE1")
+segEffRunStation1Ring1->SetLineColor(kOrange-3)
+segEffRunStation1Ring1->SetMarkerColor(kOrange-3)
+segEffRunStation1Ring1->Draw("PE1 SAME")
+segEffRunStation1Ring2->SetLineColor(kBlue)
+segEffRunStation1Ring2->SetMarkerColor(kBlue)
+segEffRunStation1Ring2->Draw("PE1 SAME")
+segEffRunStation1Ring3->Draw("PE1 SAME")
+
+TLegend *legendSegRun = new TLegend(0.75,0.7,0.9,0.9);
+legendSegRun->AddEntry(segEffRunStation1Ring0,"ME11a");
+legendSegRun->AddEntry(segEffRunStation1Ring1,"ME11b");
+legendSegRun->AddEntry(segEffRunStation1Ring2,"ME12");
+legendSegRun->AddEntry(segEffRunStation1Ring3,"ME13");
+legendSegRun->Draw();
+c1->Print("CSCSegEff2018DME1vsRun.png")
+
+
+
+
+
+segEffRunStation2Ring1->SetTitle("     CSC Segment Efficiency vs # Run         Run 2, 2018D")
+segEffRunStation2Ring1->GetYaxis()->SetRangeUser(0.8,1.02)
+segEffRunStation2Ring1->GetXaxis()->SetRangeUser(0.0,60.0)
+segEffRunStation2Ring1->SetLineColor(kRed)
+segEffRunStation2Ring1->SetMarkerColor(kRed)
+segEffRunStation2Ring1->Draw("PE1")
+segEffRunStation3Ring1->SetLineColor(kOrange-3)
+segEffRunStation3Ring1->SetMarkerColor(kOrange-3)
+segEffRunStation3Ring1->Draw("PE1 SAME")
+segEffRunStation4Ring1->SetLineColor(kOrange)
+segEffRunStation4Ring1->SetMarkerColor(kOrange)
+segEffRunStation4Ring1->Draw("PE1 SAME")
+segEffRunStation2Ring2->SetLineColor(kAzure+6)
+segEffRunStation2Ring2->SetMarkerColor(kAzure+6)
+segEffRunStation2Ring2->Draw("PE1 SAME")
+segEffRunStation3Ring2->SetLineColor(kBlue)
+segEffRunStation3Ring2->SetMarkerColor(kBlue)
+segEffRunStation3Ring2->Draw("PE1 SAME")
+segEffRunStation4Ring2->SetLineColor(kBlue+1)
+segEffRunStation4Ring2->SetMarkerColor(kBlue+1)
+segEffRunStation4Ring2->Draw("PE1 SAME")
+
+TLegend *legendsegRun2 = new TLegend(0.75,0.7,0.9,0.9);
+legendsegRun2->AddEntry(segEffRunStation2Ring1,"ME21");
+legendsegRun2->AddEntry(segEffRunStation3Ring1,"ME31");
+legendsegRun2->AddEntry(segEffRunStation4Ring1,"ME41");
+legendsegRun2->AddEntry(segEffRunStation2Ring2,"ME22");
+legendsegRun2->AddEntry(segEffRunStation3Ring2,"ME32");
+legendsegRun2->AddEntry(segEffRunStation4Ring2,"ME42");
+legendsegRun2->Draw();
+c1->Print("CSCsegEff2018DME234vsRun.png")
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+segEff2DStation1Ring0ChamberRun->SetTitle("CSC Segment Efficiency vs Chamber and Run ME-11A")
+segEff2DStation1Ring0ChamberRun->GetXaxis()->SetTitle("Chamber #");
+segEff2DStation1Ring0ChamberRun->GetYaxis()->SetTitle("Run ");
+segEff2DStation1Ring0ChamberRun->GetYaxis()->SetTitleOffset(1.45);
+segEff2DStation1Ring0ChamberRun->GetXaxis()->SetTickLength(0.015);
+segEff2DStation1Ring0ChamberRun->GetYaxis()->SetTickLength(0.015);
+segEff2DStation1Ring0ChamberRun->GetZaxis()->SetRangeUser(0.0,1.0);
+segEff2DStation1Ring0ChamberRun->SetMarkerSize(0.5);
+
+segEff2DStation1Ring0ChamberRun->SetMarkerSize(0.75);
+
+segEff2DStation1Ring0ChamberRun->Draw("COLZ TEXT")
+c1->Print("CSCSegEff2018DME+11A2DChamberRun.png")
+
+segEffStationP1Ring0Chamber2Run->Draw("HIST P")
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------
+2018D Detailed analysis
+
+//------
+//ME-11A
+segEff2DStation1Ring0ChamberRun->Draw("COLZ TEXT")
+c1->Print("CSCSegEff2018DME11AvsRun.png")
+
+//ME-11A/9 Runs '322599', '322602', '322603', '322605', '322617', '322625', '322633' 
+segEffStation1Ring0Chamber9Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME11A-9vsRun.png")
+
+
+//ME-11A/10 first seciton but not in run plot! but does show up in 11B !!!!!
+segEffStation1Ring0Chamber10Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME10A-10vsRun.png")
+
+
+//ME-11A/11 DCFEB 3
+segEffLCSStation1Ring0Chamber11->Draw()
+c1->Print("CSCSegEff2018DME11A-11vsLCS.png")
+
+
+//ME-11A/12 Various runs up and down '322355', '322356', '322381', '322407', '322430', '322431', '322480', '322492', 
+segEffLCSStation1Ring0Chamber12->Draw()
+c1->Print("CSCSegEff2018DME11A-12vsRun.png")
+
+
+
+//ME-11A/25 Runs '321067' to '325172' DCFEB 1
+segEffStationP1Ring0Chamber25Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME11A-25vsRun.png")
+segEffLCSStationM1Ring0Chamber25->Draw()
+c1->Print("CSCSegEff2018DME25A-11vsLCS.png")
+
+
+// ME-11A/26 bad at 321057
+segEffStation1Ring0Chamber25Run->Draw("HIST P")
+
+//ME-11A/29 one run of three at 20% '322605'
+segEffStationP1Ring0Chamber29Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-11A-25vsRun.png")
+
+
+//------
+//ME-11B
+segEff2DStationP1Ring1ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME-11BvsRun.png")
+
+//ME-11B/5 DCFEB 1
+segEffLCSStationM1Ring1Chamber5->Draw()
+c1->Print("CSCSegEff2018DME-11B-11vsLCS.png")
+
+//ME-11B/10 bad in first run seciton !!!!!
+segEffStation1Ring1Chamber10Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME10B-10vsRun.png")
+
+
+
+//ME-11B/12 Various runs up and down '322355', '322356', '322381', '322407', '322430', '322431', '322480', '322492',
+// Also earlier runs 319077
+segEffStation1Ring1Chamber12Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-11B-12vsLCS.png")
+
+//ME-11B/26 70% one run at 321232, NOT REMOVED
+segEffStationP1Ring1Chamber26Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-11B-26vsRun.png")
+
+//ME-11B/29 one run of three at 20% '322605'
+segEffStationP1Ring0Chamber29Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-11B-29vsRun.png")
+
+//------
+//ME-12
+segEff2DStationP1Ring2ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME-12vsRun.png")
+
+//ME-12/6 Runs '323423', '323470', '323471', '323472', '323473', '323474', '323475', '323487', '323488', '323492', '323493', '323495', '323524', '323525', '323526' Up and down 55 to 85 and DCFEB 4
+segEffStationP1Ring2Chamber6Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-12-6vsRun.png")
+
+//ME-12/17 Runs genearly worse after Run 323423 95% to 85%, Nothing wrong vs Strips, check wires, NOT REMOVED
+segEffStationP1Ring2Chamber17Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-12-17vsRun.png")
+segEffLCSStation1Ring2Chamber17->Draw()
+c1->Print("CSCSegEff2018DME-12-17vsLCS.png")
+
+//ME-12/33 DCFEB 1
+segEffLCSStationM1Ring2Chamber33->Draw()
+c1->Print("CSCSegEff2018DME-12-33vsLCS.png")
+
+-------
+//ME-13
+segEff2DStationP1Ring3ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME-13vsRun.png")
+
+
+// ME-13/35 Bad in first run section !!!!!
+segEffStation1Ring3Chamber35Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-13-35vsRun.png")
+
+
+-------
+//ME+11A
+segEff2DStation5Ring0ChamberRun->SetMarkerSize(0.5)
+segEff2DStation5Ring0ChamberRun->SetTitle("CSC Segment Efficiency ME+11A    Run 2, 2018")
+segEff2DStation5Ring0ChamberRun->Draw("COLZ TEXT")
+c1->Print("CSCSegEff2018ME+11AvsRun.png")
+
+//ME+11A/7 DCFEB 1
+segEffLCSStationM5Ring0Chamber7->Draw()
+c1->Print("CSCSegEff2018DME+11A-7vsLCS.png")
+
+//ME+11A/20 DCFEB 3 okay before 318800 !!!!!!
+segEffLCSStation5Ring0Chamber20->Draw()
+c1->Print("CSCSegEff2018DME+11A-20vsLCS.png")
+
+//ME+11A/21 Runs 323940', '323954', '323976', '323978', '323980', '323983', '323997', '324021', '324022', Also 323755 ?? CHECK WIRES (wire okay)
+segEffStationP5Ring0Chamber21Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME+11A-21vsRun.png")
+segEffLCWStationM5Ring0Chamber21->Draw()
+c1->Print("CSCSegEff2018DME+11A-21vsLCW.png")
+
+
+//ME+11A/29 DCFEB 3 okay before 318800 !!!!!
+segEffLCSStationM5Ring0Chamber29->Draw()
+c1->Print("CSCSegEff2018DME+11A-29vsLCS.png")
+
+--------
+//ME+11B
+segEff2DStationP5Ring1ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+11BvsRun.png")
+
+//ME+11B/18 run 319077
+segEffStation5Ring1Chamber18Run->Draw("HIST P")
+
+
+//ME+11B/21 Runs 323940', '323954', '323976', '323978', '323980', '323983', '323997', '324021', '324022', Also 323725 323727 ??
+segEffStation5Ring1Chamber21Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME+11B-21vsRun.png")
+
+//------
+//ME+12
+segEff2DStationP5Ring2ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+12vsRun.png")
+
+//ME+12/8 bad before 318800 !!!!!
+
+//ME+12/8 Runs '321067', '321068', '321069', '321119', '321121', '321122', '321124', '321126', '321134', '321138', '321140', '321149', '321165', '321166', '321167', '321177', '321178', '321218', '321219', '321221', '321230', '321231', '321232', '321233', '321262', '321283', '321294', '321295', '321296', '321305', Fluctuates from good to almost 0  and 322013,322014
+segEffStationP5Ring2Chamber8Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME+12-8vsRun.png")
+
+//ME+12/13 DCFEB 5 (last) 
+segEffLCSStationM5Ring2Chamber13->Draw()
+c1->Print("CSCSegEff2018DME+12-13vsLCS.png")
+
+//ME+12/20 DCFEB 3
+segEffLCSStation5Ring2Chamber20->Draw()
+c1->Print("CSCSegEff2018DME+12-20vsLCS.png")
+
+//ME+12/21 DCFEB 2, 4 partial, possibly some run dependence
+segEffLCSStationM5Ring2Chamber21->Draw()
+c1->Print("CSCSegEff2018DME+12-21vsLCS.png")
+segEffStationP5Ring2Chamber21Run->Draw("HIST P")
+
+//ME+12/28 Rus '320804', '320807', '320809' and also 320955
+segEffStationP5Ring2Chamber28Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME+12-28vsRun.png")
+
+//ME+12/31 DCFEB 5 (last) 
+segEffLCSStationM5Ring2Chamber31->Draw()
+c1->Print("CSCSegEff2018DME+12-31vsLCS.png")
+
+//------
+//ME+13
+segEff2DStationP5Ring3ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+13vsRun.png")
+
+//ME+13/11 DCFEB 3 (second to last?) 
+segEffLCSStationM5Ring3Chamber11->Draw()
+c1->Print("CSCSegEff2018DME+13-11vsLCS.png")
+
+//------
+//ME-21
+segEff2DStation2Ring1ChamberRun->SetMarkerSize(0.5)
+segEff2DStation2Ring1ChamberRun->SetTitle("CSC Segment Efficiency ME-21    Run 2, 2018")
+segEff2DStation2Ring1ChamberRun->Draw("COLZ TEXT")
+c1->Print("CSCSegEff2018ME-21vsRun.png")
+
+// ME-21/3 no data
+
+//ME-21/8 Strip normal Dropped in efficiency in later runs after 325423 CHECK WIRES (dip in wites)
+segEffLCSStation2Ring1Chamber8->Draw()
+c1->Print("CSCSegEff2018DME-21-8vsLCS.png")
+segEffStation2Ring1Chamber8Run->Draw("HIST P")
+c1->Print("CSCSegEff2018ME-21-8vsRun.png")
+segEffLCWStation2Ring1Chamber8->Draw()
+c1->Print("CSCSegEff2018DME-21-8vsLCW.png")
+
+
+
+//ME-21/9 DCFEB 4 and strange dips Dropped in efficiency in later runs after 325423 CHECK WIRES, may correlate with PV, Strange pattern in wites ** might wat to OR these conditions
+segEffLCSStationM2Ring1Chamber9->Draw()
+c1->Print("CSCSegEff2018DME-21-9vsLCS.png")
+segEffStationP2Ring1Chamber9Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-21-9vsRun.png")
+segEffLCWStationM2Ring1Chamber9->Draw()
+c1->Print("CSCSegEff2018DME-21-9vsLCW.png")
+
+
+
+//ME-21/10 strips up and down, Dropped in efficiency in later runs after 325423 CHECK WIRES
+segEffLCSStationM2Ring1Chamber10->Draw()
+c1->Print("CSCSegEff2018DME-21-10vsLCS.png")
+segEffStationP2Ring1Chamber10Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-21-10vsRun.png")
+segEffLCWStationM2Ring1Chamber10->Draw()
+c1->Print("CSCSegEff2018DME-21-10vsLCW.png")
+
+
+
+//ME-21/17 strips low and up and down, Dropped in efficiency in later runs after 325423 CHECK WIRES ***** check again in full file
+segEffLCSStation2Ring1Chamber17->Draw()
+c1->Print("CSCSegEff2018ME-21-17vsLCS.png")
+segEffStation2Ring1Chamber17Run->Draw("HIST P")
+
+segEffLCWStation2Ring1Chamber17->Draw()
+c1->Print("CSCSegEff2018ME-21-17vsLCW.png")
+
+
+LCTEffLCSStation2Ring1Chamber17->Draw()
+c1->Print("CSCLCTEff2018ME-21-17vsLCS.png")
+LCTEffLCWStation2Ring1Chamber17->Draw()
+c1->Print("CSCLCTEff2018ME-21-17vsLCW.png")
+
+
+
+//------
+//ME-22
+segEff2DStationP2Ring2ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME-22vsRun.png")
+
+//ME-22/1 DCFEB 4 (second to last) okay before 318800 !!!!!!
+segEffLCSStationM2Ring2Chamber1->Draw()
+c1->Print("CSCSegEff2018DME-22-1vsLCS.png")
+
+//ME-22/3 DCFEB 2
+segEffLCSStationM2Ring2Chamber3->Draw()
+c1->Print("CSCSegEff2018DME-22-3vsLCS.png")
+
+//ME-22/16 Dropped slightly in efficiency in later runs after 325423 CHECK WIRES (slightly odd dip), NOT REMOVED, wires fine
+segEffStation2Ring2Chamber16Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-22-16vsRun.png")
+segEffLCWStationM2Ring2Chamber16->Draw()
+c1->Print("CSCSegEff2018DME-22-16vsLCW.png")
+
+
+
+//ME-22/20 Dropped slightly in efficiency in later runs after 325423 CHECK WIRES (slightly odd up and down behaivior may need larger range)
+segEffStationP2Ring2Chamber20Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-22-20vsRun.png")
+segEffLCWStationM2Ring2Chamber20->Draw()
+c1->Print("CSCSegEff2018DME-22-20vsLCW.png")
+
+
+
+//------
+//ME+21
+segEff2DStationP6Ring1ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+21vsRun.png")
+
+//ME+21/3 DCFEB 2 and 4
+segEffLCSStationM6Ring1Chamber3->Draw()
+c1->Print("CSCSegEff2018DME+21-3vsLCS.png")
+
+
+//------
+//ME+22
+segEff2DStationP6Ring2ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+22vsRun.png")
+
+//ME+22/5 DCFEB 1
+segEffLCSStationM6Ring2Chamber5->Draw()
+c1->Print("CSCSegEff2018DME+22-5vsLCS.png")
+
+
+//ME+22/15 DCFEB 5 (last)
+segEffLCSStationM6Ring2Chamber15->Draw()
+c1->Print("CSCSegEff2018DME+22-15vsLCS.png")
+
+//ME+19/19 DCFEB 5 (last)
+segEffLCSStationM6Ring2Chamber19->Draw()
+c1->Print("CSCSegEff2018DME+22-19vsLCS.png")
+
+//------
+//ME-31
+segEff2DStationP2Ring2ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME-22vsRun.png")
+
+
+//ME-31/9 DCFEB 1  and 4 (two partial run ranges 320394-321296  323423-325172
+segEffLCSStationM3Ring1Chamber9->Draw()
+c1->Print("CSCSegEff2018DME-31-9vsLCS.png")
+segEffStationP3Ring1Chamber9Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-31-9vsRun.png")
+
+
+//ME-31/9 DCFEB 3
+segEffLCSStationM3Ring1Chamber13->Draw()
+c1->Print("CSCSegEff2018DME-31-13vsLCS.png")
+
+//ME-31/18  runs 323423-325172 CHECK WIRES (more obvious dip in patter may be interesting to run only later run range **)
+segEffStationP3Ring1Chamber18Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-31-18vsRun.png")
+segEffLCSStationM3Ring1Chamber18->Draw()
+c1->Print("CSCSegEff2018DME-31-18vsLCS.png")
+segEffLCWStationM3Ring1Chamber18->Draw()
+c1->Print("CSCSegEff2018DME-31-18vsLCW.png")
+
+
+//------
+//ME-32 no major problems
+segEff2DStationP3Ring2ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME-22vsRun.png")
+
+//------
+//ME+31
+segEff2DStationP7Ring1ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+31vsRun.png")
+
+//ME+31/7 DCFEB 3
+segEffLCSStation7Ring1Chamber7->Draw()
+c1->Print("CSCSegEff2018DME+31-7vsLCS.png")
+
+// ME+31/12 slight problem DCFEB 7 not removed
+segEffLCSStation7Ring1Chamber12->Draw()
+
+
+//------
+//ME+32
+segEff2DStationP7Ring2ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+32vsRun.png")
+
+
+//ME+32/19 DCFEB 5
+segEffLCSStationM7Ring2Chamber19->Draw()
+c1->Print("CSCSegEff2018DME+32-19vsLCS.png")
+
+
+//ME+32/29 DCFEB 3
+segEffLCSStationM7Ring2Chamber29->Draw()
+c1->Print("CSCSegEff2018DME+32-29vsLCS.png")
+
+//------
+//ME-41
+segEff2DStationP4Ring1ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME-41vsRun.png")
+
+
+//ME-41/1 DCFEB 3 (middle) also late runs low.  
+segEffLCSStationM4Ring1Chamber1->Draw()
+c1->Print("CSCSegEff2018DME-41-1vsLCS.png")
+
+//ME-41/11 DCFEB 11 (middle) ***** revisit
+segEffLCSStationM4Ring1Chamber11->Draw()
+c1->Print("CSCSegEff2018DME-41-15vsLCS.png")
+
+//ME-41/15 DCFEB 3 (middle)
+segEffLCSStationM4Ring1Chamber11->Draw()
+c1->Print("CSCSegEff2018DME-41-15vsLCS.png")
+
+//------
+//ME-42
+segEff2DStationP4Ring2ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME-42vsRun.png")
+
+
+//ME-42/1 DCFEB 3 (middle) odd looking data in DCFEB 1 drops with runs CHECK WIRES (slightly up and down) **** OR or revisit
+segEffLCSStationM4Ring2Chamber1->Draw()
+c1->Print("CSCSegEff2018DME-42-1vsLCS.png")
+segEffLCWStationM4Ring2Chamber1->Draw()
+c1->Print("CSCSegEff2018DME-42-1vsLCW.png")
+
+
+//ME-42/2 '323492', '323493' 30-60%
+segEffStationP4Ring2Chamber2Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-42-2vsRun.png")
+
+//ME-42/8 DCFEB 2 
+segEffLCSStationM4Ring2Chamber8->Draw()  ***** sort of low
+c1->Print("CSCSegEff2018DME-42-8vsLCS.png")
+
+//ME-42/27 DCFEB 4 for runs '323693', '323696', '323702', '323725', '323726', '323727', '323755', '323775', '323778', '323790', '323794', '323841', '323857', '323940', '323954', '323976', '323978', '323980', '323983', '323997', '324021', '324022', '324077', 
+segEffLCSStationM4Ring2Chamber27->Draw()
+c1->Print("CSCSegEff2018DME-42-27vsLCS.png")
+segEffStationP4Ring2Chamber27Run->Draw("HIST P")
+c1->Print("CSCSegEff2018DME-42-27vsRun.png")
+
+//ME-42/8 DCFEB 2 
+segEffLCSStationM4Ring2Chamber34->Draw()
+c1->Print("CSCSegEff2018DME-42-34vsLCS.png")
+
+
+//------
+//ME+41
+segEff2DStationP8Ring1ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+41vsRun.png")
+
+
+//ME+41/8 DCFEB 5 last
+segEffLCSStationM8Ring1Chamber15->Draw()
+c1->Print("CSCSegEff2018DME+41-15vsLCS.png")
+
+//------
+//ME+42
+segEff2DStationP8Ring1ChamberRun->Draw("COLZ TEXTE")
+c1->Print("CSCSegEff2018DME+42vsRun.png")
+
+
+//ME+41/8 DCFEB 1
+segEffLCSStationM8Ring2Chamber32->Draw()
+c1->Print("CSCSegEff2018DME+42-32vsLCS.png")
+
+
+----------------------------------------------------------------
+
+cscEffHistoFile_LCWY.root
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_LCWY.root")
+
+TFile *_file0 = TFile::Open("cscEffHistoFile.root")
+
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+// General LCT plots
+LCTEff2DStationRingChamber->Draw("COLZ TEXT")
+//ME11 rings in general 95% efficiency
+
+//Some chamber with larger problems ~83%-92% efficiency 
+// ME+11/21 88% ME-11/23 83% ME+11A/1 87%
+// ME+12/8 91% ME-12/22 93% ME-13/22 90%  ME-13/25 92%
+// ME+31 91%  92% ME-22/32 94% ME-42/14 92%
+
+------
+// ME+11a,b
+LCTEff2DStation5Ring0ChamberRun->Draw("COLZ TEXT")
+LCTEff2DStation5Ring1ChamberRun->Draw("COLZ TEXT")
+
+
+//ME+11a/1 87% not in segment 
+LCTEffStation5Ring0Chamber1Run->Draw("HIST P")
+// Issue starts at run 321283 get slightly worse 92%-> 88% to 84%
+// Slightly worse in ME11b/1 92% -> 91% to 88%
+LCTEffLCWStation5Ring0Chamber1->Draw()
+LCTEffLCYStation5Ring0Chamber1->Draw()
+//Steep trend seed with wires raising -70 to -40 or local Y -70 to -20
+LCTEffLCSStation5Ring0Chamber1->Draw()
+//Slight trend with strips 90-84% with raising strip number
+
+
+//ME+11a/21 and ME+11b/21 88% not in segments
+// primary dependence is run
+// ***** Remove 323725 to 324022 4-10%
+LCTEffStation5Ring0Chamber21Run->Draw("HIST P")
+
+
+------
+// ME-11a,b
+LCTEff2DStation1Ring0ChamberRun->Draw("COLZ TEXT")
+LCTEff2DStation1Ring1ChamberRun->Draw("COLZ TEXT")
+
+// ME-11a/5 and ME-11b/b not in segments
+// primary depenence is run 80%
+// ***** Remove 323400 to 324077 
+LCTEffStation1Ring0Chamber5Run->Draw("HIST P")
+LCTEffLCSStation1Ring0Chamber5->Draw()
+LCTEffLCSStation1Ring1Chamber5->Draw()
+// No Strip depencence
+// ***** Check wires
+LCTEffLCWStation1Ring0Chamber5->Draw()
+LCTEffLCYStation1Ring0Chamber5->Draw()
+//no obvious effect in wires or Y
+
+// ME-11a/23 and ME-11b/23 not in segments
+// primary depenence is run 70%
+// ***** Remove 323400 to 324400
+LCTEffStation1Ring0Chamber32Run->Draw("HIST P")
+LCTEffLCSStation1Ring0Chamber32->Draw()
+LCTEffLCSStation1Ring1Chamber32->Draw()
+// No Strip depencence
+// ***** Check wires
+LCTEffLCWStation1Ring0Chamber32->Draw()
+LCTEffLCYStation1Ring0Chamber32->Draw()
+//no obvious effect in wires or Y
+
+
+// ME-11/23 not segment
+// Goes up and down with run 78, 67, 93, 73 same pattern in both
+LCTEffLCYStation1Ring0Chamber23->Draw()
+LCTEffLCYStation1Ring1Chamber23->Draw()
+LCTEffLCWStation1Ring0Chamber23->Draw()
+LCTEffLCWStation1Ring1Chamber23->Draw()
+//84% some sawtooth in Y
+LCTEffLCSStation1Ring0Chamber23->Draw()
+LCTEffLCSStation1Ring1Chamber23->Draw()
+// Flat in strips
+
+-----
+//ME+12
+LCTEff2DStation5Ring2ChamberRun->Draw("COLZ TEXT")
+// Some small run range issues
+
+//ME+12/5, in segment also
+// Small run range issue no action, one run
+LCTEff2DStation5Ring2ChamberRun->Draw("COLZ TEXT")
+
+//ME+12/8 , in segement also
+LCTEffStation5Ring2Chamber8Run->Draw("HIST P")
+// Small run range issue strange downward trend in effiiency
+// 321067-321305 ***** check wires
+LCTEffLCWStation5Ring2Chamber8->Draw()
+LCTEffLC=YStation5Ring2Chamber8->Draw()
+//no obvious effect in wires or Y
+
+
+//ME+12/30
+LCTEffStation5Ring2Chamber28Run->Draw("HIST P")
+// Small run rage issue, no action, a few runs
+
+
+-----
+// ME-12
+LCTEff2DStation1Ring2ChamberRun->Draw("COLZ TEXT")
+
+// ME-12/21 also in segments but only seen here
+// Consistently low efficiency 91% In segements also but smaller
+LCTEffLCSStation1Ring2Chamber21->Draw()
+// DCFEB 3 issue, removed 
+
+// ME-12/36
+LCTEffStation1Ring2Chamber36Run->Draw("HIST P")
+// Low efficiency after 321700
+LCTEffLCSStation1Ring2Chamber36->Draw()
+// DCFEB 4 issue, removed in run range
+
+
+-----
+// ME+13
+LCTEff2DStation5Ring3ChamberRun->Draw("COLZ TEXT")
+// No issues
+
+
+-----
+// ME-13
+LCTEff2DStation5Ring3ChamberRun->Draw("COLZ TEXT")
+// Multiple issue with runs through 321314, lesser issues in segments
+
+
+//ME-13/8
+LCTEffStation1Ring3Chamber8Run->Draw("HIST P")
+LCTEffLCSStation1Ring3Chamber8->Draw()
+// DCFEB 5 issue, removed in run range
+
+//ME-13/15 not in segements
+LCTEffStation1Ring3Chamber8Run->Draw("HIST P")
+LCTEffLCSStation1Ring3Chamber8->Draw()
+// Efficiency goes down with strip number, slightly worse in DCFEB 5
+
+//ME-13/22
+LCTEffStation1Ring3Chamber22Run->Draw("HIST P")
+LCTEffLCSStation1Ring3Chamber22->Draw()
+// Very bad through 321070, strange pattern in strips, lesser effect in segments
+// ***** Check wires
+LCTEffLCWStation1Ring3Chamber22->Draw()
+LCTEffLCYStation1Ring3Chamber22->Draw()
+// Y plot is ragged but probably ok
+
+
+//ME-13/25
+LCTEffStation1Ring3Chamber25Run->Draw("HIST P")
+LCTEffLCSStation1Ring3Chamber25->Draw()
+// Very bad through 321070, lesser effect in segments
+// DCFEB 4 issue, not as clean, remove run dependent
+// ***** Check wires
+LCTEffLCWStation1Ring3Chamber25->Draw()
+LCTEffLCYStation1Ring3Chamber25->Draw()
+//No obvious effect in wires
+
+
+
+
+
+-----
+//ME+21
+LCTEff2DStation6Ring1ChamberRun->Draw("COLZ TEXT")
+// ~No issues
+
+// ME+21/1 small issue with one run 
+LCTEffStation6Ring1Chamber1Run->Draw("HIST P")
+// No action
+
+-----
+LCTEff2DStation2Ring1ChamberRun->Draw("COLZ TEXT")
+// ~small issue
+
+// ME-21/9
+LCTEffStation6Ring1Chamber1Run->Draw("HIST P")
+// DCFEB 4, mistake in code, should have been all runs
+
+-----
+//ME+22
+LCTEff2DStation6Ring2ChamberRun->Draw("COLZ TEXT")
+// small issue one chamber early runs
+
+//ME+22/23
+LCTEffStation6Ring2Chamber23Run->Draw("HIST P")
+// large proble in eaerly runs through 317000, no action
+LCTEffLCSStation6Ring2Chamber23->Draw()
+// No problem in strips, ***** check wires
+LCTEffLCYStation6Ring2Chamber23->Draw()
+LCTEffLCWStation6Ring2Chamber23->Draw()
+// !!!!! wires and Y are all over the place
+
+
+
+
+-----
+//ME-22
+LCTEff2DStation2Ring2ChamberRun->Draw("COLZ TEXT")
+// one chamber
+
+// ME-22/32
+// No data 316000 to 318000!
+// ***** check whiteboard
+
+-----
+//ME+31
+LCTEff2DStation7Ring1ChamberRun->Draw("COLZ TEXT")
+// one chamber
+
+//ME+31/12 not in segement
+LCTEffStation7Ring1Chamber12Run->Draw("HIST P")
+// Generally a bit low and folling
+LCTEffLCWStation7Ring1Chamber12->Draw()
+LCTEffLCYStation7Ring1Chamber12->Draw()
+// 91% no patterin in Y or W
+LCTEffLCYStation7Ring1Chamber12->Draw()
+// DCFEB 5 issue, lesser effect in segements, removed
+
+
+-----
+//ME-31
+LCTEff2DStation3Ring1ChamberRun->Draw("COLZ TEXT")
+// no issues
+
+-----
+//ME+32
+LCTEff2DStation7Ring2ChamberRun->Draw("COLZ TEXT")
+// no issues
+
+-----
+//ME-32
+LCTEff2DStation3Ring2ChamberRun->Draw("COLZ TEXT")
+// ~ no issues, very minor single run issues
+
+
+-----
+//ME+41
+LCTEff2DStation8Ring1ChamberRun->Draw("COLZ TEXT")
+// ~no issues, on minor single run issue
+
+
+-----
+//ME-41
+LCTEff2DStation4Ring1ChamberRun->Draw("COLZ TEXT")
+// ~no issues, on minor single run issue
+// one minor single run issues
+
+
+-----
+//ME+42
+LCTEff2DStation8Ring2ChamberRun->Draw("COLZ TEXT")
+// ~no issues, on minor single run issue
+
+-----
+//ME-42
+LCTEff2DStation4Ring2ChamberRun->Draw("COLZ TEXT")
+// on chamber
+
+
+//ME-42/14 also segment
+LCTEffLCWStation4Ring2Chamber14->Draw()
+LCTEffLCYStation4Ring2Chamber14->Draw()
+//92% no pattern in Y or W
+LCTEffLCSStation4Ring2Chamber14->Draw()
+// DCFEB 2, removed, also in segements, up and down with run
+
+
+// Run dependent
+ME-11a
+LCTEff2DStation1Ring0ChamberRun->Draw("COLZ TEXT")
+
+ME-11a/5
+// Run dependent after 323400 80%
+LCTEffLCYStation1Ring0Chamber5->Draw()
+LCTEffLCWStation1Ring0Chamber5->Draw()
+// Okay in Y, W and S not in segment
+
+ME-11a/32
+// Run dependent after 323400 70%
+LCTEffLCYStation1Ring0Chamber32->Draw()
+LCTEffLCWStation1Ring0Chamber32->Draw()
+// Okay in Y, W and S not in segment
+
+
+------
+ME-11b
+LCTEff2DStation1Ring1ChamberRun->Draw("COLZ TEXT")
+
+
+ME-11b/5
+// Run dependent after 323400 80%
+LCTEffLCYStation1Ring1Chamber5->Draw()
+LCTEffLCWStation1Ring1Chamber5->Draw()
+// Okay in Y, W and S not in segment, 
+
+ME-11b/32
+// Run dependent after 323400 70%
+LCTEffLCYStation1Ring1Chamber32->Draw()
+LCTEffLCWStation1Ring1Chamber32->Draw()
+// Okay in Y and W not in segment, some lowering wth increasing Y and W
+
+
+------
+ME-12
+LCTEff2DStation1Ring2ChamberRun->Draw("COLZ TEXT") distribution problem, just this one
+
+------
+ME-13
+// low efficicies in earlier runs up to 321000
+// Much larger problems in these in lect
+
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_RU2.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+segEffPVStation1CRing0->SetTitle("     CSC Segement Efficiency vs PV         Run 2, 2018")
+segEffPVStation1CRing0->GetYaxis()->SetRangeUser(0.9,1.0)
+segEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,60.0)
+segEffPVStation1CRing0->SetLineColor(kRed)
+segEffPVStation1CRing0->SetMarkerColor(kRed)
+segEffPVStation1CRing0->SetMarkerStyle(8)
+segEffPVStation1CRing0->SetMarkerSize(0.75)
+segEffPVStation1CRing0->Draw("PE1")
+
+TLegend *legendSegPV = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPV->AddEntry(segEffPVStation1CRing0,"ME11a ST");
+legendSegPV->Draw();
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_NoRU1.root")
+
+segEffPVStation1CRing0->SetLineColor(kRed)
+segEffPVStation1CRing0->SetMarkerColor(kRed)
+segEffPVStation1CRing0->SetMarkerStyle(24)
+segEffPVStation1CRing0->SetMarkerSize(0.75)
+segEffPVStation1CRing0->Draw("PE1 SAME")
+
+
+TLegend *legendSegPV2 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPV2->AddEntry(segEffPVStation1CRing0,"ME11a RU Original");
+legendSegPV2->Draw();
+
+
+
+c1->Print("CSCSegEff2018ME1vsPVRUComp.png")
+
+
+
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_RU2.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+segEffPVStation1CRing1->SetTitle("     CSC Segement Efficiency vs PV         Run 2, 2018")
+segEffPVStation1CRing1->GetYaxis()->SetRangeUser(0.9,1.0)
+segEffPVStation1CRing1->GetXaxis()->SetRangeUser(0.0,60.0)
+segEffPVStation1CRing1->SetLineColor(kRed)
+segEffPVStation1CRing1->SetMarkerColor(kRed)
+segEffPVStation1CRing1->SetMarkerStyle(8)
+segEffPVStation1CRing1->SetMarkerSize(0.75)
+segEffPVStation1CRing1->Draw("PE1")
+
+TLegend *legendSegPV = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPV->AddEntry(segEffPVStation1CRing1,"ME11b ST");
+legendSegPV->Draw();
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_NoRU1.root")
+
+segEffPVStation1CRing1->SetLineColor(kRed)
+segEffPVStation1CRing1->SetMarkerColor(kRed)
+segEffPVStation1CRing1->SetMarkerStyle(24)
+segEffPVStation1CRing1->SetMarkerSize(0.75)
+segEffPVStation1CRing1->Draw("PE1 SAME")
+
+
+TLegend *legendSegPV2 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPV2->AddEntry(segEffPVStation1CRing1,"ME11b RU Original");
+legendSegPV2->Draw();
+
+
+
+c1->Print("CSCSegEff2018ME1vsPVRUComp2.png")
+
+
+
+
+
+
+
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_RU2.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+segEffEtaStation1CRing0->SetTitle("     CSC Segement Efficiency vs Eta         Run 2, 2018")
+segEffEtaStation1CRing0->GetYaxis()->SetRangeUser(0.9,1.0)
+segEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.0,60.0)
+segEffEtaStation1CRing0->SetLineColor(kRed)
+segEffEtaStation1CRing0->SetMarkerColor(kRed)
+segEffEtaStation1CRing0->SetMarkerStyle(8)
+segEffEtaStation1CRing0->SetMarkerSize(0.75)
+segEffEtaStation1CRing0->Draw("PE1")
+
+TLegend *legendSegEta = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta->AddEntry(segEffEtaStation1CRing0,"ME11a ST");
+legendSegEta->Draw();
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_NoRU1.root")
+
+segEffEtaStation1CRing0->SetLineColor(kRed)
+segEffEtaStation1CRing0->SetMarkerColor(kRed)
+segEffEtaStation1CRing0->SetMarkerStyle(24)
+segEffEtaStation1CRing0->SetMarkerSize(0.75)
+segEffEtaStation1CRing0->Draw("PE1 SAME")
+
+
+TLegend *legendSegEta2 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta2->AddEntry(segEffEtaStation1CRing0,"ME11a RU Original");
+legendSegEta2->Draw();
+
+
+
+c1->Print("CSCSegEff2018ME1vsEtaRUComp.png")
+
+
+
+
+
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_RU2.root")
+
+gStyle->SetOptStat(0)
+gStyle->SetPalette(kBlueRedYellow)
+gStyle->SetPaintTextFormat("3.2f")
+gStyle->SetCanvasDefH(750)
+gStyle->SetCanvasDefW(1000)
+
+
+
+segEffEtaStation1CRing1->SetTitle("     CSC Segement Efficiency vs Eta         Run 2, 2018")
+segEffEtaStation1CRing1->GetYaxis()->SetRangeUser(0.9,1.0)
+segEffEtaStation1CRing1->GetXaxis()->SetRangeUser(0.0,60.0)
+segEffEtaStation1CRing1->SetLineColor(kRed)
+segEffEtaStation1CRing1->SetMarkerColor(kRed)
+segEffEtaStation1CRing1->SetMarkerStyle(8)
+segEffEtaStation1CRing1->SetMarkerSize(0.75)
+segEffEtaStation1CRing1->Draw("PE1")
+
+TLegend *legendSegEta = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta->AddEntry(segEffEtaStation1CRing1,"ME11b RU Improved");
+legendSegEta->Draw();
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_NoRU1.root")
+
+segEffEtaStation1CRing1->SetLineColor(kRed)
+segEffEtaStation1CRing1->SetMarkerColor(kRed)
+segEffEtaStation1CRing1->SetMarkerStyle(24)
+segEffEtaStation1CRing1->SetMarkerSize(0.75)
+segEffEtaStation1CRing1->Draw("PE1 SAME")
+
+
+TLegend *legendSegEta2 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegEta2->AddEntry(segEffEtaStation1CRing1,"ME11b RU Original");
+legendSegEta2->Draw();
+
+
+
+c1->Print("CSCSegEff2018ME1vsEtaRUComp2.png")
+
+
+
+
+
