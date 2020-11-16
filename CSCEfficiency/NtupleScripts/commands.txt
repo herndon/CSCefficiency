@@ -2308,11 +2308,11 @@ gStyle->SetCanvasDefW(1000)
 
 
 segEffPVStation1CRing0->SetTitle("     CSC Segement Efficiency vs PV         Run 2, 2018")
-segEffPVStation1CRing0->GetYaxis()->SetRangeUser(0.9,1.0)
+segEffPVStation1CRing0->GetYaxis()->SetRangeUser(0.93,1.0)
 segEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,60.0)
-segEffPVStation1CRing0->SetLineColor(kRed)
-segEffPVStation1CRing0->SetMarkerColor(kRed)
-segEffPVStation1CRing0->SetMarkerStyle(8)
+segEffPVStation1CRing0->SetLineColor(kBlack)
+segEffPVStation1CRing0->SetMarkerColor(kBlack)
+segEffPVStation1CRing0->SetMarkerStyle(21)
 segEffPVStation1CRing0->SetMarkerSize(0.75)
 segEffPVStation1CRing0->Draw("PE1")
 
@@ -2333,6 +2333,20 @@ segEffPVStation1CRing0->Draw("PE1 SAME")
 TLegend *legendSegPV2 = new TLegend(0.75,0.7,0.9,0.9);
 legendSegPV2->AddEntry(segEffPVStation1CRing0,"ME11a RU Original");
 legendSegPV2->Draw();
+
+
+TFile *_file0 = TFile::Open("cscEffHistoFile_RUNew1.root")
+
+segEffPVStation1CRing0->SetLineColor(kRed)
+segEffPVStation1CRing0->SetMarkerColor(kRed)
+segEffPVStation1CRing0->SetMarkerStyle(8)
+segEffPVStation1CRing0->SetMarkerSize(0.75)
+segEffPVStation1CRing0->Draw("PE1 SAME")
+
+
+TLegend *legendSegPV3 = new TLegend(0.75,0.7,0.9,0.9);
+legendSegPV3->AddEntry(segEffPVStation1CRing0,"ME11a RU New");
+legendSegPV3->Draw();
 
 
 

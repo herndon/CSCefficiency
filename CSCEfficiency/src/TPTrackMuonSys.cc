@@ -25,7 +25,6 @@
 TPTrackMuonSys::TPTrackMuonSys(const edm::ParameterSet& Conf) : theDbConditions( Conf ) {
   //now do what ever initialization is needed
   m_rootFileName         = Conf.getUntrackedParameter<std::string>("rootFileName","PhyTree.root");
-  std::cout <<"IDB: Test"<<std::endl;
   //  cout <<"\t\t TPTrackMuonSys::TPTrackMuonSys..."<<endl;
 
   ///////////////////////////////
@@ -337,7 +336,31 @@ vtxsrc_= pSet_.getUntrackedParameter<std::string>("vtxsrc","offlinePrimaryVertic
     MakeBranchAllSt("CSCDyErrProjHVGap","F",CSCDyErrProjHVGap);
     MakeBranchAllSt("CSCProjDistEdge","F",CSCProjEdgeDist);
     MakeBranchAllSt("CSCProjDistErrEdge","F",CSCProjEdgeDistErr);
- 
+
+    /*Extrapolated Track Position  on CSC Chamber Candidates in each station*/
+    /*Can be redefined if a segment in another chamber on the same ring is found*/
+    MakeBranchAllSt("CSCTTxLc","F",CSCTTxLc);
+    MakeBranchAllSt("CSCTTwLc","F",CSCTTwLc);
+    MakeBranchAllSt("CSCTTyLc","F",CSCTTyLc);
+    MakeBranchAllSt("CSCTTsLc","F",CSCTTsLc);
+    MakeBranchAllSt("CSCTTwSegxLc","F",CSCTTwSegxLc);
+    MakeBranchAllSt("CSCTTwSegyLc","F",CSCTTwSegyLc);
+    MakeBranchAllSt("CSCTT3xLc","F",CSCTT3xLc);
+    MakeBranchAllSt("CSCTT3wLc","F",CSCTT3wLc);
+    MakeBranchAllSt("CSCTT3yLc","F",CSCTT3yLc);
+    MakeBranchAllSt("CSCTT3sLc","F",CSCTT3sLc);
+    MakeBranchAllSt("CSCTT3wLCTxLc","F",CSCTT3wLCTxLc);
+    MakeBranchAllSt("CSCTT3wLCTyLc","F",CSCTT3wLCTyLc);
+    MakeBranchAllSt("CSCTTxGc","F",CSCTTxGc);
+    MakeBranchAllSt("CSCTTyGc","F",CSCTTyGc);
+    MakeBranchAllSt("CSCTTzGc","F",CSCTTzGc);
+    MakeBranchAllSt("CSCTTetaGc","F",CSCTTetaGc);
+    MakeBranchAllSt("CSCTT3xGc","F",CSCTT3xGc);
+    MakeBranchAllSt("CSCTT3yGc","F",CSCTT3yGc);
+    MakeBranchAllSt("CSCTT3zGc","F",CSCTT3zGc);
+    MakeBranchAllSt("CSCTT3etaGc","F",CSCTT3etaGc);
+
+    
     /*Segments characteristics*/
     MakeBranchAllSt("CSCSegNumber","F",CSCSegNumber);
     MakeBranchAllSt("DTSegNumber","F",DTSegNumber);
@@ -373,7 +396,7 @@ vtxsrc_= pSet_.getUntrackedParameter<std::string>("vtxsrc","offlinePrimaryVertic
 
     MakeBranchAllSt("CSCDxErrTTLCT","F",CSCDxErrTTLCT);
     MakeBranchAllSt("CSCDyTTLCT","F",CSCDyTTLCT);
-    MakeBranchAllSt("CSCDxErrTTLCT","F",CSCDxErrTTLCT);
+    MakeBranchAllSt("CSCDyErrTTLCT","F",CSCDyErrTTLCT);
     MakeBranchAllSt("CSCDxyTTLCT","F",CSCDxyTTLCT);
     MakeBranchAllSt("CSCDxyErrTTLCT","F",CSCDxyErrTTLCT);
 
@@ -414,11 +437,9 @@ TPTrackMuonSys::~TPTrackMuonSys(){
 // ------------ method called to for each event  ------------
 void 
 TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
-  //cout << "HERE *************************" << endl;
 
-  std::cout <<"IDB: TPTrackMuonSys::analyze..."<<std::endl;
+  // std::cout <<"TPTrackMuonSys::analyze..."<<std::endl;
 
-  //cout <<"\t\t TPTrackMuonSys::analyze..."<<endl;
 
   nEventsAnalyzed++;
   Nevents_all=nEventsAnalyzed;
@@ -823,7 +844,6 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
   /*-----------End getting HLT results------------*/ 
 
-  //cout <<"   tracks muons " << endl;
   if(!gTracks.isValid() ) return;
   if(!muons.isValid() ) return;
   if (gTracks->size() > MAXNTRACKS) return;
@@ -865,9 +885,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
     if ( itTrack->charge() == 0 ) continue;
     if ( itTrack->p() < 3.0)  continue;
 
-//  cout <<"   trackRef " << endl;
     reco::TrackRef trackRef(gTracks, itrk );
-  //cout <<"  ... ok trackRef " << endl;
     Float_t trk_eta = itTrack->eta(),
       trk_phi = itTrack->phi(),
       trk_dxy  = itTrack->dxy(),
@@ -879,14 +897,13 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       trk_dxy  = itTrack->dxy(beamSpot.position()); 
       trk_dz   = itTrack->dz(beamSpot.position());  
     }
+ 
     if ( ! (itTrack->numberOfValidHits()>7  && fabs(trk_dz)<24 && fabs(trk_dxy)< 2.0 && trk_chi2>0 && trk_chi2<4) ) continue;
 //    if ( ! (itTrack->numberOfValidHits()>7  && fabs(trk_dz)<50 && fabs(trk_dxy)< 5.0 && trk_chi2>0 && trk_chi2<4) ) continue;
 
     Bool_t ec= ( trk_eta > 0 );
     //     if(fabs(trk_eta) < 1.2 ) trackDT = true;
-//  cout <<"is it CSC? " << endl;
     if(fabs(trk_eta) > 0.9 ) {//if it is a CSCTrack
-//  cout <<" yes it is CSC " << endl;
       for(UChar_t j =0; j < 6; j++){//start looping stations
 //	cout <<"  tsos: "<< int(j) << endl;
 //        cout <<"   extrapolating track to: "<< double(ec?MEZ[j]:-MEZ[j])<<" ..." << endl;
@@ -954,7 +971,6 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   //  edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
   //  std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");       
 
-   //cout <<" muon begin" << endl;
    
 
   if (muons->size()>0){
@@ -965,14 +981,41 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   //  std::string trackExtractorName = trackExtractorPSet_.getParameter<std::string>("ComponentName");
   //  muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet_,consumesCollector());
 
+  // Check for good CSC candidate.  consider exiting if not
+  for (reco::MuonCollection::const_iterator muIter1 = muons->begin(); muIter1 != muons->end(); ++muIter1) {  
+    for (reco::MuonCollection::const_iterator muIter2 = std::next(muIter1); muIter2 != muons->end(); ++muIter2) { 
+      //std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
+
+      Float_t mMu = 0.1134289256;
+      Float_t mass = pow( ( sqrt(pow(muIter1->p(),2)+ mMu*mMu) +  sqrt(pow(muIter2->p(),2)+ mMu*mMu) ) ,2 ) -
+	(
+	 pow((muIter1->px() + muIter2->px()),2) +
+	 pow((muIter1->py() + muIter2->py()),2) +
+	 pow((muIter1->pz() + muIter2->pz()),2)
+	 );
+
+      if(mass > 0) mass = sqrt(mass);
+      //std::cout << "invMass: " << mass << std::endl;
+      if ((muIter1->pt()>28&&muIter2->pt()>10&&fabs(muIter2->eta())>0.9)||
+	  (muIter1->pt()>28&&muIter2->pt()>10&&fabs(muIter2->eta())>0.9))
+      {
+	//std::cout << "Good CSC candidate" << std::endl;
+	//std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
+	if (muIter1->isGlobalMuon()&&muIter2->isGlobalMuon()){
+	  //std::cout << "Tracks, Tr 1 pt, eta: " << muIter1->track()->pt() << ", " << muIter1->track()->eta() << " Tr 2 pt, eta: " << muIter2->track()->pt() << ", " << muIter2->track()->eta() << "Hits: " <<  muIter1->track()->numberOfValidHits() << " " << muIter2->track()->numberOfValidHits() << std::endl;
+	}
+
+      }
+
+    }
+  }
 
   for (reco::MuonCollection::const_iterator muIter1 = muons->begin(); muIter1 != muons->end(); ++muIter1) {  
-//cout <<"   muon... " << endl;
-
-
+   
     if (!muIter1->isTrackerMuon() ) continue;
     if (!muIter1->track().isNonnull()) continue;
 
+    
     if (event_number_muon != event.id().event()){
       nEventsMuons_ok++;
       Nevents_muons_ok=nEventsMuons_ok;
@@ -980,8 +1023,9 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
     event_number_muon=event.id().event();
 
     MuTagPt     = muIter1->track()->pt() ;
-    if (MuTagPt < 5.) continue;
-    
+    // Trigger requirement is 28 so increase to 25
+    if (MuTagPt < 25.) continue;
+
     Float_t mu1dxy = 1000., mu1dz = 1000.;
 
     if(beamExists){
@@ -1004,7 +1048,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
         Bool_t goodTrack  = (fabs(mu1dxy) < 2.0 && fabs(mu1dz) < 24.0 && fabs(mu1Chi2) < 4.0 && MuTagHitsTrkSys > 7 ); //&& MuTagHitsMuSys > 3 
     //    Bool_t goodTrack  = (fabs(mu1dxy) < 5.0 && fabs(mu1dz) < 50.0 && fabs(mu1Chi2) < 4.0 && MuTagHitsTrkSys > 7 ); //&& MuTagHitsMuSys > 3 
 //    Bool_t goodTrack  = (fabs(mu1dxy) < 10.0 && fabs(mu1dz) < 100.0 && fabs(mu1Chi2) < 10.0 && MuTagHitsTrkSys > 3 ); //&& MuTagHitsMuSys > 3 
-    if(!goodTrack)continue;
+	if(!goodTrack)continue;
 
 
     if (event_number_muon3 != event.id().event()){
@@ -1016,7 +1060,8 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
     
     MuTagnSegTrkArb  = muIter1->numberOfMatches(); // get number of chambers with matched segments
     if (MuTagnSegTrkArb < 2) continue;
-
+ 
+    
     if (event_number_muongood != event.id().event()){
       nEventsMuons_okgood++;
       Nevents_muons_okgood=nEventsMuons_okgood;
@@ -1081,13 +1126,13 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
     //    MuTagIsoR03Ratio = -999.;
     //    MuTagIsoR05Ratio = -999.;
 
+    
     MuTagIsoR03Ratio = MuTagPt>0?muIter1->isolationR03().sumPt/MuTagPt:9999.;
     MuTagIsoR05Ratio = MuTagPt>0?muIter1->isolationR05().sumPt/MuTagPt:9999.;
 
     MuTagPFIsoR04Ratio = MuTagPt>0?(muIter1->pfIsolationR04().sumChargedHadronPt + max(0., muIter1->pfIsolationR04().sumNeutralHadronEt + muIter1->pfIsolationR04().sumPhotonEt - 0.5*muIter1->pfIsolationR04().sumPUPt))/MuTagPt:9999.;
 
-    //    cout << "#############  mu tag iso: "<<MuTagIsoR03Ratio<<", "<<MuTagIsoR05Ratio<<", "<<MuTagPFIsoR04Ratio <<  endl;
-
+ 
     //muIter1->isolationR03().sumPt/muIter1->pt()
     //(muIter1->pfIsolationR04().sumChargedHadronPt + max(0., muIter1->pfIsolationR04().sumNeutralHadronEt + muIter1->pfIsolationR04().sumPhotonEt - 0.5*muIter1->pfIsolationR04().sumPUPt))/muIter1->pt()
 
@@ -1167,10 +1212,25 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       phiMuVec[3] = tsos.globalPosition().phi();       
     }
 
+ 
     Bool_t firsttrackmatchingtoMuTag=true;
-
+ 
+    
     for(reco::TrackCollection::const_iterator itTrack = gTracks->begin(); itTrack != gTracks->end(); itTrack++){
 
+      // Exit early if candidate is not viable
+      Float_t mMu = 0.1134289256;
+      invMass = pow( ( sqrt(pow(itTrack->p(),2)+ mMu*mMu) +  sqrt(pow(muIter1->track()->p(),2)+ mMu*mMu) ) ,2 ) -
+	(
+	 pow((itTrack->px() + muIter1->track()->px()),2) +
+	 pow((itTrack->py() + muIter1->track()->py()),2) +
+	 pow((itTrack->pz() + muIter1->track()->pz()),2)
+	 );
+      
+      if(invMass < 0) continue;
+      invMass = sqrt(invMass);
+      // increase window to 75 to 120
+      if(m_saveZ && ((invMass < 75.0)||(invMass > 120.0))) continue;
 
       if (event_number_muontracks != event.id().event()){
 	nEventsMuonsTracks++;
@@ -1184,12 +1244,14 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
       UInt_t itrk = itTrack - gTracks->begin();
       if(itTrack->charge() == 0) continue;
-      if(itTrack->p() < 3.0)  continue;
+      // Increase this to 10
+      if(itTrack->p() < 10.0)  continue;
+
       trackVeto_strict = trkVeto[itrk]; 
       reco::TrackRef trackRef(gTracks, itrk );
 
       if(itTrack->charge()*MuTagcharge != -1) continue;
-
+   
       tracks_eta    = itTrack->eta();
       
       if(fabs(tracks_eta) > 0.9 ) {
@@ -1198,7 +1260,8 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       }
       else myRegion = 1;
       if (myRegion == 1) continue;//currently, only CSC
-
+  
+      
       tracks_phi = itTrack->phi();
       if(tracks_phi < 0 )tracks_phi = tracks_phi + 2*M_PI;
 
@@ -1223,8 +1286,9 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
 //      goodTrack = ( fabs(itTrack->eta())< 2.4 && fabs(tracks_dz)< 50.0 &&
 //                    fabs(tracks_dxy)< 5.0 && tracks_chi2> 0.0 &&  tracks_chi2< 4.0 && MuProbenHitsTrkSys > 7 );
-
+	   
       if (!goodTrack) continue;
+ 
       if(tracks_eta > 0) CSCEndCapPlus = true;
       else CSCEndCapPlus = false;
       
@@ -1239,7 +1303,6 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       // sumPt:
       tracks_IsoR03Ratio = tracks_pt>0?depTrk.depositWithin(0.3)/tracks_pt:9999.;
       tracks_IsoR05Ratio = tracks_pt>0?depTrk.depositWithin(0.5)/tracks_pt:9999.;
-      //      cout <<"############### tracks_IsoR03Ratio = "<<tracks_IsoR03Ratio<< ", "<< tracks_IsoR05Ratio<< endl;
       
     
       tracks_qoverp = itTrack->qoverp(); // q/p 
@@ -1271,7 +1334,6 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	  DTSegNumber[st]=matchedMu->numberOfSegments(st+1,MuonSubdetId::DT,Muon::SegmentAndTrackArbitration);
 	  RPCSegNumber[st]=matchedMu->numberOfSegments(st+1,MuonSubdetId::RPC,Muon::SegmentAndTrackArbitration);
 
-	 	  //cout << "\t\t %%%%%% segments: "<<CSCSegNumber[st]<<"\t"<<DTSegNumber[st]<<"\t"<<RPCSegNumber[st] << endl;
 
 	}
 	
@@ -1281,10 +1343,9 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	tracks_isTrackerMuTrk=false;
       }
 
-      
       Bool_t trQuality = (fabs(MuTagEta) < 2.4 && fabs(tracks_eta) > 0.9 && fabs(tracks_eta) < 2.4 
 			  && tracks_etaError < 0.003 && tracks_phiError < 0.003 
-			  && tracks_ptError/tracks_pt < 0.05 && tracks_numberOfValidHits >= 10); // cuts removed from the SkimDPG.C file and put here...
+			  && tracks_ptError/tracks_pt < 0.05 && tracks_numberOfValidHits > 7); // cuts removed from the SkimDPG.C file and put here...
       
 /*
       Bool_t trQuality = (fabs(MuTagEta) < 2.4 && fabs(tracks_eta) > 0.9 && fabs(tracks_eta) < 2.4 
@@ -1292,13 +1353,14 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 			  && tracks_ptError/tracks_pt < 0.1 && tracks_numberOfValidHits >= 5); // cuts removed from the SkimDPG.C file and put here...
 */
       if(!trQuality)continue;
-
+ 
       /*
       Bool_t trIso = (tracks_IsoR03Ratio<0.1);
       if(!trIso)continue;
       */
 
-      Float_t mMu = 0.1134289256;
+      //Float_t
+     mMu = 0.1134289256;
       invMass = pow( ( sqrt(pow(itTrack->p(),2)+ mMu*mMu) +  sqrt(pow(muIter1->track()->p(),2)+ mMu*mMu) ) ,2 ) -
 	(
 	 pow((itTrack->px() + muIter1->track()->px()),2) +
@@ -1309,14 +1371,8 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       if(invMass < 0) continue;
       invMass = sqrt(invMass);
 
-      /*
-      Bool_t gotMass =  ((invMass > 2.5 &&  invMass < 3.6) || (invMass > 75.)) ;
-      if(!gotMass)continue;
-      */
-
+ 
       Bool_t gotMass =  false;
-
-      //      if ( m_saveZ and (invMass > 75. &&  invMass < 120.) ) gotMass =  true; 
 
       if ( m_saveZ and 
 	   (
@@ -1334,9 +1390,9 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       if ( m_saveJPsi and (invMass > 2.5 &&  invMass < 3.6) ) 
 	gotMass =  true; 
 
+  
       if(!gotMass)continue;
-
-
+ 
       /*------------------------Start getting the Monte Carlo Truth--------------------------*/
       tracktruth_pt  = -9999.;
       tracktruth_e   = -9999.;
@@ -1429,6 +1485,26 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	CSCDyErrProjHVGap[j]=-9999.;
 	CSCProjEdgeDist[j]=-9999.;
 	CSCProjEdgeDistErr[j]=-9999.;
+	CSCTTxLc[j] = -9999.;
+	CSCTTwLc[j] = -9999.;
+	CSCTTyLc[j] = -9999.;
+	CSCTTsLc[j] = -9999.;
+	CSCTTwSegxLc[j] = -9999.;
+	CSCTTwSegyLc[j] = -9999.;
+	CSCTT3xLc[j] = -9999.;
+	CSCTT3wLc[j] = -9999.;
+	CSCTT3yLc[j] = -9999.;
+	CSCTT3sLc[j] = -9999.;
+	CSCTT3wLCTxLc[j] = -9999.;
+	CSCTT3wLCTyLc[j] = -9999.;
+	CSCTTxGc[j] = -9999.;
+	CSCTTyGc[j] = -9999.;
+	CSCTTzGc[j] = -9999.;
+	CSCTTetaGc[j] = -9999.;
+	CSCTT3xGc[j] = -9999.;
+	CSCTT3yGc[j] = -9999.;
+	CSCTT3zGc[j] = -9999.;
+	CSCTT3etaGc[j] = -9999.;
 	/*Segments characteristics*/
 	CSCSegxLc[j]=-9999.;
 	CSCSegyLc[j]=-9999.;
@@ -1516,6 +1592,25 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	//Find the chamber candidate. If two chamber overlaps, simply divide them from middle. e.g. if chamber1 is from phi=1-3, chamber 2 is from phi=2-4. Then phi=1-2.5-->chamber 1; phi=2.5-4-->chamber 2. Since the distribution over phi is uniform, it won't bias the result.
 	CSCChCand[st] = thisChamberCandidate(st+1, rg, trkPhi);
 	CSCDetId Layer0Id=CSCDetId(ec, st+1, rg,  CSCChCand[st], 0);//layer 0 is the mid point of the chamber. It is not a real layer.
+
+	// Even vs odd chambers are at different z using eta can lead to wrong ME11 a vs b assignment.
+	// Fix it here based -30.0 boundary between ME11 a and b
+	// Led to crash :(, try it again
+	if (st == 0 && (rg==1 || rg==4)) {
+	  const GeomDet* gdetInt=cscGeom->idToDet(Layer0Id);
+	  TrajectoryStateOnSurface tsosInt=surfExtrapTrkSam(trackRef, gdetInt->surface().position().z());
+	  LocalPoint localpCSCInt = gdetInt->surface().toLocal(tsosInt.freeState()->position());
+	  if (localpCSCInt.y() < -30.0 && rg!=4) {
+	    rg = 4;
+	    CSCRg[st]=rg;
+	    Layer0Id=CSCDetId(ec, st+1, rg,  CSCChCand[st], 0);
+	  }
+	  if (localpCSCInt.y() > -30.0 && rg!=1) {
+	    rg = 1;
+	    CSCRg[st]=rg;
+	    Layer0Id=CSCDetId(ec, st+1, rg,  CSCChCand[st], 0);
+	  }
+	}
 	CSCChBad[st] = badChambers_->isInBadChamber( Layer0Id );
 	//skip not-existing ME42 chambers
 //	if (CSCChBad[st]&&st==3&&rg==2) continue;
@@ -1551,6 +1646,28 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	    CSCDyErrProjHVGap[st]=EdgeAndDistToGap[3];
 	  }
 	}
+	// Need to store extrapolated track local coordinate position in cases where no segemment is found*/
+        const GeomDet* gdetInt=cscGeom->idToDet(Layer0Id);
+
+	TrajectoryStateOnSurface tsosInt=surfExtrapTrkSam(trackRef, gdetInt->surface().position().z());
+	LocalPoint localpCSCInt = gdetInt->surface().toLocal(tsosInt.freeState()->position());
+	/* Save the extrapolated track local coordinate position */
+	CSCTTxLc[st] = localpCSCInt.x();
+	CSCTTyLc[st] = localpCSCInt.y();
+        CSCTTxGc[st] = tsosInt.globalPosition().x();
+        CSCTTyGc[st] = tsosInt.globalPosition().y();
+        CSCTTzGc[st] = tsosInt.globalPosition().z();
+        CSCTTetaGc[st] = tsosInt.globalPosition().eta();
+      
+	
+	// Include an average between layers 3 and 4
+	const CSCLayerGeometry *layerGeoma = cscGeom->chamber(Layer0Id)->layer(3)->geometry ();
+ 	const CSCLayerGeometry *layerGeomb = cscGeom->chamber(Layer0Id)->layer(4)->geometry ();
+        CSCTTwLc[st] = (layerGeoma->nearestWire(localpCSCInt)+layerGeomb->nearestWire(localpCSCInt))/2.0;
+	CSCTTsLc[st] = (layerGeoma->strip(localpCSCInt)+layerGeomb->strip(localpCSCInt))/2.0;
+
+	
+       
 	//cerr<<"To Edge:"<<CSCProjEdgeDist[st]<<"; To HVGap:"<<CSCDyProjHVGap[st]<<endl;
 	// Check the CSC segments in that region..
 	CSCSegmentCollection::const_iterator cscSegOut;
@@ -1564,11 +1681,17 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	  */
 	  /* Save the chamber ID */
 	  CSCDetId id  = (CSCDetId) cscSegOut->cscDetId();
+	  // Print if different
+	  if (!((Layer0Id.endcap()==id.endcap())&&(Layer0Id.station()==id.station())&&(Layer0Id.ring()==id.ring())&&(Layer0Id.chamber()==id.chamber()))){
+	    // Leave this here to track the issue for the moment
+	    std::cout << "CSCDetId don't match" << std::endl;
+std::cout << "Int:Seg, endcap: " << Layer0Id.endcap() << ":" << id.endcap() << ", station: " << Layer0Id.station() << ":" << id.station() << ", ring: " << Layer0Id.ring() << ":" << id.ring() << ", chamber: " << Layer0Id.chamber() << ":" << id.chamber() << std::endl; 
+	  }
+
 	  /* Save the segment postion and direction */
 	  LocalPoint localSegPos = (*cscSegOut).localPosition();
 	  //GlobalPoint globalSegPosition = cscchamber->toGlobal( localSegPos );
-	  //	  cout << "\t station "<< st+1<<" matched Seg "<< endl;
- 	  CSCSegxLc[st] = localSegPos.x(); 
+	  CSCSegxLc[st] = localSegPos.x(); 
 	  CSCSegyLc[st] = localSegPos.y(); 
 	  LocalError localSegErr = (*cscSegOut).localPositionError();
 	  CSCSegxErrLc[st] = sqrt(localSegErr.xx());
@@ -1585,6 +1708,11 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	  const GeomDet* gdet=cscGeom->idToDet(id);
 	  LocalPoint localpCSC = gdet->surface().toLocal(TrajToSeg->freeState()->position());
 
+	  /* Save the extrapolated track local coordinate position */
+	  CSCTTwSegxLc[st] = localpCSC.x();
+	  CSCTTwSegyLc[st] = localpCSC.y();
+	  
+	  
 	  //	  cerr<<"segment found in :"<<localSegPos.y()<<"+-"<<CSCSegyErrLc[st]<<endl;	  
 	  //	  printf("\nSEGMENT FOUND IN: ME%d/%d, chamber %d, endcap %d \n",st+1,rg,CSCChCand[st], ec);
 	  //ec, st+1, rg,  CSCChCand[st], ly
@@ -1619,10 +1747,27 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	CSCDetId Layer3id  = CSCDetId( ec, st+1, rg,  CSCChCand[st], 3 );//go to layer 3 that corresponds to the LCTPos
 	const BoundPlane &Layer3Surface=cscGeom->idToDet(Layer3id)->surface();
 	tsos=surfExtrapTrkSam(trackRef, Layer3Surface.position().z());
+
+	// Need to store extrapolated track local coordinate position in cases where no segemment is found
+	// LCT is done somewhat differently so comparison is of interest
+        const GeomDet* gdetInt3=cscGeom->idToDet(Layer3id);
+	TrajectoryStateOnSurface tsosInt3=surfExtrapTrkSam(trackRef, gdetInt3->surface().position().z());
+	LocalPoint localpCSCInt3 = gdetInt->surface().toLocal(tsosInt3.freeState()->position());
+	/* Save the extrapolated track local coordinate position */
+	CSCTT3xLc[st] = localpCSCInt3.x();
+	CSCTT3yLc[st] = localpCSCInt3.y();
+	const CSCLayerGeometry *layerGeom3 = cscGeom->chamber(Layer3id)->layer(3)->geometry ();
+        CSCTT3wLc[st] = layerGeom3->nearestWire(localpCSCInt3);
+        CSCTT3sLc[st] = layerGeom3->strip(localpCSCInt3);
+        CSCTT3xGc[st] = tsosInt3.globalPosition().x();
+        CSCTT3yGc[st] = tsosInt3.globalPosition().y();
+        CSCTT3zGc[st] = tsosInt3.globalPosition().z();
+        CSCTT3etaGc[st] = tsosInt3.globalPosition().eta();
+
+	
+
 	if (tsos.isValid()) {//start matching with LCTs
-//	  cout <<"test?" << endl;
 	  LocalPoint localL3pCSC = Layer3Surface.toLocal(tsos.freeState()->position());
-//	  cout <<" ok" << endl;
 	  LocalPoint *LCTPos=matchTTwithLCTs( localL3pCSC.x(), localL3pCSC.y(), CSCEndCapPlus?1:2, st+1, CSCRg[st], CSCChCand[st], mpclcts, CSCDxyTTLCT[st], CSCLCTbx[st]);
 	  //	  double CSCLCTStripNo=getStripLCTNo( localL3pCSC.x(), localL3pCSC.y(), CSCEndCapPlus?1:2, st+1, CSCRg[st], CSCChCand[st], mpclcts, CSCDxyTTLCT[st], CSCLCTbx[st]);
 	  if (LCTPos!=NULL) {
@@ -1630,11 +1775,12 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	    CSCLCTyLc[st]=LCTPos->y();
 	    CSCDxTTLCT[st]=CSCLCTxLc[st]-localL3pCSC.x();
 	    CSCDyTTLCT[st]=CSCLCTyLc[st]-localL3pCSC.y();
+	    CSCTT3wLCTxLc[st] = localL3pCSC.x();
+	    CSCTT3wLCTyLc[st] = localL3pCSC.y();
 	    LocalError localTTErr =tsos.localError().positionError();
 	    CSCDxErrTTLCT[st] = sqrt(localTTErr.xx()); CSCDyErrTTLCT[st] = sqrt(localTTErr.yy());
 	    CSCDxyErrTTLCT[st] =sqrt(pow(CSCDxTTLCT[st],2)*localTTErr.xx() + pow(CSCDyTTLCT[st],2)*localTTErr.yy())/CSCDxyTTLCT[st];
 
-	    //	    cout << "\t station "<< st+1<<" matched LCT " << endl;
 	    //	    CSCSegmentCollection::const_iterator cscSegOut;
 
 	    int N_seg_inChamberWithLCT=0;
@@ -1903,10 +2049,18 @@ void TPTrackMuonSys::beginRun(const Run& r, const EventSetup& iSet)
 vector<Float_t> TPTrackMuonSys::GetEdgeAndDistToGap(reco::TrackRef trackRef, CSCDetId & detid) {
   vector<Float_t> result(4,9999.);
   result[3]=-9999;
+  //std::cout << "Before cssGeom" << std::endl;
+  //std::cout.flush();
   const GeomDet* gdet=cscGeom->idToDet( detid );
+  //std::cout << "Before tsos, where z: " <<  gdet->surface().position().z() << std::endl;
+  //std::cout.flush();
   TrajectoryStateOnSurface tsos=surfExtrapTrkSam(trackRef, gdet->surface().position().z());
   if (!tsos.isValid()) return result;
+  //std::cout << "Before local point" << std::endl;
+  //std::cout.flush();
   LocalPoint localTTPos = gdet->surface().toLocal(tsos.freeState()->position());
+  //std::cout << "Before wite Topology" << std::endl;
+  //std::cout.flush();
   const CSCWireTopology* wireTopology = cscGeom->layer(detid)->geometry()->wireTopology();
   Float_t wideWidth      = wireTopology->wideWidthOfPlane();
   Float_t narrowWidth    = wireTopology->narrowWidthOfPlane();

@@ -475,8 +475,16 @@ class TPTrackMuonSys : public edm::EDAnalyzer {
   UChar_t CSCRg[4],CSCChCand[4];
   Bool_t CSCChBad[4];
   
-  /*Extrapolated Tracks on CSC Chamber Candidates in each station*/
+  /*Extrapolated Tracks on CSC Chamber Candidates in each station including lc and gc postions*/
   Float_t CSCDyProjHVGap[4],CSCDyErrProjHVGap[4],CSCProjEdgeDist[4],CSCProjEdgeDistErr[4];//note: there is no so-called extrapolated track position on CSC chambers, because you need to know which layer.
+  Float_t CSCTTxLc[4],CSCTTwLc[4],CSCTTyLc[4],CSCTTsLc[4];
+  Float_t CSCTTwSegxLc[4],CSCTTwSegyLc[4];
+  Float_t CSCTT3xLc[4], CSCTT3wLc[4],CSCTT3yLc[4],CSCTT3sLc[4];
+  Float_t CSCTT3wLCTxLc[4],CSCTT3wLCTyLc[4];
+  Float_t CSCTTxGc[4],CSCTTyGc[4],CSCTTzGc[4],CSCTTetaGc[4];
+  Float_t CSCTT3xGc[4],CSCTT3yGc[4],CSCTT3zGc[4],CSCTT3etaGc[4];
+
+
   
   /*Segments characteristics*/
   Float_t CSCSegxLc[4],CSCSegyLc[4],CSCSegxErrLc[4],CSCSegyErrLc[4],CSCSegChisqProb[4],CSCdXdZTTSeg[4],CSCdYdZTTSeg[4];
@@ -486,6 +494,8 @@ class TPTrackMuonSys : public edm::EDAnalyzer {
   /*Distance from the Extrapolated Tracks to CSC Segments, 99999. for no CSC segment found*/
   Float_t CSCDxTTSeg[4],CSCDxErrTTSeg[4],CSCDyTTSeg[4],CSCDyErrTTSeg[4],CSCDxyTTSeg[4],CSCDxyErrTTSeg[4];
 
+
+  
   /*LCT characteristics*/
   Float_t CSCLCTxLc[4],CSCLCTyLc[4];
   Int_t CSCLCTbx[4];
