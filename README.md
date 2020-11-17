@@ -52,7 +52,7 @@ crab submit -c crabConfig_CSCEff_v1.py
 
 
 ## Make the Efficiency plots
-See files in [NtupleScripts](NtupleScripts)
+See files in [NtupleScripts](CSCEfficiency/NtupleScripts/.)
 After modifying CSCEffFast.h to point to your T&P output Ntuple files run in root using:
 <pre>
 root -b
