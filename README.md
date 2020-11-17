@@ -45,3 +45,10 @@ There is a CRAB submission file [crabConfig_CSCEff_v1.py](CSCEfficiency/crabConf
 
 ## Make the Efficiency plots
 See files in NtupleScripts
+After modifying CSCEffFast.h to point to your T&P output Ntuple files run in root using:
+<pre>
+root -b
+.L CSCEffFast.C+
+CSCEffFast* cscEffFast = new CSCEffFast()
+</pre>
+commands.txt has commands to make pretty plots.
