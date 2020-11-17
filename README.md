@@ -31,12 +31,6 @@ The output file name can be changed in the following line ---
 process.aoddump.rootFileName=cms.untracked.string('???.root')
 </pre>
 
-Choose if you want to save Z or/and J/psi events: 
-<pre>                               
-saveZ            = cms.untracked.bool(True),
-saveJPsi         = cms.untracked.bool(False),
-</pre>
-
 2. Run [create_ntuple_local.py](CSCEfficiency/create_ntuple_local.py). CRAB is recommended
 <pre>
 voms-proxy-init -voms cms
