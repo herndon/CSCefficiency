@@ -39,16 +39,25 @@ saveJPsi         = cms.untracked.bool(False),
 
 2. Run [create_ntuple_local.py](CSCEfficiency/create_ntuple_local.py). CRAB is recommended
 <pre>
+voms-proxy-init -voms cms
+cmsRun create_ntuple_local.py
 </pre>
 
-There is a CRAB submission file [crabConfig_CSCEff_v1.py](CSCEfficiency/crabConfig_CSCEff_v1.py). Also be sure to check the global tag, which may require a more recent CMSSW release.
+or
+There is a CRAB submission file [crabConfig_CSCEff_v1.py](CSCEfficiency/crabConfig_CSCEff_v1.py). Also be sure to check you are using a compatible global tag if you are using a more recent release.
+<pre>
+voms-proxy-init -voms cms
+crab submit -c crabConfig_CSCEff_v1.py
+</pre>
+
 
 ## Make the Efficiency plots
-See files in NtupleScripts
+See files in [NtupleScripts](NtupleScripts)
 After modifying CSCEffFast.h to point to your T&P output Ntuple files run in root using:
 <pre>
 root -b
 .L CSCEffFast.C+
 CSCEffFast* cscEffFast = new CSCEffFast()
 </pre>
-commands.txt has commands to make pretty plots.
+This makes the file cscEffHistoFile.root
+The file commands.txt has commands to make pretty plots from cscEffHistoFile.root.
