@@ -16,8 +16,8 @@
    
 ## Installation
 <pre>
-cmsrel CMSSW_10_2_18
-cd CMSSW_10_2_18/src
+cmsrel CMSSW_12_4_3
+cd CMSSW_12_4_3/src
 cmsenv
 mkdir CSCEfficiency
 git clone https://github.com/herndon/CSCefficiency CSCEfficiency

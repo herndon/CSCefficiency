@@ -1,5 +1,5 @@
 #define CSCEffFast_cxx
-#include "/cms/herndon/cscEff/CSCEffFast.h"
+#include "/cms/herndon/cscEffRun3/CSCEffFast.h"
 #include <TH1.h>
 #include <TH1F.h>
 #include <TH2.h>
@@ -32,21 +32,31 @@ void CSCEffFast::Loop()
   
 // Define Efficiency Histogram parameters
 
-
+  bool DoubleMuGun = false;
+   bool LowStats = true;
+  bool badChambersTrack = false;
+  
 // Pt, Eta, phi (chamber) parameters and histograms
 
-  const Int_t numPtBins=9;       //number of pt bins in eff plots
-  Float_t ptBins[(numPtBins+1)] = {0.0,10.0,20.0,30.0,40.0,50.0,60.0,80.0,100.0,200.0};
-  const Int_t numEtaBins=33;       //number of eta bins in eff plots 51 or 33
+  //const Int_t numPtBins=9;       //number of pt bins in eff plots
+  //Float_t ptBins[(numPtBins+1)] = {0.0,10.0,20.0,30.0,40.0,50.0,60.0,80.0,100.0,200.0};
+  const Int_t numPtBins=17;       //number of pt bins in eff plots
+  Float_t ptBins[(numPtBins+1)] = {0.0,10.0,20.0,30.0,40.0,50.0,60.0,80.0,100.0,200.0,300.0,400.0,500.0,600.0,700.0,800.0,900.0,1000.0};
+
+  
+  const Int_t numEtaBins=16;       //number of eta bins in eff plots 51 or 33 or 16
   // Eta bins around 2.05-2.1 are chossen to make one overlap bin where both even and odd ME11 chambers populate the same bin
-  Float_t etaBins[(numEtaBins+1)] = {0.8,0.85,0.9,0.95,1.0,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.50,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2.0,2.0568,2.1120,2.15,2.2,2.25,2.3,2.35,2.4,2.45};
+  Float_t etaBins[(numEtaBins+1)] = {0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.50,1.6,1.7,1.8,1.9,2.0,2.1120,2.2,2.3,2.45};
+ // 33 bins Float_t etaBins[(numEtaBins+1)] = {0.8,0.85,0.9,0.95,1.0,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.50,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2.0,2.0568,2.1120,2.15,2.2,2.25,2.3,2.35,2.4,2.45};
+
 
   // 51 bins Float_t etaBins[(numEtaBins+1)] = {0.8,0.85,0.9,0.95,1.0,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.50,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2.0,2.05,2.055,2.06,2.065,2.07,2.075,2.08,2.085,2.09,2.095,2.10,2.105,2.11,2.115,2.12,2.125,2.13,2.135,2.14,2.145,2.15,2.2,2.25,2.3,2.35,2.4,2.45};
   //2.0,2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15,2.2,2.25,2.3,2.35,2.4,2.45};
   const Int_t numIsoBins=14;       //number of track based isolation bins in eff plots
   Float_t isoBins[(numIsoBins+1)] = {0.0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.24,0.28,0.34,0.40};
-  const Int_t numPVBins=17;       //number of primary vertex bins eff plots
-  Float_t pvBins[(numPVBins+1)] = {0.0,0.5,4.5,8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5,60.5,70.5};
+const Int_t numPVBins=9;       //number of primary vertex bins eff plots 17, 9
+    Float_t pvBins[(numPVBins+1)] = {0.0,0.5,8.5,16.5,24.5,32.5,40.5,48.5,56.5,60.5};
+  //Float_t pvBins[(numPVBins+1)] = {0.0,0.5,4.5,8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5,60.5,70.5};
   const Int_t numILBins=25;       //number instantatanious lumi bins in eff plots
   Float_t ilBins[(numILBins+1)] = {0.0,1000.0,2000.0,3000.0,4000.0,5000.0,6000.0,7000.0,8000.0,9000.0,10000.0,11000.0,12000.0,13000.0,14000.0,15000.0,16000.0,17000.0,18000.0,19000.0,20000.0,21000.0,22000.0,23000.0,24000.0,25000.0};
 
@@ -240,7 +250,7 @@ void CSCEffFast::Loop()
       sprintf(title,"LCT Efficiency vs p_{T} for Station %d Ring %d",iiStation+1,iiRing);
       LCTEffStationCRingPT[iiStation][iiRing] = new TH1F(name,title,numPtBins, &(*ptBins));
       LCTEffStationCRingPT[iiStation][iiRing]->GetXaxis()->SetTitle("probe p_{T} (GeV)");
-      LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Reconstruction Efficiency");
+      LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
       LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
       LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
       LCTEffStationCRingPT[iiStation][iiRing]->SetMarkerStyle(8);
@@ -260,7 +270,7 @@ void CSCEffFast::Loop()
       sprintf(title,"LCT Efficiency vs #eta for Station %d Ring %d",iiStation+1,iiRing);
       LCTEffStationCRingEta[iiStation][iiRing] = new TH1F(name,title,numEtaBins, &(*etaBins));
       LCTEffStationCRingEta[iiStation][iiRing]->GetXaxis()->SetTitle("probe #eta");
-      LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Reconstruction Efficiency");
+      LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
       LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
       LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
       LCTEffStationCRingEta[iiStation][iiRing]->SetMarkerStyle(8);
@@ -532,7 +542,7 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
   // Mass Histogram parameters and histrograms
 
   TH1F *zMassGood  = new TH1F("zMassGood", "Z Mass Good Segements", 60.0, 120.0, 120);
-  TH1F *zMassAll  = new TH1F("zMassAll", "Z Mass All Segements", 60.0, 120.0, 120);
+  TH1F *zMassAll  = new TH1F("zMassAll", "Z Mass all Good Probes", 60.0, 120.0, 120);
   TH1F *zMassBad  = new TH1F("zMassBad", "Z Mass Bad Segements", 60.0, 120.0, 120);
   
   
@@ -627,18 +637,31 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
   // Change mass windows to be as narrow as possible and sidebands as near the edge
   // 75 to 120 available
 
-  Float_t zMassMin = 83.5;
-  Float_t zMassMax = 98.5;
+  /* Float_t zMassMin = 83.5; */
+  /* Float_t zMassMax = 98.5; */
+
+  /* Float_t zMassLowSideBandMin = 76.0; */
+  /* Float_t zMassLowSideBandMax = 83.5; */
+
+  /* Float_t zMassHighSideBandMin = 98.5; */
+  /* Float_t zMassHighSideBandMax = 106.0; */
+
+  // Narrower set
+  Float_t zMassMin = 86.0;
+  Float_t zMassMax = 96.0;
 
   Float_t zMassLowSideBandMin = 76.0;
-  Float_t zMassLowSideBandMax = 83.5;
+  Float_t zMassLowSideBandMax = 81.0;
 
-  Float_t zMassHighSideBandMin = 98.5;
+  Float_t zMassHighSideBandMin = 101.0;
   Float_t zMassHighSideBandMax = 106.0;
+
+
   
   Bool_t inZMass;
   Bool_t inZMassLowSideBand;
   Bool_t inZMassHighSideBand;
+  Bool_t inZMassSideBand;
   
   // Fiducial requirements
   Float_t cscProjDistEdge = -5.0;
@@ -686,8 +709,17 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
   // Removing chambers bellow 80%
   // move start from period D, 320394to period B, 318800
 
-  // Dead chambers
+  // New Dead Chambers
+  badChamber[1][1-1][2][10-1] = true;   badChamberRun[1][1-1][2][10-1][0] = 350000; badChamberRun[1][1-1][2][10-1][1] = 400000; // ME+12/10
 
+   badChamber[1][2-1][2][31-1] = true;   badChamberRun[1][2-1][2][31-1][0] = 350000; badChamberRun[1][2-1][2][31-1][1] = 400000; // ME+22/31
+ 
+  badChamber[0][4-1][2][4-1] = true;   badChamberRun[0][4-1][2][4-1][0] = 350000; badChamberRun[0][4-1][2][4-1][1] = 400000; // ME-42/04
+ 
+  
+  // Dead chambers
+  
+if (badChambersTrack) {
   badChamber[0][2-1][1][3-1] = true;  badChamberRun[0][2-1][1][3-1][0] = 316000; badChamberRun[0][2-1][1][3-1][1] = 325273; //ME-21/3 no data
 
  badChamber[0][4-1][2][21-1] = true;  badChamberRun[0][4-1][2][21-1][0] = 316000; badChamberRun[0][4-1][2][21-1][1] = 325273; // ME-42/21 no data
@@ -835,7 +867,9 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
   // badChamber[0][2-1][1][16-1] = true;  badChamberRun[0][2-1][1][16-1][0] = 316000; badChamberRun[0][2-1][1][16-1][1] = 325172;
   // badChamber[0][2-1][1][18-1] = true;  badChamberRun[0][2-1][1][18-1][0] = 316000; badChamberRun[0][2-1][1][18-1][1] = 325172;
 
+}
 
+ 
   std::cout << "Getting number of entries: " << std::endl;
 
 
@@ -855,19 +889,23 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	break;
       }
 
+      
  nb = fChain->GetEntry(jentry);   nbytes += nb;
       if ((jentry % 100000) ==0) std::cout << jentry << " of " << nentries << " - Number good Candidates: " << nCands << " - Number of Zs: " << nZs << std::endl; 
-      
+
+
       // if (Cut(ientry) < 0) continue;
       // Probe and dimuon requirements
-
+      //if (LowStats&&invMass>zMassMin&&invMass<zMassMax) invMass = 91.0;
+      
       inZMass = (invMass>zMassMin)&&(invMass<zMassMax);
       inZMassLowSideBand = (invMass>zMassLowSideBandMin)&&(invMass<zMassLowSideBandMax);
       inZMassHighSideBand = (invMass>zMassHighSideBandMin)&&(invMass<zMassHighSideBandMax);
- 
-      goodTag = ((tracks_pt>20.0)&&(MuTagPt>25.0)&&(tracks_e > tagE)&&(minDRHLTAllSingleMu < maxDRHLTAllSingleMu) &&
+      inZMassSideBand = inZMassLowSideBand || inZMassHighSideBand;
+      
+      goodTag = ((tracks_pt>10.0)&&(MuTagPt>25.0)&&(tracks_e > tagE)&&(minDRHLTAllSingleMu < maxDRHLTAllSingleMu) &&
 	(dRTkMu1 > minDRTkMu1)&&(dRTkMu1<10.0)&&
-		 (inZMass||inZMassLowSideBand||inZMassHighSideBand)&&run_number>323000);
+		 (inZMass||inZMassLowSideBand||inZMassHighSideBand)&&run_number>0);
 
       if (goodTag) nCands++;
       
@@ -884,7 +922,7 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
       
       // Fiducial requirements
 
-	fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 && 
+      fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 && 
 	  CSCProjDistEdge1/CSCProjDistErrEdge1 < sigmaCSCProjDistEdge &&
           CSCDyProjHVGap1>cscDyProjHVGap && 
 	  CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
@@ -960,6 +998,19 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 		      CSCDxyTTSeg4/CSCDxyErrTTSeg4<sigmaCSCDxyTTSeg) &&
 		     CSCDxyTTSeg4>0.);
 
+	// Print out for failed events
+	//if ((fiducial1||fiducial11) && (!foundSeg1) && inZMassSideBand) std::cout << "RU passed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 1 << " " << CSCRg1*1 << " " << CSCCh1*1 << " !" << std::endl;
+	// if (fiducial2 && (!foundSeg2) && inZMassSideBand) std::cout << "RU passed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 2 << " " << CSCRg2*1 << " " << CSCCh2*1 <<  " !" << std::endl;
+	// if (fiducial3 && (!foundSeg3) && inZMassSideBand) std::cout << "RU passed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 3 << " " << CSCRg3*1 << " " << CSCCh3*1 <<  " !" << std::endl;
+	// if (fiducial4 && (!foundSeg4) && inZMassSideBand) std::cout << "RU passed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 4 << " " << CSCRg4*1 << " " << CSCCh4*1 <<  " !" << std::endl;
+
+	// if ((fiducial1||fiducial11) && (foundSeg1) && inZMassSideBand) std::cout << "RU failed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 1 << " " << CSCRg1*1 << " " << CSCCh1*1 <<  " !" << std::endl;
+	// if (fiducial2 && (foundSeg2) && inZMassSideBand) std::cout << "RU failed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 2 << " " << CSCRg2*1 << " " << CSCCh2*1 <<  " !" << std::endl;
+	// if (fiducial3 && (foundSeg3) && inZMassSideBand) std::cout << "RU failed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 3 << " " << CSCRg3*1 << " " << CSCCh3*1 <<  " !" << std::endl;
+	// if (fiducial4 && (foundSeg4) && inZMassSideBand) std::cout << "RU failed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 4 << " " << CSCRg4*1 << " " << CSCCh4*1 <<  " !" << std::endl;
+
+	
+
 	// Found LCT
 	foundLCT1 = ((CSCDxyTTLCT1<cscDxyTTLCT || 
 		      CSCDxyTTLCT1/CSCDxyErrTTLCT1<sigmaCSCDxyTTLCT) &&
@@ -980,20 +1031,20 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
       if ((tracks_e > tagE)&&(minDRHLTAllSingleMu < maxDRHLTAllSingleMu) &&
 	  (dRTkMu1 > minDRTkMu1)&&(dRTkMu1<10.0)){
 	//Good tag except for Z mass
-	if (fiducial1||fiducial11) {
+	if ((fiducial1||fiducial11)&&invMass>60.0&&invMass<120.0) {
 	  zMassAll->Fill(invMass);
 	  if (foundSeg1) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
 	}
 	if (fiducial2) {
-	  zMassAll->Fill(invMass);
+	  //zMassAll->Fill(invMass);
 	  if (foundSeg2) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
 	}
 	if (fiducial3) {
-	  zMassAll->Fill(invMass);
+	  //zMassAll->Fill(invMass);
 	  if (foundSeg3) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
 	}
 	if (fiducial4) {
-	  zMassAll->Fill(invMass);
+	  //zMassAll->Fill(invMass);
 	  if (foundSeg4) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
 	}
 	
@@ -1462,7 +1513,7 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 		  if (CSCRg4==1) {passStationRingLCT[7][1]++;passStationRingChamberLCT[7][1][CSCCh4]++;passStationRingPtLCT[7][1][pTBin]++;passStationRingEtaLCT[7][1][etaBin4]++;passStationRingIsoLCT[7][1][isoBin]++;passStationRingPVLCT[7][1][pvBin]++;passStationRingILLCT[7][1][ilBin]++;passStationRingRunLCT[7][1][runBin]++;passStationRingChamberRunLCT[7][1][CSCCh4][runBin]++;passStationRingLCYLCT[7][1][lC3YBin4]++;passStationRingLCSLCT[7][1][lC3SBin4]++;passStationRingChamberLCYLCT[7][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][1][CSCCh4][lCWBin4]++;
 		    if (inZMass) LCTNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
 		  }
-		  if (CSCRg4==2) {passStationRingLCT[7][2]++;passStationRingChamberLCT[7][2][CSCCh4]++;passStationRingPtLCT[7][2][pTBin]++;passStationRingEtaLCT[7][2][etaBin4]++;passStationRingIsoLCT[7][2][isoBin]++;passStationRingPVLCT[7][2][pvBin]++;passStationRingILLCT[7][2][ilBin]++;passStationRingRunLCT[7][2][runBin]++;passStationRingChamberRunLCT[7][2][CSCCh4][runBin]++;passStationRingLCYLCT[7][2][lC3YBin4]++;passStationRingLCSLCT[7][2][lC3SBin4]++;passStationRingChamberLCYLCT[7][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][4][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==2) {passStationRingLCT[7][2]++;passStationRingChamberLCT[7][2][CSCCh4]++;passStationRingPtLCT[7][2][pTBin]++;passStationRingEtaLCT[7][2][etaBin4]++;passStationRingIsoLCT[7][2][isoBin]++;passStationRingPVLCT[7][2][pvBin]++;passStationRingILLCT[7][2][ilBin]++;passStationRingRunLCT[7][2][runBin]++;passStationRingChamberRunLCT[7][2][CSCCh4][runBin]++;passStationRingLCYLCT[7][2][lC3YBin4]++;passStationRingLCSLCT[7][2][lC3SBin4]++;passStationRingChamberLCYLCT[7][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][2][CSCCh4][lCWBin4]++;
 		    if (inZMass) LCTNumStationRingChamberRun[7][2][CSCCh4]->Fill(run_number);
 		  }
 		}
@@ -1798,7 +1849,7 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 		if (foundLCT4) {
 		  passSBGlobalLCT++;
 		  if (CSCRg4==1) {passSBStationRingLCT[7][1]++;passSBStationRingChamberLCT[7][1][CSCCh4]++;passSBStationRingPtLCT[7][1][pTBin]++;passSBStationRingEtaLCT[7][1][etaBin4]++;passSBStationRingIsoLCT[7][1][isoBin]++;passSBStationRingPVLCT[7][1][pvBin]++;passSBStationRingILLCT[7][1][ilBin]++;passSBStationRingRunLCT[7][1][runBin]++;passSBStationRingChamberRunLCT[7][1][CSCCh4][runBin]++;passSBStationRingLCYLCT[7][1][lC3YBin4]++;passSBStationRingLCSLCT[7][1][lC3SBin4]++;passSBStationRingChamberLCYLCT[7][1][CSCCh4][lCYBin4]++;passSBStationRingChamberLCSLCT[7][1][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWLCT[7][1][CSCCh4][lCWBin4]++;}
-		  if (CSCRg4==2) {passSBStationRingLCT[7][2]++;passSBStationRingChamberLCT[7][2][CSCCh4]++;passSBStationRingPtLCT[7][2][pTBin]++;passSBStationRingEtaLCT[7][2][etaBin4]++;passSBStationRingIsoLCT[7][2][isoBin]++;passSBStationRingPVLCT[7][2][pvBin]++;passSBStationRingILLCT[7][2][ilBin]++;passSBStationRingRunLCT[7][2][runBin]++;passSBStationRingChamberRunLCT[7][2][CSCCh4][runBin]++;passSBStationRingLCYLCT[7][2][lC3YBin4]++;passSBStationRingLCSLCT[7][2][lC3SBin4]++;passSBStationRingChamberLCYLCT[7][2][CSCCh4][lCYBin4]++;passSBStationRingChamberLCSLCT[7][2][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWLCT[7][4][CSCCh4][lCWBin4]++;}
+		  if (CSCRg4==2) {passSBStationRingLCT[7][2]++;passSBStationRingChamberLCT[7][2][CSCCh4]++;passSBStationRingPtLCT[7][2][pTBin]++;passSBStationRingEtaLCT[7][2][etaBin4]++;passSBStationRingIsoLCT[7][2][isoBin]++;passSBStationRingPVLCT[7][2][pvBin]++;passSBStationRingILLCT[7][2][ilBin]++;passSBStationRingRunLCT[7][2][runBin]++;passSBStationRingChamberRunLCT[7][2][CSCCh4][runBin]++;passSBStationRingLCYLCT[7][2][lC3YBin4]++;passSBStationRingLCSLCT[7][2][lC3SBin4]++;passSBStationRingChamberLCYLCT[7][2][CSCCh4][lCYBin4]++;passSBStationRingChamberLCSLCT[7][2][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWLCT[7][2][CSCCh4][lCWBin4]++;}
 		}
 	      }
 
@@ -1861,11 +1912,18 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 
 
        for (Int_t iiChamber=0; iiChamber< 37; iiChamber++){
+	 if (DoubleMuGun) totSBStationRingChamber[iiStation][iiRing][iiChamber] = 1.0;
+         if (LowStats) {
+           totSBStationRingChamber[iiStation][iiRing][iiChamber] = 0.0000001;
+           passSBStationRingChamberSeg[iiStation][iiRing][iiChamber] = 0.0000001;
+           passSBStationRingChamberLCT[iiStation][iiRing][iiChamber] = 0.0000001;
+         }
 
-   	 if ((totStationRingChamber[iiStation][iiRing][iiChamber]>0.5)&&(totSBStationRingChamber[iiStation][iiRing][iiChamber]>0.5)&&((totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber])>0.5)) {
+   	 if ((totStationRingChamber[iiStation][iiRing][iiChamber]>0.0000005)&&((totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber])>0.0000005)) {
    	   effStationRingChamberSeg[iiStation][iiRing][iiChamber] = (passStationRingChamberSeg[iiStation][iiRing][iiChamber]-passSBStationRingChamberSeg[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
    	   effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber] = sqrt(((passStationRingChamberSeg[iiStation][iiRing][iiChamber]+passSBStationRingChamberSeg[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberSeg[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberSeg[iiStation][iiRing][iiChamber]))+ ((totStationRingChamber[iiStation][iiRing][iiChamber]-passStationRingChamberSeg[iiStation][iiRing][iiChamber])+(totSBStationRingChamber[iiStation][iiRing][iiChamber]-passSBStationRingChamberSeg[iiStation][iiRing][iiChamber]))*effStationRingChamberSeg[iiStation][iiRing][iiChamber]*effStationRingChamberSeg[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
 
+	   
    	   effStationRingChamberLCT[iiStation][iiRing][iiChamber] = (passStationRingChamberLCT[iiStation][iiRing][iiChamber]-passSBStationRingChamberLCT[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
    	   effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber] = sqrt(((passStationRingChamberLCT[iiStation][iiRing][iiChamber]+passSBStationRingChamberLCT[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberLCT[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberLCT[iiStation][iiRing][iiChamber]))+ ((totStationRingChamber[iiStation][iiRing][iiChamber]-passStationRingChamberLCT[iiStation][iiRing][iiChamber])+(totSBStationRingChamber[iiStation][iiRing][iiChamber]-passSBStationRingChamberLCT[iiStation][iiRing][iiChamber]))*effStationRingChamberLCT[iiStation][iiRing][iiChamber]*effStationRingChamberLCT[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
 	   
@@ -1962,7 +2020,7 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	 
    	 for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
 
-       if ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]>0.5)&&(totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]>0.5)&&((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun])>0.5)) {
+       if ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]>0.5)&&((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun])>0.5)) {
    	 effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] = (passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
    	 effSigmaStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] = sqrt(((passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]+passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]))+ ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])+(totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]))*effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]*effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
    	 effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun] = (passStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
@@ -1999,7 +2057,17 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
    	 //std::cout << "tot: " << totStationRingPt[iiStation][iiRing][iiPt] << std::endl;
    	 //std::cout << "eff: " << effStationRingPtSeg[iiStation][iiRing][iiPt] << " +/- " << effSigmaStationRingPtSeg[iiStation][iiRing][iiPt] << std::endl;
 
-   	 if ((totStationRingPt[iiStation][iiRing][iiPt]>0.5)&&(totSBStationRingPt[iiStation][iiRing][iiPt]>0.5)&&((totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt])>0.5)) {
+	 if (DoubleMuGun) totSBStationRingPt[iiStation][iiRing][iiPt] = 1.0;
+        if (LowStats) totSBStationRingPt[iiStation][iiRing][iiPt] = 0.0000001;
+        if (LowStats) passSBStationRingPtSeg[iiStation][iiRing][iiPt] = 0.0000001;
+        if (LowStats) passSBStationRingPtLCT[iiStation][iiRing][iiPt] = 0.0000001;
+        if (iiStation<4&&LowStats) {
+          totSBStationRingPt[iiStation+4][iiRing][iiPt] = 0.0000001;
+          passSBStationRingPtSeg[iiStation+4][iiRing][iiPt] = 0.0000001;
+          passSBStationRingPtLCT[iiStation+4][iiRing][iiPt] = 0.0000001;
+        }
+ 
+   	 if ((totStationRingPt[iiStation][iiRing][iiPt]>0.0000005)&&((totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt])>0.0000005)) {
    	   effStationRingPtSeg[iiStation][iiRing][iiPt] = (passStationRingPtSeg[iiStation][iiRing][iiPt]-passSBStationRingPtSeg[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
    	   effSigmaStationRingPtSeg[iiStation][iiRing][iiPt] = sqrt(((passStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationRingPtSeg[iiStation][iiRing][iiPt]))+ ((totStationRingPt[iiStation][iiRing][iiPt]-passStationRingPtSeg[iiStation][iiRing][iiPt])+(totSBStationRingPt[iiStation][iiRing][iiPt]-passSBStationRingPtSeg[iiStation][iiRing][iiPt]))*effStationRingPtSeg[iiStation][iiRing][iiPt]*effStationRingPtSeg[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
 
@@ -2008,7 +2076,7 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 
    	 }
 
-   	 if ((iiStation<4)&&((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])>0.5)&&((totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt])>0.5)&&(((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]))>0.5)) {
+   	 if ((iiStation<4)&&((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])>0.00000005)&&(((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]))>0.0000005)) {
    	   effStationCRingPtSeg[iiStation][iiRing][iiPt] = ((passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt])-(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt]))/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
    	   effSigmaStationCRingPtSeg[iiStation][iiRing][iiPt] = sqrt((((passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt])+(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt]))*(1.-effStationCRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationCRingPtSeg[iiStation][iiRing][iiPt]))+ (((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt]))+((totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt])-(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt])))*effStationCRingPtSeg[iiStation][iiRing][iiPt]*effStationCRingPtSeg[iiStation][iiRing][iiPt])/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
 
@@ -2041,15 +2109,24 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
    	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Eta Bin " << iiEta << std::endl;
    	 //std::cout << "tot: " << totStationRingEta[iiStation][iiRing][iiEta] << std::endl;
    	 //std::cout << "eff: " << effStationRingEtaSeg[iiStation][iiRing][iiEta] << " +/- " << effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta] << std::endl;
-
-       if ((totStationRingEta[iiStation][iiRing][iiEta]>0.5)&&(totSBStationRingEta[iiStation][iiRing][iiEta]>0.5)&&((totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta])>0.5)) {
+	 if (DoubleMuGun) totSBStationRingEta[iiStation][iiRing][iiEta] = 1.0;
+        if (LowStats) totSBStationRingEta[iiStation][iiRing][iiEta] = 0.0000001;
+        if (LowStats) passSBStationRingEtaSeg[iiStation][iiRing][iiEta] = 0.0000001;
+        if (LowStats) passSBStationRingEtaLCT[iiStation][iiRing][iiEta] = 0.0000001;
+        if (iiStation<4&&LowStats) {
+          totSBStationRingEta[iiStation+4][iiRing][iiEta] = 0.0000001;
+          passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta] = 0.0000001;
+          passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta] = 0.0000001;
+        }
+  
+       if ((totStationRingEta[iiStation][iiRing][iiEta]>0.0000005)&&((totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta])>0.0000005)) {
    	 effStationRingEtaSeg[iiStation][iiRing][iiEta] = (passStationRingEtaSeg[iiStation][iiRing][iiEta]-passSBStationRingEtaSeg[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
    	 effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta] = sqrt(((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationRingEtaSeg[iiStation][iiRing][iiEta]))+ ((totStationRingEta[iiStation][iiRing][iiEta]-passStationRingEtaSeg[iiStation][iiRing][iiEta])+(totSBStationRingEta[iiStation][iiRing][iiEta]-passSBStationRingEtaSeg[iiStation][iiRing][iiEta]))*effStationRingEtaSeg[iiStation][iiRing][iiEta]*effStationRingEtaSeg[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
    	 effStationRingEtaLCT[iiStation][iiRing][iiEta] = (passStationRingEtaLCT[iiStation][iiRing][iiEta]-passSBStationRingEtaLCT[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
    	 effSigmaStationRingEtaLCT[iiStation][iiRing][iiEta] = sqrt(((passStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation][iiRing][iiEta])*(1.-effStationRingEtaLCT[iiStation][iiRing][iiEta])*(1.-effStationRingEtaLCT[iiStation][iiRing][iiEta]))+ ((totStationRingEta[iiStation][iiRing][iiEta]-passStationRingEtaLCT[iiStation][iiRing][iiEta])+(totSBStationRingEta[iiStation][iiRing][iiEta]-passSBStationRingEtaLCT[iiStation][iiRing][iiEta]))*effStationRingEtaLCT[iiStation][iiRing][iiEta]*effStationRingEtaLCT[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
        }
 
-   	 if ((iiStation<4)&&((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])>0.5)&&((totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta])>0.5)&&(((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]))>0.5)) {
+   	 if ((iiStation<4)&&((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])>0.0000005)&&(((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]))>0000000.5)) {
    	   effStationCRingEtaSeg[iiStation][iiRing][iiEta] = ((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta]))/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
    	   effSigmaStationCRingEtaSeg[iiStation][iiRing][iiEta] = sqrt((((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta])+(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta]))*(1.-effStationCRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationCRingEtaSeg[iiStation][iiRing][iiEta]))+ (((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta]))+((totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta])))*effStationCRingEtaSeg[iiStation][iiRing][iiEta]*effStationCRingEtaSeg[iiStation][iiRing][iiEta])/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
 
@@ -2088,14 +2165,14 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
        	 //std::cout << "tot: " << totStationRingIso[iiStation][iiRing][iiIso] << std::endl;
        	 //std::cout << "eff: " << effStationRingIsoSeg[iiStation][iiRing][iiIso] << " +/- " << effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso] << std::endl;
 
-       if ((totStationRingIso[iiStation][iiRing][iiIso]>0.5)&&(totSBStationRingIso[iiStation][iiRing][iiIso]>0.5)&&((totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso])>0.5)) {
+       if ((totStationRingIso[iiStation][iiRing][iiIso]>0.5)&&((totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso])>0.5)) {
        	 effStationRingIsoSeg[iiStation][iiRing][iiIso] = (passStationRingIsoSeg[iiStation][iiRing][iiIso]-passSBStationRingIsoSeg[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
        	 effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso] = sqrt(((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationRingIsoSeg[iiStation][iiRing][iiIso]))+ ((totStationRingIso[iiStation][iiRing][iiIso]-passStationRingIsoSeg[iiStation][iiRing][iiIso])+(totSBStationRingIso[iiStation][iiRing][iiIso]-passSBStationRingIsoSeg[iiStation][iiRing][iiIso]))*effStationRingIsoSeg[iiStation][iiRing][iiIso]*effStationRingIsoSeg[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
        	 effStationRingIsoLCT[iiStation][iiRing][iiIso] = (passStationRingIsoLCT[iiStation][iiRing][iiIso]-passSBStationRingIsoLCT[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
        	 effSigmaStationRingIsoLCT[iiStation][iiRing][iiIso] = sqrt(((passStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation][iiRing][iiIso])*(1.-effStationRingIsoLCT[iiStation][iiRing][iiIso])*(1.-effStationRingIsoLCT[iiStation][iiRing][iiIso]))+ ((totStationRingIso[iiStation][iiRing][iiIso]-passStationRingIsoLCT[iiStation][iiRing][iiIso])+(totSBStationRingIso[iiStation][iiRing][iiIso]-passSBStationRingIsoLCT[iiStation][iiRing][iiIso]))*effStationRingIsoLCT[iiStation][iiRing][iiIso]*effStationRingIsoLCT[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
        }
        
-       if ((iiStation<4)&&((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])>0.5)&&((totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso])>0.5)&&(((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]))>0.5)) {
+       if ((iiStation<4)&&((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])>0.5)&&(((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]))>0.5)) {
        	   effStationCRingIsoSeg[iiStation][iiRing][iiIso] = ((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso]))/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
        	   effSigmaStationCRingIsoSeg[iiStation][iiRing][iiIso] = sqrt((((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso])+(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso]))*(1.-effStationCRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationCRingIsoSeg[iiStation][iiRing][iiIso]))+ (((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso]))+((totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso])))*effStationCRingIsoSeg[iiStation][iiRing][iiIso]*effStationCRingIsoSeg[iiStation][iiRing][iiIso])/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
        
@@ -2135,14 +2212,25 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
        	 //std::cout << "tot: " << totStationRingPV[iiStation][iiRing][iiPV] << std::endl;
        	 //std::cout << "eff: " << effStationRingPVSeg[iiStation][iiRing][iiPV] << " +/- " << effSigmaStationRingPVSeg[iiStation][iiRing][iiPV] << std::endl;
 
-       if ((totStationRingPV[iiStation][iiRing][iiPV]>0.5)&&(totSBStationRingPV[iiStation][iiRing][iiPV]>0.5)&&((totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV])>0.5)) {
+
+        if (LowStats) totSBStationRingPt[iiStation][iiRing][iiPV] = 0.0000001;
+        if (LowStats) passSBStationRingPtSeg[iiStation][iiRing][iiPV] = 0.0000001;
+        if (LowStats) passSBStationRingPtLCT[iiStation][iiRing][iiPV] = 0.0000001;
+        if (iiStation<4&&LowStats) {
+          totSBStationRingPt[iiStation+4][iiRing][iiPV] = 0.0000001;
+          passSBStationRingPtSeg[iiStation+4][iiRing][iiPV] = 0.0000001;
+          passSBStationRingPtLCT[iiStation+4][iiRing][iiPV] = 0.0000001;
+        }
+
+	 
+       if ((totStationRingPV[iiStation][iiRing][iiPV]>0.5)&&((totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV])>0.5)) {
        	 effStationRingPVSeg[iiStation][iiRing][iiPV] = (passStationRingPVSeg[iiStation][iiRing][iiPV]-passSBStationRingPVSeg[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
        	 effSigmaStationRingPVSeg[iiStation][iiRing][iiPV] = sqrt(((passStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationRingPVSeg[iiStation][iiRing][iiPV]))+ ((totStationRingPV[iiStation][iiRing][iiPV]-passStationRingPVSeg[iiStation][iiRing][iiPV])+(totSBStationRingPV[iiStation][iiRing][iiPV]-passSBStationRingPVSeg[iiStation][iiRing][iiPV]))*effStationRingPVSeg[iiStation][iiRing][iiPV]*effStationRingPVSeg[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
        	 effStationRingPVLCT[iiStation][iiRing][iiPV] = (passStationRingPVLCT[iiStation][iiRing][iiPV]-passSBStationRingPVLCT[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
        	 effSigmaStationRingPVLCT[iiStation][iiRing][iiPV] = sqrt(((passStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation][iiRing][iiPV])*(1.-effStationRingPVLCT[iiStation][iiRing][iiPV])*(1.-effStationRingPVLCT[iiStation][iiRing][iiPV]))+ ((totStationRingPV[iiStation][iiRing][iiPV]-passStationRingPVLCT[iiStation][iiRing][iiPV])+(totSBStationRingPV[iiStation][iiRing][iiPV]-passSBStationRingPVLCT[iiStation][iiRing][iiPV]))*effStationRingPVLCT[iiStation][iiRing][iiPV]*effStationRingPVLCT[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
        }
 
-       if ((iiStation<4)&&((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])>0.5)&&((totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV])>0.5)&&(((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]))>0.5)) {
+       if ((iiStation<4)&&((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])>0.5)&&(((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]))>0.5)) {
        	   effStationCRingPVSeg[iiStation][iiRing][iiPV] = ((passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV])-(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV]))/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
        	   effSigmaStationCRingPVSeg[iiStation][iiRing][iiPV] = sqrt((((passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV])+(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV]))*(1.-effStationCRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationCRingPVSeg[iiStation][iiRing][iiPV]))+ (((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV]))+((totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV])-(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV])))*effStationCRingPVSeg[iiStation][iiRing][iiPV]*effStationCRingPVSeg[iiStation][iiRing][iiPV])/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
 
@@ -2161,9 +2249,9 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
        LCTEffStationCRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationCRingPVLCT[iiStation][iiRing][iiPV]);
        }
 
-       	 zMassSegDenStationRingPV[iiStation][iiRing][iiPV]->Write();
-         zMassSegNumStationRingPV[iiStation][iiRing][iiPV]->Write();
-       	 zMassLCTNumStationRingPV[iiStation][iiRing][iiPV]->Write();
+         //zMassSegDenStationRingPV[iiStation][iiRing][iiPV]->Write();
+         //zMassSegNumStationRingPV[iiStation][iiRing][iiPV]->Write();
+       	 //zMassLCTNumStationRingPV[iiStation][iiRing][iiPV]->Write();
 
        
        }
@@ -2184,14 +2272,14 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
        	 //std::cout << "tot: " << totStationRingIL[iiStation][iiRing][iiIL] << std::endl;
        	 //std::cout << "eff: " << effStationRingILSeg[iiStation][iiRing][iiIL] << " +/- " << effSigmaStationRingILSeg[iiStation][iiRing][iiIL] << std::endl;
 
-       	 if ((totStationRingIL[iiStation][iiRing][iiIL]>0.5)&&(totSBStationRingIL[iiStation][iiRing][iiIL]>0.5)&&((totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL])>0.5)) {
+       	 if ((totStationRingIL[iiStation][iiRing][iiIL]>0.5)&&((totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL])>0.5)) {
        	   effStationRingILSeg[iiStation][iiRing][iiIL] = (passStationRingILSeg[iiStation][iiRing][iiIL]-passSBStationRingILSeg[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
        	   effSigmaStationRingILSeg[iiStation][iiRing][iiIL] = sqrt(((passStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationRingILSeg[iiStation][iiRing][iiIL]))+ ((totStationRingIL[iiStation][iiRing][iiIL]-passStationRingILSeg[iiStation][iiRing][iiIL])+(totSBStationRingIL[iiStation][iiRing][iiIL]-passSBStationRingILSeg[iiStation][iiRing][iiIL]))*effStationRingILSeg[iiStation][iiRing][iiIL]*effStationRingILSeg[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
        	   effStationRingILLCT[iiStation][iiRing][iiIL] = (passStationRingILLCT[iiStation][iiRing][iiIL]-passSBStationRingILLCT[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
        	   effSigmaStationRingILLCT[iiStation][iiRing][iiIL] = sqrt(((passStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation][iiRing][iiIL])*(1.-effStationRingILLCT[iiStation][iiRing][iiIL])*(1.-effStationRingILLCT[iiStation][iiRing][iiIL]))+ ((totStationRingIL[iiStation][iiRing][iiIL]-passStationRingILLCT[iiStation][iiRing][iiIL])+(totSBStationRingIL[iiStation][iiRing][iiIL]-passSBStationRingILLCT[iiStation][iiRing][iiIL]))*effStationRingILLCT[iiStation][iiRing][iiIL]*effStationRingILLCT[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
        	 }
 
-       	 if ((iiStation<4)&&((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])>0.5)&&((totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL])>0.5)&&(((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]))>0.5)) {
+       	 if ((iiStation<4)&&((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])>0.5)&&(((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]))>0.5)) {
        	   effStationCRingILSeg[iiStation][iiRing][iiIL] = ((passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL])-(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL]))/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
        	   effSigmaStationCRingILSeg[iiStation][iiRing][iiIL] = sqrt((((passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL])+(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL]))*(1.-effStationCRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationCRingILSeg[iiStation][iiRing][iiIL]))+ (((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL]))+((totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL])-(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL])))*effStationCRingILSeg[iiStation][iiRing][iiIL]*effStationCRingILSeg[iiStation][iiRing][iiIL])/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
 
@@ -2231,7 +2319,7 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
        	 //std::cout << "tot: " << totStationRingRun[iiStation][iiRing][iiRun] << std::endl;
        	 //std::cout << "eff: " << effStationRingRunSeg[iiStation][iiRing][iiRun] << " +/- " << effSigmaStationRingRunSeg[iiStation][iiRing][iiRun] << std::endl;
 
-       if ((totStationRingRun[iiStation][iiRing][iiRun]>0.5)&&(totSBStationRingRun[iiStation][iiRing][iiRun]>0.5)&&((totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun])>0.5)) {
+       if ((totStationRingRun[iiStation][iiRing][iiRun]>0.5)&&((totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun])>0.5)) {
        	 effStationRingRunSeg[iiStation][iiRing][iiRun] = (passStationRingRunSeg[iiStation][iiRing][iiRun]-passSBStationRingRunSeg[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
        	 effSigmaStationRingRunSeg[iiStation][iiRing][iiRun] = sqrt(((passStationRingRunSeg[iiStation][iiRing][iiRun]+passSBStationRingRunSeg[iiStation][iiRing][iiRun])*(1.-effStationRingRunSeg[iiStation][iiRing][iiRun])*(1.-effStationRingRunSeg[iiStation][iiRing][iiRun]))+ ((totStationRingRun[iiStation][iiRing][iiRun]-passStationRingRunSeg[iiStation][iiRing][iiRun])+(totSBStationRingRun[iiStation][iiRing][iiRun]-passSBStationRingRunSeg[iiStation][iiRing][iiRun]))*effStationRingRunSeg[iiStation][iiRing][iiRun]*effStationRingRunSeg[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
        	 effStationRingRunLCT[iiStation][iiRing][iiRun] = (passStationRingRunLCT[iiStation][iiRing][iiRun]-passSBStationRingRunLCT[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
@@ -2250,138 +2338,138 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	 
 
 
-        for (Int_t iiLCW=0; iiLCW< numLCWBins; iiLCW++){
-   // 	 //if (totStationRingLCW[iiStation][iiRing][iiLCW]>0.5)  effStationRingLCWSeg[iiStation][iiRing][iiLCW] = passStationRingLCWSeg[iiStation][iiRing][iiLCW]/totStationRingLCW[iiStation][iiRing][iiLCW];
-   // 	 //if (totStationRingLCW[iiStation][iiRing][iiLCW]>0.5) effSigmaStationRingLCWSeg[iiStation][iiRing][iiLCW] = sqrt(effStationRingLCWSeg[iiStation][iiRing][iiLCW]*(1.0-effStationRingLCWSeg[iiStation][iiRing][iiLCW])/totStationRingLCW[iiStation][iiRing][iiLCW]);
-   // 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCW Bin " << iiLCW << std::endl;
-   // 	 //std::cout << "tot: " << totStationRingLCW[iiStation][iiRing][iiLCW] << std::endl;
-   // 	 //std::cout << "eff: " << effStationRingLCWSeg[iiStation][iiRing][iiLCW] << " +/- " << effSigmaStationRingLCWSeg[iiStation][iiRing][iiLCW] << std::endl;
+   //      for (Int_t iiLCW=0; iiLCW< numLCWBins; iiLCW++){
+   // // 	 //if (totStationRingLCW[iiStation][iiRing][iiLCW]>0.5)  effStationRingLCWSeg[iiStation][iiRing][iiLCW] = passStationRingLCWSeg[iiStation][iiRing][iiLCW]/totStationRingLCW[iiStation][iiRing][iiLCW];
+   // // 	 //if (totStationRingLCW[iiStation][iiRing][iiLCW]>0.5) effSigmaStationRingLCWSeg[iiStation][iiRing][iiLCW] = sqrt(effStationRingLCWSeg[iiStation][iiRing][iiLCW]*(1.0-effStationRingLCWSeg[iiStation][iiRing][iiLCW])/totStationRingLCW[iiStation][iiRing][iiLCW]);
+   // // 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCW Bin " << iiLCW << std::endl;
+   // // 	 //std::cout << "tot: " << totStationRingLCW[iiStation][iiRing][iiLCW] << std::endl;
+   // // 	 //std::cout << "eff: " << effStationRingLCWSeg[iiStation][iiRing][iiLCW] << " +/- " << effSigmaStationRingLCWSeg[iiStation][iiRing][iiLCW] << std::endl;
 
-   //     if ((totStationRingLCW[iiStation][iiRing][iiLCW]>0.5)&&(totSBStationRingLCW[iiStation][iiRing][iiLCW]>0.5)&&((totStationRingLCW[iiStation][iiRing][iiLCW]-totSBStationRingLCW[iiStation][iiRing][iiLCW])>0.5)) {
-   // 	 effStationRingLCWSeg[iiStation][iiRing][iiLCW] = (passStationRingLCWSeg[iiStation][iiRing][iiLCW]-passSBStationRingLCWSeg[iiStation][iiRing][iiLCW])/(totStationRingLCW[iiStation][iiRing][iiLCW]-totSBStationRingLCW[iiStation][iiRing][iiLCW]);
-   // 	 effSigmaStationRingLCWSeg[iiStation][iiRing][iiLCW] = sqrt(((passStationRingLCWSeg[iiStation][iiRing][iiLCW]+passSBStationRingLCWSeg[iiStation][iiRing][iiLCW])*(1.-effStationRingLCWSeg[iiStation][iiRing][iiLCW])*(1.-effStationRingLCWSeg[iiStation][iiRing][iiLCW]))+ ((totStationRingLCW[iiStation][iiRing][iiLCW]-passStationRingLCWSeg[iiStation][iiRing][iiLCW])+(totSBStationRingLCW[iiStation][iiRing][iiLCW]-passSBStationRingLCWSeg[iiStation][iiRing][iiLCW]))*effStationRingLCWSeg[iiStation][iiRing][iiLCW]*effStationRingLCWSeg[iiStation][iiRing][iiLCW])/(totStationRingLCW[iiStation][iiRing][iiLCW]-totSBStationRingLCW[iiStation][iiRing][iiLCW]);
+   // //     if ((totStationRingLCW[iiStation][iiRing][iiLCW]>0.5)&&((totStationRingLCW[iiStation][iiRing][iiLCW]-totSBStationRingLCW[iiStation][iiRing][iiLCW])>0.5)) {
+   // // 	 effStationRingLCWSeg[iiStation][iiRing][iiLCW] = (passStationRingLCWSeg[iiStation][iiRing][iiLCW]-passSBStationRingLCWSeg[iiStation][iiRing][iiLCW])/(totStationRingLCW[iiStation][iiRing][iiLCW]-totSBStationRingLCW[iiStation][iiRing][iiLCW]);
+   // // 	 effSigmaStationRingLCWSeg[iiStation][iiRing][iiLCW] = sqrt(((passStationRingLCWSeg[iiStation][iiRing][iiLCW]+passSBStationRingLCWSeg[iiStation][iiRing][iiLCW])*(1.-effStationRingLCWSeg[iiStation][iiRing][iiLCW])*(1.-effStationRingLCWSeg[iiStation][iiRing][iiLCW]))+ ((totStationRingLCW[iiStation][iiRing][iiLCW]-passStationRingLCWSeg[iiStation][iiRing][iiLCW])+(totSBStationRingLCW[iiStation][iiRing][iiLCW]-passSBStationRingLCWSeg[iiStation][iiRing][iiLCW]))*effStationRingLCWSeg[iiStation][iiRing][iiLCW]*effStationRingLCWSeg[iiStation][iiRing][iiLCW])/(totStationRingLCW[iiStation][iiRing][iiLCW]-totSBStationRingLCW[iiStation][iiRing][iiLCW]);
+   // //     }
+   // //     if ((totStationRingLCWLCT[iiStation][iiRing][iiLCW]>0.5)&&((totStationRingLCWLCT[iiStation][iiRing][iiLCW]-totSBStationRingLCWLCT[iiStation][iiRing][iiLCW])>0.5)) {
+   // // 	 effStationRingLCWLCT[iiStation][iiRing][iiLCW] = (passStationRingLCWLCT[iiStation][iiRing][iiLCW]-passSBStationRingLCWLCT[iiStation][iiRing][iiLCW])/(totStationRingLCWLCT[iiStation][iiRing][iiLCW]-totSBStationRingLCWLCT[iiStation][iiRing][iiLCW]);
+   // // 	 effSigmaStationRingLCWLCT[iiStation][iiRing][iiLCW] = sqrt(((passStationRingLCWLCT[iiStation][iiRing][iiLCW]+passSBStationRingLCWLCT[iiStation][iiRing][iiLCW])*(1.-effStationRingLCWLCT[iiStation][iiRing][iiLCW])*(1.-effStationRingLCWLCT[iiStation][iiRing][iiLCW]))+ ((totStationRingLCWLCT[iiStation][iiRing][iiLCW]-passStationRingLCWLCT[iiStation][iiRing][iiLCW])+(totSBStationRingLCWLCT[iiStation][iiRing][iiLCW]-passSBStationRingLCWLCT[iiStation][iiRing][iiLCW]))*effStationRingLCWLCT[iiStation][iiRing][iiLCW]*effStationRingLCWLCT[iiStation][iiRing][iiLCW])/(totStationRingLCWLCT[iiStation][iiRing][iiLCW]-totSBStationRingLCWLCT[iiStation][iiRing][iiLCW]);
+   // //     }
+
+   // // 	 if ((iiStation<4)&&((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])>0.5)&&(((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]))>0.5)) {
+   // // 	   effStationCRingLCWSeg[iiStation][iiRing][iiLCW] = ((passStationRingLCWSeg[iiStation][iiRing][iiLCW]+passStationRingLCWSeg[iiStation+4][iiRing][iiLCW])-(passSBStationRingLCWSeg[iiStation][iiRing][iiLCW]+passSBStationRingLCWSeg[iiStation+4][iiRing][iiLCW]))/((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]));
+   // // 	   effSigmaStationCRingLCWSeg[iiStation][iiRing][iiLCW] = sqrt((((passStationRingLCWSeg[iiStation][iiRing][iiLCW]+passStationRingLCWSeg[iiStation+4][iiRing][iiLCW])+(passSBStationRingLCWSeg[iiStation][iiRing][iiLCW]+passSBStationRingLCWSeg[iiStation+4][iiRing][iiLCW]))*(1.-effStationCRingLCWSeg[iiStation][iiRing][iiLCW])*(1.-effStationCRingLCWSeg[iiStation][iiRing][iiLCW]))+ (((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(passStationRingLCWSeg[iiStation][iiRing][iiLCW]+passStationRingLCWSeg[iiStation+4][iiRing][iiLCW]))+((totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW])-(passSBStationRingLCWSeg[iiStation][iiRing][iiLCW]+passSBStationRingLCWSeg[iiStation+4][iiRing][iiLCW])))*effStationCRingLCWSeg[iiStation][iiRing][iiLCW]*effStationCRingLCWSeg[iiStation][iiRing][iiLCW])/((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]));
+
+   // // 	   effStationCRingLCWLCT[iiStation][iiRing][iiLCW] = ((passStationRingLCWLCT[iiStation][iiRing][iiLCW]+passStationRingLCWLCT[iiStation+4][iiRing][iiLCW])-(passSBStationRingLCWLCT[iiStation][iiRing][iiLCW]+passSBStationRingLCWLCT[iiStation+4][iiRing][iiLCW]))/((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]));
+   // // 	   effSigmaStationCRingLCWLCT[iiStation][iiRing][iiLCW] = sqrt((((passStationRingLCWLCT[iiStation][iiRing][iiLCW]+passStationRingLCWLCT[iiStation+4][iiRing][iiLCW])+(passSBStationRingLCWLCT[iiStation][iiRing][iiLCW]+passSBStationRingLCWLCT[iiStation+4][iiRing][iiLCW]))*(1.-effStationCRingLCWLCT[iiStation][iiRing][iiLCW])*(1.-effStationCRingLCWLCT[iiStation][iiRing][iiLCW]))+ (((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(passStationRingLCWLCT[iiStation][iiRing][iiLCW]+passStationRingLCWLCT[iiStation+4][iiRing][iiLCW]))+((totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW])-(passSBStationRingLCWLCT[iiStation][iiRing][iiLCW]+passSBStationRingLCWLCT[iiStation+4][iiRing][iiLCW])))*effStationCRingLCWLCT[iiStation][iiRing][iiLCW]*effStationCRingLCWLCT[iiStation][iiRing][iiLCW])/((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]));
+   // // 	 }
+
+       
+   // 	  //segEffStationRingLCW[iiStation][iiRing]->SetBinContent(iiLCW+1,effStationRingLCWSeg[iiStation][iiRing][iiLCW]);
+   // 	  //segEffStationRingLCW[iiStation][iiRing]->SetBinError(iiLCW+1,effSigmaStationRingLCWSeg[iiStation][iiRing][iiLCW]);
+   // 	  //LCTEffStationRingLCW[iiStation][iiRing]->SetBinContent(iiLCW+1,effStationRingLCWLCT[iiStation][iiRing][iiLCW]);
+   // 	// LCTEffStationRingLCW[iiStation][iiRing]->SetBinError(iiLCW+1,effSigmaStationRingLCWLCT[iiStation][iiRing][iiLCW]);
+   // //     if (iiStation < 4){
+   // //     segEffStationCRingLCW[iiStation][iiRing]->SetBinContent(iiLCW+1,effStationCRingLCWSeg[iiStation][iiRing][iiLCW]);
+   // //     segEffStationCRingLCW[iiStation][iiRing]->SetBinError(iiLCW+1,effSigmaStationCRingLCWSeg[iiStation][iiRing][iiLCW]);
+   // //     LCTEffStationCRingLCW[iiStation][iiRing]->SetBinContent(iiLCW+1,effStationCRingLCWLCT[iiStation][iiRing][iiLCW]);
+   // //     LCTEffStationCRingLCW[iiStation][iiRing]->SetBinError(iiLCW+1,effSigmaStationCRingLCWLCT[iiStation][iiRing][iiLCW]);
+   // //     }
+
+   //     for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+
+   // 	 if ((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]>0.5)&&((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW])>0.5)) {
+   // 	   effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW] = (passStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
+   // 	   effSigmaStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW] = sqrt(((passStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]+passSBStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]))+ ((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])+(totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]))*effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]*effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
+
+   // 	   effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW] = (passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
+   // 	   effSigmaStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW] = sqrt(((passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]+passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]))+ ((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])+(totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]))*effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]*effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
+
+   // 	 }	 
+
+   // 	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinContent(iiLCW+1,effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]);
+   // 	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinError(iiLCW+1,effSigmaStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]);
+   // 	 LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinContent(iiLCW+1,effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]);
+   // 	 LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinError(iiLCW+1,effSigmaStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]);
    //     }
-   //     if ((totStationRingLCWLCT[iiStation][iiRing][iiLCW]>0.5)&&(totSBStationRingLCW[iiStation][iiRing][iiLCW]>0.5)&&((totStationRingLCWLCT[iiStation][iiRing][iiLCW]-totSBStationRingLCWLCT[iiStation][iiRing][iiLCW])>0.5)) {
-   // 	 effStationRingLCWLCT[iiStation][iiRing][iiLCW] = (passStationRingLCWLCT[iiStation][iiRing][iiLCW]-passSBStationRingLCWLCT[iiStation][iiRing][iiLCW])/(totStationRingLCWLCT[iiStation][iiRing][iiLCW]-totSBStationRingLCWLCT[iiStation][iiRing][iiLCW]);
-   // 	 effSigmaStationRingLCWLCT[iiStation][iiRing][iiLCW] = sqrt(((passStationRingLCWLCT[iiStation][iiRing][iiLCW]+passSBStationRingLCWLCT[iiStation][iiRing][iiLCW])*(1.-effStationRingLCWLCT[iiStation][iiRing][iiLCW])*(1.-effStationRingLCWLCT[iiStation][iiRing][iiLCW]))+ ((totStationRingLCWLCT[iiStation][iiRing][iiLCW]-passStationRingLCWLCT[iiStation][iiRing][iiLCW])+(totSBStationRingLCWLCT[iiStation][iiRing][iiLCW]-passSBStationRingLCWLCT[iiStation][iiRing][iiLCW]))*effStationRingLCWLCT[iiStation][iiRing][iiLCW]*effStationRingLCWLCT[iiStation][iiRing][iiLCW])/(totStationRingLCWLCT[iiStation][iiRing][iiLCW]-totSBStationRingLCWLCT[iiStation][iiRing][iiLCW]);
+       
+       
+   //      }
+   //     // segEffStationRingLCW[iiStation][iiRing]->Write();
+   //     // LCTEffStationRingLCW[iiStation][iiRing]->Write();
+   //     // if (iiStation < 4){
+   //     // segEffStationCRingLCW[iiStation][iiRing]->Write();
+   //     // LCTEffStationCRingLCW[iiStation][iiRing]->Write(); 
+   //     // }
+
+   //     for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+   // 	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->Write();
+   // 	 LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->Write();
+   //     }       
+
+   //     for (Int_t iiLCY=0; iiLCY< numLCYBins; iiLCY++){
+   //     // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)  effStationRingLCYSeg[iiStation][iiRing][iiLCY] = passStationRingLCYSeg[iiStation][iiRing][iiLCY]/totStationRingLCY[iiStation][iiRing][iiLCY];
+   //     // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5) effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(effStationRingLCYSeg[iiStation][iiRing][iiLCY]*(1.0-effStationRingLCYSeg[iiStation][iiRing][iiLCY])/totStationRingLCY[iiStation][iiRing][iiLCY]);
+   //     // 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCY Bin " << iiLCY << std::endl;
+   //     // 	 //std::cout << "tot: " << totStationRingLCY[iiStation][iiRing][iiLCY] << std::endl;
+   //     // 	 //std::cout << "eff: " << effStationRingLCYSeg[iiStation][iiRing][iiLCY] << " +/- " << effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] << std::endl;
+
+   //     // if ((totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY])>0.5)) {
+   //     // 	 effStationRingLCYSeg[iiStation][iiRing][iiLCY] = (passStationRingLCYSeg[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
+   //     // 	 effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY]))+ ((totStationRingLCY[iiStation][iiRing][iiLCY]-passStationRingLCYSeg[iiStation][iiRing][iiLCY])+(totSBStationRingLCY[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]))*effStationRingLCYSeg[iiStation][iiRing][iiLCY]*effStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
+   //     // }
+   //     // if ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY])>0.5)) {
+   //     // 	 effStationRingLCYLCT[iiStation][iiRing][iiLCY] = (passStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+   //     // 	 effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY]))+ ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-passStationRingLCYLCT[iiStation][iiRing][iiLCY])+(totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]))*effStationRingLCYLCT[iiStation][iiRing][iiLCY]*effStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+   //     // }
+
+   //     // 	 if ((iiStation<4)&&((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])>0.5)&&(((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]))>0.5)) {
+   //     // 	   effStationCRingLCYSeg[iiStation][iiRing][iiLCY] = ((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+   //     // 	   effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYSeg[iiStation][iiRing][iiLCY]*effStationCRingLCYSeg[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+
+   //     // 	   effStationCRingLCYLCT[iiStation][iiRing][iiLCY] = ((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+   //     // 	   effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYLCT[iiStation][iiRing][iiLCY]*effStationCRingLCYLCT[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+   //     // 	 }
+
+       
+   //     // segEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYSeg[iiStation][iiRing][iiLCY]);
+   //     // segEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY]);
+   //     // LCTEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+   //     // LCTEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+   //     // if (iiStation<4){
+   //     // segEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
+   //     // segEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
+   //     // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
+   //     // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
+   //     // }
+
+   //     for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+
+   //     	 if ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]>0.5)&&((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY])>0.5)) {
+   //     	   effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+   //     	   effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+
+   //     	   effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+   //     	   effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+   //     	 }	 
+
+   //     	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
+   //     	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
+   //     	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
+   //     	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
+
    //     }
 
-   // 	 if ((iiStation<4)&&((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])>0.5)&&((totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW])>0.5)&&(((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]))>0.5)) {
-   // 	   effStationCRingLCWSeg[iiStation][iiRing][iiLCW] = ((passStationRingLCWSeg[iiStation][iiRing][iiLCW]+passStationRingLCWSeg[iiStation+4][iiRing][iiLCW])-(passSBStationRingLCWSeg[iiStation][iiRing][iiLCW]+passSBStationRingLCWSeg[iiStation+4][iiRing][iiLCW]))/((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]));
-   // 	   effSigmaStationCRingLCWSeg[iiStation][iiRing][iiLCW] = sqrt((((passStationRingLCWSeg[iiStation][iiRing][iiLCW]+passStationRingLCWSeg[iiStation+4][iiRing][iiLCW])+(passSBStationRingLCWSeg[iiStation][iiRing][iiLCW]+passSBStationRingLCWSeg[iiStation+4][iiRing][iiLCW]))*(1.-effStationCRingLCWSeg[iiStation][iiRing][iiLCW])*(1.-effStationCRingLCWSeg[iiStation][iiRing][iiLCW]))+ (((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(passStationRingLCWSeg[iiStation][iiRing][iiLCW]+passStationRingLCWSeg[iiStation+4][iiRing][iiLCW]))+((totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW])-(passSBStationRingLCWSeg[iiStation][iiRing][iiLCW]+passSBStationRingLCWSeg[iiStation+4][iiRing][iiLCW])))*effStationCRingLCWSeg[iiStation][iiRing][iiLCW]*effStationCRingLCWSeg[iiStation][iiRing][iiLCW])/((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]));
-
-   // 	   effStationCRingLCWLCT[iiStation][iiRing][iiLCW] = ((passStationRingLCWLCT[iiStation][iiRing][iiLCW]+passStationRingLCWLCT[iiStation+4][iiRing][iiLCW])-(passSBStationRingLCWLCT[iiStation][iiRing][iiLCW]+passSBStationRingLCWLCT[iiStation+4][iiRing][iiLCW]))/((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]));
-   // 	   effSigmaStationCRingLCWLCT[iiStation][iiRing][iiLCW] = sqrt((((passStationRingLCWLCT[iiStation][iiRing][iiLCW]+passStationRingLCWLCT[iiStation+4][iiRing][iiLCW])+(passSBStationRingLCWLCT[iiStation][iiRing][iiLCW]+passSBStationRingLCWLCT[iiStation+4][iiRing][iiLCW]))*(1.-effStationCRingLCWLCT[iiStation][iiRing][iiLCW])*(1.-effStationCRingLCWLCT[iiStation][iiRing][iiLCW]))+ (((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(passStationRingLCWLCT[iiStation][iiRing][iiLCW]+passStationRingLCWLCT[iiStation+4][iiRing][iiLCW]))+((totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW])-(passSBStationRingLCWLCT[iiStation][iiRing][iiLCW]+passSBStationRingLCWLCT[iiStation+4][iiRing][iiLCW])))*effStationCRingLCWLCT[iiStation][iiRing][iiLCW]*effStationCRingLCWLCT[iiStation][iiRing][iiLCW])/((totStationRingLCW[iiStation][iiRing][iiLCW]+totStationRingLCW[iiStation+4][iiRing][iiLCW])-(totSBStationRingLCW[iiStation][iiRing][iiLCW]+totSBStationRingLCW[iiStation+4][iiRing][iiLCW]));
-   // 	 }
-
        
-   	  //segEffStationRingLCW[iiStation][iiRing]->SetBinContent(iiLCW+1,effStationRingLCWSeg[iiStation][iiRing][iiLCW]);
-   	  //segEffStationRingLCW[iiStation][iiRing]->SetBinError(iiLCW+1,effSigmaStationRingLCWSeg[iiStation][iiRing][iiLCW]);
-   	  //LCTEffStationRingLCW[iiStation][iiRing]->SetBinContent(iiLCW+1,effStationRingLCWLCT[iiStation][iiRing][iiLCW]);
-   	// LCTEffStationRingLCW[iiStation][iiRing]->SetBinError(iiLCW+1,effSigmaStationRingLCWLCT[iiStation][iiRing][iiLCW]);
-   //     if (iiStation < 4){
-   //     segEffStationCRingLCW[iiStation][iiRing]->SetBinContent(iiLCW+1,effStationCRingLCWSeg[iiStation][iiRing][iiLCW]);
-   //     segEffStationCRingLCW[iiStation][iiRing]->SetBinError(iiLCW+1,effSigmaStationCRingLCWSeg[iiStation][iiRing][iiLCW]);
-   //     LCTEffStationCRingLCW[iiStation][iiRing]->SetBinContent(iiLCW+1,effStationCRingLCWLCT[iiStation][iiRing][iiLCW]);
-   //     LCTEffStationCRingLCW[iiStation][iiRing]->SetBinError(iiLCW+1,effSigmaStationCRingLCWLCT[iiStation][iiRing][iiLCW]);
-   //     }
-
-       for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-
-   	 if ((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]>0.5)&&(totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]>0.5)&&((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW])>0.5)) {
-   	   effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW] = (passStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
-   	   effSigmaStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW] = sqrt(((passStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]+passSBStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]))+ ((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])+(totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]))*effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]*effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
-
-   	   effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW] = (passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
-   	   effSigmaStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW] = sqrt(((passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]+passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]))+ ((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])+(totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]))*effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]*effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
-
-   	 }	 
-
-   	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinContent(iiLCW+1,effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]);
-   	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinError(iiLCW+1,effSigmaStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]);
-   	 LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinContent(iiLCW+1,effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]);
-   	 LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinError(iiLCW+1,effSigmaStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]);
-       }
-       
-       
-        }
-       // segEffStationRingLCW[iiStation][iiRing]->Write();
-       // LCTEffStationRingLCW[iiStation][iiRing]->Write();
-       // if (iiStation < 4){
-       // segEffStationCRingLCW[iiStation][iiRing]->Write();
-       // LCTEffStationCRingLCW[iiStation][iiRing]->Write(); 
-       // }
-
-       for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-   	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->Write();
-   	 LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->Write();
-       }       
-
-       for (Int_t iiLCY=0; iiLCY< numLCYBins; iiLCY++){
-       // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)  effStationRingLCYSeg[iiStation][iiRing][iiLCY] = passStationRingLCYSeg[iiStation][iiRing][iiLCY]/totStationRingLCY[iiStation][iiRing][iiLCY];
-       // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5) effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(effStationRingLCYSeg[iiStation][iiRing][iiLCY]*(1.0-effStationRingLCYSeg[iiStation][iiRing][iiLCY])/totStationRingLCY[iiStation][iiRing][iiLCY]);
-       // 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCY Bin " << iiLCY << std::endl;
-       // 	 //std::cout << "tot: " << totStationRingLCY[iiStation][iiRing][iiLCY] << std::endl;
-       // 	 //std::cout << "eff: " << effStationRingLCYSeg[iiStation][iiRing][iiLCY] << " +/- " << effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] << std::endl;
-
-       // if ((totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)&&(totSBStationRingLCY[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY])>0.5)) {
-       // 	 effStationRingLCYSeg[iiStation][iiRing][iiLCY] = (passStationRingLCYSeg[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
-       // 	 effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY]))+ ((totStationRingLCY[iiStation][iiRing][iiLCY]-passStationRingLCYSeg[iiStation][iiRing][iiLCY])+(totSBStationRingLCY[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]))*effStationRingLCYSeg[iiStation][iiRing][iiLCY]*effStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
-       // }
-       // if ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]>0.5)&&(totSBStationRingLCY[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY])>0.5)) {
-       // 	 effStationRingLCYLCT[iiStation][iiRing][iiLCY] = (passStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-       // 	 effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY]))+ ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-passStationRingLCYLCT[iiStation][iiRing][iiLCY])+(totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]))*effStationRingLCYLCT[iiStation][iiRing][iiLCY]*effStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-       // }
-
-       // 	 if ((iiStation<4)&&((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])>0.5)&&((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])>0.5)&&(((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]))>0.5)) {
-       // 	   effStationCRingLCYSeg[iiStation][iiRing][iiLCY] = ((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-       // 	   effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYSeg[iiStation][iiRing][iiLCY]*effStationCRingLCYSeg[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-
-       // 	   effStationCRingLCYLCT[iiStation][iiRing][iiLCY] = ((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-       // 	   effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYLCT[iiStation][iiRing][iiLCY]*effStationCRingLCYLCT[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-       // 	 }
-
-       
-       // segEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYSeg[iiStation][iiRing][iiLCY]);
-       // segEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY]);
-       // LCTEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-       // LCTEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-       // if (iiStation<4){
-       // segEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
-       // segEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
-       // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
-       // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
-       // }
-
-       for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-
-       	 if ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]>0.5)&&(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]>0.5)&&((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY])>0.5)) {
-       	   effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-       	   effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-
-       	   effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-       	   effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-       	 }	 
-
-       	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
-       	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
-       	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
-       	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
-
-       }
-
-       
-       } //end loog over LCY bins
-       // segEffStationRingLCY[iiStation][iiRing]->Write();
-       // LCTEffStationRingLCY[iiStation][iiRing]->Write();
-       // if (iiStation<4){
-       // segEffStationCRingLCY[iiStation][iiRing]->Write();
-       // LCTEffStationCRingLCY[iiStation][iiRing]->Write();
-       // }
-       for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-       	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-       	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-       }      
+   //     } //end loog over LCY bins
+   //     // segEffStationRingLCY[iiStation][iiRing]->Write();
+   //     // LCTEffStationRingLCY[iiStation][iiRing]->Write();
+   //     // if (iiStation<4){
+   //     // segEffStationCRingLCY[iiStation][iiRing]->Write();
+   //     // LCTEffStationCRingLCY[iiStation][iiRing]->Write();
+   //     // }
+   //     for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+   //     	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
+   //     	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
+   //     }      
 
        for (Int_t iiLCS=0; iiLCS< numLCSBins; iiLCS++){
        // 	 //if (totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)  effStationRingLCSSeg[iiStation][iiRing][iiLCS] = passStationRingLCSSeg[iiStation][iiRing][iiLCS]/totStationRingLCS[iiStation][iiRing][iiLCS];
@@ -2390,16 +2478,16 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
        // 	 //std::cout << "tot: " << totStationRingLCS[iiStation][iiRing][iiLCS] << std::endl;
        // 	 //std::cout << "eff: " << effStationRingLCSSeg[iiStation][iiRing][iiLCS] << " +/- " << effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS] << std::endl;
 
-       // if ((totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)&&(totSBStationRingLCS[iiStation][iiRing][iiLCS]>0.5)&&((totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS])>0.5)) {
+       // if ((totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)&&((totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS])>0.5)) {
        // 	 effStationRingLCSSeg[iiStation][iiRing][iiLCS] = (passStationRingLCSSeg[iiStation][iiRing][iiLCS]-passSBStationRingLCSSeg[iiStation][iiRing][iiLCS])/(totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS]);
        // 	 effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS] = sqrt(((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSSeg[iiStation][iiRing][iiLCS]))+ ((totStationRingLCS[iiStation][iiRing][iiLCS]-passStationRingLCSSeg[iiStation][iiRing][iiLCS])+(totSBStationRingLCS[iiStation][iiRing][iiLCS]-passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]))*effStationRingLCSSeg[iiStation][iiRing][iiLCS]*effStationRingLCSSeg[iiStation][iiRing][iiLCS])/(totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS]);
        // }
-       // if ((totStationRingLCSLCT[iiStation][iiRing][iiLCS]>0.5)&&(totSBStationRingLCS[iiStation][iiRing][iiLCS]>0.5)&&((totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS])>0.5)) {
+       // if ((totStationRingLCSLCT[iiStation][iiRing][iiLCS]>0.5)&&((totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS])>0.5)) {
        // 	 effStationRingLCSLCT[iiStation][iiRing][iiLCS] = (passStationRingLCSLCT[iiStation][iiRing][iiLCS]-passSBStationRingLCSLCT[iiStation][iiRing][iiLCS])/(totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]);
        // 	 effSigmaStationRingLCSLCT[iiStation][iiRing][iiLCS] = sqrt(((passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSLCT[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSLCT[iiStation][iiRing][iiLCS]))+ ((totStationRingLCSLCT[iiStation][iiRing][iiLCS]-passStationRingLCSLCT[iiStation][iiRing][iiLCS])+(totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]-passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]))*effStationRingLCSLCT[iiStation][iiRing][iiLCS]*effStationRingLCSLCT[iiStation][iiRing][iiLCS])/(totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]);
        // }
 
-       // 	 if ((iiStation<4)&&((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])>0.5)&&((totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS])>0.5)&&(((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]))>0.5)) {
+       // 	 if ((iiStation<4)&&((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])>0.5)&&(((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]))>0.5)) {
        // 	   effStationCRingLCSSeg[iiStation][iiRing][iiLCS] = ((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
        // 	   effSigmaStationCRingLCSSeg[iiStation][iiRing][iiLCS] = sqrt((((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS])+(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))*(1.-effStationCRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationCRingLCSSeg[iiStation][iiRing][iiLCS]))+ (((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))+((totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS])))*effStationCRingLCSSeg[iiStation][iiRing][iiLCS]*effStationCRingLCSSeg[iiStation][iiRing][iiLCS])/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
 
@@ -2421,18 +2509,18 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 
        for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
 
-       	 if ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]>0.5)&&(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]>0.5)&&((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS])>0.5)) {
-       	   effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
-       	   effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
+	 if ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]>0.5)&&((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS])>0.5)) {
+	   effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
+	   effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
 
-       	   effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
-       	   effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
-       	 }	 
+	   effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
+	   effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
+	 }	 
 
-       	 segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
-       	 segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
-       	 LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]);
-       	 LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]);
+	 segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
+	 segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
+	 LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]);
+	 LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]);
 
        }
 
@@ -2445,8 +2533,8 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
        // LCTEffStationCRingLCS[iiStation][iiRing]->Write();
        // }
        for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-       	 segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
-       	 LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
+	 segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
+	 LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
        }      
 
        
@@ -2486,9 +2574,9 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 
 
 
-   // zMassAll->Write();
-   // zMassGood->Write();
-   // zMassBad->Write();
+    zMassAll->Write();
+    zMassGood->Write();
+    zMassBad->Write();
    
 
    // globalCSCSegEffPt->Write();

@@ -1,5 +1,6 @@
 // -*- C++ -*-
 //
+//
 // Package:    TPTrackMuonSys
 // Class:      TPTrackMuonSys
 // 
@@ -22,10 +23,15 @@
 // user include files
 #include "../interface/TPTrackMuonSys.h"
 
-TPTrackMuonSys::TPTrackMuonSys(const edm::ParameterSet& Conf) : theDbConditions( Conf ) {
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+TPTrackMuonSys::TPTrackMuonSys(const edm::ParameterSet& Conf) : theDbConditions( Conf, consumesCollector() ) {
   //now do what ever initialization is needed
   m_rootFileName         = Conf.getUntrackedParameter<std::string>("rootFileName","PhyTree.root");
-  //  cout <<"\t\t TPTrackMuonSys::TPTrackMuonSys..."<<endl;
+
+  edm::ConsumesCollector iC = consumesCollector();
+
+    cout <<"\t\t TPTrackMuonSys::TPTrackMuonSys..."<<endl;
 
   ///////////////////////////////
   // Various input parameters.
@@ -36,16 +42,16 @@ TPTrackMuonSys::TPTrackMuonSys(const edm::ParameterSet& Conf) : theDbConditions(
   gTracksCollectionToken_ = consumes<reco::TrackCollection>(m_gTracksTag);
 
   //  m_gTracksHVTag = Conf.getUntrackedParameter<edm::InputTag>("gTracksTag"); // "generalTracks"
-  gTracksHVCollectionToken_ = consumes<View<Track>>(m_gTracksTag);
+  gTracksHVCollectionToken_ = consumes<edm::View<Track>>(m_gTracksTag);
 
   m_hltTrgEv = Conf.getUntrackedParameter<edm::InputTag>("hltEvTag"); // "generalTracks"
   hltTrgEvCollectionToken_ = consumes<trigger::TriggerEvent>(m_hltTrgEv);
 
   m_hlt = Conf.getUntrackedParameter<edm::InputTag>("hltTag"); // "generalTracks"
-  hltCollectionToken_ = consumes<TriggerResults>(m_hlt);
+  hltCollectionToken_ = consumes<edm::TriggerResults>(m_hlt);
 
   m_dEdxDiscrimTag = Conf.getUntrackedParameter<edm::InputTag>("dedxTag"); //dedxHarmonic2
-  dedxCollectionToken_ = consumes<ValueMap<DeDxData>>(m_dEdxDiscrimTag);
+  dedxCollectionToken_ = consumes<edm::ValueMap<DeDxData>>(m_dEdxDiscrimTag);
 
   /*
   m_gTracksTag = Conf.getUntrackedParameter<edm::InputTag>("gTracksTag"); // "generalTracks"
@@ -69,9 +75,31 @@ lumiscalers_(consumes<LumiScalersCollection>(ps.getParameter<edm::InputTag>("sca
   m_vertexSrc = Conf.getParameter<edm::InputTag>("vertexCollection");
   vertexCollectionToken_ = consumes<reco::VertexCollection>(m_vertexSrc);
 
+  _magFieldToken = esConsumes<MagneticField,IdealMagneticFieldRecord>();
+
+  cscGeomToken_ = esConsumes<CSCGeometry,MuonGeometryRecord>();
+
+  caloGeomToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+
+  trigScalesToken_ = esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>();
+
+  trigMenuToken_ = esConsumes<L1GtTriggerMenu,L1GtTriggerMenuRcd>();
+
+  
+  
+  //  propagatorAlongToken_ = esConsumes<Propagator,TrackingComponentsRecord>("SmartPropagatorAnyRK");
+  //  propagatorOppositeToken_ = esConsumes<Propagator,TrackingComponentsRecord>("SmartPropagatorAnyOpposite");
+  propagatorAlongToken_ = esConsumes<Propagator,TrackingComponentsRecord>(edm::ESInputTag("", "SmartPropagatorAnyRK"));
+  propagatorOppositeToken_ = esConsumes<Propagator,TrackingComponentsRecord>(edm::ESInputTag("", "SmartPropagatorAnyOpposite"));
+  
+  
   //  m_dedxSrc = Conf.getParameter<edm::InputTag>("dedxTag");
   //  dedxCollectionToken_ = consumes<ValueMap<DeDxData>>(m_dEdxSrc);
 
+//  CSCBadChambersRcdToken_(consumesCollector().esConsumes<CSCBadChambers,CSCBadChambersRcd>());
+  //CSCBadChambersRcdToken_(iC.esConsumes());
+  CSCBadChambersToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
+  //edm::ESHandle<CSCBadChambers> CSCBadChambersHandle = iSet.getHandle(CSCBadChambersToken_);
   /*
   m_muonCSCDigis= Conf.getUntrackedParameter<std::string>("muonCSCDigis","muonCSCDigis");
   muonCSCDigis_token = consumes<CSCCorrelatedLCTDigiCollection>(m_muonCSCDigis);
@@ -134,13 +162,13 @@ vtxsrc_= pSet_.getUntrackedParameter<std::string>("vtxsrc","offlinePrimaryVertic
   
   const edm::ParameterSet parameters = Conf.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   //    const edm::ParameterSet parameters = Conf.getParameter<edm::ParameterSet>("TrackAssociatorParameterBlock");
-    edm::ConsumesCollector iC = consumesCollector();
+//    edm::ConsumesCollector iC = consumesCollector();
     parameters_.loadParameters( parameters, iC );
     
     edm::ParameterSet trackExtractorPSet_ = Conf.getParameter<edm::ParameterSet>("TrackExtractor");
     std::string trackExtractorName = trackExtractorPSet_.getParameter<std::string>("ComponentName");
-    muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet_,consumesCollector());
-  
+    //muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet_,consumesCollector());
+ muIsoExtractorTrack_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet_,consumesCollector())}; 
 
   ///  Now the MC specific information... if available...
   //
@@ -208,6 +236,7 @@ vtxsrc_= pSet_.getUntrackedParameter<std::string>("vtxsrc","offlinePrimaryVertic
   Nevents        ->Branch("Nevents_muons_ok3",      &Nevents_muons_ok3, "Nevents_muons_ok3/I") ;
   Nevents        ->Branch("Nevents_muons_okgood",      &Nevents_muons_okgood, "Nevents_muons_okgood/I") ;
   Nevents        ->Branch("Nevents_muonstracks",      &Nevents_muonstracks, "Nevents_muonstracks/I") ;
+  Nevents        ->Branch("Nevents_diMuonMass",      &Nevents_diMuonMass, "Nevents_duMiuonMass/F") ;
 
 //   fractNtuple         = new TTree("Fraction","/Fraction");
   fractNtuple        = fs->make <TTree>("Fraction","/Fraction");
@@ -438,7 +467,7 @@ TPTrackMuonSys::~TPTrackMuonSys(){
 void 
 TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
-  // std::cout <<"TPTrackMuonSys::analyze..."<<std::endl;
+   std::cout <<"TPTrackMuonSys::analyze..."<<std::endl;
 
 
   nEventsAnalyzed++;
@@ -449,13 +478,12 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   theDbConditions.initializeEvent( setup ); //initializeEvent(const edm::EventSetup & es);// fetch the maps from the database
  
   //////////////////////////////////////////////////////////////////////////
-//  cout <<"   beam spot " << endl;
 
   edm::Handle<LumiScalersCollection> lumiScalers;
   bool c = event.getByToken(lumiscalers_, lumiScalers);
 
   if (!(c)) {
-    LogInfo("Status") << "getByToken failed lumi inst";
+    edm::LogInfo("Status") << "getByToken failed lumi inst";
   } 
 
   Int_t idx=0;
@@ -513,7 +541,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       beamSpot = *recoBeamSpotHandle;
       beamExists = true;
     }
-  }catch (cms::Exception){
+  }catch (const cms::Exception& e){
     edm::LogError("")<< "Error! Can't get m_beamSpot  by label. ";
   }
   event_number = event.id().event();
@@ -531,15 +559,18 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   Bool_t isRData      = event.isRealData(); //( L1Decision ? "passed" : "failed")
 
   //Get the Magnetic field from the setup
-//  cout <<"   getBfield " << endl;
-  setup.get<IdealMagneticFieldRecord>().get(theBField);
+  //setup.get<IdealMagneticFieldRecord>().get(theBField);
+  //const auto _magFieldHandle = setup.getData(_magFieldToken);
+  theBField = setup.getHandle(_magFieldToken);
   // Get the GlobalTrackingGeometry from the setup
   // setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
   // Get the DT Geometry from the setup 
   // setup.get<MuonGeometryRecord>().get(dtGeom);
 
-  setup.get<MuonGeometryRecord>().get(cscGeom);
-//#define m_debug
+  //setup.get<MuonGeometryRecord>().get(cscGeom);
+  cscGeom = setup.getHandle(cscGeomToken_);
+  
+  //#define m_debug
 #ifdef m_debug
   //check the chamber active region geometry and numbering --- something good to know
   if (nEventsAnalyzed==1) {
@@ -574,16 +605,19 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   }
 #endif
   // Get the propagators
-  setup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyRK", propagatorAlong   );
-  setup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
+  //setup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyRK", propagatorAlong   );
+  //setup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
+    propagatorAlong = setup.getHandle(propagatorAlongToken_);
+    propagatorOpposite = setup.getHandle(propagatorOppositeToken_);
+  
 
+  
   //vertices
-//  cout <<"   getVertex " << endl;
 /*
   edm::Handle<reco::VertexCollection> pvHandle; 
   try{
     event.getByLabel(m_vertexSrc, pvHandle);
-  }catch (cms::Exception){
+  }catch (const cms::Exception& e){
     edm::LogError("")<< "Error! Can't get m_vertexSrc by label. ";
   }  
 */
@@ -603,7 +637,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   edm::Handle<reco::VertexCollection> pvHandle; 
   try{
     event.getByToken(vertexCollectionToken_, pvHandle);
-  }catch (cms::Exception){
+  }catch (const cms::Exception& e){
     edm::LogError("")<< "Error! Can't get m_vertexSrc by label. ";
   }  
 
@@ -628,14 +662,12 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   */
 
   
-    //cout << " ----------> getting NPU!"<< endl;
   const reco::VertexCollection & vertices = *pvHandle.product();	 
   numberOfPrimaryVertices =pvHandle ->size();
-    //cout << " ------------> done!"<< endl;
   
 
   // Get the RecHits collection :
-  Handle<CSCRecHit2DCollection> recHits;
+  edm::Handle<CSCRecHit2DCollection> recHits;
   //  event.getByLabel("csc2DRecHits",recHits);
   event.getByToken(rh_token,recHits);
 
@@ -643,14 +675,13 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   //  event.getByLabel("cscSegments", cscSegments); 
   event.getByToken(seg_token, cscSegments); 
 
-  //cout <<"   CSCLCT " << endl;
   edm::Handle<CSCCorrelatedLCTDigiCollection> mpclcts;
   try{
 //    event.getByLabel("csctfunpacker","", mpclcts);
 //    event.getByLabel("csctfDigis","",mpclcts);
 //    event.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",mpclcts);
     event.getByToken(muonCSCDigis_token,mpclcts);
-  }catch (cms::Exception){
+  }catch (const cms::Exception& e){
     edm::LogError("")<< "Error! Can't get LCT by label. ";
   }
    
@@ -666,22 +697,21 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   */
 
   //  muon trigger scales
-  edm::ESHandle<L1MuTriggerScales> trigscales_h;
-  setup.get<L1MuTriggerScalesRcd> ().get(trigscales_h);
-  theTriggerScales = trigscales_h.product();
+  //  setup.get<L1MuTriggerScalesRcd> ().get(trigscales_h);
+  trigScalesHandle_ = setup.getHandle(trigScalesToken_);
+  theTriggerScales = trigScalesHandle_.product();
 
   //if (! dtSegments.isValid()) throw cms::Exception("FatalError") << "Unable to find DTRecSegment4DCollection in event!\n";
 
   std::vector<DetId> chamberIds;
   std::vector<DetId>::const_iterator chamberIdIt;
 
-//  cout <<"   gTracks " << endl;
-  Handle<reco::TrackCollection> gTracks;
+  edm::Handle<reco::TrackCollection> gTracks;
   // Bool_t trkBool[2]; trkBool[0]= true;
   try{
     //    event.getByLabel(m_gTracksTag, gTracks); 
     event.getByToken(gTracksCollectionToken_, gTracks); 
-  }catch (cms::Exception){
+  }catch (const cms::Exception& e){
     edm::LogError("")<< "Error! Can't get m_gTracksTag by label. ";
     // trkBool[0] = false;
   }
@@ -689,31 +719,32 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   try{
     //    event.getByLabel("muons", muons); 
     event.getByToken(muons_token, muons); 
-  }catch (cms::Exception){
+  }catch (const cms::Exception& e){
     edm::LogError("")<< "Error! Can't get muons ";
   }
 
-  Handle<ValueMap<DeDxData> > dEdxTrackHandle;
+  edm::Handle<edm::ValueMap<DeDxData> > dEdxTrackHandle;
   //  event.getByLabel(m_dEdxDiscrimTag, dEdxTrackHandle);
   event.getByToken(dedxCollectionToken_, dEdxTrackHandle);
-  const ValueMap<DeDxData> dEdxTrack = *dEdxTrackHandle.product();
+  const edm::ValueMap<DeDxData> dEdxTrack = *dEdxTrackHandle.product();
 
   // calo geometry
-//  cout <<"   caloGeometry " << endl;
-  edm::ESHandle<CaloGeometry> calogeo;
-  setup.get<CaloGeometryRecord>().get(calogeo);
+
+  calogeo = setup.getHandle(caloGeomToken_);
+  //setup.get<CaloGeometryRecord>().get(calogeo);
+  
   if (! calogeo.isValid()) throw cms::Exception("FatalError") << "Unable to find CaloGeometryRecord in event!\n";
   
   //=======Generation and Simulation information========
-  Handle< View<Track> > trackCollectionHV;
+  edm::Handle< edm::View<Track> > trackCollectionHV;
   //  event.getByLabel(m_gTracksTag,trackCollectionHV);
   event.getByToken(gTracksHVCollectionToken_,trackCollectionHV);
   //Simulated Vertices: the vertexId() is just the index
-  Handle<SimVertexContainer> SVCollectionH;
+  edm::Handle<edm::SimVertexContainer> SVCollectionH;
   HepMC::GenEvent * HepGenEvent=NULL;
   
   //TrackingParticles
-  Handle<TrackingParticleCollection> TPCollectionH ;
+  edm::Handle<TrackingParticleCollection> TPCollectionH ;
   RecoToSimCollection RecoToSimByHits;
   //  ESHandle<TrackAssociatorBase> AssociatorByHits;
 
@@ -723,7 +754,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   numberOfPUVerticesMixingTruth=0;// the *true* mean number of pileup interactions for this event from which each bunch crossing has been sampled; same for all bunch crossings in an event
   numberOfPUVerticesTot=0;
   mcweight = 1.;
-  Handle<edm::HepMCProduct> HepMCH;
+  edm::Handle<edm::HepMCProduct> HepMCH;
   /*
   if (m_isMC) {
     event.getByLabel("g4SimHits", SVCollectionH);
@@ -766,18 +797,17 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   }//======= End of if m_isMC========
 */
 
-//  cout <<"   L1Gt " << endl;
   //////////////////////////////////////////////   
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  setup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
-  const L1GtTriggerMenu* menu = menuRcd.product();
-  Handle<L1GlobalTriggerReadoutRecord> gtBeforeMaskRecord;
+  trigMenuHandle_ = setup.getHandle(trigMenuToken_);
+  //setup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+  const L1GtTriggerMenu* menu = trigMenuHandle_.product();
+  edm::Handle<L1GlobalTriggerReadoutRecord> gtBeforeMaskRecord;
   //  event.getByLabel("gtDigis", gtBeforeMaskRecord);
   event.getByToken(gt_token, gtBeforeMaskRecord);
 
   trgSingle  = false;
   if (!gtBeforeMaskRecord.isValid()) {
-    LogInfo("PhysicsTrees: ") << " Error: no L1GlobalTriggerReadoutRecord found with input tag --> gtDigis" ;
+    edm::LogInfo("PhysicsTrees: ") << " Error: no L1GlobalTriggerReadoutRecord found with input tag --> gtDigis" ;
   } else {
     const TechnicalTriggerWord techDecisionWord = gtBeforeMaskRecord->technicalTriggerWord(0);   
     const DecisionWord gtDecisionWordBeforeMask = gtBeforeMaskRecord->decisionWord(0);
@@ -801,16 +831,15 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   }
 
   /*-----------Start getting HLT results------------*/ 
-//  cout <<"   trigger " << endl;
-  Handle<TriggerResults> triggerResults;
-  Handle< trigger::TriggerEvent > handleTriggerEvent;
+  edm::Handle<edm::TriggerResults> triggerResults;
+  edm::Handle< trigger::TriggerEvent > handleTriggerEvent;
   HLTDiMuAcceptance=false;
   HLTMuAcceptance->clear();
   try {
     //    event.getByLabel(m_hlt, triggerResults);
     event.getByToken(hltCollectionToken_, triggerResults);
     if ( triggerResults.product()->wasrun() ){
-      LogInfo("")<<" At least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;	
+      edm::LogInfo("")<<" At least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;	
       if ( triggerResults.product()->accept() ) {
 	for (vector<Int_t>::const_iterator iter=m_HLTMuTrgBit.begin();iter<m_HLTMuTrgBit.end();iter++)
 	  HLTMuAcceptance->push_back( triggerResults.product()->accept(*iter) );
@@ -818,7 +847,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       } // end if at least one triggerResult accepted
     }// end if wasRun
   } catch (...) {// some old codes, it is possibly not going to happen in >CMSSW_4_4_X versions
-    LogWarning("")<<"Not found HLT result, is HLT process name correct?"<< endl;	
+    edm::LogWarning("")<<"Not found HLT result, is HLT process name correct?"<< endl;	
     if(isRData == 0){
       //      if(event.getByLabel( m_hltTrgEv, handleTriggerEvent )){
       if(event.getByToken( hltTrgEvCollectionToken_, handleTriggerEvent )){
@@ -879,6 +908,8 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
     Nevents_tracks=nEventsTracks;
   }
 
+
+  
   for(reco::TrackCollection::const_iterator itTrack = gTracks->begin(); itTrack != gTracks->end(); itTrack++){//start loop tracks
     UInt_t itrk=itTrack - gTracks->begin();
     trkVeto[ itrk ]=false;
@@ -982,9 +1013,10 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   //  muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet_,consumesCollector());
 
   // Check for good CSC candidate.  consider exiting if not
-  for (reco::MuonCollection::const_iterator muIter1 = muons->begin(); muIter1 != muons->end(); ++muIter1) {  
+  Nevents_diMuonMass = -9999.0;
+    for (reco::MuonCollection::const_iterator muIter1 = muons->begin(); muIter1 != muons->end(); ++muIter1) {  
     for (reco::MuonCollection::const_iterator muIter2 = std::next(muIter1); muIter2 != muons->end(); ++muIter2) { 
-      //std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
+      std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
 
       Float_t mMu = 0.1134289256;
       Float_t mass = pow( ( sqrt(pow(muIter1->p(),2)+ mMu*mMu) +  sqrt(pow(muIter2->p(),2)+ mMu*mMu) ) ,2 ) -
@@ -995,14 +1027,15 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	 );
 
       if(mass > 0) mass = sqrt(mass);
-      //std::cout << "invMass: " << mass << std::endl;
+      if ((muIter1->charge()*muIter2->charge()==-1) && (fabs(mass-91.1876) < fabs(Nevents_diMuonMass-91.1876))) Nevents_diMuonMass = mass;
+      std::cout << "invMass: " << mass << std::endl;
       if ((muIter1->pt()>28&&muIter2->pt()>10&&fabs(muIter2->eta())>0.9)||
-	  (muIter1->pt()>28&&muIter2->pt()>10&&fabs(muIter2->eta())>0.9))
+	  (muIter1->charge()*muIter2->charge()==-1))
       {
-	//std::cout << "Good CSC candidate" << std::endl;
-	//std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
+	std::cout << "Good CSC candidate" << std::endl;
+	std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
 	if (muIter1->isGlobalMuon()&&muIter2->isGlobalMuon()){
-	  //std::cout << "Tracks, Tr 1 pt, eta: " << muIter1->track()->pt() << ", " << muIter1->track()->eta() << " Tr 2 pt, eta: " << muIter2->track()->pt() << ", " << muIter2->track()->eta() << "Hits: " <<  muIter1->track()->numberOfValidHits() << " " << muIter2->track()->numberOfValidHits() << std::endl;
+	  std::cout << "Tracks, Tr 1 pt, eta: " << muIter1->track()->pt() << ", " << muIter1->track()->eta() << " Tr 2 pt, eta: " << muIter2->track()->pt() << ", " << muIter2->track()->eta() << "Hits: " <<  muIter1->track()->numberOfValidHits() << " " << muIter2->track()->numberOfValidHits() << std::endl;
 	}
 
       }
@@ -1047,8 +1080,10 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
     MuTagHitsTrkSys  = muIter1->track()->hitPattern().numberOfValidTrackerHits();
         Bool_t goodTrack  = (fabs(mu1dxy) < 2.0 && fabs(mu1dz) < 24.0 && fabs(mu1Chi2) < 4.0 && MuTagHitsTrkSys > 7 ); //&& MuTagHitsMuSys > 3 
     //    Bool_t goodTrack  = (fabs(mu1dxy) < 5.0 && fabs(mu1dz) < 50.0 && fabs(mu1Chi2) < 4.0 && MuTagHitsTrkSys > 7 ); //&& MuTagHitsMuSys > 3 
-//    Bool_t goodTrack  = (fabs(mu1dxy) < 10.0 && fabs(mu1dz) < 100.0 && fabs(mu1Chi2) < 10.0 && MuTagHitsTrkSys > 3 ); //&& MuTagHitsMuSys > 3 
-	if(!goodTrack)continue;
+//    Bool_t goodTrack  = (fabs(mu1dxy) < 10.0 && fabs(mu1dz) < 100.0 && fabs(mu1Chi2) < 10.0 && MuTagHitsTrkSys >3 ); //&& MuTagHitsMuSys > 3 
+std::cout << "Good tag track, pt, eta " << goodTrack << " " << muIter1->pt() << ", " << muIter1->eta() << std::endl;  	
+std::cout << "Quality Variables" << mu1dxy << " " << mu1dz << " " << mu1Chi2 << " " << MuTagHitsTrkSys << std::endl;
+if(!goodTrack)continue;
 
 
     if (event_number_muon3 != event.id().event()){
@@ -1230,8 +1265,9 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       if(invMass < 0) continue;
       invMass = sqrt(invMass);
       // increase window to 75 to 120
-      if(m_saveZ && ((invMass < 75.0)||(invMass > 120.0))) continue;
+      if(m_saveZ && ((invMass < 75.0)||(invMass > 1200.0))) continue;
 
+ 
       if (event_number_muontracks != event.id().event()){
 	nEventsMuonsTracks++;
 	Nevents_muonstracks=nEventsMuonsTracks;
@@ -1286,9 +1322,10 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
 //      goodTrack = ( fabs(itTrack->eta())< 2.4 && fabs(tracks_dz)< 50.0 &&
 //                    fabs(tracks_dxy)< 5.0 && tracks_chi2> 0.0 &&  tracks_chi2< 4.0 && MuProbenHitsTrkSys > 7 );
-	   
+	  std::cout << "Good probe track, pt, eta" << goodTrack << " " << itTrack->pt() << ", " << itTrack->eta() << std::endl; 
       if (!goodTrack) continue;
- 
+
+      
       if(tracks_eta > 0) CSCEndCapPlus = true;
       else CSCEndCapPlus = false;
       
@@ -1353,7 +1390,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 			  && tracks_ptError/tracks_pt < 0.1 && tracks_numberOfValidHits >= 5); // cuts removed from the SkimDPG.C file and put here...
 */
       if(!trQuality)continue;
- 
+std::cout << "More quality " << trQuality << std::endl;
       /*
       Bool_t trIso = (tracks_IsoR03Ratio<0.1);
       if(!trIso)continue;
@@ -1376,7 +1413,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
       if ( m_saveZ and 
 	   (
-	    invMass > 75. &&  invMass < 120. 
+	    invMass > 75. &&  invMass < 1200. 
 	    && tracks_e > 8.
 	    //	    && MuTagIsoR03Ratio > 0.0
 	    && MuTagIsoR03Ratio < 0.4 // tight Iso: Only tracks from the leading PV in the event
@@ -1390,7 +1427,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       if ( m_saveJPsi and (invMass > 2.5 &&  invMass < 3.6) ) 
 	gotMass =  true; 
 
-  
+ std::cout << "mass and more quality " << invMass << std::endl; 
       if(!gotMass)continue;
  
       /*------------------------Start getting the Monte Carlo Truth--------------------------*/
@@ -1549,12 +1586,15 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
 	Float_t zzPlaneME = MEZ[j];
 	if(!CSCEndCapPlus) zzPlaneME = -MEZ[j];
+
 	tsos = surfExtrapTrkSam(trackRef, zzPlaneME);  
 	if (!tsos.isValid()) continue;
 
 	UChar_t st = j>2?j-2:0, ec=CSCEndCapPlus?1:2; // determine the station number...
+
 	Float_t trkEta = tsos.globalPosition().eta(), trkPhi = tsos.globalPosition().phi();
 
+	
 	UChar_t rg = ringCandidate(st+1, trkEta, trkPhi);
 	if (!rg) continue;
 	if (!(
@@ -1585,6 +1625,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	/*dR between muon and track*/
 	Float_t MPhi = phiMuVec[st];
 	if (MPhi < 0 ) MPhi +=  2*M_PI;
+
 	Float_t TPhi = tsos.globalPosition().phi();
 	if (TPhi < 0 ) TPhi += 2*M_PI;
 	dRTkMu[st] = deltaR( etaMuVec[st], MPhi, tsos.globalPosition().eta() , TPhi);
@@ -1598,6 +1639,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	// Led to crash :(, try it again
 	if (st == 0 && (rg==1 || rg==4)) {
 	  const GeomDet* gdetInt=cscGeom->idToDet(Layer0Id);
+
 	  TrajectoryStateOnSurface tsosInt=surfExtrapTrkSam(trackRef, gdetInt->surface().position().z());
 	  LocalPoint localpCSCInt = gdetInt->surface().toLocal(tsosInt.freeState()->position());
 	  if (localpCSCInt.y() < -30.0 && rg!=4) {
@@ -1611,7 +1653,10 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	    Layer0Id=CSCDetId(ec, st+1, rg,  CSCChCand[st], 0);
 	  }
 	}
-	CSCChBad[st] = badChambers_->isInBadChamber( Layer0Id );
+
+	//CSCChBad[st] = badChambers_->isInBadChamber( Layer0Id );
+	//cout <<"after check bad chamber" << endl;
+ 
 	//skip not-existing ME42 chambers
 //	if (CSCChBad[st]&&st==3&&rg==2) continue;
 //#ifdef jz_debug
@@ -1703,7 +1748,14 @@ std::cout << "Int:Seg, endcap: " << Layer0Id.endcap() << ":" << id.endcap() << "
 	  CSCnSegHits[st] = cscSegOut->specificRecHits().size();
 	  Int_t nDOFCSC = 2*CSCnSegHits[st]-4;
 	  CSCSegChisqProb[st] = ChiSquaredProbability( double( (*cscSegOut).chi2() ), nDOFCSC );
-	    
+	  /* Extract layers for hits */
+	  CSCnSegHits[st] = 0;
+          for (std::vector<CSCRecHit2D>::const_iterator itRH = cscSegOut->specificRecHits().begin(); itRH != cscSegOut->specificRecHits().end(); ++itRH) {
+	    const CSCRecHit2D* recHit = &(*itRH);
+	    int layer = recHit->cscDetId().layer();
+	    CSCnSegHits[st] |= 1 << (layer-1);
+	  }
+	  
 	  /* Save the difference between the ex-tracker track and the segment */
 	  const GeomDet* gdet=cscGeom->idToDet(id);
 	  LocalPoint localpCSC = gdet->surface().toLocal(TrajToSeg->freeState()->position());
@@ -1903,101 +1955,112 @@ Bool_t wildcmp(const char *wild, const char *string) {
   return !*wild;
 }
 
+void TPTrackMuonSys::endRun(const edm::Run& r, const edm::EventSetup& iSet){};
+
+
 // ------------ method called in the beginning of each run  ------------
-void TPTrackMuonSys::beginRun(const Run& r, const EventSetup& iSet)
+void TPTrackMuonSys::beginRun(const edm::Run& r, const edm::EventSetup& iSet)
 {
-  //  cout <<"\t\t TPTrackMuonSys::beginRun..."<<endl;
+  //cout <<"\t\t TPTrackMuonSys::beginRun..."<<endl;
 
   run_number = r.runAuxiliary().run();
-  iSet.get<CSCBadChambersRcd>().get(pBad);
-  badChambers_=const_cast<CSCBadChambers*>(pBad.product());
-  badChambersIndices=new vector<Int_t>( badChambers_->container() );
 
-  char plotname[100],plottitle[100];
-  sprintf(plotname,"Run%d_BadChambers",run_number);
-  sprintf(plottitle,"Known BadChambers in Run %d; chamber number",run_number);
-  /* Draw a badchamber plot and save it to the ntuple*/
-  TH2F *TH2F_BadChambers=new TH2F(plotname,plottitle,36,1,37,18,-9,9);
-  edm::Service<TFileService> fs;
-  TH2F *BadChambers = fs->make<TH2F>(plotname,plottitle,36,1,37,18,-9,9);
-  const char *chambers[36]  = {"01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"};
-  const char *rings[18] = {"ME-42","ME-41","ME-32","ME-31","ME-22","ME-21","ME-13","ME-12","ME-11","ME+11","ME+12","ME+13","ME+21","ME+22","ME+31","ME+32","ME+41","ME+42"};
-  for (UChar_t i=0;i<36;i++){
-    TH2F_BadChambers->GetXaxis()->SetBinLabel(i+1,chambers[i]);
-    BadChambers->GetXaxis()->SetBinLabel(i+1,chambers[i]);
-  }
-  for (UChar_t i=0;i<18;i++){
-    TH2F_BadChambers->GetYaxis()->SetBinLabel(i+1,rings[i]);
-    BadChambers->GetYaxis()->SetBinLabel(i+1,rings[i]);
-  }
-  for( Short_t indexc = 1; indexc<=540; ++indexc ) {// chamber indices are in range 1-468 (CSCs 2008) or 469-540 (ME42)
-    CSCDetId id = CSCIndexer().detIdFromChamberIndex( indexc ); 
-    if ( !badChambers_->isInBadChamber( id ) ) continue;
-    UChar_t ring=id.station()*10+id.ring();
-    Float_t fillY;
-    switch ( ring )
-      {
-      case 14:
-	fillY=0.5;
-	break;
-      case 11:
-	fillY=0.5;
-	break;
-      case 12:
-	fillY=1.5;
-	break;
-      case 13:
-	fillY=2.5;
-	break;
-      case 21:
-	fillY=3.5;
-	break;
-      case 22:
-	fillY=4.5;
-	break;
-      case 31:
-	fillY=5.5;
-	break;
-      case 32:
-	fillY=6.5;
-	break;
-      case 41:
-	fillY=7.5;
-	break;
-      case 42:
-	fillY=8.5;
-	break;
-      default:
-	printf("Unexpected ring number: %d",ring);
-	fillY=9.5;
-      }
-    if (id.endcap()==2) fillY*=-1;
-    TH2F_BadChambers->Fill(id.chamber()+0.5,fillY);
-    BadChambers->Fill(id.chamber()+0.5,fillY);
-#ifdef jz_debug
-    cerr<<(id.endcap()==1?"ME+":"ME-")<<Int_t(ring)<<"/"<<id.chamber()<<"("<<indexc<<")";
-#endif
-  }
-//  TCanvas *BadChambersView=new TCanvas("badch","badch",1200,1000);
-//  BadChambersView->SetGrid();
-  TH2F_BadChambers->SetStats(0);
-  TH2F_BadChambers->SetMinimum(0);
-  TH2F_BadChambers->SetMaximum(0.8);
-  TH2F_BadChambers->Draw("colz");
-  TH2F_BadChambers->SetLabelSize(0.035,"X");
-  BadChambers->SetStats(0);
-  BadChambers->SetMinimum(0);
-  BadChambers->SetMaximum(0.8);
-  BadChambers->Draw("colz");
-  BadChambers->SetLabelSize(0.035,"X");
-#ifndef GetCSCHitsBefore500
-  theFile->cd();
-#endif
-  TH2F_BadChambers->Write();
-  BadChambers->Write();
-  // BadChambersView->Write("BadChambersPlot");
-  /* End of drawing the badchamber plot*/
+//  const edm::ESHandle<CSCBadChambers> &badChambers = iSet.getHandle(CSCBadChambersRcdToken_);
+ //edm::ESHandle<CSCBadChambers> CSCBadChambersHandle = iSet.getHandle(CSCBadChambersToken_);
+  badChambers_ = const_cast<CSCBadChambers*>(CSCBadChambersHandle_.product());
+  //auto const& CSCBadChambersHandle_ = iSet.getData(CSCBadChambersRcdToken_);
+  //pBad = *CSCBadChambersHandle_;
+//  iSet.get<CSCBadChambersRcd>().get(pBad);
+  //badChambers_=const_cast<CSCBadChambers*>(pBad.product());
+//   badChambersIndices=new vector<Int_t>( badChambers_->container() );
 
+
+//   char plotname[100],plottitle[100];
+//   sprintf(plotname,"Run%d_BadChambers",run_number);
+//   sprintf(plottitle,"Known BadChambers in Run %d; chamber number",run_number);
+//   /* Draw a badchamber plot and save it to the ntuple*/
+//   TH2F *TH2F_BadChambers=new TH2F(plotname,plottitle,36,1,37,18,-9,9);
+//   edm::Service<TFileService> fs;
+//   TH2F *BadChambers = fs->make<TH2F>(plotname,plottitle,36,1,37,18,-9,9);
+//   const char *chambers[36]  = {"01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"};
+//   const char *rings[18] = {"ME-42","ME-41","ME-32","ME-31","ME-22","ME-21","ME-13","ME-12","ME-11","ME+11","ME+12","ME+13","ME+21","ME+22","ME+31","ME+32","ME+41","ME+42"};
+//   for (UChar_t i=0;i<36;i++){
+//     TH2F_BadChambers->GetXaxis()->SetBinLabel(i+1,chambers[i]);
+//     BadChambers->GetXaxis()->SetBinLabel(i+1,chambers[i]);
+//   }
+//   for (UChar_t i=0;i<18;i++){
+//     TH2F_BadChambers->GetYaxis()->SetBinLabel(i+1,rings[i]);
+//     BadChambers->GetYaxis()->SetBinLabel(i+1,rings[i]);
+//   }
+//   for( Short_t indexc = 1; indexc<=540; ++indexc ) {// chamber indices are in range 1-468 (CSCs 2008) or 469-540 (ME42)
+//     CSCDetId id = CSCIndexer().detIdFromChamberIndex( indexc ); 
+//     if ( !badChambers_->isInBadChamber( id ) ) continue;
+//     UChar_t ring=id.station()*10+id.ring();
+//     Float_t fillY;
+//     switch ( ring )
+//       {
+//       case 14:
+// 	fillY=0.5;
+// 	break;
+//       case 11:
+// 	fillY=0.5;
+// 	break;
+//       case 12:
+// 	fillY=1.5;
+// 	break;
+//       case 13:
+// 	fillY=2.5;
+// 	break;
+//       case 21:
+// 	fillY=3.5;
+// 	break;
+//       case 22:
+// 	fillY=4.5;
+// 	break;
+//       case 31:
+// 	fillY=5.5;
+// 	break;
+//       case 32:
+// 	fillY=6.5;
+// 	break;
+//       case 41:
+// 	fillY=7.5;
+// 	break;
+//       case 42:
+// 	fillY=8.5;
+// 	break;
+//       default:
+// 	printf("Unexpected ring number: %d",ring);
+// 	fillY=9.5;
+//       }
+//     if (id.endcap()==2) fillY*=-1;
+//     TH2F_BadChambers->Fill(id.chamber()+0.5,fillY);
+//     BadChambers->Fill(id.chamber()+0.5,fillY);
+// #ifdef jz_debug
+//     cerr<<(id.endcap()==1?"ME+":"ME-")<<Int_t(ring)<<"/"<<id.chamber()<<"("<<indexc<<")";
+// #endif
+//   }
+// //  TCanvas *BadChambersView=new TCanvas("badch","badch",1200,1000);
+// //  BadChambersView->SetGrid();
+//   TH2F_BadChambers->SetStats(0);
+//   TH2F_BadChambers->SetMinimum(0);
+//   TH2F_BadChambers->SetMaximum(0.8);
+//   TH2F_BadChambers->Draw("colz");
+//   TH2F_BadChambers->SetLabelSize(0.035,"X");
+//   BadChambers->SetStats(0);
+//   BadChambers->SetMinimum(0);
+//   BadChambers->SetMaximum(0.8);
+//   BadChambers->Draw("colz");
+//   BadChambers->SetLabelSize(0.035,"X");
+// #ifndef GetCSCHitsBefore500
+//   theFile->cd();
+// #endif
+//   TH2F_BadChambers->Write();
+//   BadChambers->Write();
+//   // BadChambersView->Write("BadChambersPlot");
+//   /* End of drawing the badchamber plot*/
+
+ 
   Bool_t isConfigChanged = false;
   m_HLTMuTrgBit.clear();
   HLTMuNames->clear();
@@ -2041,7 +2104,7 @@ void TPTrackMuonSys::beginRun(const Run& r, const EventSetup& iSet)
   } else {
     // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
     // with the file and/or code and needs to be investigated!
-    LogWarning("DataLost") << " HLT config extraction failure with process name " <<m_hlt.process();
+    edm::LogWarning("DataLost") << " HLT config extraction failure with process name " <<m_hlt.process();
     // In this case, all access methods will return empty values!
   }
 }
@@ -2900,7 +2963,7 @@ Int_t TPTrackMuonSys::ringCandidate(Int_t station, Float_t feta, Float_t phi){
     }
     break;
   default:
-    LogError("")<<"Invalid station: "<<station<<endl;
+    edm::LogError("")<<"Invalid station: "<<station<<endl;
     break;
   }
   return 0;
@@ -2936,7 +2999,7 @@ TrajectoryStateOnSurface TPTrackMuonSys::cylExtrapTrkSam(reco::TrackRef track, d
     }
     return recoProp;
   }
-  catch(cms::Exception){
+  catch(const cms::Exception& e){
     edm::LogError("")<<"invalid track extrapolation to cylinder"<<endl;
     TrajectoryStateOnSurface recoProp;
     return recoProp;
@@ -2946,42 +3009,42 @@ TrajectoryStateOnSurface TPTrackMuonSys::cylExtrapTrkSam(reco::TrackRef track, d
 // to get track position at a particular (xy) plane given its z
 TrajectoryStateOnSurface TPTrackMuonSys::surfExtrapTrkSam(reco::TrackRef track, double z)
 {
-//	cout << "\t\t\t ---> surfExtra starting for: "<< track->pt()<<" to "<< z<< endl;
+  //cout << "\t\t\t ---> surfExtra starting for: "<< track->pt()<<" to "<< z<< endl;
   Plane::PositionType pos(0, 0, z);
   Plane::RotationType rot;
-//	cout << "\t\t\t suftExtrap function defined rot and pos"<< endl;
+  //cout << "\t\t\t suftExtrap function defined rot and pos"<< endl;
   Plane::PlanePointer myPlane = Plane::build(pos, rot);
-//        cout << "\t\t\t suftExtrap function defined myPlane: "<< myPlane << endl;
+  //cout << "\t\t\t suftExtrap function defined myPlane: "<< myPlane << endl;
 
   try{
-//	        cout << "\t\t\t suftExtrap try..."<< endl;
+    //cout << "\t\t\t suftExtrap try..."<< endl;
 
     FreeTrajectoryState recoStart = freeTrajStateMuon(track);
-  //      cout << "\t\t\t suftExtrap function defined recoStart: position? "<<recoStart.position() << endl;
+    //cout << "\t\t\t suftExtrap function defined recoStart: position? "<<recoStart.position() << endl;
 
     TrajectoryStateOnSurface recoProp = propagatorAlong->propagate(recoStart, *myPlane);
-  //      cout << "\t\t\t suftExtrap function defined recoProp: is valid? "<< recoProp.isValid()<< endl;
+    //cout << "\t\t\t suftExtrap function defined recoProp: is valid? "<< recoProp.isValid()<< endl;
 
     if (!recoProp.isValid()) {
- //       cout << "\t\t\t\t suftExtrap function recoProp not valid"<< endl;
+      //cout << "\t\t\t\t suftExtrap function recoProp not valid"<< endl;
 
       recoProp = propagatorOpposite->propagate(recoStart, *myPlane);
-//	cout << "\t\t\t\t suftExtrap function after recoProp: has error? "<< recoStart.hasError()<<" , is Valid? "<< recoProp.isValid()<< endl;
+      //cout << "\t\t\t\t suftExtrap function after recoProp: has error? "<< recoStart.hasError()<<" , is Valid? "<< recoProp.isValid()<< endl;
 
     }
-  //              cout << "\t\t\t suftExtrap function return recoProp: "<< endl;
-    //            cout << "\t\t\t\t suftExtrap function return recoProp is valid? : "<< recoProp.isValid() << endl;
+    //cout << "\t\t\t suftExtrap function return recoProp: "<< endl;
+    //cout << "\t\t\t\t suftExtrap function return recoProp is valid? : "<< recoProp.isValid() << endl;
     return recoProp;
-   //             cout << "\t\t\t suftExtrap function place after return"<< endl;
+    //cout << "\t\t\t suftExtrap function place after return"<< endl;
   }
-  catch(cms::Exception){
-	   //     cout << "\t\t\t suftExtrap function Exception"<< endl;
+  catch(const cms::Exception& e){
+    //cout << "\t\t\t suftExtrap function Exception"<< endl;
 
     edm::LogError("")<<"invalid track extrapolation to plane"<<endl;
     TrajectoryStateOnSurface recoProp;
     return recoProp;
   }
-     //   cout << "\t\t\t suftExtrap function place 9"<< endl;
+  //cout << "\t\t\t suftExtrap function place 9"<< endl;
 
 }
 
@@ -3048,10 +3111,10 @@ Bool_t TPTrackMuonSys::GetDecayChains(TrackingParticleRef tpr, HepMC::GenEvent *
       if (genPar!=NULL) {
       	vector<const SimTrack *>::iterator SavedSimTrk_iter=find(SavedSimTrk.begin(),SavedSimTrk.end(),thisTrk);
 	if (SavedSimTrk_iter!=SavedSimTrk.end()) MCParticlesList[FindSimTrackInMCParticlesList(SavedSimTrk_iter-SavedSimTrk.begin())].IsParticleFromGenerator=true;
-	else LogError("CodeWrong")<<"Cannot find the simulated track in saved sim tracks.";
+	else edm::LogError("CodeWrong")<<"Cannot find the simulated track in saved sim tracks.";
 	HepMCParentTree( genPar );
       }
-      else LogWarning("RefNull")<<"Either SimTrack::genpartIndex() or HepMC::GenParticle::barcode is wrong. Pilup track?";
+      else edm::LogWarning("RefNull")<<"Either SimTrack::genpartIndex() or HepMC::GenParticle::barcode is wrong. Pilup track?";
     }
 
     //merge the HepMC and SimTrack Decay Chains

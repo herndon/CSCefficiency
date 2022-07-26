@@ -26,7 +26,8 @@
 //#include <TH2F.h>
 // user include files
 // Framework...
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+//#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -89,8 +90,10 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 //Track-detector associator
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
 
 // Vertices...
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -110,8 +113,8 @@
 #ifdef TrackingParticles
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+//#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+//#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 //#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"     
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 //SimTracks
@@ -135,7 +138,7 @@
 #include "TTree.h"
 
 using namespace std;
-using namespace edm;
+using namespace edm::one;
 using namespace reco;
 
 #define MAXNTRACKS 1500
@@ -145,7 +148,7 @@ using namespace reco;
 //const Float_t MEZEven[6]     ={586.65, 684.36, 694.16, 815.16, 948.84, 1038.3}; // 839.96
 const Float_t MEZ[6]         ={601.3,  696.11, 696.11, 827.56, 936.44, 1025.9}; // 839.96
 
-class TPTrackMuonSys : public edm::EDAnalyzer {
+class TPTrackMuonSys : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
  public:
   enum ParticleType {LightMeson=1,CharmedMeson=2,ccbarMeson=3,BottomMeson=4,bbarMeson=5,LightBaryon=6,CharmedBaryon=7,BottomBaryon=8,DiQuarks=9,Lepton=10,W=11,Z=12,Muon=13,JPsi=14,Other=15};
   enum TheTrackType {PromptMuFromW=10,PromptMuFromZ=11,PromptMuFromJPsi=12,PromptMuFromLightMeson=13,PromptMuFromHeavyMeson=14,PromptMuFromLightBaryon=15,PromptMuFromHeavyBaryon=16,NotPromptMufromWZ=17,PromptMuFromOthers=18,PunchThrough=20,PunchThroughAndDecayInFlight=21,DecayInFlightFromLightMeson=31,DecayInFlightFromHeavyMeson=32,DecayInFlightFromLightBaryon=33,DecayInFlightFromHeavyBaryon=34,NoMuSysHit=40,Others=01,NothingMatched=00};
@@ -158,7 +161,8 @@ class TPTrackMuonSys : public edm::EDAnalyzer {
  protected:
  private:
   virtual void beginJob() ;
-  virtual void beginRun(const Run& r, const EventSetup& iSet);
+  virtual void beginRun(const edm::Run& r, const edm::EventSetup& iSet);
+  virtual void endRun(const edm::Run& r, const edm::EventSetup& iSet);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -293,7 +297,7 @@ class TPTrackMuonSys : public edm::EDAnalyzer {
   edm::EDGetTokenT<CSCSegmentCollection>          seg_token;
   std::string m_seg;
 
-
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> _magFieldToken;
   edm::ESHandle<MagneticField> theBField;
   //edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   /*
@@ -303,11 +307,30 @@ class TPTrackMuonSys : public edm::EDAnalyzer {
   edm::ESHandle<RPCGeometry> rpcGeo;
   */
   // CSC Geometry
+  
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
   edm::ESHandle<CSCGeometry> cscGeom;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESHandle<CaloGeometry> calogeo;
+
+  // Trigger
+  
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> trigScalesToken_;
+  edm::ESHandle<L1MuTriggerScales> trigScalesHandle_;
+
+  edm::ESGetToken<L1GtTriggerMenu,L1GtTriggerMenuRcd> trigMenuToken_;
+  edm::ESHandle<L1GtTriggerMenu> trigMenuHandle_;
+
   // Extrapolator to cylinder
+
+
+  edm::ESGetToken<Propagator,TrackingComponentsRecord> propagatorAlongToken_;
+  edm::ESGetToken<Propagator,TrackingComponentsRecord> propagatorOppositeToken_;
   edm::ESHandle<Propagator> propagatorAlong;
   edm::ESHandle<Propagator> propagatorOpposite;
+
+
   //  edm::ParameterSet trackExtractorPSet_;
   // counters
   Int_t nEventsAnalyzed,nEventsObjects,nEventsTracks,nEventsMuons,nEventsMuons_ok,nEventsMuons_ok2,nEventsMuons_ok3,nEventsMuons_okgood,nEventsMuonsTracks;
@@ -330,16 +353,21 @@ class TPTrackMuonSys : public edm::EDAnalyzer {
   edm::InputTag m_beamSpot;
  
  edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
-  edm::EDGetTokenT<ValueMap<DeDxData>> dedxCollectionToken_;
+ edm::EDGetTokenT<edm::ValueMap<DeDxData>> dedxCollectionToken_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiscalers_;
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotCollectionToken_;
   edm::EDGetTokenT<reco::TrackCollection> gTracksCollectionToken_;
-  edm::EDGetTokenT<View<Track>> gTracksHVCollectionToken_;
+  edm::EDGetTokenT<edm::View<Track>> gTracksHVCollectionToken_;
   edm::EDGetTokenT<trigger::TriggerEvent> hltTrgEvCollectionToken_;
 
-  edm::EDGetTokenT<TriggerResults> hltCollectionToken_;
+  edm::EDGetTokenT<edm::TriggerResults> hltCollectionToken_;
+
+
+  edm::ESGetToken<CSCBadChambers,CSCBadChambersRcd> CSCBadChambersToken_;
+  edm::ESHandle<CSCBadChambers> CSCBadChambersHandle_;
+//  edm::EDGetTokenT<edm::CSCBadChambersRcd> CSCBadChambersRcdToken_
 
   edm::EDGetTokenT<CSCRecHit2DCollection>          rh_token;
   std::string m_rh;
@@ -357,7 +385,8 @@ class TPTrackMuonSys : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::MuonCollection>          muons_token;
   std::string m_muons;
 
-  reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorTrack_;
+  //reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
 
   Bool_t m_isMC, m_doTrigger, m_doTrack, m_doMuon, m_doElectron, m_doEIDAndIso, m_doPhoton, m_doGenPart;
   Bool_t m_saveZ,m_saveJPsi;
@@ -399,6 +428,7 @@ class TPTrackMuonSys : public edm::EDAnalyzer {
 
   // for general information
   Int_t isItMC, run_number, event_number,Nevents_all,Nevents_objects,Nevents_tracks,Nevents_muons,Nevents_muons_ok,Nevents_muons_ok2,Nevents_muons_ok3,Nevents_muons_okgood,Nevents_muonstracks;
+  Float_t Nevents_diMuonMass;
   Float_t mcweight;
   UInt_t numberOfPUVertices; // the number of pileup interactions that have been added to the event from BX=0
   Float_t numberOfPUVerticesMixingTruth;// the "MixingTruth" mean number of pileup interactions for this event from which each bunch crossing has been sampled; same for all bunch crossings in an event (before possion smearing); in fact BX=-1, this value is zero, it's a bug I believe.

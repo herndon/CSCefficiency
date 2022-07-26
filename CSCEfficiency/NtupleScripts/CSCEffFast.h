@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Fri Oct 18 10:59:44 2019 by ROOT version 6.18/00
+// Fri Oct 18 10:59:44 2019 by ROOT/version 6.18/00
 // from TTree Fraction//Fraction
 // found on file: /hdfs/store/user/strembat/TnPFiles_May-16-2019/2018D/afterHV/PV/SEG/Tmp_NtupleAnzScripts.root
 //////////////////////////////////////////////////////////
@@ -681,27 +681,38 @@ CSCEffFast::CSCEffFast() : fChain(0)
 {
   Int_t numberFiles = 0;
   TChain *chain = new TChain("aodDump/Fraction");
-  //chain->Add("test_1.root");
-  //chain->Add("/hdfs/store/user/strembat/CSCntuples/2018D_combined.root");
 
-for (int fileNum=0;fileNum < 3000;fileNum++) {
-  if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff_20201102/201102_210344/0000/CSCEff2018A_%d.root",fileNum))) {
-    chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff_20201102/201102_210344/0000/CSCEff2018A_%d.root",fileNum));
+//chain->Add("/cms/herndon/cscEffRun3/CMSSW_12_3_6/src/CSCEfficiency/CSCEfficiency/Zmu_direct_2022B_1.root");
+//    numberFiles++;
+
+
+
+for (int fileNum=0;fileNum < 250;fileNum++) {
+  if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022B_20220725_9/220725_221302/0000/CSCeff_SingleMuon_2022B_%d.root",fileNum))) {
+    chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022B_20220725_9/220725_221302/0000/CSCeff_SingleMuon_2022B_%d.root",fileNum));
     numberFiles++;
   }
-  if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff_20201102/201102_210344/0001/CSCEff2018A_%d.root",fileNum))) {
-    chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff_20201102/201102_210344/0001/CSCEff2018A_%d.root",fileNum));
+ }
+for (int fileNum=0;fileNum < 250;fileNum++) {
+  if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022C_20220725_2/220725_233542/0000/CSCeff_SingleMuon_2022C_%d.root",fileNum))) {
+    chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022C_20220725_2/220725_233542/0000/CSCeff_SingleMuon_2022C_%d.root",fileNum));
     numberFiles++;
   }
-  if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff_20201102/201102_210344/0002/CSCEff2018A_%d.root",fileNum))) {
-    chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff_20201102/201102_210344/0002/CSCEff2018A_%d.root",fileNum));
-    numberFiles++;
-  }
+ }
+
+  
+  //if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/DYToLL_M-50_TuneCP5_14TeV-pythia8/CSCEffRun3MC2_20220519_2/220519_175853/0001/CSCEff_Zmm_MC_Run3_1__%d.root",fileNum))) {
+   // chain->Add(Form("/hdfs/store/user/herndon/DYToLL_M-50_TuneCP5_14TeV-pythia8/CSCEffRun3MC2_20220519_2/220519_175853/0001/CSCEff_Zmm_MC_Run3_1__%d.root",fileNum));
+//    numberFiles++;
+//  }
+
+//  if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/DYToLL_M-50_TuneCP5_14TeV-pythia8/CSCEffRun3MC2_20220519_2/220519_175853/0002/CSCEff_Zmm_MC_Run3_1__%d.root",fileNum))) {
+//    chain->Add(Form("/hdfs/store/user/herndon/DYToLL_M-50_TuneCP5_14TeV-pythia8/CSCEffRun3MC2_20220519_2/220519_175853/0002/CSCEff_Zmm_MC_Run3_1__%d.root",fileNum));
+//    numberFiles++;
+//  }
 
 
   
-
-}
 
 
 std::cout << "Number Files: " << numberFiles << std::endl;
@@ -721,7 +732,7 @@ std::cout << "Number Files: " << numberFiles << std::endl;
    /* } */
    /* Init(tree); */
 Loop();
-}
+ }
 
 
 CSCEffFast::~CSCEffFast()
