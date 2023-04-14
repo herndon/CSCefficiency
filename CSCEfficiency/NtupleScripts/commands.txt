@@ -6,6 +6,8 @@ gStyle->SetPaintTextFormat("3.2f")
 gStyle->SetCanvasDefH(1200)
 gStyle->SetCanvasDefW(1600)
 
+
+
 zMassAll->GetXaxis()->SetRangeUser(70.0,110.0)
 zMassAll->Draw()
 gStyle->SetOptStat(1)
@@ -1384,7 +1386,7 @@ gStyle->SetCanvasDefW(1000)
 
 
 segEffIsoStation1CRing0->SetTitle("     CSC Segment Efficiency vs Iso         Run 3 DY MC")
-segEffIsoStation1CRing0->GetYaxis()->SetRangeUser(0.92,1.02)
+segEffIsoStation1CRing0->GetYaxis()->SetRangeUser(0.2,1.02)
 segEffIsoStation1CRing0->GetXaxis()->SetRangeUser(0.0,60.0)
 segEffIsoStation1CRing0->SetLineColor(kRed)
 segEffIsoStation1CRing0->SetMarkerColor(kRed)
@@ -3113,5 +3115,7 @@ segEff2DStation6Ring1ChamberRun_copy->Draw("COLZ TEXT")
 
 
 c1->Print("CSCSegEff2D_DiffwwoTimeWindow.png")
+
+
 
 

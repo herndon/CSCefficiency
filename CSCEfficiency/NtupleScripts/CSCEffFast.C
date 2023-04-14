@@ -33,8 +33,15 @@ void CSCEffFast::Loop()
 // Define Efficiency Histogram parameters
 
   bool DoubleMuGun = false;
-   bool LowStats = true;
-  bool badChambersTrack = false;
+  bool LowStats = false;
+  bool badRunRangesTrack = true; // Min removal for 2022ABCDEFG
+  bool badRunRangesTrack2 = true; // Max removal for 2022ABCDEFG
+  bool badChambersTrack = true; // Chamber fremoval for 2022ABCDEFG
+  bool oldBadChambersTrack = false; // Removal for Run2
+
+  
+  int firstRun = 355000;
+  int lastRun = 362800;
   
 // Pt, Eta, phi (chamber) parameters and histograms
 
@@ -54,18 +61,33 @@ void CSCEffFast::Loop()
   //2.0,2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15,2.2,2.25,2.3,2.35,2.4,2.45};
   const Int_t numIsoBins=14;       //number of track based isolation bins in eff plots
   Float_t isoBins[(numIsoBins+1)] = {0.0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.24,0.28,0.34,0.40};
-const Int_t numPVBins=9;       //number of primary vertex bins eff plots 17, 9
-    Float_t pvBins[(numPVBins+1)] = {0.0,0.5,8.5,16.5,24.5,32.5,40.5,48.5,56.5,60.5};
+const Int_t numPVBins=12;       //number of primary vertex bins eff plots 17, 9
+ Float_t pvBins[(numPVBins+1)] = {-0.5,0.5,4.5,8.5,16.5,24.5,32.5,40.5,48.5,56.5,66.5,72.5,80.5};
   //Float_t pvBins[(numPVBins+1)] = {0.0,0.5,4.5,8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5,60.5,70.5};
   const Int_t numILBins=25;       //number instantatanious lumi bins in eff plots
   Float_t ilBins[(numILBins+1)] = {0.0,1000.0,2000.0,3000.0,4000.0,5000.0,6000.0,7000.0,8000.0,9000.0,10000.0,11000.0,12000.0,13000.0,14000.0,15000.0,16000.0,17000.0,18000.0,19000.0,20000.0,21000.0,22000.0,23000.0,24000.0,25000.0};
 
   // 2018D
-  const Int_t numRunBins=50;       //number of run in eff plots 23
-  Float_t runBins[(numRunBins+1)] = {315200.0,315400.0,315600.0,315800.0,316000.0,316200.0,316400.0,316600.0,316800.0,317000.0,317200.0,317400.0,317600.0,317800.0,318000.0,318200.0,318400.0,318600.0,318800.0,319100.0,319200.0,319400.0,319600.0,319800.0,320000.0,320200.0,320400.0,320600.0,320800.0,321000.0,321200.0,321400.0,321600.0,321800.0,322000.0,322200.0,322400.0,322600.0,322800.0,323000.0,323200.0,323400.0,323600.0,323800.0,324000.0,324200.0,324400.0,324600.0,324800.0,325000.0,325200.0};
+  //const Int_t numRunBins=50;       //number of run in eff plots 50
+  //Float_t runBins[(numRunBins+1)] = {315200.0,315400.0,315600.0,315800.0,316000.0,316200.0,316400.0,316600.0,316800.0,317000.0,317200.0,317400.0,317600.0,317800.0,318000.0,318200.0,318400.0,318600.0,318800.0,319100.0,319200.0,319400.0,319600.0,319800.0,320000.0,320200.0,320400.0,320600.0,320800.0,321000.0,321200.0,321400.0,321600.0,321800.0,322000.0,322200.0,322400.0,322600.0,322800.0,323000.0,323200.0,323400.0,323600.0,323800.0,324000.0,324200.0,324400.0,324600.0,324800.0,325000.0,325200.0};
 
+  // Run 3 2022 A-F (there is a G?)
+   const Int_t numRunBins=35;       //number of run
+   Float_t runBins[(numRunBins+1)] = {355000.0,355200.0,355400.0,355600.0,355800.0,356000.0,356200.0,356400.0,356600.0,356800.0,357000.0,357200.0,357400.0,357600.0,357800.0,358000.0,359000.0,359200.0,359400.0,359600.0,359800.0,360000.0,360200.0,360400.0,360600.0,360800.0,361000.0,361200.0,361400.0,361600.0,361800.0,362000.0,362200.0,362400.0,362600.0,362800.0};
   
-  // const Int_t numLCYBins=48;       //number of local coordinate y bins in eff plots
+  // layers bins, hits by layer
+   const Int_t numLayerBins=6;       //number of layers
+   Float_t layerBins[(numLayerBins+1)] = {0.5,1.5,2.5,3.5,4.5,5.5,6.5};
+
+   
+  // DCFEB bins, DCFEB regions
+   const Int_t numDCFEBBins=5;       //number of run
+   Float_t dCFEBBins[(numDCFEBBins+1)] = {0.5,1.5,2.5,3.5,4.5,5.5};
+   Float_t dCFEBLCSBins[(numDCFEBBins+1)] = {-1.5,16.0,32.0,48.0,64.0,81.5};
+
+
+
+   // const Int_t numLCYBins=48;       //number of local coordinate y bins in eff plots
   // Float_t lCYBins[(numLCYBins+1)] = {-160.0,
   // 				       -150.0,-140.0,-130.0,-120.0,-110.0,
   // 				       -100.0,-90.0,-80.0,-75.0,-70.0,-65.0,-60.0,-55.0,
@@ -75,19 +97,17 @@ const Int_t numPVBins=9;       //number of primary vertex bins eff plots 17, 9
   // 				       100.0,110.0,120.0,130.0,140.0,
   // 				       150.0,160.0};
   const Int_t numLCYBins=32;       //number of local coordinate y bins in eff plots
-  Float_t lCYBins[(numLCYBins+1)] = {-160.0,
-				       -150.0,-140.0,-130.0,-120.0,-110.0,
-				       -100.0,-90.0,-80.0,-70.0,-60.0,
-				     -50.0,-40.0,-30.0,-20.0,-10.0,
-				     0.0,10.0,20.0,30.0,40.0,
-				       50.0,60.0,70.0,80.0,90.0,
-				       100.0,110.0,120.0,130.0,140.0,
-				       150.0,160.0};
+  Float_t lCYBins[(numLCYBins+1)] = {-160.0,-150.0,-140.0,-130.0,-120.0,-110.0,
+				       -100.0,-90.0,-80.0,-70.0,-60.0,-50.0,-40.0,-30.0,-20.0,-10.0,
+				       0.0,10.0,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.0,
+				       100.0,110.0,120.0,130.0,140.0,150.0,160.0};
+  // LCY info for chambers
   const Int_t numLCSBins=41;       //number of local coordinate strip bins in eff plots
   Float_t lCSBins[(numLCSBins+1)] = {-1.5,0.5,2.5,4.5,6.5,8.5,10.5,12.5,14.5,16.5,18.5,20.5,22.5,24.5,26.5,28.5,30.5,32.5,34.5,36.5,38.5,
-				     40.5,42.5,44.5,46.5,48.5,50.5,52.5,54.5,56.5,58.5,60.5,62.5,64.5,66.5,68.5,70.5,72.5,74.5,76.5,78.5,80.5};
+			     40.5,42.5,44.5,46.5,48.5,50.5,52.5,54.5,56.5,58.5,60.5,62.5,64.5,66.5,68.5,70.5,72.5,74.5,76.5,78.5,80.5};
   const Int_t numLCWBins=36;       //number of local coordinate wire bins in eff plots
   Float_t lCWBins[(numLCWBins+1)] = {-128.0,-112.0,-96.0,-88.0,-80.0,-72.0,-64.0,-56.0,-48.0,-40.0,-32.0,-24.0,-16.0,-8.0,0.0,8.0,16.0,24.0,32.0,40.0,48.0,56.0,64.0,72.0,80.0,88.0,96.0,112.0,128.0,144.0,160.0,176.0,192.0,208.0,224.0,240.0,256.0,};
+
 
  
 
@@ -150,6 +170,13 @@ const Int_t numPVBins=9;       //number of primary vertex bins eff plots 17, 9
   TH2F * segEff2DStationRingChamberRun[8][4]; 
   TH2F * LCTEff2DStationRingChamberRun[8][4]; 
 
+  TH2F * segEff2DStationRingChamberLayer[8][4]; 
+  TH2F * LCTEff2DStationRingChamberLayer[8][4]; 
+
+  TH2F * segEff2DStationRingChamberDCFEB[8][4]; 
+  TH2F * LCTEff2DStationRingChamberDCFEB[8][4]; 
+
+  
   TH1F *resSegStationRingChamber[8][4][37];
   TH1F *resSigmaSegStationRingChamber[8][4][37];
 
@@ -286,9 +313,19 @@ const Int_t numPVBins=9;       //number of primary vertex bins eff plots 17, 9
       sprintf(name,"segEffPVStation%dCRing%d",iiStation+1,iiRing);
       sprintf(title,"Segement Efficiency vs PV for Station %d Ring %d",iiStation+1,iiRing);
       segEffStationCRingPV[iiStation][iiRing] = new TH1F(name,title,numPVBins, &(*pvBins));
+      segEffStationCRingPV[iiStation][iiRing]->GetXaxis()->SetTitle("Number of Primary Vertices");
+      segEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitle("CSC Segment Reconstruction Efficiency");
+      segEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
+      segEffStationCRingPV[iiStation][iiRing]->SetMarkerStyle(8);
+      segEffStationCRingPV[iiStation][iiRing]->SetMarkerSize(0.65);
       sprintf(name,"LCTEffPVStation%dCRing%d",iiStation+1,iiRing);
       sprintf(title,"LCT Efficiency vs PV for Station %d Ring %d",iiStation+1,iiRing);
       LCTEffStationCRingPV[iiStation][iiRing] = new TH1F(name,title,numPVBins, &(*pvBins));
+      LCTEffStationCRingPV[iiStation][iiRing]->GetXaxis()->SetTitle("Number of Primary Vertices");
+      LCTEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
+      LCTEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
+      LCTEffStationCRingPV[iiStation][iiRing]->SetMarkerStyle(8);
+      LCTEffStationCRingPV[iiStation][iiRing]->SetMarkerSize(0.65);
 
       sprintf(name,"segEffILStation%dCRing%d",iiStation+1,iiRing);
       sprintf(title,"Segement Efficiency vs IL for Station %d Ring %d",iiStation+1,iiRing);
@@ -410,7 +447,31 @@ const Int_t numPVBins=9;       //number of primary vertex bins eff plots 17, 9
       sprintf(title,"LCT Efficiency vs Chamber & Run for Station %d Ring %d",iiStation+1,iiRing);
       LCTEff2DStationRingChamberRun[iiStation][iiRing] = new TH2F(name,title,36,0.5,36.5,numRunBins,runBins[0],runBins[numRunBins]);
       LCTEff2DStationRingChamberRun[iiStation][iiRing]->SetMarkerSize(0.5);
- 
+
+
+      sprintf(name,"segEff2DStation%dRing%dChamberLayer",iiStation+1,iiRing);
+      sprintf(title,"Segement Efficiency vs Chamber & Layer for Station %d Ring %d",iiStation+1,iiRing);
+      segEff2DStationRingChamberLayer[iiStation][iiRing] = new TH2F(name,title,36,0.5,36.5,numLayerBins,layerBins[0],layerBins[numLayerBins]);
+      segEff2DStationRingChamberLayer[iiStation][iiRing]->SetMarkerSize(0.5);
+      
+      sprintf(name,"LCTEff2DStation%dRing%dChamberLayer",iiStation+1,iiRing);
+      sprintf(title,"LCT Efficiency vs Chamber & Layer for Station %d Ring %d",iiStation+1,iiRing);
+      LCTEff2DStationRingChamberLayer[iiStation][iiRing] = new TH2F(name,title,36,0.5,36.5,numLayerBins,layerBins[0],layerBins[numLayerBins]);
+      LCTEff2DStationRingChamberLayer[iiStation][iiRing]->SetMarkerSize(0.5);
+
+
+      sprintf(name,"segEff2DStation%dRing%dChamberDCFEB",iiStation+1,iiRing);
+      sprintf(title,"Segement Efficiency vs Chamber & DCFEB for Station %d Ring %d",iiStation+1,iiRing);
+      segEff2DStationRingChamberDCFEB[iiStation][iiRing] = new TH2F(name,title,36,0.5,36.5,numDCFEBBins,dCFEBBins[0],dCFEBBins[numDCFEBBins]);
+      segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetMarkerSize(0.5);
+      
+      sprintf(name,"LCTEff2DStation%dRing%dChamberDCFEB",iiStation+1,iiRing);
+      sprintf(title,"LCT Efficiency vs Chamber & DCFEB for Station %d Ring %d",iiStation+1,iiRing);
+      LCTEff2DStationRingChamberDCFEB[iiStation][iiRing] = new TH2F(name,title,36,0.5,36.5,numDCFEBBins,dCFEBBins[0],dCFEBBins[numDCFEBBins]);
+      LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetMarkerSize(0.5);
+
+      
+      
       sprintf(name,"yySegStation%dRing%d",iiStation+1,iiRing);
       sprintf(title,"seg y vs track y or Station %d Ring %d",iiStation+1,iiRing);
       yySegStationRing[iiStation][iiRing] = new TH2F(name,title,160,-50.0,-10.0,160,-50.0,-10.0);
@@ -434,26 +495,26 @@ const Int_t numPVBins=9;       //number of primary vertex bins eff plots 17, 9
       for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
 	sprintf(name,"segDenStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
 	sprintf(title,"Segement Den vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	segDenStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,11000,315000,326000);
+	segDenStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
 	sprintf(name,"segNumStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
 	sprintf(title,"Segement Num vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	segNumStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,11000,315000,326000);
+	segNumStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
 	sprintf(name,"segEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
 	sprintf(title,"Segement Efficiency vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	segEffStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,11000,315000,326000);
+	segEffStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
 	segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerSize(0.5);
 	segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerStyle(8);
 
 
 	sprintf(name,"LCTDenStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
 	sprintf(title,"LCT Den vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	LCTDenStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,11000,315000,326000);
+	LCTDenStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
 	sprintf(name,"LCTNumStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
 	sprintf(title,"LCT Num vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,11000,315000,326000);
+	LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
 	sprintf(name,"LCTEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
 	sprintf(title,"LCT Efficiency vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,11000,315000,326000);
+	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
 	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerSize(0.5);
 	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerStyle(8);
 
@@ -541,9 +602,41 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
 
   // Mass Histogram parameters and histrograms
 
-  TH1F *zMassGood  = new TH1F("zMassGood", "Z Mass Good Segements", 60.0, 120.0, 120);
-  TH1F *zMassAll  = new TH1F("zMassAll", "Z Mass all Good Probes", 60.0, 120.0, 120);
-  TH1F *zMassBad  = new TH1F("zMassBad", "Z Mass Bad Segements", 60.0, 120.0, 120);
+  TH1F *zMassGood  = new TH1F("zMassGood", "Z Mass Good Segements", 120, 60.0, 120.0);
+  TH1F *zMassAll  = new TH1F("zMassAll", "Z Mass all Good Probes", 120, 60.0, 120.0);
+  TH1F *zMassBad  = new TH1F("zMassBad", "Z Mass Bad Segements", 120, 60.0, 120.0);
+
+
+  // Muon Segement Histrograms
+  
+  TH1F *muonSegmentsFidAll  = new TH1F("muonSegmentsFidAll", "Number of Muon Segments Fiducial", 6, -0.5, 5.5);
+  TH1F *muonSegmentsFid1  = new TH1F("muonSegmentsFid1", "Number of Muon Segments Fiducial ring 1", 6, -0.5, 5.5);
+  TH1F *muonSegmentsWithME21  = new TH1F("muonSegmentsWithME21", "Number of Muon Segments found ME21", 6, -0.5, 5.5);
+  TH1F *muonSegmentsNoME21  = new TH1F("muonSegmentsNoME21", "Number of Muon Segments No ME21", 6, 0.5, 5.5);
+
+  TH1F *segmentsFidAll  = new TH1F("segmentsFidAll", "Number of CSC Segments Fiducial", 6, -0.5, 5.5);
+  TH1F *segmentsFid1  = new TH1F("segmentsFid1", "Number of CSC Segments Fiducial ring 1", 6, -0.5, 5.5);
+  TH1F *segmentsWithME21  = new TH1F("segmentsWithME21", "Number of CSC Segments found ME21", 6, -0.5, 5.5);
+  TH1F *segmentsNoME21  = new TH1F("segmentsNoME21", "Number of CSC Segments No ME21", 6, -0.5, 5.5);
+
+  TH1F *muonSegmentsFid2  = new TH1F("muonSegmentsFid2", "Number of Reconstructed Muon Segments Fiducial ring 2", 6, -0.5, 5.5);
+  TH1F *segmentsFid2  = new TH1F("segmentsFid2", "Number of CSC Segments fiducial ring 2", 6, -0.5, 5.5);
+
+  TH1F *muonSegmentsFid1HighPV  = new TH1F("muonSegmentsFid1HighPV", "Number Muon Segments Fiducial ring 1 High PV", 6, -0.5, 5.5);
+  TH1F *muonSegmentsFid2HighPV  = new TH1F("muonSegmentsFid2HighPV", "Number Muon Segments fiducial ring 2 High PV", 6, -0.5, 5.5);
+  TH1F *muonSegmentsFid1LowPV  = new TH1F("muonSegmentsFid1LowPV", "Number Muon Segments Fiducial ring 1 Low PV", 6, -0.5, 5.5);
+  TH1F *muonSegmentsFid2LowPV  = new TH1F("muonSegmentsFid2LowPV", "Number Muon Segments fiducial ring 2 Low PV", 6, -0.5, 5.5);
+
+
+  TH1F *segmentsFid1HighPV  = new TH1F("segmentsFid1HighPV", "Number of CSC Segments Fiducial ring 1 High PV", 6, -0.5, 5.5);
+  TH1F *segmentsFid2HighPV  = new TH1F("segmentsFid2HighPV", "Number of CSC Segments fiducial ring 2 High PV", 6, -0.5, 5.5);
+  TH1F *segmentsFid1LowPV  = new TH1F("segmentsFid1LowPV", "Number of CSC Segments Fiducial ring 1 Low PV", 6, -0.5, 5.5);
+  TH1F *segmentsFid2LowPV  = new TH1F("segmentsFid2LowPV", "Number of CSC Segments fiducial ring 2 Low PV", 6, -0.5, 5.5);
+
+  TH1F *segmentsFid1HighpT  = new TH1F("segmentsFid1HighpT", "Number of CSC Segments Fiducial ring 1 High pT", 6, -0.5, 5.5);
+  TH1F *segmentsFid2HighpT  = new TH1F("segmentsFid2HighpT", "Number of CSC Segments fiducial ring 2 High pT", 6, -0.5, 5.5);
+
+
   
   
   // Numerology, station, ring, chamber
@@ -602,6 +695,16 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
   // Chamber and Run Efficiency counters
   Float_t totStationRingChamberRun[8][4][37][numRunBins]={0}, passStationRingChamberRunSeg[8][4][37][numRunBins]={0},  passStationRingChamberRunLCT[8][4][37][numRunBins]={0}, totSBStationRingChamberRun[8][4][37][numRunBins]={0}, passSBStationRingChamberRunSeg[8][4][37][numRunBins]={0},passSBStationRingChamberRunLCT[8][4][37][numRunBins]={0}, effStationRingChamberRunSeg[8][4][37][numRunBins]={0}, effSigmaStationRingChamberRunSeg[8][4][37][numRunBins]={0}, effStationRingChamberRunLCT[8][4][37][numRunBins]={0}, effSigmaStationRingChamberRunLCT[8][4][37][numRunBins]={0},effStationCRingChamberRunSeg[4][4][37][numRunBins]={0};
 
+
+  // Chamber and Layer Efficiency counters
+  Float_t totStationRingChamberLayer[8][4][37][numLayerBins]={0}, passStationRingChamberLayerSeg[8][4][37][numLayerBins]={0},  passStationRingChamberLayerLCT[8][4][37][numLayerBins]={0}, totSBStationRingChamberLayer[8][4][37][numLayerBins]={0}, passSBStationRingChamberLayerSeg[8][4][37][numLayerBins]={0},passSBStationRingChamberLayerLCT[8][4][37][numLayerBins]={0}, effStationRingChamberLayerSeg[8][4][37][numLayerBins]={0}, effSigmaStationRingChamberLayerSeg[8][4][37][numLayerBins]={0}, effStationRingChamberLayerLCT[8][4][37][numLayerBins]={0}, effSigmaStationRingChamberLayerLCT[8][4][37][numLayerBins]={0},effStationCRingChamberLayerSeg[4][4][37][numLayerBins]={0};
+
+
+  // Chamber and DCFEB Efficiency counters
+  Float_t totStationRingChamberDCFEB[8][4][37][numDCFEBBins]={0}, totStationRingChamberDCFEBLCT[8][4][37][numDCFEBBins]={0}, passStationRingChamberDCFEBSeg[8][4][37][numDCFEBBins]={0},  passStationRingChamberDCFEBLCT[8][4][37][numDCFEBBins]={0}, totSBStationRingChamberDCFEB[8][4][37][numDCFEBBins]={0}, passSBStationRingChamberDCFEBSeg[8][4][37][numDCFEBBins]={0},passSBStationRingChamberDCFEBLCT[8][4][37][numDCFEBBins]={0}, effStationRingChamberDCFEBSeg[8][4][37][numDCFEBBins]={0}, effSigmaStationRingChamberDCFEBSeg[8][4][37][numDCFEBBins]={0}, effStationRingChamberDCFEBLCT[8][4][37][numDCFEBBins]={0}, effSigmaStationRingChamberDCFEBLCT[8][4][37][numDCFEBBins]={0},effStationCRingChamberDCFEBSeg[4][4][37][numDCFEBBins]={0};
+
+  
+  
   // Local coordinate Y Efficiency counters
   Float_t totStationRingLCY[8][4][numLCYBins]={0},totStationRingLCYLCT[8][4][numLCYBins]={0},passStationRingLCYSeg[8][4][numLCYBins]={0}, passStationRingLCYLCT[8][4][numLCYBins]={0}, totSBStationRingLCY[8][4][numLCYBins]={0},  totSBStationRingLCYLCT[8][4][numLCYBins]={0}, passSBStationRingLCYSeg[8][4][numLCYBins]={0},passSBStationRingLCYLCT[8][4][numLCYBins]={0}, effStationRingLCYSeg[8][4][numLCYBins]={0}, effSigmaStationRingLCYSeg[8][4][numLCYBins]={0}, effStationRingLCYLCT[8][4][numLCYBins]={0}, effSigmaStationRingLCYLCT[8][4][numLCYBins]={0},effStationCRingLCYSeg[4][4][numLCYBins]={0}, effSigmaStationCRingLCYSeg[4][4][numLCYBins]={0}, effStationCRingLCYLCT[4][4][numLCYBins]={0}, effSigmaStationCRingLCYLCT[4][4][numLCYBins]={0};
 
@@ -631,7 +734,7 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
   // boolians: tracks_isTrackerMuTrk, !CSCCBad, trackVeto_isClosestToLCT
   // Tag and dimuon requirements
   Float_t tagE = 8;
-  Float_t maxDRHLTAllSingleMu = 0.01;
+  Float_t maxDRHLTAllSingleMu = 0.2;
   Float_t minDRTkMu1 = 0.2;
 
   // Change mass windows to be as narrow as possible and sidebands as near the edge
@@ -647,13 +750,13 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
   /* Float_t zMassHighSideBandMax = 106.0; */
 
   // Narrower set
-  Float_t zMassMin = 86.0;
-  Float_t zMassMax = 96.0;
+  Float_t zMassMin = 88.0;
+  Float_t zMassMax = 94.0;
 
   Float_t zMassLowSideBandMin = 76.0;
-  Float_t zMassLowSideBandMax = 81.0;
+  Float_t zMassLowSideBandMax = 79.0;
 
-  Float_t zMassHighSideBandMin = 101.0;
+  Float_t zMassHighSideBandMin = 103.0;
   Float_t zMassHighSideBandMax = 106.0;
 
 
@@ -678,6 +781,7 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
   Float_t sigmaCSCDxyTTLCT = 10.0;
 
   Bool_t goodTag;
+  Bool_t fiducialAll;
   Bool_t fiducial1;
   Bool_t fiducial11;
   Bool_t fiducial2;
@@ -692,183 +796,414 @@ for (Int_t i=0;i<20;i++) { segEff2DStationRingChamber->GetYaxis()->SetBinLabel(i
   Bool_t foundLCT3;
   Bool_t foundLCT4;
 
+  Bool_t foundHit1[6] = {false,false,false,false,false,false};
+  Bool_t foundHit2[6] = {false,false,false,false,false,false};
+  Bool_t foundHit3[6] = {false,false,false,false,false,false};
+  Bool_t foundHit4[6] = {false,false,false,false,false,false};
+
+  
   // Failure counters
   Int_t nFailFiducial = 0;
   Int_t nFailFoundSeg = 0;
   Int_t nFailGoodSeg = 0;
   Int_t nFailDxy = 0;
 
+  Int_t prevRunNumber = 0;
 
-  // Bad Chambers
+  // Bad Chambers, track 5 independent run ranges, for the moment
 
-  Bool_t badChamber[2][4][4][36] = {false};
-  Int_t badChamberRun[2][4][4][36][2] = {0};
-  Float_t badChamberLCS[2][4][4][36][2] = {0.0};
+  Bool_t badChamber[5][2][4][4][36] = {false};
+  Int_t badChamberRun[5][2][4][4][36][2] = {0};
+  Float_t badChamberLCS[5][2][4][4][36][2] = {0.0};
 
   // endcap 0- 1+, station 0-3 = 1-4, ring 0-3 0 is me11a, chamber 0-35 = 1-36
   // Removing chambers bellow 80%
   // move start from period D, 320394to period B, 318800
 
-  // New Dead Chambers
-  badChamber[1][1-1][2][10-1] = true;   badChamberRun[1][1-1][2][10-1][0] = 350000; badChamberRun[1][1-1][2][10-1][1] = 400000; // ME+12/10
 
-   badChamber[1][2-1][2][31-1] = true;   badChamberRun[1][2-1][2][31-1][0] = 350000; badChamberRun[1][2-1][2][31-1][1] = 400000; // ME+22/31
+  // ????? exclude 357734?  seen in multiple rings
+  if (badChambersTrack) {
+
+    //?????? need to test if any of these are back  
+    
+  // New Dead Chambers Run 3
+  badChamber[0][1][1-1][2][10-1] = true;   badChamberRun[0][1][1-1][2][10-1][0] = firstRun; badChamberRun[0][1][1-1][2][10-1][1] = lastRun; // ME+12/10
+
+   badChamber[0][1][2-1][2][31-1] = true;   badChamberRun[0][1][2-1][2][31-1][0] = firstRun; badChamberRun[0][1][2-1][2][31-1][1] = lastRun; // ME+22/31 Came back right at the end, has this been fixed
  
-  badChamber[0][4-1][2][4-1] = true;   badChamberRun[0][4-1][2][4-1][0] = 350000; badChamberRun[0][4-1][2][4-1][1] = 400000; // ME-42/04
+  badChamber[0][0][4-1][2][4-1] = true;   badChamberRun[0][0][4-1][2][4-1][0] = firstRun; badChamberRun[0][0][4-1][2][4-1][1] = lastRun; // ME-42/04  Came back right at the end, has this been fixed?
+
+
+    // New bad (D)CFEBs Run 3 and run ranges
+
+  // ME+42
+  badChamber[0][1][4-1][2][1-1] = true;   badChamberRun[0][1][4-1][2][1-1][0] = firstRun; badChamberRun[0][1][4-1][2][1-1][1] = lastRun; badChamberLCS[0][1][4-1][2][1-1][0] = 62.0; badChamberLCS[0][1][4-1][2][1-1][1] = 82.0;// ME+42/1 all runs, good around 359000
+
+  badChamber[0][1][4-1][2][2-1] = true;   badChamberRun[0][1][4-1][2][2-1][0] = firstRun; badChamberRun[0][1][4-1][2][2-1][1] = lastRun; badChamberLCS[0][1][4-1][2][2-1][0] = -2.0; badChamberLCS[0][1][4-1][2][2-1][1] = 18.0;// ME+42/2 50% eff DCFEB 1, all runs, good around 359000
+
+ if (badRunRangesTrack) badChamber[0][1][4-1][2][3-1] = true;   badChamberRun[0][1][4-1][2][3-1][0] = 356466; badChamberRun[0][1][4-1][2][3-1][1] = 357734;// ME+42/3 two bad run regions, 356466-356490, 357328-357734
+
+  badChamber[0][1][4-1][2][6-1] = true;   badChamberRun[0][1][4-1][2][6-1][0] = firstRun; badChamberRun[0][1][4-1][2][6-1][1] = lastRun; badChamberLCS[0][1][4-1][2][6-1][0] = 30.0; badChamberLCS[0][1][4-1][2][6-1][1] = 50.0;// ME+42/6 DCFEB 3 all runs
+
+  badChamber[0][1][4-1][2][22-1] = true;   badChamberRun[0][1][4-1][2][22-1][0] = firstRun; badChamberRun[0][1][4-1][2][22-1][1] = 362300; badChamberLCS[0][1][4-1][2][22-1][0] = -2.0; badChamberLCS[0][1][4-1][2][22-1][1] = 18.0;// ME+42/22 DCFEB 1 partially bad 70%, okay after 362300
+
+  
+  //ME+41
+  badChamber[0][1][4-1][1][4-1] = true;   badChamberRun[0][1][4-1][1][4-1][0] = firstRun; badChamberRun[0][1][4-1][1][4-1][1] = lastRun; badChamberLCS[0][1][4-1][1][4-1][0] = 46.0; badChamberLCS[0][1][4-1][1][4-1][1] = 66.0;// ME+42/4 DCFEB 4 all runs 
+
+  badChamber[0][1][4-1][1][9-1] = true;   badChamberRun[0][1][4-1][1][9-1][0] = 359700; badChamberRun[0][1][4-1][1][9-1][1] = lastRun; badChamberLCS[0][1][4-1][1][9-1][0] = 14.0; badChamberLCS[0][1][4-1][1][9-1][1] = 34.0;// ME+42/4 DCFEB 2 ~359700-lastRun partially bad 50% 
+
+  badChamber[0][1][4-1][1][12-1] = true;   badChamberRun[0][1][4-1][1][12-1][0] = 362088; badChamberRun[0][1][4-1][1][12-1][1] = 362108; // ME+42/12 bad run range 362088-362108
+  // ME+41-15 also a few bad run ranges but less so
+																												   
+  // ME+32
+ badChamber[0][1][3-1][2][19-1] = true;   badChamberRun[0][1][3-1][2][19-1][0] = firstRun; badChamberRun[0][1][3-1][2][19-1][1] = lastRun; badChamberLCS[0][1][3-1][2][19-1][0] = 62.0; badChamberLCS[0][1][3-1][2][19-1][1] = 82.0;// ME+32/19 DCFEB 5 all runs 
+  
+ badChamber[0][1][3-1][2][24-1] = true;   badChamberRun[0][1][3-1][2][24-1][0] = 358500; badChamberRun[0][1][3-1][2][24-1][1] = lastRun; badChamberLCS[0][1][3-1][2][24-1][0] = 30.0; badChamberLCS[0][1][3-1][2][24-1][1] = 50.0;// ME+32/24 DCFEB 3 okay before 358500?????
+
+  badChamber[0][1][3-1][2][29-1] = true;   badChamberRun[0][1][3-1][2][29-1][0] = firstRun; badChamberRun[0][1][3-1][2][29-1][1] = lastRun; badChamberLCS[0][1][3-1][2][29-1][0] = 46.0; badChamberLCS[0][1][3-1][2][29-1][1] = 66.0;// ME+32/29 DCFEB 4 all runs good around 359000
+  // ME+32-31 maybe a bad DCFEB 1 right at the start then fixed
+  badChamber[0][1][3-1][2][33-1] = true;   badChamberRun[0][1][3-1][2][33-1][0] = 356476; badChamberRun[0][1][3-1][2][33-1][1] = 356490; // ME+32-33 bad run range 356476-356490 same as chamber 34
+  badChamber[0][1][3-1][2][33-1] = true;   badChamberRun[0][1][3-1][2][34-1][0] = 356476; badChamberRun[0][1][3-1][2][34-1][1] = 356490; // ME+32-34 bad run range 356476-356490 same as chamber 33
+  
+
+ // ME+31
+ badChamber[0][1][3-1][1][5-1] = true;   badChamberRun[0][1][3-1][1][5-1][0] = 359570; badChamberRun[0][1][3-1][1][5-1][1] = 360226; // ME+31/5 // HV problem
+
+ //ME+31/10 // 88% efficieincy no obvious reason other than OOS
+ badChamber[0][1][3-1][1][10-1] = true;   badChamberRun[0][1][3-1][1][10-1][0] = 360942; badChamberRun[0][1][3-1][1][10-1][1] = 360952; // ME+31/10 // 0% eff in 360942-360952
+ //ME+31/12 // 89% efficieincy no obvious reason other than OOS
+ badChamber[0][1][3-1][1][13-1] = true;   badChamberRun[0][1][3-1][1][13-1][0] = 362148; badChamberRun[0][1][3-1][1][10-1][1] = 362168; // ME+31/13 0% in 362148-362168
  
+  badChamber[0][1][3-1][1][15-1] = true;   badChamberRun[0][1][3-1][1][15-1][0] = firstRun; badChamberRun[0][1][3-1][1][15-1][1] = lastRun; badChamberLCS[0][1][3-1][1][15-1][0] = 62.0; badChamberLCS[0][1][3-1][1][15-1][1] = 82.0;// ME+31/15 30% all runs
+  
+ badChamber[0][1][3-1][1][17-1] = true;   badChamberRun[0][1][3-1][1][17-1][0] = 356310; badChamberRun[0][1][3-1][1][17-1][1] = 357734; // ME+31/17 three regions of bad efficiency.  Capture 2 of them 356310-356490, 357070-357734, 361050-361110
+
+ // ME+22
+ badChamber[0][1][2-1][2][5-1] = true;   badChamberRun[0][1][2-1][2][5-1][0] = firstRun; badChamberRun[0][1][2-1][2][5-1][1] = lastRun; badChamberLCS[0][1][2-1][2][5-1][0] = -2.0; badChamberLCS[0][1][2-1][2][5-1][1] = 18.0;// ME+22/5 DCFEB 1 all runs good around 359000
+
+ badChamber[0][1][2-1][2][15-1] = true;   badChamberRun[0][1][2-1][2][15-1][0] = firstRun; badChamberRun[0][1][2-1][2][15-1][1] = lastRun; badChamberLCS[0][1][2-1][2][15-1][0] = 62.0; badChamberLCS[0][1][2-1][2][15-1][1] = 82.0;// ME+22/15 DCFEB 5 all runs good around 359000, there is a second DCFEB with smaller problems that I am ignoring. ????? check run range
+
+  badChamber[0][1][2-1][2][19-1] = true;   badChamberRun[0][1][2-1][2][19-1][0] = firstRun; badChamberRun[0][1][2-1][2][19-1][1] = lastRun; badChamberLCS[0][1][2-1][2][19-1][0] = 62.0; badChamberLCS[0][1][2-1][2][19-1][1] = 82.0;// ME+22/19 DCFEB 5 all runs
+
+
+  badChamber[0][1][2-1][2][27-1] = true;   badChamberRun[0][1][2-1][2][27-1][0] = 356476; badChamberRun[0][1][2-1][2][27-1][1] = 356490; // ME+22/27 in 356476-356490 also in chamber 28
+  badChamber[0][1][2-1][2][28-1] = true;   badChamberRun[0][1][2-1][2][28-1][0] = 356476; badChamberRun[0][1][2-1][2][28-1][1] = 356490; // ME+22/27 in 356476-356490 also in chamber 27
+
+  
+  // ME+21
+
+    if (badRunRangesTrack) badChamber[0][1][2-1][1][2-1] = true;   badChamberRun[0][1][2-1][1][2-1][0] = 355912; badChamberRun[0][1][2-1][1][2-1][1] = 355942;// ME+21/2 for 355912 to 355942
+    
+  if (badRunRangesTrack) badChamber[0][1][2-1][1][3-1] = true;   badChamberRun[0][1][2-1][1][3-1][0] = 356946; badChamberRun[0][1][2-1][1][3-1][1] = 357272;// ME+21/3 for 356946 to 357272
+
+ badChamber[0][1][2-1][1][5-1] = true;   badChamberRun[0][1][2-1][1][5-1][0] = 357734; badChamberRun[0][1][2-1][1][5-1][1] = 360226; // ME+21/5 // HV problem E+F 357734-360226
+
+ badChamber[0][1][2-1][1][6-1] = true;   badChamberRun[0][1][2-1][1][6-1][0] = firstRun; badChamberRun[0][1][2-1][1][6-1][1] = lastRun; badChamberLCS[0][1][2-1][1][6-1][0] = 30.0; badChamberLCS[0][1][2-1][1][6-1][1] = 50.0;// ME+21/6 all runs 
+
+if (badRunRangesTrack) badChamber[0][1][2-1][1][11-1] = true;   badChamberRun[0][1][2-1][1][11-1][0] = 355118; badChamberRun[0][1][2-1][1][11-1][1] = 355560;// ME+21/11 four run ranges 355118-355560, 357438-357448, 357538-357734, 361298-361334 capture first 0 area,  Also 0-100% 50% ave eff LCT around 361300
+
+  // ME+13
+ // ME+13/10 LCT 89% no dependence
+    badChamber[0][1][1-1][3][11-1] = true;   badChamberRun[0][1][1-1][3][11-1][0] = firstRun; badChamberRun[0][1][1-1][3][11-1][1] = lastRun; badChamberLCS[0][1][1-1][3][11-1][0] = 30.0; badChamberLCS[0][1][1-1][3][11-1][1] = 50.0;// ME+31/11 all runs good around 359000, gen low LCT eff 89%
+
+    badChamber[0][1][1-1][3][12-1] = true;   badChamberRun[0][1][1-1][3][12-1][0] = 357734; badChamberRun[0][1][1-1][3][12-1][1] = 361958; // ME+13/12 for 357734-361958
+
+    badChamber[0][1][1-1][3][20-1] = true;   badChamberRun[0][1][1-1][3][20-1][0] = firstRun; badChamberRun[0][1][1-1][3][20-1][1] = lastRun; badChamberLCS[0][1][1-1][3][20-1][0] = -2.0; badChamberLCS[0][1][1-1][3][20-1][1] = 18.0;// ME+31/20 DCFEB 1 70%
+ // ME+13/30 LCT only 90%
+
+    
+  // ME+12
+    badChamber[0][1][1-1][2][13-1] = true;   badChamberRun[0][1][1-1][2][13-1][0] = firstRun; badChamberRun[0][1][1-1][2][13-1][1] = lastRun; badChamberLCS[0][1][1-1][2][13-1][0] = 62.0; badChamberLCS[0][1][1-1][2][13-1][1] = 82.0;// ME+12/13 DCFEB 5 all runs good around 359000
+
+   badChamber[0][1][1-1][2][15-1] = true;   badChamberRun[0][1][1-1][2][15-1][0] = 357078; badChamberRun[0][1][1-1][2][15-1][1] = lastRun; badChamberLCS[0][1][1-1][2][15-1][0] = -2.0; badChamberLCS[0][1][1-1][2][15-1][1] = 18.0;// ME+12/15 DCFEB 1 all runs good around 359000 and before except for 357078 to 357734
+
+   //ME+12-20 a few zero runs
+    
+    badChamber[0][1][1-1][2][21-1] = true;   badChamberRun[0][1][1-1][2][21-1][0] = firstRun; badChamberRun[0][1][1-1][2][21-1][1] = lastRun; badChamberLCS[0][1][1-1][2][21-1][0] = 14.0; badChamberLCS[0][1][1-1][2][21-1][1] = 66.0;// ME+12/21 DCFEB 2,4 all runs, breifly brought back around 359200
+    //ME+12=24 a few low eff runs
+
+    badChamber[0][1][1-1][2][31-1] = true;   badChamberRun[0][1][1-1][2][31-1][0] = firstRun; badChamberRun[0][1][1-1][2][31-1][1] = lastRun; badChamberLCS[0][1][1-1][2][31-1][0] = 62.0; badChamberLCS[0][1][1-1][2][31-1][1] = 82.0;// ME+12/31 all runs
+
+    badChamber[0][1][1-1][2][34-1] = true;   badChamberRun[0][1][1-1][2][34-1][0] = 359570; badChamberRun[0][1][1-1][2][34-1][1] = 360142;// ME+12/34 for 359570 to 360142
+
+    
+  // ME+11A/B
+    // ME+11A/B
+
+    // ME+11A.B-1 gen low LCT 83%
+    // ME+11A/B-13 357480 357482 very low eff
+    // ME+11A/B-21 a few low stats run ranges
+    // ME+11A/B-28 a few low stats run ranges
+    
+    if (badRunRangesTrack) badChamber[0][1][1-1][1][27-1] = true;   badChamberRun[0][1][1-1][1][27-1][0] = 357696; badChamberRun[0][1][1-1][1][27-1][1] = 357720;// ME+11A/27
+    if (badRunRangesTrack) badChamber[0][1][1-1][0][27-1] = true;   badChamberRun[0][1][1-1][0][27-1][0] = 357696; badChamberRun[0][1][1-1][0][27-1][1] = 357720;// ME+11B/27
+    
+
+  // ME-11A
+    badChamber[0][0][1-1][0][19-1] = true;  badChamberRun[0][0][1-1][0][19-1][0] = firstRun; badChamberRun[0][0][1-1][0][19-1][1] = lastRun; badChamberLCS[0][0][1-1][0][19-1][0] = 30.0; badChamberLCS[0][0][1-1][0][19-1][1] = 50.0;// ME-11A/19 all runs
+
+    badChamber[0][0][1-1][0][20-1] = true;  badChamberRun[0][0][1-1][0][20-1][0] = firstRun; badChamberRun[0][0][1-1][0][20-1][1] = lastRun; badChamberLCS[0][0][1-1][0][20-1][0] = -2.0; badChamberLCS[0][0][1-1][0][20-1][1] = 18.0;// ME-11A/20 all runs good around 359000
+
+
+    
+  // ME-11A/B
+  // also less inefficinecy earlier  
+    if (badRunRangesTrack) badChamber[0][0][1-1][1][4-1] = true;   badChamberRun[0][0][1-1][1][4-1][0] = 359602; badChamberRun[0][0][1-1][1][4-1][1] = 359814;// ME-11A/4 359602 to 359814
+    if (badRunRangesTrack) badChamber[0][0][1-1][0][4-1] = true;   badChamberRun[0][0][1-1][0][4-1][0] = 359602; badChamberRun[0][0][1-1][0][4-1][1] = 359814;// ME-11B/4 359602 to 359814
+       if (badRunRangesTrack) badChamber[0][0][1-1][0][33-1] = true;   badChamberRun[0][0][1-1][0][33-1][0] = 356722; badChamberRun[0][0][1-1][0][33-1][1] = 357112;// ME-11B/33
+
+    //if (badRunRangesTrack) badChamber[0][0][1-1][1][4-1] = true;   badChamberRun[0][0][1-1][1][4-1][0] = 361000.0; badChamberRun[0][0][1-1][1][4-1][1] = 361400.0;// ME-11A/4 transient E and then F 90% don't remove
+    //if (badRunRangesTrack) badChamber[0][0][1-1][0][4-1] = true;   badChamberRun[0][0][1-1][0][4-1][0] = 361000.0; badChamberRun[0][0][1-1][0][4-1][1] = 361400.0;// ME-11B/4 transient E and then F 90% dont remove
+
+    
+    // three ranges 355134-355560, 356434-356490, 357406-357734
+    if (badRunRangesTrack) badChamber[0][0][1-1][1][12-1] = true;   badChamberRun[0][0][1-1][1][12-1][0] = 355134; badChamberRun[0][0][1-1][1][12-1][1] = 357734;// ME-11A/12 transient B
+    if (badRunRangesTrack) badChamber[0][0][1-1][0][12-1] = true;   badChamberRun[0][0][1-1][0][12-1][0] = 355134; badChamberRun[0][0][1-1][0][12-1][1] = 357734;// ME-11B/12 transient B
+
+    if (badRunRangesTrack) badChamber[0][0][1-1][1][25-1] = true;   badChamberRun[0][0][1-1][1][25-1][0] = 357330; badChamberRun[0][0][1-1][1][25-1][1] = 357334;// ME-11A/25 transient B
+    if (badRunRangesTrack) badChamber[0][0][1-1][0][25-1] = true;   badChamberRun[0][0][1-1][0][25-1][0] = 357330; badChamberRun[0][0][1-1][0][25-1][1] = 357334;// ME-11B/25 transient B
+
+   if (badRunRangesTrack) badChamber[0][0][1-1][1][29-1] = true;   badChamberRun[0][0][1-1][1][29-1][0] = 360762; badChamberRun[0][0][1-1][1][29-1][1] = 361362;// ME-11A/29 transient F ?????? HV layer 3
+    if (badRunRangesTrack) badChamber[0][0][1-1][0][29-1] = true;   badChamberRun[0][0][1-1][0][29-1][0] = 360762; badChamberRun[0][0][1-1][0][29-1][1] = 361362;// ME-11B/29 transient F ?????? HV layer 3
+    
+
+  // ME-12
+    if (badRunRangesTrack) badChamber[0][0][1-1][2][7-1] = true;   badChamberRun[0][0][1-1][2][7-1][0] = 356322.0; badChamberRun[0][0][1-1][2][7-1][1] = 357734.0;// ME-12/7
+    if (badRunRangesTrack) badChamber[0][0][1-1][2][22-1] = true;   badChamberRun[0][0][1-1][2][22-1][0] = 355680.0; badChamberRun[0][0][1-1][2][22-1][1] = 357614;// ME-12/22 two ranges 355680-355770, 357328-357614
+	 
+        badChamber[0][0][1-1][2][27-1] = true;  badChamberRun[0][0][1-1][2][27-1][0] = firstRun; badChamberRun[0][0][1-1][2][27-1][1] = lastRun; badChamberLCS[0][0][1-1][2][27-1][0] = -2.0; badChamberLCS[0][0][1-1][2][27-1][1] = 18.0;// ME-12/27 DCFEB 1 all runs good around 359000
+        badChamber[0][0][1-1][2][33-1] = true;  badChamberRun[0][0][1-1][2][33-1][0] = firstRun; badChamberRun[0][0][1-1][2][33-1][1] = lastRun; badChamberLCS[0][0][1-1][2][33-1][0] = -2.0; badChamberLCS[0][0][1-1][2][33-1][1] = 18.0;// ME-12/27 DCFEB 1 all runs good around 359000
+	 
+
+  // ME-13
+    if (badRunRangesTrack&&badRunRangesTrack2) badChamber[0][0][1-1][3][25-1] = true;   badChamberRun[0][0][1-1][3][25-1][0] = 355680; badChamberRun[0][0][1-1][3][25-1][1] = 357614;// ME-13/25 transient B
+	
+    //ME-13 30 low in 3 our of 4 (D)CFEBs for LCTs 83%
+	
+  // ME-21 	 
+ 
+    badChamber[0][0][2-1][1][15-1] = true;   badChamberRun[0][0][2-1][1][15-1][0] = firstRun; badChamberRun[0][0][2-1][1][15-1][1] = lastRun; badChamberLCS[0][0][2-1][1][15-1][0] = -2.0; badChamberLCS[0][0][2-1][1][15-1][1] = 18.0;// ME-21/15 also 0% 355988-356078
+    
+    //worst ME-21 chamber Seg and LCT also a few zero eff runs
+    //badChamber[0][0][2-1][1][18-1] = true;   badChamberRun[0][0][2-1][1][18-1][0] = firstRun; badChamberRun[0][0][2-1][1][18-1][1] = lastRun;// ME-21/18
+
+
+    // ME-22
+    // ME-22/1 86% LCT only no dependence
+     badChamber[0][0][2-1][2][3-1] = true;   badChamberRun[0][0][2-1][2][3-1][0] = firstRun; badChamberRun[0][0][2-1][2][3-1][1] = lastRun; badChamberLCS[0][0][2-1][2][3-1][0] = 14.0; badChamberLCS[0][0][2-1][2][3-1][1] = 34.0;// ME-22/3 DCFEB 2 all runs, gen low LCT 86%
+    badChamber[0][0][2-1][2][27-1] = true;   badChamberRun[0][0][2-1][2][27-1][0] = firstRun; badChamberRun[0][0][2-1][2][27-1][1] = lastRun; badChamberLCS[0][0][2-1][2][27-1][0] = 62.0; badChamberLCS[0][0][2-1][2][27-1][1] = 82.0;// ME-22/27 DCFEB 5 all runs good around 359000
+    // ME-22/15 DCFEB 2 80% eff
+
+    //ME-31
+       badChamber[0][0][3-1][1][3-1] = true;   badChamberRun[0][0][3-1][1][3-1][0] = firstRun; badChamberRun[0][0][3-1][1][3-1][1] = 359000; badChamberLCS[0][0][3-1][1][3-1][0] = -2.0; badChamberLCS[0][0][3-1][1][3-1][1] = 18.0;// ME-31/3 B-D also 0% 356048-356078
+       if (badRunRangesTrack) badChamber[0][0][3-1][1][5-1] = true;   badChamberRun[0][0][3-1][1][5-1][0] = 355862; badChamberRun[0][0][3-1][1][5-1][1] = 356824;// ME-31/5 transient B
+       //ME-31/9 one run 362440 0.296893 and other single runs
+       if (badRunRangesTrack) badChamber[0][0][3-1][1][14-1] = true;   badChamberRun[0][0][3-1][1][14-1][0] = 357478; badChamberRun[0][0][3-1][1][14-1][1] = 357734;// ME-31/14 transient B
+       if (badRunRangesTrack) badChamber[0][0][3-1][1][18-1] = true;   badChamberRun[0][0][3-1][1][18-1][0] = 355680; badChamberRun[0][0][3-1][1][18-1][1] = 357734;// ME-31/18 B-D
+
+       // ME-32
+       badChamber[0][0][3-1][2][19-1] = true;   badChamberRun[0][0][3-1][2][19-1][0] = firstRun; badChamberRun[0][0][3-1][2][19-1][1] = lastRun; badChamberLCS[0][0][3-1][2][19-1][0] = 46.0; badChamberLCS[0][0][3-1][2][19-1][1] = 66.0;// ME-32/19 DCFEB 3 all runs, also poor efficiency runs 361188-362760 ??????
+       badChamber[0][0][3-1][2][24-1] = true;   badChamberRun[0][0][3-1][2][24-1][0] = 360486; badChamberRun[0][0][3-1][2][24-1][1] = 361110; // ME-32/24 and some other single runs
+       // ME-31/30 LCT 1-4 87%
+
+																													       
+       // ME-41
+       if (badRunRangesTrack&&badRunRangesTrack) badChamber[0][0][4-1][1][3-1] = true;   badChamberRun[0][0][4-1][1][3-1][0] = 357330; badChamberRun[0][0][4-1][1][3-1][1] = 357734;// ME-41/3 B-D to area of bad runs 355408-356048, 357330-357734
+       if (badRunRangesTrack) badChamber[0][0][4-1][1][12-1] = true;   badChamberRun[0][0][4-1][1][12-1][0] = 355862; badChamberRun[0][0][4-1][1][12-1][1] = 357734;// ME-41/12 transient B several area of zero eff 355862-355872, 356446-357734
+       badChamber[0][0][4-1][1][17-1] = true;   badChamberRun[0][0][4-1][1][17-1][0] = firstRun; badChamberRun[0][0][4-1][1][17-1][1] = lastRun; badChamberLCS[0][0][4-1][1][17-1][0] = 46.0; badChamberLCS[0][0][4-1][1][17-1][1] = 66.0;// ME-41/17 DCFEB 4 all reun
+
+       
+       // ME-41/15 80% efficiency issues transient in period F
+       if (badRunRangesTrack) badChamber[0][0][4-1][1][15-1] = true;   badChamberRun[0][0][4-1][1][15-1][0] = 360116; badChamberRun[0][0][4-1][1][15-1][1] = 361476;// ME-41/15 transient F
+
+       
+       // There are some other transient DCFEB problems I might want to track down
+
+       
+       // ME-42
+       // ME-42/19 53% LCT only
+       badChamber[0][0][4-1][2][27-1] = true;   badChamberRun[0][0][4-1][2][27-1][0] = firstRun; badChamberRun[0][0][4-1][2][27-1][1] = lastRun ; badChamberLCS[0][0][4-1][2][27-1][0] = 30.0; badChamberLCS[0][0][4-1][2][27-1][1] = 50.0;// ME-42/27 DCFEB 3  all runs good around 359200
+       badChamber[0][0][4-1][2][30-1] = true;   badChamberRun[0][0][4-1][2][30-1][0] = 361366; badChamberRun[0][0][4-1][2][30-1][1] = lastRun ; // ME-42/30  30% efficiency problem at end of F
+       
+}
+       
   
   // Dead chambers
   
-if (badChambersTrack) {
-  badChamber[0][2-1][1][3-1] = true;  badChamberRun[0][2-1][1][3-1][0] = 316000; badChamberRun[0][2-1][1][3-1][1] = 325273; //ME-21/3 no data
+if (oldBadChambersTrack) {
+  badChamber[0][0][2-1][1][3-1] = true;  badChamberRun[0][0][2-1][1][3-1][0] = 316000; badChamberRun[0][0][2-1][1][3-1][1] = 325273; //ME-21/3 no data
 
- badChamber[0][4-1][2][21-1] = true;  badChamberRun[0][4-1][2][21-1][0] = 316000; badChamberRun[0][4-1][2][21-1][1] = 325273; // ME-42/21 no data
+ badChamber[0][0][4-1][2][21-1] = true;  badChamberRun[0][0][4-1][2][21-1][0] = 316000; badChamberRun[0][0][4-1][2][21-1][1] = 325273; // ME-42/21 no data
 
 
  
- badChamber[0][4-1][2][14-1] = true;  badChamberRun[0][4-1][2][14-1][0] = 316000; badChamberRun[0][4-1][2][14-1][1] = 325273; badChamberLCS[0][4-1][2][14-1][0] = 14.5; badChamberLCS[0][4-1][2][14-1][1] = 34.5;// ME-42/14 DCFEB 2
+ badChamber[0][0][4-1][2][14-1] = true;  badChamberRun[0][0][4-1][2][14-1][0] = 316000; badChamberRun[0][0][4-1][2][14-1][1] = 325273; badChamberLCS[0][0][4-1][2][14-1][0] = 14.5; badChamberLCS[0][0][4-1][2][14-1][1] = 34.5;// ME-42/14 DCFEB 2
  
   
-  //badChamber[0][1-1][0][9-1] = true;  badChamberRun[0][1-1][0][9-1][0] = 322599; badChamberRun[0][1-1][0][9-1][1] = 322633; // ME-11A/9 322599-322633 !!!!! me-1/1/09	2018-08-19	DCFEB1	opt link with ODMB time correct
+  //badChamber[0][0][1-1][0][9-1] = true;  badChamberRun[0][0][1-1][0][9-1][0] = 322599; badChamberRun[0][0][1-1][0][9-1][1] = 322633; // ME-11A/9 322599-322633 !!!!! me-1/1/09	2018-08-19	DCFEB1	opt link with ODMB time correct
   // ME-11A/10 bad in first run section
-  badChamber[0][1-1][0][11-1] = true;  badChamberRun[0][1-1][0][11-1][0] = 316000; badChamberRun[0][1-1][0][11-1][1] = 325172; badChamberLCS[0][1-1][0][11-1][0] = 31.0; badChamberLCS[0][1-1][0][11-1][1] = 50.0;// ME-11A/11
-  //badChamber[0][1-1][0][12-1] = true;   badChamberRun[0][1-1][0][12-1][0] = 322355; badChamberRun[0][1-1][0][12-1][1] = 322492;// ME-11B/12 322355-322492 !!!!! General low efficiencies more toward end, Nothing
-  badChamber[0][1-1][0][25-1] = true;  badChamberRun[0][1-1][0][25-1][0] = 321067; badChamberRun[0][1-1][0][25-1][1] = 325172; badChamberLCS[0][1-1][0][25-1][0] = 0.0; badChamberLCS[0][1-1][0][25-1][1] = 16.5;// ME-11A/11 okay before 321067
+  badChamber[0][0][1-1][0][11-1] = true;  badChamberRun[0][0][1-1][0][11-1][0] = 316000; badChamberRun[0][0][1-1][0][11-1][1] = 325172; badChamberLCS[0][0][1-1][0][11-1][0] = 31.0; badChamberLCS[0][0][1-1][0][11-1][1] = 50.0;// ME-11A/11
+  //badChamber[0][0][1-1][0][12-1] = true;   badChamberRun[0][0][1-1][0][12-1][0] = 322355; badChamberRun[0][0][1-1][0][12-1][1] = 322492;// ME-11B/12 322355-322492 !!!!! General low efficiencies more toward end, Nothing
+  badChamber[0][0][1-1][0][25-1] = true;  badChamberRun[0][0][1-1][0][25-1][0] = 321067; badChamberRun[0][0][1-1][0][25-1][1] = 325172; badChamberLCS[0][0][1-1][0][25-1][0] = 0.0; badChamberLCS[0][0][1-1][0][25-1][1] = 16.5;// ME-11A/11 okay before 321067
   // ME-11A/26 bad at 322057 !!!!! Some low efficiencies me-1/1/26	2018-07-21	DCFEB3	opt link with ODMB, me-1/1/26	2018-12-01	DCFEB3	OTMB time note correct
-  // badChamber[0][1-1][0][29-1] = true;  badChamberRun[0][1-1][0][29-1][0] = 322605; badChamberRun[0][1-1][0][29-1][1] = 322605;// ME-11A/29 322605 !!!!! Some low efficiencies Nothing
+  // badChamber[0][0][1-1][0][29-1] = true;  badChamberRun[0][0][1-1][0][29-1][0] = 322605; badChamberRun[0][0][1-1][0][29-1][1] = 322605;// ME-11A/29 322605 !!!!! Some low efficiencies Nothing
 
-  badChamber[0][1-1][1][5-1] = true;   badChamberRun[0][1-1][1][5-1][0] = 316000; badChamberRun[0][1-1][1][5-1][1] = 325172; badChamberLCS[0][1-1][1][5-1][0] = 0.0; badChamberLCS[0][1-1][1][5-1][1] = 16.5;// ME-11B/5
+  badChamber[0][0][1-1][1][5-1] = true;   badChamberRun[0][0][1-1][1][5-1][0] = 316000; badChamberRun[0][0][1-1][1][5-1][1] = 325172; badChamberLCS[0][0][1-1][1][5-1][0] = 0.0; badChamberLCS[0][0][1-1][1][5-1][1] = 16.5;// ME-11B/5
   // ME-11B/10 bad in first run section
-  // badChamber[0][1-1][1][12-1] = true;   badChamberRun[0][1-1][1][12-1][0] = 322355; badChamberRun[0][1-1][1][12-1][1] = 322492;// ME-11B/12 322355-322492 !!!!! Some low efficiecies in middle Nothing
+  // badChamber[0][0][1-1][1][12-1] = true;   badChamberRun[0][0][1-1][1][12-1][0] = 322355; badChamberRun[0][0][1-1][1][12-1][1] = 322492;// ME-11B/12 322355-322492 !!!!! Some low efficiecies in middle Nothing
   // ME-11B/26 70% one run at 321232 !!!!! me-1/1/26	2018-07-21	DCFEB3	opt link with ODMB time correct
-  // badChamber[0][1-1][1][29-1] = true;   badChamberRun[0][1-1][1][29-1][0] = 322605; badChamberRun[0][1-1][1][29-1][1] = 322605;// ME-11B/29 322605 !!!!! Some low efficiences in middle Nothing
+  // badChamber[0][0][1-1][1][29-1] = true;   badChamberRun[0][0][1-1][1][29-1][0] = 322605; badChamberRun[0][0][1-1][1][29-1][1] = 322605;// ME-11B/29 322605 !!!!! Some low efficiences in middle Nothing
 
-  badChamber[0][1-1][2][6-1] = true;   badChamberRun[0][1-1][2][6-1][0] = 323423; badChamberRun[0][1-1][2][6-1][1] = 323526; badChamberLCS[0][1-1][2][6-1][0] = 46.5; badChamberLCS[0][1-1][2][6-1][1] = 62.5;// ME-12/6 323423-323526
-badChamber[0][1-1][2][21-1] = true;   badChamberRun[0][1-1][2][21-1][0] = 316000; badChamberRun[0][1-1][2][21-1][1] = 325172; badChamberLCS[0][1-1][2][21-1][0] = 32.5; badChamberLCS[0][1-1][2][21-1][1] = 40.5;// ME-12/21 316000-325172
-  badChamber[0][1-1][2][33-1] = true;   badChamberRun[0][1-1][2][33-1][0] = 316000; badChamberRun[0][1-1][2][33-1][1] = 325172; badChamberLCS[0][1-1][2][33-1][0] = 0.0; badChamberLCS[0][1-1][2][33-1][1] = 16.5;// ME-12/33
-  badChamber[0][1-1][2][36-1] = true;   badChamberRun[0][1-1][2][36-1][0] = 321700; badChamberRun[0][1-1][2][36-1][1] = 325172; badChamberLCS[0][1-1][2][36-1][0] = 65.5; badChamberLCS[0][1-1][2][36-1][1] = 40.5;// ME-12/36 321700-325172
+  badChamber[0][0][1-1][2][6-1] = true;   badChamberRun[0][0][1-1][2][6-1][0] = 323423; badChamberRun[0][0][1-1][2][6-1][1] = 323526; badChamberLCS[0][0][1-1][2][6-1][0] = 46.5; badChamberLCS[0][0][1-1][2][6-1][1] = 62.5;// ME-12/6 323423-323526
+badChamber[0][0][1-1][2][21-1] = true;   badChamberRun[0][0][1-1][2][21-1][0] = 316000; badChamberRun[0][0][1-1][2][21-1][1] = 325172; badChamberLCS[0][0][1-1][2][21-1][0] = 32.5; badChamberLCS[0][0][1-1][2][21-1][1] = 40.5;// ME-12/21 316000-325172
+  badChamber[0][0][1-1][2][33-1] = true;   badChamberRun[0][0][1-1][2][33-1][0] = 316000; badChamberRun[0][0][1-1][2][33-1][1] = 325172; badChamberLCS[0][0][1-1][2][33-1][0] = 0.0; badChamberLCS[0][0][1-1][2][33-1][1] = 16.5;// ME-12/33
+  badChamber[0][0][1-1][2][36-1] = true;   badChamberRun[0][0][1-1][2][36-1][0] = 321700; badChamberRun[0][0][1-1][2][36-1][1] = 325172; badChamberLCS[0][0][1-1][2][36-1][0] = 65.5; badChamberLCS[0][0][1-1][2][36-1][1] = 40.5;// ME-12/36 321700-325172
 
 
- badChamber[0][1-1][3][8-1] = true;   badChamberRun[0][1-1][3][8-1][0] = 316000; badChamberRun[0][1-1][3][8-1][1] = 321314; badChamberLCS[0][1-1][3][8-1][0] = 48.5; badChamberLCS[0][1-1][3][8-1][1] = 62.5;// ME-13/8 323423-323526
+ badChamber[0][0][1-1][3][8-1] = true;   badChamberRun[0][0][1-1][3][8-1][0] = 316000; badChamberRun[0][0][1-1][3][8-1][1] = 321314; badChamberLCS[0][0][1-1][3][8-1][0] = 48.5; badChamberLCS[0][0][1-1][3][8-1][1] = 62.5;// ME-13/8 323423-323526
 
- badChamber[0][1-1][3][25-1] = true;   badChamberRun[0][1-1][3][25-1][0] = 316000; badChamberRun[0][1-1][3][25-1][1] = 321070; badChamberLCS[0][1-1][3][25-1][0] = 30.; badChamberLCS[0][1-1][3][25-1][1] = 50.5;// ME-13/25 316000-
+ badChamber[0][0][1-1][3][25-1] = true;   badChamberRun[0][0][1-1][3][25-1][0] = 316000; badChamberRun[0][0][1-1][3][25-1][1] = 321070; badChamberLCS[0][0][1-1][3][25-1][0] = 30.; badChamberLCS[0][0][1-1][3][25-1][1] = 50.5;// ME-13/25 316000-
 
  
   //ME13/35 bad in first run section
 
 
-  badChamber[1][1-1][0][7-1] = true;  badChamberRun[1][1-1][0][7-1][0] = 318800; badChamberRun[1][1-1][0][7-1][1] = 325172; badChamberLCS[1][1-1][0][7-1][0] = 0.0; badChamberLCS[1][1-1][0][7-1][1] = 16.5;// ME+11A/7
-  badChamber[1][1-1][0][20-1] = true; badChamberRun[1][1-1][0][20-1][0] = 318800; badChamberRun[1][1-1][0][20-1][1] = 325172; badChamberLCS[1][1-1][0][20-1][0] = 32.5; badChamberLCS[1][1-1][0][20-1][1] = 50.0; // ME+11A/20
-  // badChamber[1][1-1][0][21-1] = true; badChamberRun[1][1-1][0][21-1][0] = 323755; badChamberRun[1][1-1][0][21-1][1] = 324022; // ME+11A/21 323755-324022 40% !!!!! Some low efficiencies in middle me+1/1/21	2018-08-17	DCFEB3	opt link with OTMB time not correct
-  badChamber[1][1-1][0][29-1] = true; badChamberRun[1][1-1][0][29-1][0] = 318800; badChamberRun[1][1-1][0][29-1][1] = 325172; badChamberLCS[1][1-1][0][29-1][0] = 14.5; badChamberLCS[1][1-1][0][29-1][1] = 32.5;// ME+11A/29
+  badChamber[0][1][1-1][0][7-1] = true;  badChamberRun[0][1][1-1][0][7-1][0] = 318800; badChamberRun[0][1][1-1][0][7-1][1] = 325172; badChamberLCS[0][1][1-1][0][7-1][0] = 0.0; badChamberLCS[0][1][1-1][0][7-1][1] = 16.5;// ME+11A/7
+  badChamber[0][1][1-1][0][20-1] = true; badChamberRun[0][1][1-1][0][20-1][0] = 318800; badChamberRun[0][1][1-1][0][20-1][1] = 325172; badChamberLCS[0][1][1-1][0][20-1][0] = 32.5; badChamberLCS[0][1][1-1][0][20-1][1] = 50.0; // ME+11A/20
+  // badChamber[0][1][1-1][0][21-1] = true; badChamberRun[0][1][1-1][0][21-1][0] = 323755; badChamberRun[0][1][1-1][0][21-1][1] = 324022; // ME+11A/21 323755-324022 40% !!!!! Some low efficiencies in middle me+1/1/21	2018-08-17	DCFEB3	opt link with OTMB time not correct
+  badChamber[0][1][1-1][0][29-1] = true; badChamberRun[0][1][1-1][0][29-1][0] = 318800; badChamberRun[0][1][1-1][0][29-1][1] = 325172; badChamberLCS[0][1][1-1][0][29-1][0] = 14.5; badChamberLCS[0][1][1-1][0][29-1][1] = 32.5;// ME+11A/29
 
 
   //ME+11B/18 run 319077 !!!!! A vew low efficiences in middle  me+1/1/18	2018-10-19	DCFEB7	ODMB time not correct
-  // badChamber[1][1-1][1][21-1] = true;  badChamberRun[1][1-1][1][21-1][0] = 323755; badChamberRun[1][1-1][1][21-1][1] = 324022; // ME+11B/21 323755-324022 40% !!!!! Some low efficiencies in middle me+1/1/21	2018-08-17	DCFEB3	opt link with time approximately correct
+  // badChamber[0][1][1-1][1][21-1] = true;  badChamberRun[0][1][1-1][1][21-1][0] = 323755; badChamberRun[0][1][1-1][1][21-1][1] = 324022; // ME+11B/21 323755-324022 40% !!!!! Some low efficiencies in middle me+1/1/21	2018-08-17	DCFEB3	opt link with time approximately correct
 
 
   //ME+12/5 bad before 318800  
-  // badChamber[1][1-1][2][8-1] = true;   badChamberRun[1][1-1][2][8-1][0] = 321067; badChamberRun[1][1-1][2][8-1][1] = 321305;// ME+12/8 ** only 321067-321305 and 322013,322014 !!!!! A few low efficincies in the middle Nothing
-  badChamber[1][1-1][2][13-1] = true;  badChamberRun[1][1-1][2][13-1][0] = 316000; badChamberRun[1][1-1][2][13-1][1] = 325172; badChamberLCS[1][1-1][2][13-1][0] = 62.5; badChamberLCS[1][1-1][2][13-1][1] = 80.0;// ME+12/13
-  badChamber[1][1-1][2][20-1] = true;  badChamberRun[1][1-1][2][20-1][0] = 316000; badChamberRun[1][1-1][2][20-1][1] = 325172; badChamberLCS[1][1-1][2][20-1][0] = 30.5; badChamberLCS[1][1-1][2][20-1][1] = 50.5;// ME+12/20
-  badChamber[1][1-1][2][21-1] = true;  badChamberRun[1][1-1][2][21-1][0] = 316000; badChamberRun[1][1-1][2][21-1][1] = 325172; badChamberLCS[1][1-1][3][21-1][0] = 14.5; badChamberLCS[1][1-1][2][21-1][1] = 66.5;// ME+12/21
-  // badChamber[1][1-1][2][28-1] = true;  badChamberRun[1][1-1][2][28-1][0] = 320955; badChamberRun[1][1-1][2][28-1][1] = 320809; // ME+12/28 320804-320809 and 320955 !!!!! A few low efficiency in middle Nothing
-  badChamber[1][1-1][2][31-1] = true;  badChamberRun[1][1-1][2][31-1][0] = 316000; badChamberRun[1][1-1][2][31-1][1] = 325172; badChamberLCS[1][1-1][2][31-1][0] = 62.5; badChamberLCS[1][1-1][2][31-1][1] = 80.0;// ME+12/31
+  // badChamber[0][1][1-1][2][8-1] = true;   badChamberRun[0][1][1-1][2][8-1][0] = 321067; badChamberRun[0][1][1-1][2][8-1][1] = 321305;// ME+12/8 ** only 321067-321305 and 322013,322014 !!!!! A few low efficincies in the middle Nothing
+  badChamber[0][1][1-1][2][13-1] = true;  badChamberRun[0][1][1-1][2][13-1][0] = 316000; badChamberRun[0][1][1-1][2][13-1][1] = 325172; badChamberLCS[0][1][1-1][2][13-1][0] = 62.5; badChamberLCS[0][1][1-1][2][13-1][1] = 80.0;// ME+12/13
+  badChamber[0][1][1-1][2][20-1] = true;  badChamberRun[0][1][1-1][2][20-1][0] = 316000; badChamberRun[0][1][1-1][2][20-1][1] = 325172; badChamberLCS[0][1][1-1][2][20-1][0] = 30.5; badChamberLCS[0][1][1-1][2][20-1][1] = 50.5;// ME+12/20
+  badChamber[0][1][1-1][2][21-1] = true;  badChamberRun[0][1][1-1][2][21-1][0] = 316000; badChamberRun[0][1][1-1][2][21-1][1] = 325172; badChamberLCS[0][1][1-1][3][21-1][0] = 14.5; badChamberLCS[0][1][1-1][2][21-1][1] = 66.5;// ME+12/21
+  // badChamber[0][1][1-1][2][28-1] = true;  badChamberRun[0][1][1-1][2][28-1][0] = 320955; badChamberRun[0][1][1-1][2][28-1][1] = 320809; // ME+12/28 320804-320809 and 320955 !!!!! A few low efficiency in middle Nothing
+  badChamber[0][1][1-1][2][31-1] = true;  badChamberRun[0][1][1-1][2][31-1][0] = 316000; badChamberRun[0][1][1-1][2][31-1][1] = 325172; badChamberLCS[0][1][1-1][2][31-1][0] = 62.5; badChamberLCS[0][1][1-1][2][31-1][1] = 80.0;// ME+12/31
   
-  badChamber[1][1-1][3][11-1] = true;  badChamberRun[1][1-1][3][11-1][0] = 316000; badChamberRun[1][1-1][3][11-1][1] = 325172; badChamberLCS[1][1-1][3][11-1][0] = 30.5; badChamberLCS[1][1-1][3][11-1][1] = 50.5;// ME+13/11
+  badChamber[0][1][1-1][3][11-1] = true;  badChamberRun[0][1][1-1][3][11-1][0] = 316000; badChamberRun[0][1][1-1][3][11-1][1] = 325172; badChamberLCS[0][1][1-1][3][11-1][0] = 30.5; badChamberLCS[0][1][1-1][3][11-1][1] = 50.5;// ME+13/11
 
 
     //  ME-21/3 no data
  
-  badChamber[0][2-1][2][1-1] = true;   badChamberRun[0][2-1][2][1-1][0] = 318800; badChamberRun[0][2-1][2][1-1][1] = 325172; badChamberLCS[0][2-1][2][1-1][0] = 44.5; badChamberLCS[0][2-1][2][1-1][1] = 66.6;// ME-22/1
-  badChamber[0][2-1][2][3-1] = true;   badChamberRun[0][2-1][2][3-1][0] = 316000; badChamberRun[0][2-1][2][3-1][1] = 325172; badChamberLCS[0][2-1][2][3-1][0] = 15.5; badChamberLCS[0][2-1][2][3-1][1] = 32.5; // ME-22/3
+  badChamber[0][0][2-1][2][1-1] = true;   badChamberRun[0][0][2-1][2][1-1][0] = 318800; badChamberRun[0][0][2-1][2][1-1][1] = 325172; badChamberLCS[0][0][2-1][2][1-1][0] = 44.5; badChamberLCS[0][0][2-1][2][1-1][1] = 66.6;// ME-22/1
+  badChamber[0][0][2-1][2][3-1] = true;   badChamberRun[0][0][2-1][2][3-1][0] = 316000; badChamberRun[0][0][2-1][2][3-1][1] = 325172; badChamberLCS[0][0][2-1][2][3-1][0] = 15.5; badChamberLCS[0][0][2-1][2][3-1][1] = 32.5; // ME-22/3
 
   
-  badChamber[1][2-1][1][3-1] = true;   badChamberRun[1][2-1][1][3-1][0] = 316000; badChamberRun[1][2-1][1][3-1][1] = 325172; badChamberLCS[1][2-1][1][3-1][0] = 14.5; badChamberLCS[1][2-1][1][3-1][1] = 64.5;// ME+21/3
+  badChamber[0][1][2-1][1][3-1] = true;   badChamberRun[0][1][2-1][1][3-1][0] = 316000; badChamberRun[0][1][2-1][1][3-1][1] = 325172; badChamberLCS[0][1][2-1][1][3-1][0] = 14.5; badChamberLCS[0][1][2-1][1][3-1][1] = 64.5;// ME+21/3
 
-  badChamber[1][2-1][2][5-1] = true;   badChamberRun[1][2-1][2][5-1][0] = 316000; badChamberRun[1][2-1][2][5-1][1] = 325172; badChamberLCS[1][2-1][2][5-1][0] = 0.; badChamberLCS[1][2-1][2][5-1][1] = 18.5;// ME+22/5
-  badChamber[1][2-1][2][15-1] = true;   badChamberRun[1][2-1][2][15-1][0] = 316000; badChamberRun[1][2-1][2][15-1][1] = 325172; badChamberLCS[1][2-1][2][15-1][0] = 62.5; badChamberLCS[1][2-1][2][15-1][1] = 80.0;// ME+22/15
-  badChamber[1][2-1][2][19-1] = true;   badChamberRun[1][2-1][2][19-1][0] = 316000; badChamberRun[1][2-1][2][19-1][1] = 325172; badChamberLCS[1][2-1][2][19-1][0] = 62.5; badChamberLCS[1][2-1][2][19-1][1] = 80.0;// ME+22/19
-
-
-  badChamber[0][3-1][1][9-1] = true;   badChamberRun[0][3-1][1][9-1][0] = 316000; badChamberRun[0][3-1][1][9-1][1] = 325172; badChamberLCS[0][3-1][1][9-1][0] = 0.0; badChamberLCS[0][3-1][1][9-1][1] = 66.5;// ME-31/9 ** two ranges
-  badChamber[0][3-1][1][13-1] = true;  badChamberRun[0][3-1][1][13-1][0] = 316000; badChamberRun[0][3-1][1][13-1][1] = 325172; badChamberLCS[0][3-1][1][13-1][0] = 30.5; badChamberLCS[0][3-1][1][13-1][1] = 50.5;// ME-31/13
+  badChamber[0][1][2-1][2][5-1] = true;   badChamberRun[0][1][2-1][2][5-1][0] = 316000; badChamberRun[0][1][2-1][2][5-1][1] = 325172; badChamberLCS[0][1][2-1][2][5-1][0] = 0.; badChamberLCS[0][1][2-1][2][5-1][1] = 18.5;// ME+22/5
+  badChamber[0][1][2-1][2][15-1] = true;   badChamberRun[0][1][2-1][2][15-1][0] = 316000; badChamberRun[0][1][2-1][2][15-1][1] = 325172; badChamberLCS[0][1][2-1][2][15-1][0] = 62.5; badChamberLCS[0][1][2-1][2][15-1][1] = 80.0;// ME+22/15
+  badChamber[0][1][2-1][2][19-1] = true;   badChamberRun[0][1][2-1][2][19-1][0] = 316000; badChamberRun[0][1][2-1][2][19-1][1] = 325172; badChamberLCS[0][1][2-1][2][19-1][0] = 62.5; badChamberLCS[0][1][2-1][2][19-1][1] = 80.0;// ME+22/19
 
 
-  badChamber[1][3-1][1][7-1] = true;   badChamberRun[1][3-1][1][7-1][0] = 316000; badChamberRun[1][3-1][1][7-1][1] = 325172; badChamberLCS[1][3-1][1][7-1][0] = 30.5; badChamberLCS[1][3-1][1][7-1][1] = 48.5;// ME+31/7
-badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000; badChamberRun[1][3-1][1][12-1][1] = 325172; badChamberLCS[1][3-1][1][12-1][0] = 62.5; badChamberLCS[1][3-1][1][12-1][1] = 77.5;// ME+31/12
+  badChamber[0][0][3-1][1][9-1] = true;   badChamberRun[0][0][3-1][1][9-1][0] = 316000; badChamberRun[0][0][3-1][1][9-1][1] = 325172; badChamberLCS[0][0][3-1][1][9-1][0] = 0.0; badChamberLCS[0][0][3-1][1][9-1][1] = 66.5;// ME-31/9 ** two ranges
+  badChamber[0][0][3-1][1][13-1] = true;  badChamberRun[0][0][3-1][1][13-1][0] = 316000; badChamberRun[0][0][3-1][1][13-1][1] = 325172; badChamberLCS[0][0][3-1][1][13-1][0] = 30.5; badChamberLCS[0][0][3-1][1][13-1][1] = 50.5;// ME-31/13
+
+
+  badChamber[0][1][3-1][1][7-1] = true;   badChamberRun[0][1][3-1][1][7-1][0] = 316000; badChamberRun[0][1][3-1][1][7-1][1] = 325172; badChamberLCS[0][1][3-1][1][7-1][0] = 30.5; badChamberLCS[0][1][3-1][1][7-1][1] = 48.5;// ME+31/7
+badChamber[0][1][3-1][1][12-1] = true;   badChamberRun[0][1][3-1][1][12-1][0] = 316000; badChamberRun[0][1][3-1][1][12-1][1] = 325172; badChamberLCS[0][1][3-1][1][12-1][0] = 62.5; badChamberLCS[0][1][3-1][1][12-1][1] = 77.5;// ME+31/12
 
 
 
   
-  badChamber[1][3-1][2][19-1] = true;   badChamberRun[1][3-1][2][19-1][0] = 316000; badChamberRun[1][3-1][2][19-1][1] = 325172; badChamberLCS[1][3-1][2][19-1][0] = 62.5; badChamberLCS[1][3-1][2][19-1][1] = 80.0;// ME+32/19 all bad 78%
-  badChamber[1][3-1][2][29-1] = true;   badChamberRun[1][3-1][2][29-1][0] = 316000; badChamberRun[1][3-1][2][29-1][1] = 325172; badChamberLCS[1][3-1][2][29-1][0] = 46.5; badChamberLCS[1][3-1][2][29-1][1] = 64.5;// ME+32/29
+  badChamber[0][1][3-1][2][19-1] = true;   badChamberRun[0][1][3-1][2][19-1][0] = 316000; badChamberRun[0][1][3-1][2][19-1][1] = 325172; badChamberLCS[0][1][3-1][2][19-1][0] = 62.5; badChamberLCS[0][1][3-1][2][19-1][1] = 80.0;// ME+32/19 all bad 78%
+  badChamber[0][1][3-1][2][29-1] = true;   badChamberRun[0][1][3-1][2][29-1][0] = 316000; badChamberRun[0][1][3-1][2][29-1][1] = 325172; badChamberLCS[0][1][3-1][2][29-1][0] = 46.5; badChamberLCS[0][1][3-1][2][29-1][1] = 64.5;// ME+32/29
 
  
-  badChamber[0][4-1][1][1-1] = true;   badChamberRun[0][4-1][1][1-1][0] = 316000; badChamberRun[0][4-1][1][1-1][1] = 325172; badChamberLCS[0][4-1][1][1-1][0] = 30.5; badChamberLCS[0][4-1][1][1-1][1] = 48.5;// ME-41/1
-  badChamber[0][4-1][1][11-1] = true;   badChamberRun[0][4-1][1][11-1][0] = 316000; badChamberRun[0][4-1][1][11-1][1] = 325172; badChamberLCS[0][4-1][1][11-1][0] = 62.5; badChamberLCS[0][4-1][1][11-1][1] = 80.0;// ME-41/11
-  badChamber[0][4-1][1][15-1] = true;   badChamberRun[0][4-1][1][15-1][0] = 316000; badChamberRun[0][4-1][1][15-1][1] = 325172; badChamberLCS[0][4-1][1][15-1][0] = 62.5; badChamberLCS[1][4-1][1][15-1][1] = 80.0;// ME-41/15
+  badChamber[0][0][4-1][1][1-1] = true;   badChamberRun[0][0][4-1][1][1-1][0] = 316000; badChamberRun[0][0][4-1][1][1-1][1] = 325172; badChamberLCS[0][0][4-1][1][1-1][0] = 30.5; badChamberLCS[0][0][4-1][1][1-1][1] = 48.5;// ME-41/1
+  badChamber[0][0][4-1][1][11-1] = true;   badChamberRun[0][0][4-1][1][11-1][0] = 316000; badChamberRun[0][0][4-1][1][11-1][1] = 325172; badChamberLCS[0][0][4-1][1][11-1][0] = 62.5; badChamberLCS[0][0][4-1][1][11-1][1] = 80.0;// ME-41/11
+  badChamber[0][0][4-1][1][15-1] = true;   badChamberRun[0][0][4-1][1][15-1][0] = 316000; badChamberRun[0][0][4-1][1][15-1][1] = 325172; badChamberLCS[0][0][4-1][1][15-1][0] = 62.5; badChamberLCS[0][1][4-1][1][15-1][1] = 80.0;// ME-41/15
 
 
   
-  //badChamber[0][4-1][2][2-1] = true;   badChamberRun[0][4-1][2][2-1][0] = 323492; badChamberRun[0][4-1][2][2-1][1] = 323493;// ME-42/2 323492-323493 !!!!! A few runs in the middle Nothing
-  badChamber[0][4-1][2][8-1] = true;   badChamberRun[0][4-1][2][8-1][0] = 316000; badChamberRun[0][4-1][2][8-1][1] = 325172; badChamberLCS[0][4-1][2][8-1][0] = 14.5; badChamberLCS[0][4-1][2][8-1][1] = 34.5;// ME-42/8
-  badChamber[0][4-1][2][27-1] = true;   badChamberRun[0][4-1][2][27-1][0] = 316000; badChamberRun[0][4-1][2][27-1][1] = 324077; badChamberLCS[0][4-1][2][27-1][0] = 30.5; badChamberLCS[0][4-1][2][27-1][1] = 50.5; // ME-42/27 323693-324077
-  badChamber[0][4-1][2][34-1] = true;   badChamberRun[0][4-1][2][34-1][0] = 316000; badChamberRun[0][4-1][2][34-1][1] = 325172; badChamberLCS[0][4-1][2][34-1][0] = 62.5; badChamberLCS[0][4-1][2][34-1][1] = 80.0;// ME-42/34
+  //badChamber[0][0][4-1][2][2-1] = true;   badChamberRun[0][0][4-1][2][2-1][0] = 323492; badChamberRun[0][0][4-1][2][2-1][1] = 323493;// ME-42/2 323492-323493 !!!!! A few runs in the middle Nothing
+  badChamber[0][0][4-1][2][8-1] = true;   badChamberRun[0][0][4-1][2][8-1][0] = 316000; badChamberRun[0][0][4-1][2][8-1][1] = 325172; badChamberLCS[0][0][4-1][2][8-1][0] = 14.5; badChamberLCS[0][0][4-1][2][8-1][1] = 34.5;// ME-42/8
+  badChamber[0][0][4-1][2][27-1] = true;   badChamberRun[0][0][4-1][2][27-1][0] = 316000; badChamberRun[0][0][4-1][2][27-1][1] = 324077; badChamberLCS[0][0][4-1][2][27-1][0] = 30.5; badChamberLCS[0][0][4-1][2][27-1][1] = 50.5; // ME-42/27 323693-324077
+  badChamber[0][0][4-1][2][34-1] = true;   badChamberRun[0][0][4-1][2][34-1][0] = 316000; badChamberRun[0][0][4-1][2][34-1][1] = 325172; badChamberLCS[0][0][4-1][2][34-1][0] = 62.5; badChamberLCS[0][0][4-1][2][34-1][1] = 80.0;// ME-42/34
   // ME-42/21 do data
   
-  badChamber[1][4-1][1][15-1] = true;   badChamberRun[1][4-1][1][15-1][0] = 316000; badChamberRun[1][4-1][1][15-1][1] = 325172; badChamberLCS[1][4-1][1][15-1][0] = 62.5; badChamberLCS[1][4-1][1][15-1][1] = 80.0;// ME+41/15
+  badChamber[0][1][4-1][1][15-1] = true;   badChamberRun[0][1][4-1][1][15-1][0] = 316000; badChamberRun[0][1][4-1][1][15-1][1] = 325172; badChamberLCS[0][1][4-1][1][15-1][0] = 62.5; badChamberLCS[0][1][4-1][1][15-1][1] = 80.0;// ME+41/15
 
-  badChamber[1][4-1][2][32-1] = true;   badChamberRun[1][4-1][2][32-1][0] = 316000; badChamberRun[1][4-1][2][32-1][1] = 325172; badChamberLCS[1][4-1][2][32-1][0] = 0.0; badChamberLCS[1][4-1][2][32-1][1] = 18.5;// ME+42/32
+  badChamber[0][1][4-1][2][32-1] = true;   badChamberRun[0][1][4-1][2][32-1][0] = 316000; badChamberRun[0][1][4-1][2][32-1][1] = 325172; badChamberLCS[0][1][4-1][2][32-1][0] = 0.0; badChamberLCS[0][1][4-1][2][32-1][1] = 18.5;// ME+42/32
   
 
   // CFEB SCA memory saturation effect
 
-  badChamber[0][2-1][1][5-1] = true;   badChamberRun[0][2-1][1][5-1][0] = 316000; badChamberRun[0][2-1][1][5-1][1] = 325172; //ME-21/5
-    //badChamber[0][2-1][1][8-1] = true;   badChamberRun[0][2-1][1][8-1][0] = 323423; badChamberRun[0][2-1][1][8-1][1] = 325172;// ME-21/9 323423-325172 Low efficiencies more at beginning and end, CFEB issue
+  badChamber[0][0][2-1][1][5-1] = true;   badChamberRun[0][0][2-1][1][5-1][0] = 316000; badChamberRun[0][0][2-1][1][5-1][1] = 325172; //ME-21/5
+    //badChamber[0][0][2-1][1][8-1] = true;   badChamberRun[0][0][2-1][1][8-1][0] = 323423; badChamberRun[0][0][2-1][1][8-1][1] = 325172;// ME-21/9 323423-325172 Low efficiencies more at beginning and end, CFEB issue
   // Expand to full range
-  badChamber[0][2-1][1][8-1] = true;   badChamberRun[0][2-1][1][8-1][0] = 316000; badChamberRun[0][2-1][1][8-1][1] = 325172;//
+  badChamber[0][0][2-1][1][8-1] = true;   badChamberRun[0][0][2-1][1][8-1][0] = 316000; badChamberRun[0][0][2-1][1][8-1][1] = 325172;//
   
-  //badChamber[0][2-1][1][9-1] = true;   badChamberRun[0][2-1][1][9-1][0] = 318800; badChamberRun[0][2-1][1][9-1][1] = 325172; badChamberLCS[0][2-1][1][9-1][0] = 45.5; badChamberLCS[0][2-1][1][9-1][1] = 64.5;// ME-21/9 also  Low efficiencies more at end, CFEB issue
+  //badChamber[0][0][2-1][1][9-1] = true;   badChamberRun[0][0][2-1][1][9-1][0] = 318800; badChamberRun[0][0][2-1][1][9-1][1] = 325172; badChamberLCS[0][0][2-1][1][9-1][0] = 45.5; badChamberLCS[0][0][2-1][1][9-1][1] = 64.5;// ME-21/9 also  Low efficiencies more at end, CFEB issue
    // expand to full range
- badChamber[0][2-1][1][9-1] = true;   badChamberRun[0][2-1][1][9-1][0] = 316000; badChamberRun[0][2-1][1][9-1][1] = 325172;
+ badChamber[0][0][2-1][1][9-1] = true;   badChamberRun[0][0][2-1][1][9-1][0] = 316000; badChamberRun[0][0][2-1][1][9-1][1] = 325172;
    
-  badChamber[0][2-1][1][10-1] = true;   badChamberRun[0][2-1][1][10-1][0] = 316000; badChamberRun[0][2-1][1][10-1][1] = 325172;// ME-21/10 323432-325172 !!!!! Low efficiencies more at end, CFEB issue
-  badChamber[0][2-1][1][17-1] = true;  badChamberRun[0][2-1][1][17-1][0] = 316000; badChamberRun[0][2-1][1][17-1][1] = 325172;// ME-21/17 !!!!! Low efficiencies more at end, CFEB issue
+  badChamber[0][0][2-1][1][10-1] = true;   badChamberRun[0][0][2-1][1][10-1][0] = 316000; badChamberRun[0][0][2-1][1][10-1][1] = 325172;// ME-21/10 323432-325172 !!!!! Low efficiencies more at end, CFEB issue
+  badChamber[0][0][2-1][1][17-1] = true;  badChamberRun[0][0][2-1][1][17-1][0] = 316000; badChamberRun[0][0][2-1][1][17-1][1] = 325172;// ME-21/17 !!!!! Low efficiencies more at end, CFEB issue
  
   // ME-22/16 CFEB Issue
-  badChamber[0][2-1][2][16-1] = true;   badChamberRun[0][2-1][2][16-1][0] = 316000; badChamberRun[0][2-1][2][16-1][1] = 325172;
+  badChamber[0][0][2-1][2][16-1] = true;   badChamberRun[0][0][2-1][2][16-1][0] = 316000; badChamberRun[0][0][2-1][2][16-1][1] = 325172;
    // ME-22/20 323423-325172 40-90% efficiency !!!!! Low efficiencies more at end, CFEB issue
-    badChamber[0][2-1][2][20-1] = true;   badChamberRun[0][2-1][2][20-1][0] = 316000; badChamberRun[0][2-1][2][20-1][1] = 325172;
+    badChamber[0][0][2-1][2][20-1] = true;   badChamberRun[0][0][2-1][2][20-1][0] = 316000; badChamberRun[0][0][2-1][2][20-1][1] = 325172;
     
-  badChamber[0][3-1][1][18-1] = true;  badChamberRun[0][3-1][1][18-1][0] = 316000; badChamberRun[0][3-1][1][18-1][1] = 325172; //  ME-31/18 323423-325172  !!!!! !!!!! Low efficiencies more at end, CFEB issue ????
+  badChamber[0][0][3-1][1][18-1] = true;  badChamberRun[0][0][3-1][1][18-1][0] = 316000; badChamberRun[0][0][3-1][1][18-1][1] = 325172; //  ME-31/18 323423-325172  !!!!! !!!!! Low efficiencies more at end, CFEB issue ????
 
-  //badChamber[0][4-1][2][1-1] = true;   badChamberRun[0][4-1][2][1-1][0] = 316000; badChamberRun[0][4-1][2][1-1][1] = 325172; badChamberLCS[0][4-1][2][1-1][0] = 32.5; badChamberLCS[0][4-1][2][1-1][1] = 48.5;// ME-42/1 remaining CFEB issue?
+  //badChamber[0][0][4-1][2][1-1] = true;   badChamberRun[0][0][4-1][2][1-1][0] = 316000; badChamberRun[0][0][4-1][2][1-1][1] = 325172; badChamberLCS[0][0][4-1][2][1-1][0] = 32.5; badChamberLCS[0][0][4-1][2][1-1][1] = 48.5;// ME-42/1 remaining CFEB issue?
   // expand to full range
-  badChamber[0][4-1][2][1-1] = true;   badChamberRun[0][4-1][2][1-1][0] = 316000; badChamberRun[0][4-1][2][1-1][1] = 325172;
+  badChamber[0][0][4-1][2][1-1] = true;   badChamberRun[0][0][4-1][2][1-1][0] = 316000; badChamberRun[0][0][4-1][2][1-1][1] = 325172;
 
   // Overlapping bad individual CFEB and CFEB SCA memory saturation issue
   
-  // badChamber[0][4-1][2][1-1] = true;   badChamberRun[0][4-1][2][1-1][0] = 316000; badChamberRun[0][4-1][2][1-1][1] = 325172; badChamberLCS[0][4-1][2][1-1][0] = 32.5; badChamberLCS[0][4-1][2][1-1][1] = 48.5;// ME-42/1 remaining CFEB issue?
+  // badChamber[0][0][4-1][2][1-1] = true;   badChamberRun[0][0][4-1][2][1-1][0] = 316000; badChamberRun[0][0][4-1][2][1-1][1] = 325172; badChamberLCS[0][0][4-1][2][1-1][0] = 32.5; badChamberLCS[0][0][4-1][2][1-1][1] = 48.5;// ME-42/1 remaining CFEB issue?
 
-  // badChamber[0][2-1][1][9-1] = true;   badChamberRun[0][2-1][1][9-1][0] = 316000; badChamberRun[0][2-1][1][9-1][1] = 325172; badChamberLCS[0][2-1][1][9-1][0] = 45.5; badChamberLCS[0][2-1][1][9-1][1] = 64.5;// ME-21/9 also  Low efficiencies more at end, CFEB issue
+  // badChamber[0][0][2-1][1][9-1] = true;   badChamberRun[0][0][2-1][1][9-1][0] = 316000; badChamberRun[0][0][2-1][1][9-1][1] = 325172; badChamberLCS[0][0][2-1][1][9-1][0] = 45.5; badChamberLCS[0][0][2-1][1][9-1][1] = 64.5;// ME-21/9 also  Low efficiencies more at end, CFEB issue
 
-  // //Invert Bad Chamber in ME-21
-  // badChamber[0][2-1][1][1-1] = true;  badChamberRun[0][2-1][1][1-1][0] = 316000; badChamberRun[0][2-1][1][1-1][1] = 325172;
-  // badChamber[0][2-1][1][2-1] = true;  badChamberRun[0][2-1][1][2-1][0] = 316000; badChamberRun[0][2-1][1][2-1][1] = 325172;
-  // badChamber[0][2-1][1][4-1] = true;  badChamberRun[0][2-1][1][4-1][0] = 316000; badChamberRun[0][2-1][1][4-1][1] = 325172;
-  // badChamber[0][2-1][1][6-1] = true;  badChamberRun[0][2-1][1][6-1][0] = 316000; badChamberRun[0][2-1][1][6-1][1] = 325172;
-  // badChamber[0][2-1][1][7-1] = true;  badChamberRun[0][2-1][1][7-1][0] = 316000; badChamberRun[0][2-1][1][7-1][1] = 325172;
-  // badChamber[0][2-1][1][11-1] = true;  badChamberRun[0][2-1][1][11-1][0] = 316000; badChamberRun[0][2-1][1][11-1][1] = 325172;
-  // badChamber[0][2-1][1][12-1] = true;  badChamberRun[0][2-1][1][12-1][0] = 316000; badChamberRun[0][2-1][1][12-1][1] = 325172;
-  // badChamber[0][2-1][1][13-1] = true;  badChamberRun[0][2-1][1][13-1][0] = 316000; badChamberRun[0][2-1][1][13-1][1] = 325172;
-  // badChamber[0][2-1][1][14-1] = true;  badChamberRun[0][2-1][1][14-1][0] = 316000; badChamberRun[0][2-1][1][14-1][1] = 325172;
-  // badChamber[0][2-1][1][15-1] = true;  badChamberRun[0][2-1][1][15-1][0] = 316000; badChamberRun[0][2-1][1][15-1][1] = 325172;
-  // badChamber[0][2-1][1][16-1] = true;  badChamberRun[0][2-1][1][16-1][0] = 316000; badChamberRun[0][2-1][1][16-1][1] = 325172;
-  // badChamber[0][2-1][1][18-1] = true;  badChamberRun[0][2-1][1][18-1][0] = 316000; badChamberRun[0][2-1][1][18-1][1] = 325172;
 
 }
+  //Exclude and ME-21 ring
+  /* badChamber[0][0][2-1][1][1-1] = true;  badChamberRun[0][0][2-1][1][1-1][0] = 316000; badChamberRun[0][0][2-1][1][1-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][2-1] = true;  badChamberRun[0][0][2-1][1][2-1][0] = 316000; badChamberRun[0][0][2-1][1][2-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][4-1] = true;  badChamberRun[0][0][2-1][1][4-1][0] = 316000; badChamberRun[0][0][2-1][1][4-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][6-1] = true;  badChamberRun[0][0][2-1][1][6-1][0] = 316000; badChamberRun[0][0][2-1][1][6-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][7-1] = true;  badChamberRun[0][0][2-1][1][7-1][0] = 316000; badChamberRun[0][0][2-1][1][7-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][11-1] = true;  badChamberRun[0][0][2-1][1][11-1][0] = 316000; badChamberRun[0][0][2-1][1][11-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][12-1] = true;  badChamberRun[0][0][2-1][1][12-1][0] = 316000; badChamberRun[0][0][2-1][1][12-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][13-1] = true;  badChamberRun[0][0][2-1][1][13-1][0] = 316000; badChamberRun[0][0][2-1][1][13-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][14-1] = true;  badChamberRun[0][0][2-1][1][14-1][0] = 316000; badChamberRun[0][0][2-1][1][14-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][15-1] = true;  badChamberRun[0][0][2-1][1][15-1][0] = 316000; badChamberRun[0][0][2-1][1][15-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][16-1] = true;  badChamberRun[0][0][2-1][1][16-1][0] = 316000; badChamberRun[0][0][2-1][1][16-1][1] = lastRun; */
+  /* badChamber[0][0][2-1][1][18-1] = true;  badChamberRun[0][0][2-1][1][18-1][0] = 316000; badChamberRun[0][0][2-1][1][18-1][1] = lastRun; */
 
+ 
+ /* badChamber[0][1][2-1][1][2-1] = true;  badChamberRun[0][1][2-1][1][2-1][0] = 316000; badChamberRun[0][1][2-1][1][2-1][1] = lastRun; */
+ /*  badChamber[0][1][2-1][1][3-1] = true;  badChamberRun[0][1][2-1][1][3-1][0] = 316000; badChamberRun[0][1][2-1][1][3-1][1] = lastRun; */
+ /*  badChamber[0][1][2-1][1][4-1] = true;  badChamberRun[0][1][2-1][1][4-1][0] = 316000; badChamberRun[0][1][2-1][1][4-1][1] = lastRun; */
+ /*  badChamber[0][1][2-1][1][5-1] = true;  badChamberRun[0][1][2-1][1][5-1][0] = 316000; badChamberRun[0][1][2-1][1][5-1][1] = lastRun; */
+ /*  badChamber[0][1][2-1][1][6-1] = true;  badChamberRun[0][1][2-1][1][6-1][0] = 316000; badChamberRun[0][1][2-1][1][6-1][1] = lastRun; */
+ /*  badChamber[0][1][2-1][1][7-1] = true;  badChamberRun[0][1][2-1][1][7-1][0] = 316000; badChamberRun[0][1][2-1][1][7-1][1] = lastRun; */
+ /*  badChamber[0][1][2-1][1][8-1] = true;  badChamberRun[0][1][2-1][1][8-1][0] = 316000; badChamberRun[0][1][2-1][1][8-1][1] = lastRun; */
+ /*  badChamber[0][1][2-1][1][9-1] = true;  badChamberRun[0][1][2-1][1][9-1][0] = 316000; badChamberRun[0][1][2-1][1][9-1][1] = lastRun; */
+ /*  badChamber[0][1][2-1][1][10-1] = true;  badChamberRun[0][1][2-1][1][10-1][0] = 316000; badChamberRun[0][1][2-1][1][10-1][1] = lastRun; */
+
+/* badChamber[0][1][2-1][1][1-1] = true;  badChamberRun[0][1][2-1][1][1-1][0] = 316000; badChamberRun[0][1][2-1][1][1-1][1] = lastRun; */
+/*   badChamber[0][1][2-1][1][11-1] = true;  badChamberRun[0][1][2-1][1][11-1][0] = 316000; badChamberRun[0][1][2-1][1][11-1][1] = lastRun; */
+/*   badChamber[0][1][2-1][1][12-1] = true;  badChamberRun[0][1][2-1][1][12-1][0] = 316000; badChamberRun[0][1][2-1][1][12-1][1] = lastRun; */
+/*   badChamber[0][1][2-1][1][13-1] = true;  badChamberRun[0][1][2-1][1][13-1][0] = 316000; badChamberRun[0][1][2-1][1][13-1][1] = lastRun; */
+/*   badChamber[0][1][2-1][1][14-1] = true;  badChamberRun[0][1][2-1][1][14-1][0] = 316000; badChamberRun[0][1][2-1][1][14-1][1] = lastRun; */
+/*   badChamber[0][1][2-1][1][15-1] = true;  badChamberRun[0][1][2-1][1][15-1][0] = 316000; badChamberRun[0][1][2-1][1][15-1][1] = lastRun; */
+/*   badChamber[0][1][2-1][1][16-1] = true;  badChamberRun[0][1][2-1][1][16-1][0] = 316000; badChamberRun[0][1][2-1][1][16-1][1] = lastRun; */
+/*   badChamber[0][1][2-1][1][17-1] = true;  badChamberRun[0][1][2-1][1][17-1][0] = 316000; badChamberRun[0][1][2-1][1][17-1][1] = lastRun; */
+/*   badChamber[0][1][2-1][1][18-1] = true;  badChamberRun[0][1][2-1][1][18-1][0] = 316000; badChamberRun[0][1][2-1][1][18-1][1] = lastRun; */
+
+  
+ 
  
   std::cout << "Getting number of entries: " << std::endl;
 
@@ -876,11 +1211,21 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
   if (fChain == 0) return;
 
   //Long64_t nentries = fChain->GetEntries();
-  Long64_t nentries = 27186546;
+  Long64_t nentries = 50000000;
   Int_t nCands = 0;
    Int_t nZs = 0;
    std::cout << "Number of entries: " << nentries << std::endl;
 
+
+   Int_t totalFiducial = 0;
+   Int_t totalFail = 0;
+   Int_t totalPass = 0;
+
+   Int_t runFiducial = 0;
+   Int_t runFail = 0;
+   Int_t runPass = 0;
+
+   
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -897,6 +1242,14 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
       // if (Cut(ientry) < 0) continue;
       // Probe and dimuon requirements
       //if (LowStats&&invMass>zMassMin&&invMass<zMassMax) invMass = 91.0;
+
+      // CSC off
+      bool badRun = (run_number==355991||run_number==355993||run_number==355994||run_number==355996||run_number==355997||run_number==356002||run_number==356003||run_number==356046||run_number==356164||run_number==356165||run_number==356170||run_number==356174||run_number==357734);
+      // CSC partially off
+      badRun = (badRun||run_number==355991||run_number==356001);
+      
+      // badRun=(badRun||(run_number<358500)||(run_number>359690)); //low lumi area
+      // badRun=(badRun||(run_number<359690)||(run_number>360000)); // adjacent to low lumi area
       
       inZMass = (invMass>zMassMin)&&(invMass<zMassMax);
       inZMassLowSideBand = (invMass>zMassLowSideBandMin)&&(invMass<zMassLowSideBandMax);
@@ -904,9 +1257,22 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
       inZMassSideBand = inZMassLowSideBand || inZMassHighSideBand;
       
       goodTag = ((tracks_pt>10.0)&&(MuTagPt>25.0)&&(tracks_e > tagE)&&(minDRHLTAllSingleMu < maxDRHLTAllSingleMu) &&
-	(dRTkMu1 > minDRTkMu1)&&(dRTkMu1<10.0)&&
+		 (dRTkMu1 > minDRTkMu1)&&(dRTkMu1<10.0)&&tracks_IsoR03Ratio<0.1&&tracks_IsoR05Ratio<0.1&&iSameVtx&&(!badRun)&&
 		 (inZMass||inZMassLowSideBand||inZMassHighSideBand)&&run_number>0);
 
+//&&run_number>355980&& (!(run_number>356612&&run_number<356728
+
+      bool sameRun = (run_number == prevRunNumber);
+      if (!sameRun) {
+	if (runFiducial > 0) std::cout << "New Run, fid, pass, fail: " <<  prevRunNumber << "," << runFiducial << ", " << runPass << ", " << runFail << std::endl;
+	prevRunNumber = run_number;
+	runFiducial = 0;
+	runFail = 0;
+	runPass = 0;
+      }
+
+      
+      
       if (goodTag) nCands++;
       
       // Reset ring for ME11 ab cases that are mismatched due to eta problem
@@ -926,11 +1292,11 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	  CSCProjDistEdge1/CSCProjDistErrEdge1 < sigmaCSCProjDistEdge &&
           CSCDyProjHVGap1>cscDyProjHVGap && 
 	  CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
-	  !(badChamber[CSCEndCapPlus][1-1][ring1][CSCCh1-1]&&
-	    run_number>=badChamberRun[CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
-	    run_number<=badChamberRun[CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]&&
-	    (CSCTTsLc1>badChamberLCS[CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
-	     (CSCTTsLc1<badChamberLCS[CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]||badChamberLCS[CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001))); 
+	  !(badChamber[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1]&&
+	    run_number>=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
+	    run_number<=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]&&
+	    (CSCTTsLc1>badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
+	     (CSCTTsLc1<badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]||badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001))); 
 	//new requirements, temp restrict eta range 2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15
 	//fabs(CSCTTetaGc1) > 2.04345 && fabs(CSCTTetaGc1) < 2.15 &&
 	  fiducial11 =   CSCProjDistEdge1<-1.0 &&  CSCProjDistEdge1> -100 && 
@@ -939,40 +1305,40 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
           CSCDyProjHVGap1>cscDyProjHVGap && 
 	  CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
 	    fabs(CSCTTyLc1+31.25)>2.5 &&
-	    !(badChamber[CSCEndCapPlus][1-1][ring1][CSCCh1-1]&&
-	    run_number>=badChamberRun[CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
-	    run_number<=badChamberRun[CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]&&
-	    (CSCTTsLc1>badChamberLCS[CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
-	     (CSCTTsLc1<badChamberLCS[CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]||badChamberLCS[CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001))); 
+	    !(badChamber[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1]&&
+	    run_number>=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
+	    run_number<=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]&&
+	    (CSCTTsLc1>badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
+	     (CSCTTsLc1<badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]||badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001))); 
 
 
 	fiducial2 = CSCProjDistEdge2<cscProjDistEdge &&  CSCProjDistEdge2> -100 && 
 	  CSCProjDistEdge2/CSCProjDistErrEdge2 < sigmaCSCProjDistEdge &&
           CSCDyProjHVGap2>cscDyProjHVGap && 
 	  CSCDyProjHVGap2/CSCDyErrProjHVGap2>sigmaCSCDyProjHVGap &&
-	  !(badChamber[CSCEndCapPlus][2-1][ring2][CSCCh2-1]&&
-	    run_number>=badChamberRun[CSCEndCapPlus][2-1][ring2][CSCCh2-1][0]&&
-	    run_number<=badChamberRun[CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]&&
-	    (CSCTTsLc2>badChamberLCS[CSCEndCapPlus][2-1][ring2][CSCCh2-1][0]&&
-	     (CSCTTsLc2<badChamberLCS[CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]||badChamberLCS[CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]<0.00001))); 
+	  !(badChamber[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1]&&
+	    run_number>=badChamberRun[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0]&&
+	    run_number<=badChamberRun[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]&&
+	    (CSCTTsLc2>badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0]&&
+	     (CSCTTsLc2<badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]||badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]<0.00001))); 
 	fiducial3 = CSCProjDistEdge3<cscProjDistEdge &&  CSCProjDistEdge3> -100 && 
 	  CSCProjDistEdge2/CSCProjDistErrEdge3 < sigmaCSCProjDistEdge &&
           CSCDyProjHVGap3>cscDyProjHVGap && 
 	  CSCDyProjHVGap3/CSCDyErrProjHVGap3>sigmaCSCDyProjHVGap &&
-	  !(badChamber[CSCEndCapPlus][3-1][ring3][CSCCh3-1]&&
-	    run_number>=badChamberRun[CSCEndCapPlus][3-1][ring3][CSCCh3-1][0]&&
-	    run_number<=badChamberRun[CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]&&
-	    (CSCTTsLc3>badChamberLCS[CSCEndCapPlus][3-1][ring3][CSCCh3-1][0]&&
-	     (CSCTTsLc3<badChamberLCS[CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]||badChamberLCS[CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]<0.00001))); 
+	  !(badChamber[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1]&&
+	    run_number>=badChamberRun[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0]&&
+	    run_number<=badChamberRun[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]&&
+	    (CSCTTsLc3>badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0]&&
+	     (CSCTTsLc3<badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]||badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]<0.00001))); 
 	fiducial4 = CSCProjDistEdge4<cscProjDistEdge &&  CSCProjDistEdge4> -100 && 
 	  CSCProjDistEdge4/CSCProjDistErrEdge4 < sigmaCSCProjDistEdge &&
           CSCDyProjHVGap4>cscDyProjHVGap && 
 	  CSCDyProjHVGap4/CSCDyErrProjHVGap4>sigmaCSCDyProjHVGap &&
-	  !(badChamber[CSCEndCapPlus][4-1][ring4][CSCCh4-1]&&
-	    run_number>=badChamberRun[CSCEndCapPlus][4-1][ring4][CSCCh4-1][0]&&
-	    run_number<=badChamberRun[CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]&&
-	    (CSCTTsLc4>badChamberLCS[CSCEndCapPlus][4-1][ring4][CSCCh4-1][0]&&
-	     (CSCTTsLc4<badChamberLCS[CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]||badChamberLCS[CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]<0.00001))); 
+	  !(badChamber[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1]&&
+	    run_number>=badChamberRun[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0]&&
+	    run_number<=badChamberRun[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]&&
+	    (CSCTTsLc4>badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0]&&
+	     (CSCTTsLc4<badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]||badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]<0.00001))); 
 
 	// fiducial1 = true;
 	// fiducial11 = true;
@@ -983,6 +1349,7 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	
 	if (goodTag&&(fiducial1||fiducial11||fiducial2||fiducial3||fiducial4)&&inZMass) nZs++;
 	if (goodTag&&(fiducial1||fiducial11||fiducial2||fiducial3||fiducial4)&&(inZMassLowSideBand||inZMassHighSideBand)) nZs--;
+
 	
 	// Found segments
 	foundSeg1 = ((CSCDxyTTSeg1<cscDxyTTSeg || 
@@ -998,6 +1365,101 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 		      CSCDxyTTSeg4/CSCDxyErrTTSeg4<sigmaCSCDxyTTSeg) &&
 		     CSCDxyTTSeg4>0.);
 
+	Int_t numberSegFound = 0;
+        if (foundSeg1) numberSegFound++;
+	if (foundSeg2) numberSegFound++;
+	if (foundSeg3) numberSegFound++;
+	if (foundSeg4) numberSegFound++;
+
+
+	fiducialAll = (fiducial1||fiducial11)&&fiducial2&&fiducial3&&fiducial4;
+        // Removal of fiducial for segement plots
+	fiducialAll = true;
+        Bool_t inRing1 = (ring2==1)&&(ring3==1)&&(ring4==1);
+	inRing1 = ring2==1;
+        Bool_t inRing2 = (ring2==2)&&(ring3==2)&&(ring4==2);
+	inRing2 = ring2==2;
+	
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll) muonSegmentsFidAll->Fill(tracks_numberOfMatches);
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll&&inRing1) muonSegmentsFid1->Fill(tracks_numberOfMatches);
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll&&inRing1&&foundSeg2) muonSegmentsWithME21->Fill(tracks_numberOfMatches);
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll&&inRing1&&(!foundSeg2)) muonSegmentsNoME21->Fill(tracks_numberOfMatches);
+
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll) segmentsFidAll->Fill(numberSegFound);
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll&&inRing1) segmentsFid1->Fill(numberSegFound);
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll&&inRing1&&foundSeg2) segmentsWithME21->Fill(numberSegFound);
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll&&inRing1&&(!foundSeg2)) segmentsNoME21->Fill(numberSegFound);
+
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll&&(ring2==2)&&(ring3==2)&&(ring4==2)) muonSegmentsFid2->Fill(tracks_numberOfMatches);
+	if (tracks_pt>20.0&&inZMass&&goodTag&&fiducialAll&&(ring2==2)&&(ring3==2)&&(ring4==2)) segmentsFid2->Fill(numberSegFound);
+
+	if (tracks_pt>20.0&&numberOfPrimaryVertices>44&&inZMass&&goodTag&&fiducialAll&&inRing1) segmentsFid1HighPV->Fill(numberSegFound);
+	if (tracks_pt>20.0&&numberOfPrimaryVertices>44&&inZMass&&goodTag&&fiducialAll&&inRing2) segmentsFid2HighPV->Fill(numberSegFound);
+	if (tracks_pt>20.0&&numberOfPrimaryVertices<16&&inZMass&&goodTag&&fiducialAll&&inRing1) segmentsFid1LowPV->Fill(numberSegFound);
+	if (tracks_pt>20.0&&numberOfPrimaryVertices<16&&inZMass&&goodTag&&fiducialAll&&inRing2) segmentsFid2LowPV->Fill(numberSegFound);
+
+	if (tracks_pt>20.0&&numberOfPrimaryVertices>44&&inZMass&&goodTag&&fiducialAll&&inRing1) muonSegmentsFid1HighPV->Fill(tracks_numberOfMatches);
+	if (tracks_pt>20.0&&numberOfPrimaryVertices>44&&inZMass&&goodTag&&fiducialAll&&inRing2) muonSegmentsFid2HighPV->Fill(tracks_numberOfMatches);
+	if (tracks_pt>20.0&&numberOfPrimaryVertices<16&&inZMass&&goodTag&&fiducialAll&&inRing1) muonSegmentsFid1LowPV->Fill(tracks_numberOfMatches);
+	if (tracks_pt>20.0&&numberOfPrimaryVertices<16&&inZMass&&goodTag&&fiducialAll&&inRing2) muonSegmentsFid2LowPV->Fill(tracks_numberOfMatches);
+
+	
+	if (tracks_pt>200.0&&inZMass&&goodTag&&fiducialAll&&inRing1) segmentsFid1HighpT->Fill(numberSegFound);
+	if (tracks_pt>200.0&&inZMass&&goodTag&&fiducialAll&&inRing2) segmentsFid2HighpT->Fill(numberSegFound);
+
+	
+	
+
+	if (foundSeg1) {
+	  foundHit1[0] = CSCnSegHits1 & (1 << (1-1));
+	  foundHit1[1] = CSCnSegHits1 & (1 << (2-1));
+	  foundHit1[2] = CSCnSegHits1 & (1 << (3-1));
+	  foundHit1[3] = CSCnSegHits1 & (1 << (4-1));
+	  foundHit1[4] = CSCnSegHits1 & (1 << (5-1));
+	  foundHit1[5] = CSCnSegHits1 & (1 << (6-1));
+	}
+	if (foundSeg2) {
+	  foundHit2[0] = CSCnSegHits2 & (1 << (1-1));
+	  foundHit2[1] = CSCnSegHits2 & (1 << (2-1));
+	  foundHit2[2] = CSCnSegHits2 & (1 << (3-1));
+	  foundHit2[3] = CSCnSegHits2 & (1 << (4-1));
+	  foundHit2[4] = CSCnSegHits2 & (1 << (5-1));
+	  foundHit2[5] = CSCnSegHits2 & (1 << (6-1));
+	}
+	if (foundSeg3) {
+	  foundHit3[0] = CSCnSegHits3 & (1 << (1-1));
+	  foundHit3[1] = CSCnSegHits3 & (1 << (2-1));
+	  foundHit3[2] = CSCnSegHits3 & (1 << (3-1));
+	  foundHit3[3] = CSCnSegHits3 & (1 << (4-1));
+	  foundHit3[4] = CSCnSegHits3 & (1 << (5-1));
+	  foundHit3[5] = CSCnSegHits3 & (1 << (6-1));
+	}
+	if (foundSeg4) {
+	  foundHit4[0] = CSCnSegHits4 & (1 << (1-1));
+	  foundHit4[1] = CSCnSegHits4 & (1 << (2-1));
+	  foundHit4[2] = CSCnSegHits4 & (1 << (3-1));
+	  foundHit4[3] = CSCnSegHits4 & (1 << (4-1));
+	  foundHit4[4] = CSCnSegHits4 & (1 << (5-1));
+	  foundHit4[5] = CSCnSegHits4 & (1 << (6-1));
+	}
+
+	  
+
+	
+	if (inZMass&&goodTag&&(fiducial1||fiducial11)&&fiducial2&&fiducial3&&fiducial4) {totalFiducial++;runFiducial++;}
+	if (inZMass&&goodTag&&(fiducial1||fiducial11)&&fiducial2&&fiducial3&&fiducial4&&(!(foundSeg1||foundSeg2||foundSeg3||foundSeg4))) {
+	  totalFail++;
+	  runFail++;
+	  //std::cout << "run, event " << run_number << " " << event_number << std::endl;
+	  //std::cout << "dxy " << CSCDxyTTSeg1 << " " << CSCDxyTTSeg2 << " " << CSCDxyTTSeg3 << " " << CSCDxyTTSeg4 << std::endl;
+	  //std::cout << "LCX :" << CSCSegxLc1 << " " << CSCSegxLc2 << " " << CSCSegxLc3 << " " << CSCSegxLc4 << std::endl;
+	  
+	  
+	}
+	if (inZMass&&goodTag&&(fiducial1||fiducial11)&&fiducial2&&fiducial3&&fiducial4&&foundSeg1&&foundSeg2&&foundSeg3&&foundSeg4) {totalPass++;runPass++;}
+	
+
+	
 	// Print out for failed events
 	//if ((fiducial1||fiducial11) && (!foundSeg1) && inZMassSideBand) std::cout << "RU passed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 1 << " " << CSCRg1*1 << " " << CSCCh1*1 << " !" << std::endl;
 	// if (fiducial2 && (!foundSeg2) && inZMassSideBand) std::cout << "RU passed: Run " << run_number << " event " << event_number << " endcap, station, ring, chamber " <<  CSCEndCapPlus << " " << 2 << " " << CSCRg2*1 << " " << CSCCh2*1 <<  " !" << std::endl;
@@ -1157,6 +1619,25 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	    if (CSCTT3sLc4>lCSBins[iiLCS]&&CSCTT3sLc4<lCSBins[iiLCS+1]) lC3SBin4 = iiLCS;
 	  }
 
+	  Int_t dCFEBBin1 = -1;
+	  Int_t dCFEBBin2 = -1;
+	  Int_t dCFEBBin3 = -1;
+	  Int_t dCFEBBin4 = -1;
+	  Int_t dCFEB3Bin1 = -1;
+	  Int_t dCFEB3Bin2 = -1;
+	  Int_t dCFEB3Bin3 = -1;
+	  Int_t dCFEB3Bin4 = -1;
+	  for (Int_t iiDCFEB=0; iiDCFEB< numDCFEBBins; iiDCFEB++){
+	    if (CSCTTsLc1>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc1<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin1 = iiDCFEB;
+	    if (CSCTTsLc2>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc2<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin2 = iiDCFEB;
+	    if (CSCTTsLc3>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc3<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin3 = iiDCFEB;
+	    if (CSCTTsLc4>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc4<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin4 = iiDCFEB;
+	    if (CSCTT3sLc1>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc1<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin1 = iiDCFEB;
+	    if (CSCTT3sLc2>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc2<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin2 = iiDCFEB;
+	    if (CSCTT3sLc3>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc3<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin3 = iiDCFEB;
+	    if (CSCTT3sLc4>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc4<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin4 = iiDCFEB;
+	  }
+
 	  
 	  
 	  // Central region
@@ -1164,80 +1645,98 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	    if (!CSCEndCapPlus){
 	      if (fiducial1||fiducial11){
 		totGlobal++;
-		if (CSCRg1==4&&fiducial11) {totStationRing[0][0]++;totStationRingChamber[0][0][CSCCh1]++;totStationRingPt[0][0][pTBin]++;totStationRingEta[0][0][etaBin]++;totStationRingIso[0][0][isoBin]++;totStationRingPV[0][0][pvBin]++;totStationRingIL[0][0][ilBin]++;totStationRingRun[0][0][runBin]++;totStationRingChamberRun[0][0][CSCCh1][runBin]++;totStationRingLCY[0][0][lCYBin1]++;totStationRingLCYLCT[0][0][lC3YBin1]++;totStationRingLCS[0][0][lCSBin1]++;totStationRingLCSLCT[0][0][lC3SBin1]++;totStationRingChamberLCY[0][0][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][0][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][0][CSCCh1][lCWBin1]++;
+		if (CSCRg1==4&&fiducial11) {totStationRing[0][0]++;totStationRingChamber[0][0][CSCCh1]++;totStationRingPt[0][0][pTBin]++;totStationRingEta[0][0][etaBin]++;totStationRingIso[0][0][isoBin]++;totStationRingPV[0][0][pvBin]++;totStationRingIL[0][0][ilBin]++;totStationRingRun[0][0][runBin]++;totStationRingChamberRun[0][0][CSCCh1][runBin]++;totStationRingLCY[0][0][lCYBin1]++;totStationRingLCYLCT[0][0][lC3YBin1]++;totStationRingLCS[0][0][lCSBin1]++;totStationRingLCSLCT[0][0][lC3SBin1]++;totStationRingChamberLCY[0][0][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][0][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][0][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[0][0][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[0][0][CSCCh1][dCFEB3Bin1]++;
 		  if (inZMass) segDenStationRingChamberRun[0][0][CSCCh1]->Fill(run_number);
 		  zMassSegDenStationRingChamber[0][0][CSCCh1]->Fill(invMass);
 		  zMassSegDenStationRingPV[0][0][pvBin]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[0][0][CSCCh1]->Fill(CSCDxyTTSeg1);resSigmaSegStationRingChamber[0][0][CSCCh1]->Fill(CSCDxyTTSeg1/CSCDxyErrTTSeg1);
 		    yySegStationRing[0][0]->Fill(CSCSegyLc1,CSCTTyLc1);}
+		  //!!!!! here is where the first segment hit info goes
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[0][0][CSCCh1][iiLayer]++;
+		    if (foundHit1[iiLayer]) passStationRingChamberLayerSeg[0][0][CSCCh1][iiLayer]++;
+		  }
+
 		  if (CSCCh1%2 == 0 ) {totStationRing[1][0]++;totStationRingChamber[1][0][CSCCh1]++;totStationRingPt[1][0][pTBin]++;totStationRingEta[1][0][etaBin]++;totStationRingIso[1][0][isoBin]++;totStationRingPV[1][0][pvBin]++;totStationRingIL[1][0][ilBin]++;totStationRingRun[1][0][runBin]++;totStationRingChamberRun[1][0][CSCCh1][runBin]++;totStationRingLCY[1][0][lCYBin1]++;totStationRingLCYLCT[1][0][lC3YBin1]++;totStationRingLCS[1][0][lCSBin1]++;totStationRingLCSLCT[1][0][lC3SBin1]++;yySegStationRing[1][0]->Fill(CSCSegyLc1,CSCTTyLc1);}
-		  else {totStationRing[1][3]++;totStationRingChamber[1][3][CSCCh1]++;totStationRingPt[1][3][pTBin]++;totStationRingEta[1][3][etaBin]++;totStationRingIso[1][3][isoBin]++;totStationRingPV[1][3][pvBin]++;totStationRingIL[1][3][ilBin]++;totStationRingRun[1][3][runBin]++;totStationRingChamberRun[1][3][CSCCh1][runBin]++;totStationRingLCY[1][3][lCYBin1]++;totStationRingLCYLCT[1][3][lC3YBin1]++;totStationRingLCS[1][3][lCSBin1]++;totStationRingLCSLCT[1][3][lC3SBin1]++;yySegStationRing[1][3]->Fill(CSCSegyLc1,CSCTTyLc1);}
+		  else {totStationRing[1][3]++;totStationRingChamber[1][3][CSCCh1]++;totStationRingPt[1][3][pTBin]++;totStationRingEta[1][3][etaBin]++;totStationRingIso[1][3][isoBin]++;totStationRingPV[1][3][pvBin]++;totStationRingIL[1][3][ilBin]++;totStationRingRun[1][3][runBin]++;totStationRingChamberRun[1][3][CSCCh1][runBin]++;totStationRingLCY[1][3][lCYBin1]++;totStationRingLCYLCT[1][3][lC3YBin1]++;totStationRingLCS[1][3][lCSBin1]++;totStationRingLCSLCT[1][3][lC3SBin1]++;yySegStationRing[1][3]->Fill(CSCSegyLc1,CSCTTyLc1);}		  
 		}
-		if (CSCRg1==1&&fiducial11) {totStationRing[0][1]++;totStationRingChamber[0][1][CSCCh1]++;totStationRingPt[0][1][pTBin]++;totStationRingEta[0][1][etaBin]++;totStationRingIso[0][1][isoBin]++;totStationRingPV[0][1][pvBin]++;totStationRingIL[0][1][ilBin]++;totStationRingRun[0][1][runBin]++;totStationRingChamberRun[0][1][CSCCh1][runBin]++;totStationRingLCY[0][1][lCYBin1]++;totStationRingLCYLCT[0][1][lC3YBin1]++;totStationRingLCS[0][1][lCSBin1]++;totStationRingLCSLCT[0][1][lC3SBin1]++;totStationRingChamberLCY[0][1][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][1][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][1][CSCCh1][lCWBin1]++;
+		if (CSCRg1==1&&fiducial11) {totStationRing[0][1]++;totStationRingChamber[0][1][CSCCh1]++;totStationRingPt[0][1][pTBin]++;totStationRingEta[0][1][etaBin]++;totStationRingIso[0][1][isoBin]++;totStationRingPV[0][1][pvBin]++;totStationRingIL[0][1][ilBin]++;totStationRingRun[0][1][runBin]++;totStationRingChamberRun[0][1][CSCCh1][runBin]++;totStationRingLCY[0][1][lCYBin1]++;totStationRingLCYLCT[0][1][lC3YBin1]++;totStationRingLCS[0][1][lCSBin1]++;totStationRingLCSLCT[0][1][lC3SBin1]++;totStationRingChamberLCY[0][1][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][1][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][1][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[0][1][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[0][1][CSCCh1][dCFEB3Bin1]++;
 		  if (inZMass) segDenStationRingChamberRun[0][1][CSCCh1]->Fill(run_number);
 		  zMassSegDenStationRingChamber[0][1][CSCCh1]->Fill(invMass);
 		  zMassSegDenStationRingPV[0][1][pvBin]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[0][1][CSCCh1]->Fill(CSCDxyTTSeg1);resSigmaSegStationRingChamber[0][1][CSCCh1]->Fill(CSCDxyTTSeg1/CSCDxyErrTTSeg1);
 		  yySegStationRing[0][1]->Fill(CSCSegyLc1,CSCTTyLc1);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[0][1][CSCCh1][iiLayer]++;
+		    if (foundHit1[iiLayer]) passStationRingChamberLayerSeg[0][1][CSCCh1][iiLayer]++;
+		  }
 		  if (CSCCh1%2 == 0 )  {totStationRing[2][0]++;totStationRingChamber[2][0][CSCCh1]++;totStationRingPt[2][0][pTBin]++;totStationRingEta[2][0][etaBin]++;totStationRingIso[2][0][isoBin]++;totStationRingPV[2][0][pvBin]++;totStationRingIL[2][0][ilBin]++;totStationRingRun[2][0][runBin]++;totStationRingChamberRun[2][0][CSCCh1][runBin]++;totStationRingLCY[2][0][lCYBin1]++;totStationRingLCYLCT[2][0][lC3YBin1]++;totStationRingLCS[2][0][lCSBin1]++;totStationRingLCSLCT[2][0][lC3SBin1]++;yySegStationRing[2][0]->Fill(CSCSegyLc1,CSCTTyLc1);}
 	          else {totStationRing[2][3]++;totStationRingChamber[2][3][CSCCh1]++;totStationRingPt[2][3][pTBin]++;totStationRingEta[2][3][etaBin]++;totStationRingIso[2][3][isoBin]++;totStationRingPV[2][3][pvBin]++;totStationRingIL[2][3][ilBin]++;totStationRingRun[2][3][runBin]++;totStationRingChamberRun[2][3][CSCCh1][runBin]++;totStationRingLCY[2][3][lCYBin1]++;totStationRingLCYLCT[2][3][lC3YBin1]++;totStationRingLCS[2][3][lCSBin1]++;totStationRingLCSLCT[2][3][lC3SBin1]++;yySegStationRing[2][3]->Fill(CSCSegyLc1,CSCTTyLc1);}
 		}
-		if (CSCRg1==2) {totStationRing[0][2]++;totStationRingChamber[0][2][CSCCh1]++;totStationRingPt[0][2][pTBin]++;totStationRingEta[0][2][etaBin]++;totStationRingIso[0][2][isoBin]++;totStationRingPV[0][2][pvBin]++;totStationRingIL[0][2][ilBin]++;totStationRingRun[0][2][runBin]++;totStationRingChamberRun[0][2][CSCCh1][runBin]++;totStationRingLCY[0][2][lCYBin1]++;totStationRingLCYLCT[0][2][lC3YBin1]++;totStationRingLCS[0][2][lCSBin1]++;totStationRingLCSLCT[0][2][lC3SBin1]++;totStationRingChamberLCY[0][2][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][2][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][2][CSCCh1][lCWBin1]++;
+		if (CSCRg1==2) {totStationRing[0][2]++;totStationRingChamber[0][2][CSCCh1]++;totStationRingPt[0][2][pTBin]++;totStationRingEta[0][2][etaBin]++;totStationRingIso[0][2][isoBin]++;totStationRingPV[0][2][pvBin]++;totStationRingIL[0][2][ilBin]++;totStationRingRun[0][2][runBin]++;totStationRingChamberRun[0][2][CSCCh1][runBin]++;totStationRingLCY[0][2][lCYBin1]++;totStationRingLCYLCT[0][2][lC3YBin1]++;totStationRingLCS[0][2][lCSBin1]++;totStationRingLCSLCT[0][2][lC3SBin1]++;totStationRingChamberLCY[0][2][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][2][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][2][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[0][2][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[0][2][CSCCh1][dCFEB3Bin1]++;
 		  if (inZMass) segDenStationRingChamberRun[0][2][CSCCh1]->Fill(run_number);
 		  zMassSegDenStationRingChamber[0][2][CSCCh1]->Fill(invMass);
 		  zMassSegDenStationRingPV[0][2][pvBin]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[0][2][CSCCh1]->Fill(CSCDxyTTSeg1);resSigmaSegStationRingChamber[0][2][CSCCh1]->Fill(CSCDxyTTSeg1/CSCDxyErrTTSeg1);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[0][2][CSCCh1][iiLayer]++;
+		    if (foundHit1[iiLayer]) passStationRingChamberLayerSeg[0][2][CSCCh1][iiLayer]++;
+		  }
 		}
-		if (CSCRg1==3) {totStationRing[0][3]++;totStationRingChamber[0][3][CSCCh1]++;totStationRingPt[0][3][pTBin]++;totStationRingEta[0][3][etaBin]++;totStationRingIso[0][3][isoBin]++;totStationRingPV[0][3][pvBin]++;totStationRingIL[0][3][ilBin]++;totStationRingRun[0][3][runBin]++;totStationRingChamberRun[0][3][CSCCh1][runBin]++;totStationRingLCY[0][3][lCYBin1]++;totStationRingLCYLCT[0][3][lC3YBin1]++;totStationRingLCS[0][3][lCSBin1]++;totStationRingLCSLCT[0][3][lC3SBin1]++;totStationRingChamberLCY[0][3][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][3][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][3][CSCCh1][lCWBin1]++;
+		if (CSCRg1==3) {totStationRing[0][3]++;totStationRingChamber[0][3][CSCCh1]++;totStationRingPt[0][3][pTBin]++;totStationRingEta[0][3][etaBin]++;totStationRingIso[0][3][isoBin]++;totStationRingPV[0][3][pvBin]++;totStationRingIL[0][3][ilBin]++;totStationRingRun[0][3][runBin]++;totStationRingChamberRun[0][3][CSCCh1][runBin]++;totStationRingLCY[0][3][lCYBin1]++;totStationRingLCYLCT[0][3][lC3YBin1]++;totStationRingLCS[0][3][lCSBin1]++;totStationRingLCSLCT[0][3][lC3SBin1]++;totStationRingChamberLCY[0][3][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][3][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][3][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[0][3][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[0][3][CSCCh1][dCFEB3Bin1]++;
 		  if (inZMass) segDenStationRingChamberRun[0][3][CSCCh1]->Fill(run_number);
 		  zMassSegDenStationRingChamber[0][3][CSCCh1]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[0][3][CSCCh1]->Fill(CSCDxyTTSeg1);resSigmaSegStationRingChamber[0][3][CSCCh1]->Fill(CSCDxyTTSeg1/CSCDxyErrTTSeg1);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[0][3][CSCCh1][iiLayer]++;
+		    if (foundHit1[iiLayer]) passStationRingChamberLayerSeg[0][3][CSCCh1][iiLayer]++;
+		  }
 		}
 		if (foundSeg1) {
 		  passGlobalSeg++;
-		  if (CSCRg1==4&&fiducial11) {passStationRingSeg[0][0]++;passStationRingChamberSeg[0][0][CSCCh1]++;passStationRingPtSeg[0][0][pTBin]++;passStationRingEtaSeg[0][0][etaBin]++;passStationRingIsoSeg[0][0][isoBin]++;passStationRingPVSeg[0][0][pvBin]++;passStationRingILSeg[0][0][ilBin]++;passStationRingRunSeg[0][0][runBin]++;passStationRingChamberRunSeg[0][0][CSCCh1][runBin]++;passStationRingLCYSeg[0][0][lCYBin1]++;passStationRingLCSSeg[0][0][lCSBin1]++;passStationRingChamberLCYSeg[0][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[0][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[0][0][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==4&&fiducial11) {passStationRingSeg[0][0]++;passStationRingChamberSeg[0][0][CSCCh1]++;passStationRingPtSeg[0][0][pTBin]++;passStationRingEtaSeg[0][0][etaBin]++;passStationRingIsoSeg[0][0][isoBin]++;passStationRingPVSeg[0][0][pvBin]++;passStationRingILSeg[0][0][ilBin]++;passStationRingRunSeg[0][0][runBin]++;passStationRingChamberRunSeg[0][0][CSCCh1][runBin]++;passStationRingLCYSeg[0][0][lCYBin1]++;passStationRingLCSSeg[0][0][lCSBin1]++;passStationRingChamberLCYSeg[0][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[0][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[0][0][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBSeg[0][0][CSCCh1][dCFEBBin1]++;
 		    if (inZMass) segNumStationRingChamberRun[0][0][CSCCh1]->Fill(run_number);
 		    zMassSegNumStationRingChamber[0][0][CSCCh1]->Fill(invMass);
 		    zMassSegNumStationRingPV[0][0][pvBin]->Fill(invMass);
 		    if (CSCCh1%2 == 0 ) {passStationRingSeg[1][0]++;passStationRingChamberSeg[1][0][CSCCh1]++;passStationRingPtSeg[1][0][pTBin]++;passStationRingEtaSeg[1][0][etaBin]++;passStationRingIsoSeg[1][0][isoBin]++;passStationRingPVSeg[1][0][pvBin]++;passStationRingILSeg[1][0][ilBin]++;passStationRingRunSeg[1][0][runBin]++;passStationRingChamberRunSeg[1][0][CSCCh1][runBin]++;passStationRingLCYSeg[1][0][lCYBin1]++;;passStationRingLCSSeg[1][0][lCSBin1]++;}
 		    else {passStationRingSeg[1][3]++;passStationRingChamberSeg[1][3][CSCCh1]++;passStationRingPtSeg[1][3][pTBin]++;passStationRingEtaSeg[1][3][etaBin]++;passStationRingIsoSeg[1][3][isoBin]++;passStationRingPVSeg[1][3][pvBin]++;passStationRingILSeg[1][3][ilBin]++;passStationRingRunSeg[1][3][runBin]++;passStationRingChamberRunSeg[1][3][CSCCh1][runBin]++;passStationRingLCYSeg[1][3][lCYBin1]++;passStationRingLCSSeg[1][3][lCSBin1]++;}		    
 		  }
-		  if (CSCRg1==1&&fiducial11) {passStationRingSeg[0][1]++;passStationRingChamberSeg[0][1][CSCCh1]++;passStationRingPtSeg[0][1][pTBin]++;passStationRingEtaSeg[0][1][etaBin]++;passStationRingIsoSeg[0][1][isoBin]++;passStationRingPVSeg[0][1][pvBin]++;passStationRingILSeg[0][1][ilBin]++;passStationRingRunSeg[0][1][runBin]++;passStationRingChamberRunSeg[0][1][CSCCh1][runBin]++;passStationRingLCYSeg[0][1][lCYBin1]++;passStationRingLCSSeg[0][1][lCSBin1]++;passStationRingChamberLCYSeg[0][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[0][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[0][1][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==1&&fiducial11) {passStationRingSeg[0][1]++;passStationRingChamberSeg[0][1][CSCCh1]++;passStationRingPtSeg[0][1][pTBin]++;passStationRingEtaSeg[0][1][etaBin]++;passStationRingIsoSeg[0][1][isoBin]++;passStationRingPVSeg[0][1][pvBin]++;passStationRingILSeg[0][1][ilBin]++;passStationRingRunSeg[0][1][runBin]++;passStationRingChamberRunSeg[0][1][CSCCh1][runBin]++;passStationRingLCYSeg[0][1][lCYBin1]++;passStationRingLCSSeg[0][1][lCSBin1]++;passStationRingChamberLCYSeg[0][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[0][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[0][1][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBSeg[0][1][CSCCh1][dCFEBBin1]++;
 		    if (inZMass) segNumStationRingChamberRun[0][1][CSCCh1]->Fill(run_number);
 		    zMassSegNumStationRingChamber[0][1][CSCCh1]->Fill(invMass);
 		    zMassSegNumStationRingPV[0][1][pvBin]->Fill(invMass);
 		    if (CSCCh1%2 == 0 ) {passStationRingSeg[2][0]++;passStationRingChamberSeg[2][0][CSCCh1]++;passStationRingPtSeg[2][0][pTBin]++;passStationRingEtaSeg[2][0][etaBin]++;passStationRingIsoSeg[2][0][isoBin]++;passStationRingPVSeg[2][0][pvBin]++;passStationRingILSeg[2][0][ilBin]++;passStationRingRunSeg[2][0][runBin]++;passStationRingChamberRunSeg[2][0][CSCCh1][runBin]++;passStationRingLCYSeg[2][0][lCYBin1]++;passStationRingLCSSeg[2][0][lCSBin1]++;}
 		    else {passStationRingSeg[2][3]++;passStationRingChamberSeg[2][3][CSCCh1]++;passStationRingPtSeg[2][3][pTBin]++;passStationRingEtaSeg[2][3][etaBin]++;passStationRingIsoSeg[2][3][isoBin]++;passStationRingPVSeg[2][3][pvBin]++;passStationRingILSeg[2][3][ilBin]++;passStationRingRunSeg[2][3][runBin]++;passStationRingChamberRunSeg[2][3][CSCCh1][runBin]++;passStationRingLCYSeg[2][3][lCYBin1]++;;passStationRingLCSSeg[2][3][lCSBin1]++;}		    
 		  }
-		  if (CSCRg1==2) {passStationRingSeg[0][2]++;passStationRingChamberSeg[0][2][CSCCh1]++;passStationRingPtSeg[0][2][pTBin]++;passStationRingEtaSeg[0][2][etaBin]++;passStationRingIsoSeg[0][2][isoBin]++;passStationRingPVSeg[0][2][pvBin]++;passStationRingILSeg[0][2][ilBin]++;passStationRingRunSeg[0][2][runBin]++;passStationRingChamberRunSeg[0][2][CSCCh1][runBin]++;passStationRingLCYSeg[0][2][lCYBin1]++;passStationRingLCSSeg[0][2][lCSBin1]++;passStationRingChamberLCYSeg[0][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[0][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[0][2][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==2) {passStationRingSeg[0][2]++;passStationRingChamberSeg[0][2][CSCCh1]++;passStationRingPtSeg[0][2][pTBin]++;passStationRingEtaSeg[0][2][etaBin]++;passStationRingIsoSeg[0][2][isoBin]++;passStationRingPVSeg[0][2][pvBin]++;passStationRingILSeg[0][2][ilBin]++;passStationRingRunSeg[0][2][runBin]++;passStationRingChamberRunSeg[0][2][CSCCh1][runBin]++;passStationRingLCYSeg[0][2][lCYBin1]++;passStationRingLCSSeg[0][2][lCSBin1]++;passStationRingChamberLCYSeg[0][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[0][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[0][2][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBSeg[0][2][CSCCh1][dCFEBBin1]++;
 		    if (inZMass) segNumStationRingChamberRun[0][2][CSCCh1]->Fill(run_number);
 		    zMassSegNumStationRingChamber[0][2][CSCCh1]->Fill(invMass);
 		    zMassSegNumStationRingPV[0][2][pvBin]->Fill(invMass);
 		  }
-		  if (CSCRg1==3) {passStationRingSeg[0][3]++;passStationRingChamberSeg[0][3][CSCCh1]++;passStationRingPtSeg[0][3][pTBin]++;passStationRingEtaSeg[0][3][etaBin]++;passStationRingIsoSeg[0][3][isoBin]++;passStationRingPVSeg[0][3][pvBin]++;passStationRingILSeg[0][3][ilBin]++;passStationRingRunSeg[0][3][runBin]++;passStationRingChamberRunSeg[0][3][CSCCh1][runBin]++;passStationRingLCYSeg[0][3][lCYBin1]++;passStationRingLCSSeg[0][3][lCSBin1]++;passStationRingChamberLCYSeg[0][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[0][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[0][3][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==3) {passStationRingSeg[0][3]++;passStationRingChamberSeg[0][3][CSCCh1]++;passStationRingPtSeg[0][3][pTBin]++;passStationRingEtaSeg[0][3][etaBin]++;passStationRingIsoSeg[0][3][isoBin]++;passStationRingPVSeg[0][3][pvBin]++;passStationRingILSeg[0][3][ilBin]++;passStationRingRunSeg[0][3][runBin]++;passStationRingChamberRunSeg[0][3][CSCCh1][runBin]++;passStationRingLCYSeg[0][3][lCYBin1]++;passStationRingLCSSeg[0][3][lCSBin1]++;passStationRingChamberLCYSeg[0][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[0][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[0][3][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBSeg[0][3][CSCCh1][dCFEBBin1]++;
 		    if (inZMass) segNumStationRingChamberRun[0][3][CSCCh1]->Fill(run_number);
 		    zMassSegNumStationRingChamber[0][3][CSCCh1]->Fill(invMass);
 		  }
 		}
 		if (foundLCT1) {
 		  passGlobalLCT++;
-		  if (CSCRg1==4&&fiducial11) {passStationRingLCT[0][0]++;passStationRingChamberLCT[0][0][CSCCh1]++;passStationRingPtLCT[0][0][pTBin]++;passStationRingEtaLCT[0][0][etaBin]++;passStationRingIsoLCT[0][0][isoBin]++;passStationRingPVLCT[0][0][pvBin]++;passStationRingILLCT[0][0][ilBin]++;passStationRingRunLCT[0][0][runBin]++;passStationRingChamberRunLCT[0][0][CSCCh1][runBin]++;passStationRingLCYLCT[0][0][lC3YBin1]++;passStationRingLCSLCT[0][0][lC3SBin1]++;passStationRingChamberLCYLCT[0][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][0][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==4&&fiducial11) {passStationRingLCT[0][0]++;passStationRingChamberLCT[0][0][CSCCh1]++;passStationRingPtLCT[0][0][pTBin]++;passStationRingEtaLCT[0][0][etaBin]++;passStationRingIsoLCT[0][0][isoBin]++;passStationRingPVLCT[0][0][pvBin]++;passStationRingILLCT[0][0][ilBin]++;passStationRingRunLCT[0][0][runBin]++;passStationRingChamberRunLCT[0][0][CSCCh1][runBin]++;passStationRingLCYLCT[0][0][lC3YBin1]++;passStationRingLCSLCT[0][0][lC3SBin1]++;passStationRingChamberLCYLCT[0][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][0][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][0][CSCCh1][dCFEB3Bin1]++;
 		    if (inZMass) LCTNumStationRingChamberRun[0][0][CSCCh1]->Fill(run_number);
 		    zMassLCTNumStationRingPV[0][0][pvBin]->Fill(invMass);
 		    if (CSCCh1%2 == 0 ) {passStationRingLCT[1][0]++;passStationRingChamberLCT[1][0][CSCCh1]++;passStationRingPtLCT[1][0][pTBin]++;passStationRingEtaLCT[1][0][etaBin]++;passStationRingIsoLCT[1][0][isoBin]++;passStationRingPVLCT[1][0][pvBin]++;passStationRingILLCT[1][0][ilBin]++;passStationRingRunLCT[1][0][runBin]++;passStationRingChamberRunLCT[1][0][CSCCh1][runBin]++;passStationRingLCYLCT[1][0][lC3YBin1]++;passStationRingLCSLCT[1][0][lC3SBin1]++;}
 		    else {passStationRingLCT[1][3]++;passStationRingChamberLCT[1][3][CSCCh1]++;passStationRingPtLCT[1][3][pTBin]++;passStationRingEtaLCT[1][3][etaBin]++;passStationRingIsoLCT[1][3][isoBin]++;passStationRingPVLCT[1][3][pvBin]++;passStationRingILLCT[1][3][ilBin]++;passStationRingRunLCT[1][3][runBin]++;passStationRingChamberRunLCT[1][3][CSCCh1][runBin]++;passStationRingLCYLCT[1][3][lC3YBin1]++;passStationRingLCSLCT[1][3][lC3SBin1]++;}
 		  }
-		  if (CSCRg1==1&&fiducial11) {passStationRingLCT[0][1]++;passStationRingChamberLCT[0][1][CSCCh1]++;passStationRingPtLCT[0][1][pTBin]++;passStationRingEtaLCT[0][1][etaBin]++;passStationRingIsoLCT[0][1][isoBin]++;passStationRingPVLCT[0][1][pvBin]++;passStationRingILLCT[0][1][ilBin]++;passStationRingRunLCT[0][1][runBin]++;passStationRingChamberRunLCT[0][1][CSCCh1][runBin]++;passStationRingLCYLCT[0][1][lC3YBin1]++;passStationRingLCSLCT[0][1][lC3SBin1]++;;passStationRingChamberLCYLCT[0][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][1][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==1&&fiducial11) {passStationRingLCT[0][1]++;passStationRingChamberLCT[0][1][CSCCh1]++;passStationRingPtLCT[0][1][pTBin]++;passStationRingEtaLCT[0][1][etaBin]++;passStationRingIsoLCT[0][1][isoBin]++;passStationRingPVLCT[0][1][pvBin]++;passStationRingILLCT[0][1][ilBin]++;passStationRingRunLCT[0][1][runBin]++;passStationRingChamberRunLCT[0][1][CSCCh1][runBin]++;passStationRingLCYLCT[0][1][lC3YBin1]++;passStationRingLCSLCT[0][1][lC3SBin1]++;;passStationRingChamberLCYLCT[0][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][1][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][1][CSCCh1][dCFEB3Bin1]++;
 		    if (inZMass) LCTNumStationRingChamberRun[0][1][CSCCh1]->Fill(run_number);
 		    zMassLCTNumStationRingPV[0][1][pvBin]->Fill(invMass);		    
 		    if (CSCCh1%2 == 0 ) {passStationRingLCT[2][0]++;passStationRingChamberLCT[2][0][CSCCh1]++;passStationRingPtLCT[2][0][pTBin]++;passStationRingEtaLCT[2][0][etaBin]++;passStationRingIsoLCT[2][0][isoBin]++;passStationRingPVLCT[2][0][pvBin]++;passStationRingILLCT[2][0][ilBin]++;passStationRingRunLCT[2][0][runBin]++;passStationRingChamberRunLCT[2][0][CSCCh1][runBin]++;passStationRingLCYLCT[2][0][lC3YBin1]++;passStationRingLCSLCT[2][0][lC3SBin1]++;}
 		    else {passStationRingLCT[2][3]++;passStationRingChamberLCT[2][3][CSCCh1]++;passStationRingPtLCT[2][3][pTBin]++;passStationRingEtaLCT[2][3][etaBin]++;passStationRingIsoLCT[2][3][isoBin]++;passStationRingPVLCT[2][3][pvBin]++;passStationRingILLCT[2][3][ilBin]++;passStationRingRunLCT[2][3][runBin]++;passStationRingChamberRunLCT[2][3][CSCCh1][runBin]++;passStationRingLCYLCT[2][3][lC3YBin1]++;passStationRingLCSLCT[2][3][lC3SBin1]++;}
 		  }
-		  if (CSCRg1==2) {passStationRingLCT[0][2]++;passStationRingChamberLCT[0][2][CSCCh1]++;passStationRingPtLCT[0][2][pTBin]++;passStationRingEtaLCT[0][2][etaBin]++;passStationRingIsoLCT[0][2][isoBin]++;passStationRingPVLCT[0][2][pvBin]++;passStationRingILLCT[0][2][ilBin]++;passStationRingRunLCT[0][2][runBin]++;passStationRingChamberRunLCT[0][2][CSCCh1][runBin]++;passStationRingLCYLCT[0][2][lC3YBin1]++;passStationRingLCSLCT[0][2][lC3SBin1]++;passStationRingChamberLCYLCT[0][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][2][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==2) {passStationRingLCT[0][2]++;passStationRingChamberLCT[0][2][CSCCh1]++;passStationRingPtLCT[0][2][pTBin]++;passStationRingEtaLCT[0][2][etaBin]++;passStationRingIsoLCT[0][2][isoBin]++;passStationRingPVLCT[0][2][pvBin]++;passStationRingILLCT[0][2][ilBin]++;passStationRingRunLCT[0][2][runBin]++;passStationRingChamberRunLCT[0][2][CSCCh1][runBin]++;passStationRingLCYLCT[0][2][lC3YBin1]++;passStationRingLCSLCT[0][2][lC3SBin1]++;passStationRingChamberLCYLCT[0][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][2][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][2][CSCCh1][dCFEB3Bin1]++;
 		    zMassLCTNumStationRingPV[0][2][pvBin]->Fill(invMass);
 		    if (inZMass) LCTNumStationRingChamberRun[0][2][CSCCh1]->Fill(run_number);
 		  }
-		  if (CSCRg1==3) {passStationRingLCT[0][3]++;passStationRingChamberLCT[0][3][CSCCh1]++;passStationRingPtLCT[0][3][pTBin]++;passStationRingEtaLCT[0][3][etaBin]++;passStationRingIsoLCT[0][3][isoBin]++;passStationRingPVLCT[0][3][pvBin]++;passStationRingILLCT[0][3][ilBin]++;passStationRingRunLCT[0][3][runBin]++;passStationRingChamberRunLCT[0][3][CSCCh1][runBin]++;passStationRingLCYLCT[0][3][lC3YBin1]++;passStationRingLCSLCT[0][3][lC3SBin1]++;passStationRingChamberLCYLCT[0][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][3][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==3) {passStationRingLCT[0][3]++;passStationRingChamberLCT[0][3][CSCCh1]++;passStationRingPtLCT[0][3][pTBin]++;passStationRingEtaLCT[0][3][etaBin]++;passStationRingIsoLCT[0][3][isoBin]++;passStationRingPVLCT[0][3][pvBin]++;passStationRingILLCT[0][3][ilBin]++;passStationRingRunLCT[0][3][runBin]++;passStationRingChamberRunLCT[0][3][CSCCh1][runBin]++;passStationRingLCYLCT[0][3][lC3YBin1]++;passStationRingLCSLCT[0][3][lC3SBin1]++;passStationRingChamberLCYLCT[0][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][3][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][3][CSCCh1][dCFEB3Bin1]++;
 		    zMassLCTNumStationRingPV[0][3][pvBin]->Fill(invMass);
 		    if (inZMass) LCTNumStationRingChamberRun[0][3][CSCCh1]->Fill(run_number);
 		  }
@@ -1245,26 +1744,34 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	      }
 	      if (fiducial2){
 		totGlobal++;
-		if (CSCRg2==1) {totStationRing[1][1]++;totStationRingChamber[1][1][CSCCh2]++;totStationRingPt[1][1][pTBin]++;totStationRingEta[1][1][etaBin2]++;totStationRingIso[1][1][isoBin]++;totStationRingPV[1][1][pvBin]++;totStationRingIL[1][1][ilBin]++;totStationRingRun[1][1][runBin]++;totStationRingChamberRun[1][1][CSCCh2][runBin]++;totStationRingLCY[1][1][lCYBin2]++;totStationRingLCYLCT[1][1][lC3YBin2]++;totStationRingLCS[1][1][lCSBin2]++;totStationRingLCSLCT[1][1][lC3SBin2]++;totStationRingChamberLCY[1][1][CSCCh2][lCYBin2]++;totStationRingChamberLCS[1][1][CSCCh2][lCSBin2]++;totStationRingChamberLCW[1][1][CSCCh2][lCWBin2]++;
+		if (CSCRg2==1) {totStationRing[1][1]++;totStationRingChamber[1][1][CSCCh2]++;totStationRingPt[1][1][pTBin]++;totStationRingEta[1][1][etaBin2]++;totStationRingIso[1][1][isoBin]++;totStationRingPV[1][1][pvBin]++;totStationRingIL[1][1][ilBin]++;totStationRingRun[1][1][runBin]++;totStationRingChamberRun[1][1][CSCCh2][runBin]++;totStationRingLCY[1][1][lCYBin2]++;totStationRingLCYLCT[1][1][lC3YBin2]++;totStationRingLCS[1][1][lCSBin2]++;totStationRingLCSLCT[1][1][lC3SBin2]++;totStationRingChamberLCY[1][1][CSCCh2][lCYBin2]++;totStationRingChamberLCS[1][1][CSCCh2][lCSBin2]++;totStationRingChamberLCW[1][1][CSCCh2][lCWBin2]++;totStationRingChamberDCFEB[1][1][CSCCh2][dCFEBBin2]++;totStationRingChamberDCFEBLCT[1][1][CSCCh2][dCFEB3Bin2]++;
 		  if (inZMass) segDenStationRingChamberRun[1][1][CSCCh2]->Fill(run_number);
 		  zMassSegDenStationRingChamber[1][1][CSCCh2]->Fill(invMass);
 		  zMassSegDenStationRingPV[1][1][pvBin]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[1][1][CSCCh2]->Fill(CSCDxyTTSeg2);resSigmaSegStationRingChamber[1][1][CSCCh2]->Fill(CSCDxyTTSeg2/CSCDxyErrTTSeg2);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[1][1][CSCCh2][iiLayer]++;
+		    if (foundHit2[iiLayer]) passStationRingChamberLayerSeg[1][1][CSCCh2][iiLayer]++;
+		  }
 		}
-		if (CSCRg2==2) {totStationRing[1][2]++;totStationRingChamber[1][2][CSCCh2]++;totStationRingPt[1][2][pTBin]++;totStationRingEta[1][2][etaBin2]++;totStationRingIso[1][2][isoBin]++;totStationRingPV[1][2][pvBin]++;totStationRingIL[1][2][ilBin]++;totStationRingRun[1][2][runBin]++;totStationRingChamberRun[1][2][CSCCh2][runBin]++;totStationRingLCY[1][2][lCYBin2]++;totStationRingLCYLCT[1][2][lC3YBin2]++;totStationRingLCS[1][2][lCSBin2]++;totStationRingLCSLCT[1][2][lC3SBin2]++;totStationRingChamberLCY[1][2][CSCCh2][lCYBin2]++;totStationRingChamberLCS[1][2][CSCCh2][lCSBin2]++;totStationRingChamberLCW[1][2][CSCCh2][lCWBin2]++;
+		if (CSCRg2==2) {totStationRing[1][2]++;totStationRingChamber[1][2][CSCCh2]++;totStationRingPt[1][2][pTBin]++;totStationRingEta[1][2][etaBin2]++;totStationRingIso[1][2][isoBin]++;totStationRingPV[1][2][pvBin]++;totStationRingIL[1][2][ilBin]++;totStationRingRun[1][2][runBin]++;totStationRingChamberRun[1][2][CSCCh2][runBin]++;totStationRingLCY[1][2][lCYBin2]++;totStationRingLCYLCT[1][2][lC3YBin2]++;totStationRingLCS[1][2][lCSBin2]++;totStationRingLCSLCT[1][2][lC3SBin2]++;totStationRingChamberLCY[1][2][CSCCh2][lCYBin2]++;totStationRingChamberLCS[1][2][CSCCh2][lCSBin2]++;totStationRingChamberLCW[1][2][CSCCh2][lCWBin2]++;totStationRingChamberDCFEB[1][2][CSCCh2][dCFEBBin2]++;totStationRingChamberDCFEBLCT[1][2][CSCCh2][dCFEB3Bin2]++;
 		  if (inZMass) segDenStationRingChamberRun[1][2][CSCCh2]->Fill(run_number);
 		  zMassSegDenStationRingChamber[1][2][CSCCh2]->Fill(invMass);
 		  zMassSegDenStationRingPV[1][2][pvBin]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[1][2][CSCCh2]->Fill(CSCDxyTTSeg2);resSigmaSegStationRingChamber[1][2][CSCCh2]->Fill(CSCDxyTTSeg2/CSCDxyErrTTSeg2);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[1][2][CSCCh2][iiLayer]++;
+		    if (foundHit2[iiLayer]) passStationRingChamberLayerSeg[1][2][CSCCh2][iiLayer]++;
+		  }
 		}
 		if (foundSeg2) {
 		  passGlobalSeg++;
-		  if (CSCRg2==1) {passStationRingSeg[1][1]++;passStationRingChamberSeg[1][1][CSCCh2]++;passStationRingPtSeg[1][1][pTBin]++;passStationRingEtaSeg[1][1][etaBin2]++;passStationRingIsoSeg[1][1][isoBin]++;passStationRingPVSeg[1][1][pvBin]++;passStationRingILSeg[1][1][ilBin]++;passStationRingRunSeg[1][1][runBin]++;passStationRingChamberRunSeg[1][1][CSCCh2][runBin]++;passStationRingLCYSeg[1][1][lCYBin2]++;passStationRingLCSSeg[1][1][lCSBin2]++;passStationRingChamberLCYSeg[1][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSSeg[1][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWSeg[1][1][CSCCh2][lCWBin2]++;
+		  if (CSCRg2==1) {passStationRingSeg[1][1]++;passStationRingChamberSeg[1][1][CSCCh2]++;passStationRingPtSeg[1][1][pTBin]++;passStationRingEtaSeg[1][1][etaBin2]++;passStationRingIsoSeg[1][1][isoBin]++;passStationRingPVSeg[1][1][pvBin]++;passStationRingILSeg[1][1][ilBin]++;passStationRingRunSeg[1][1][runBin]++;passStationRingChamberRunSeg[1][1][CSCCh2][runBin]++;passStationRingLCYSeg[1][1][lCYBin2]++;passStationRingLCSSeg[1][1][lCSBin2]++;passStationRingChamberLCYSeg[1][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSSeg[1][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWSeg[1][1][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBSeg[1][1][CSCCh2][dCFEBBin2]++;
 		    if (inZMass) segNumStationRingChamberRun[1][1][CSCCh2]->Fill(run_number);
 		    zMassSegNumStationRingChamber[1][1][CSCCh2]->Fill(invMass);
 		    zMassSegNumStationRingPV[1][1][pvBin]->Fill(invMass);
 		  }
-		  if (CSCRg2==2) {passStationRingSeg[1][2]++;passStationRingChamberSeg[1][2][CSCCh2]++;passStationRingPtSeg[1][2][pTBin]++;passStationRingEtaSeg[1][2][etaBin2]++;passStationRingIsoSeg[1][2][isoBin]++;passStationRingPVSeg[1][2][pvBin]++;passStationRingILSeg[1][2][ilBin]++;passStationRingRunSeg[1][2][runBin]++;passStationRingChamberRunSeg[1][2][CSCCh2][runBin]++;passStationRingLCYSeg[1][2][lCYBin2]++;passStationRingLCSSeg[1][2][lCSBin2]++;passStationRingChamberLCYSeg[1][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSSeg[1][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWSeg[1][2][CSCCh2][lCWBin2]++;
+		  if (CSCRg2==2) {passStationRingSeg[1][2]++;passStationRingChamberSeg[1][2][CSCCh2]++;passStationRingPtSeg[1][2][pTBin]++;passStationRingEtaSeg[1][2][etaBin2]++;passStationRingIsoSeg[1][2][isoBin]++;passStationRingPVSeg[1][2][pvBin]++;passStationRingILSeg[1][2][ilBin]++;passStationRingRunSeg[1][2][runBin]++;passStationRingChamberRunSeg[1][2][CSCCh2][runBin]++;passStationRingLCYSeg[1][2][lCYBin2]++;passStationRingLCSSeg[1][2][lCSBin2]++;passStationRingChamberLCYSeg[1][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSSeg[1][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWSeg[1][2][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBSeg[1][2][CSCCh2][dCFEBBin2]++;
 		    if (inZMass) segNumStationRingChamberRun[1][2][CSCCh2]->Fill(run_number);
 		    zMassSegNumStationRingChamber[1][2][CSCCh2]->Fill(invMass);
 		    zMassSegNumStationRingPV[1][2][pvBin]->Fill(invMass);
@@ -1272,11 +1779,11 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 		}
 		if (foundLCT2) {
 		  passGlobalLCT++;
-		  if (CSCRg2==1) {passStationRingLCT[1][1]++;passStationRingChamberLCT[1][1][CSCCh2]++;passStationRingPtLCT[1][1][pTBin]++;passStationRingEtaLCT[1][1][etaBin2]++;passStationRingIsoLCT[1][1][isoBin]++;passStationRingPVLCT[1][1][pvBin]++;passStationRingILLCT[1][1][ilBin]++;passStationRingRunLCT[1][1][runBin]++;passStationRingChamberRunLCT[1][1][CSCCh2][runBin]++;passStationRingLCYLCT[1][1][lC3YBin1]++;passStationRingLCSLCT[1][1][lC3SBin1]++;passStationRingChamberLCYLCT[1][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[1][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[1][1][CSCCh2][lCWBin2]++;
+		  if (CSCRg2==1) {passStationRingLCT[1][1]++;passStationRingChamberLCT[1][1][CSCCh2]++;passStationRingPtLCT[1][1][pTBin]++;passStationRingEtaLCT[1][1][etaBin2]++;passStationRingIsoLCT[1][1][isoBin]++;passStationRingPVLCT[1][1][pvBin]++;passStationRingILLCT[1][1][ilBin]++;passStationRingRunLCT[1][1][runBin]++;passStationRingChamberRunLCT[1][1][CSCCh2][runBin]++;passStationRingLCYLCT[1][1][lC3YBin1]++;passStationRingLCSLCT[1][1][lC3SBin1]++;passStationRingChamberLCYLCT[1][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[1][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[1][1][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBLCT[1][1][CSCCh2][dCFEB3Bin2]++;
 		    zMassLCTNumStationRingPV[1][1][pvBin]->Fill(invMass);
 		    if (inZMass) LCTNumStationRingChamberRun[1][1][CSCCh2]->Fill(run_number);
 		  }
-		  if (CSCRg2==2) {passStationRingLCT[1][2]++;passStationRingChamberLCT[1][2][CSCCh2]++;passStationRingPtLCT[1][2][pTBin]++;passStationRingEtaLCT[1][2][etaBin2]++;passStationRingIsoLCT[1][2][isoBin]++;passStationRingPVLCT[1][2][pvBin]++;passStationRingILLCT[1][2][ilBin]++;passStationRingRunLCT[1][2][runBin]++;passStationRingChamberRunLCT[1][2][CSCCh2][runBin]++;passStationRingLCYLCT[1][2][lC3YBin1]++;passStationRingLCSLCT[1][2][lC3SBin1]++;passStationRingChamberLCYLCT[1][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[1][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[1][2][CSCCh2][lCWBin2]++;
+		  if (CSCRg2==2) {passStationRingLCT[1][2]++;passStationRingChamberLCT[1][2][CSCCh2]++;passStationRingPtLCT[1][2][pTBin]++;passStationRingEtaLCT[1][2][etaBin2]++;passStationRingIsoLCT[1][2][isoBin]++;passStationRingPVLCT[1][2][pvBin]++;passStationRingILLCT[1][2][ilBin]++;passStationRingRunLCT[1][2][runBin]++;passStationRingChamberRunLCT[1][2][CSCCh2][runBin]++;passStationRingLCYLCT[1][2][lC3YBin1]++;passStationRingLCSLCT[1][2][lC3SBin1]++;passStationRingChamberLCYLCT[1][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[1][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[1][2][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBLCT[1][2][CSCCh2][dCFEB3Bin2]++;
 		    zMassLCTNumStationRingPV[1][2][pvBin]->Fill(invMass);
 		    if (inZMass) LCTNumStationRingChamberRun[1][2][CSCCh2]->Fill(run_number);
 		  }
@@ -1284,66 +1791,83 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	      }
 	      if (fiducial3){
 		totGlobal++;
-		if (CSCRg3==1) {totStationRing[2][1]++;totStationRingChamber[2][1][CSCCh3]++;totStationRingPt[2][1][pTBin]++;totStationRingEta[2][1][etaBin3]++;totStationRingIso[2][1][isoBin]++;totStationRingPV[2][1][pvBin]++;totStationRingIL[2][1][ilBin]++;totStationRingRun[2][1][runBin]++;totStationRingChamberRun[2][1][CSCCh3][runBin]++;totStationRingLCY[2][1][lCYBin3]++;totStationRingLCYLCT[2][1][lC3YBin3]++;totStationRingLCS[2][1][lCSBin3]++;totStationRingLCSLCT[2][1][lC3SBin3]++;totStationRingChamberLCY[2][1][CSCCh3][lCYBin3]++;totStationRingChamberLCS[2][1][CSCCh3][lCSBin3]++;totStationRingChamberLCW[2][1][CSCCh3][lCWBin3]++;
+		if (CSCRg3==1) {totStationRing[2][1]++;totStationRingChamber[2][1][CSCCh3]++;totStationRingPt[2][1][pTBin]++;totStationRingEta[2][1][etaBin3]++;totStationRingIso[2][1][isoBin]++;totStationRingPV[2][1][pvBin]++;totStationRingIL[2][1][ilBin]++;totStationRingRun[2][1][runBin]++;totStationRingChamberRun[2][1][CSCCh3][runBin]++;totStationRingLCY[2][1][lCYBin3]++;totStationRingLCYLCT[2][1][lC3YBin3]++;totStationRingLCS[2][1][lCSBin3]++;totStationRingLCSLCT[2][1][lC3SBin3]++;totStationRingChamberLCY[2][1][CSCCh3][lCYBin3]++;totStationRingChamberLCS[2][1][CSCCh3][lCSBin3]++;totStationRingChamberLCW[2][1][CSCCh3][lCWBin3]++;totStationRingChamberDCFEB[2][1][CSCCh3][dCFEBBin3]++;totStationRingChamberDCFEBLCT[2][1][CSCCh3][dCFEB3Bin3]++;
 		  if (inZMass) segDenStationRingChamberRun[2][1][CSCCh3]->Fill(run_number);
 		  zMassSegDenStationRingChamber[2][1][CSCCh3]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[2][1][CSCCh3]->Fill(CSCDxyTTSeg3);resSigmaSegStationRingChamber[2][1][CSCCh3]->Fill(CSCDxyTTSeg3/CSCDxyErrTTSeg3);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[2][1][CSCCh3][iiLayer]++;
+		    if (foundHit3[iiLayer]) passStationRingChamberLayerSeg[2][1][CSCCh3][iiLayer]++;
+		  }
 		}
-		if (CSCRg3==2) {totStationRing[2][2]++;totStationRingChamber[2][2][CSCCh3]++;totStationRingPt[2][2][pTBin]++;totStationRingEta[2][2][etaBin3]++;totStationRingIso[2][2][isoBin]++;totStationRingPV[2][2][pvBin]++;totStationRingIL[2][2][ilBin]++;totStationRingRun[2][2][runBin]++;totStationRingChamberRun[2][2][CSCCh3][runBin]++;totStationRingLCY[2][2][lCYBin3]++;totStationRingLCYLCT[2][2][lC3YBin3]++;totStationRingLCS[2][2][lCSBin3]++;totStationRingLCSLCT[2][2][lC3SBin3]++;totStationRingChamberLCY[2][2][CSCCh3][lCYBin3]++;totStationRingChamberLCS[2][2][CSCCh3][lCSBin3]++;totStationRingChamberLCW[2][2][CSCCh3][lCWBin3]++;
+		if (CSCRg3==2) {totStationRing[2][2]++;totStationRingChamber[2][2][CSCCh3]++;totStationRingPt[2][2][pTBin]++;totStationRingEta[2][2][etaBin3]++;totStationRingIso[2][2][isoBin]++;totStationRingPV[2][2][pvBin]++;totStationRingIL[2][2][ilBin]++;totStationRingRun[2][2][runBin]++;totStationRingChamberRun[2][2][CSCCh3][runBin]++;totStationRingLCY[2][2][lCYBin3]++;totStationRingLCYLCT[2][2][lC3YBin3]++;totStationRingLCS[2][2][lCSBin3]++;totStationRingLCSLCT[2][2][lC3SBin3]++;totStationRingChamberLCY[2][2][CSCCh3][lCYBin3]++;totStationRingChamberLCS[2][2][CSCCh3][lCSBin3]++;totStationRingChamberLCW[2][2][CSCCh3][lCWBin3]++;totStationRingChamberDCFEB[2][2][CSCCh3][dCFEBBin3]++;totStationRingChamberDCFEBLCT[2][2][CSCCh3][dCFEB3Bin3]++;
 		  if (inZMass) segDenStationRingChamberRun[2][2][CSCCh3]->Fill(run_number);
 		  zMassSegDenStationRingChamber[2][2][CSCCh3]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[2][2][CSCCh3]->Fill(CSCDxyTTSeg3);resSigmaSegStationRingChamber[2][2][CSCCh3]->Fill(CSCDxyTTSeg3/CSCDxyErrTTSeg3);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[2][2][CSCCh3][iiLayer]++;
+		    if (foundHit3[iiLayer]) passStationRingChamberLayerSeg[2][2][CSCCh3][iiLayer]++;
+		  }
 		}
 		if (foundSeg3) {
 		  passGlobalSeg++;
-		  if (CSCRg3==1) {passStationRingSeg[2][1]++;passStationRingChamberSeg[2][1][CSCCh3]++;passStationRingPtSeg[2][1][pTBin]++;passStationRingEtaSeg[2][1][etaBin3]++;passStationRingIsoSeg[2][1][isoBin]++;passStationRingPVSeg[2][1][pvBin]++;passStationRingILSeg[2][1][ilBin]++;passStationRingRunSeg[2][1][runBin]++;passStationRingChamberRunSeg[2][1][CSCCh3][runBin]++;passStationRingLCYSeg[2][1][lCYBin3]++;passStationRingLCSSeg[2][1][lCSBin3]++;passStationRingChamberLCYSeg[2][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSSeg[2][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWSeg[2][1][CSCCh3][lCWBin3]++;
+		  if (CSCRg3==1) {passStationRingSeg[2][1]++;passStationRingChamberSeg[2][1][CSCCh3]++;passStationRingPtSeg[2][1][pTBin]++;passStationRingEtaSeg[2][1][etaBin3]++;passStationRingIsoSeg[2][1][isoBin]++;passStationRingPVSeg[2][1][pvBin]++;passStationRingILSeg[2][1][ilBin]++;passStationRingRunSeg[2][1][runBin]++;passStationRingChamberRunSeg[2][1][CSCCh3][runBin]++;passStationRingLCYSeg[2][1][lCYBin3]++;passStationRingLCSSeg[2][1][lCSBin3]++;passStationRingChamberLCYSeg[2][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSSeg[2][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWSeg[2][1][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBSeg[2][1][CSCCh3][dCFEBBin3]++;
 		    if (inZMass) segNumStationRingChamberRun[2][1][CSCCh3]->Fill(run_number);
 		    zMassSegNumStationRingChamber[2][1][CSCCh3]->Fill(invMass);
 		  }
-		  if (CSCRg3==2) {passStationRingSeg[2][2]++;passStationRingChamberSeg[2][2][CSCCh3]++;passStationRingPtSeg[2][2][pTBin]++;passStationRingEtaSeg[2][2][etaBin3]++;passStationRingIsoSeg[2][2][isoBin]++;passStationRingPVSeg[2][2][pvBin]++;passStationRingILSeg[2][2][ilBin]++;passStationRingRunSeg[2][2][runBin]++;passStationRingChamberRunSeg[2][2][CSCCh3][runBin]++;passStationRingLCYSeg[2][2][lCYBin3]++;passStationRingLCSSeg[2][2][lCSBin3]++;passStationRingChamberLCYSeg[2][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSSeg[2][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWSeg[2][2][CSCCh3][lCWBin3]++;
+		  if (CSCRg3==2) {passStationRingSeg[2][2]++;passStationRingChamberSeg[2][2][CSCCh3]++;passStationRingPtSeg[2][2][pTBin]++;passStationRingEtaSeg[2][2][etaBin3]++;passStationRingIsoSeg[2][2][isoBin]++;passStationRingPVSeg[2][2][pvBin]++;passStationRingILSeg[2][2][ilBin]++;passStationRingRunSeg[2][2][runBin]++;passStationRingChamberRunSeg[2][2][CSCCh3][runBin]++;passStationRingLCYSeg[2][2][lCYBin3]++;passStationRingLCSSeg[2][2][lCSBin3]++;passStationRingChamberLCYSeg[2][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSSeg[2][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWSeg[2][2][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBSeg[2][2][CSCCh3][dCFEBBin3]++;
 		    if (inZMass) segNumStationRingChamberRun[2][2][CSCCh3]->Fill(run_number);
 		    zMassSegNumStationRingChamber[2][2][CSCCh3]->Fill(invMass);
 		  }
 		}
 		if (foundLCT3) {
 		  passGlobalLCT++;
-		  if (CSCRg3==1) {passStationRingLCT[2][1]++;passStationRingChamberLCT[2][1][CSCCh3]++;passStationRingPtLCT[2][1][pTBin]++;passStationRingEtaLCT[2][1][etaBin3]++;passStationRingIsoLCT[2][1][isoBin]++;passStationRingPVLCT[2][1][pvBin]++;passStationRingILLCT[2][1][ilBin]++;passStationRingRunLCT[2][1][runBin]++;passStationRingChamberRunLCT[2][1][CSCCh3][runBin]++;passStationRingLCYLCT[2][1][lC3YBin3]++;passStationRingLCSLCT[2][1][lC3SBin3]++;passStationRingChamberLCYLCT[2][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[2][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[2][1][CSCCh3][lCWBin3]++;
+		  if (CSCRg3==1) {passStationRingLCT[2][1]++;passStationRingChamberLCT[2][1][CSCCh3]++;passStationRingPtLCT[2][1][pTBin]++;passStationRingEtaLCT[2][1][etaBin3]++;passStationRingIsoLCT[2][1][isoBin]++;passStationRingPVLCT[2][1][pvBin]++;passStationRingILLCT[2][1][ilBin]++;passStationRingRunLCT[2][1][runBin]++;passStationRingChamberRunLCT[2][1][CSCCh3][runBin]++;passStationRingLCYLCT[2][1][lC3YBin3]++;passStationRingLCSLCT[2][1][lC3SBin3]++;passStationRingChamberLCYLCT[2][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[2][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[2][1][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[2][1][CSCCh3][dCFEB3Bin3]++;
 		    if (inZMass) LCTNumStationRingChamberRun[2][1][CSCCh3]->Fill(run_number);
 		  }
-		  if (CSCRg3==2) {passStationRingLCT[2][2]++;passStationRingChamberLCT[2][2][CSCCh3]++;passStationRingPtLCT[2][2][pTBin]++;passStationRingEtaLCT[2][2][etaBin3]++;passStationRingIsoLCT[2][2][isoBin]++;passStationRingPVLCT[2][2][pvBin]++;passStationRingILLCT[2][2][ilBin]++;passStationRingRunLCT[2][2][runBin]++;passStationRingChamberRunLCT[2][2][CSCCh3][runBin]++;passStationRingLCYLCT[2][2][lC3YBin3]++;passStationRingLCSLCT[2][2][lC3SBin3]++;passStationRingChamberLCYLCT[2][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[2][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[2][2][CSCCh3][lCWBin3]++;
+		  if (CSCRg3==2) {passStationRingLCT[2][2]++;passStationRingChamberLCT[2][2][CSCCh3]++;passStationRingPtLCT[2][2][pTBin]++;passStationRingEtaLCT[2][2][etaBin3]++;passStationRingIsoLCT[2][2][isoBin]++;passStationRingPVLCT[2][2][pvBin]++;passStationRingILLCT[2][2][ilBin]++;passStationRingRunLCT[2][2][runBin]++;passStationRingChamberRunLCT[2][2][CSCCh3][runBin]++;passStationRingLCYLCT[2][2][lC3YBin3]++;passStationRingLCSLCT[2][2][lC3SBin3]++;passStationRingChamberLCYLCT[2][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[2][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[2][2][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[2][2][CSCCh3][dCFEB3Bin3]++;
 		    if (inZMass) LCTNumStationRingChamberRun[2][2][CSCCh3]->Fill(run_number);		    
 		  }
 		}
 	      }
 	      if (fiducial4){
 		totGlobal++;
-		if (CSCRg4==1) {totStationRing[3][1]++;totStationRingChamber[3][1][CSCCh4]++;totStationRingPt[3][1][pTBin]++;totStationRingEta[3][1][etaBin4]++;totStationRingIso[3][1][isoBin]++;totStationRingPV[3][1][pvBin]++;totStationRingIL[3][1][ilBin]++;totStationRingRun[3][1][runBin]++;totStationRingChamberRun[3][1][CSCCh4][runBin]++;totStationRingLCY[3][1][lCYBin4]++;totStationRingLCYLCT[3][1][lC3YBin4]++;totStationRingLCS[3][1][lCSBin4]++;totStationRingLCSLCT[3][1][lC3SBin4]++;totStationRingChamberLCY[3][1][CSCCh4][lCYBin4]++;totStationRingChamberLCS[3][1][CSCCh4][lCSBin4]++;totStationRingChamberLCW[3][1][CSCCh4][lCWBin4]++;
+		if (CSCRg4==1) {totStationRing[3][1]++;totStationRingChamber[3][1][CSCCh4]++;totStationRingPt[3][1][pTBin]++;totStationRingEta[3][1][etaBin4]++;totStationRingIso[3][1][isoBin]++;totStationRingPV[3][1][pvBin]++;totStationRingIL[3][1][ilBin]++;totStationRingRun[3][1][runBin]++;totStationRingChamberRun[3][1][CSCCh4][runBin]++;totStationRingLCY[3][1][lCYBin4]++;totStationRingLCYLCT[3][1][lC3YBin4]++;totStationRingLCS[3][1][lCSBin4]++;totStationRingLCSLCT[3][1][lC3SBin4]++;totStationRingChamberLCY[3][1][CSCCh4][lCYBin4]++;totStationRingChamberLCS[3][1][CSCCh4][lCSBin4]++;totStationRingChamberLCW[3][1][CSCCh4][lCWBin4]++;totStationRingChamberDCFEB[3][1][CSCCh4][dCFEBBin4]++;totStationRingChamberDCFEBLCT[3][1][CSCCh4][dCFEB3Bin4]++;
 		  if (inZMass) segDenStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
 		  zMassSegDenStationRingChamber[3][1][CSCCh4]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[3][1][CSCCh4]->Fill(CSCDxyTTSeg4);resSigmaSegStationRingChamber[3][1][CSCCh4]->Fill(CSCDxyTTSeg4/CSCDxyErrTTSeg4);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[3][1][CSCCh4][iiLayer]++;
+		    if (foundHit4[iiLayer]) passStationRingChamberLayerSeg[3][1][CSCCh4][iiLayer]++;
+		  }
 		}
-		if (CSCRg4==2) {totStationRing[3][2]++;totStationRingChamber[3][2][CSCCh4]++;totStationRingPt[3][2][pTBin]++;totStationRingEta[3][2][etaBin4]++;totStationRingIso[3][2][isoBin]++;totStationRingPV[3][2][pvBin]++;totStationRingIL[3][2][ilBin]++;totStationRingRun[3][2][runBin]++;totStationRingChamberRun[3][2][CSCCh4][runBin]++;totStationRingLCY[3][2][lCYBin4]++;totStationRingLCYLCT[3][2][lC3YBin4]++;totStationRingLCS[3][2][lCSBin4]++;totStationRingLCSLCT[3][2][lC3SBin4]++;totStationRingChamberLCY[3][2][CSCCh4][lCYBin4]++;totStationRingChamberLCS[3][2][CSCCh4][lCSBin4]++;totStationRingChamberLCW[3][2][CSCCh4][lCWBin4]++;
+		if (CSCRg4==2) {totStationRing[3][2]++;totStationRingChamber[3][2][CSCCh4]++;totStationRingPt[3][2][pTBin]++;totStationRingEta[3][2][etaBin4]++;totStationRingIso[3][2][isoBin]++;totStationRingPV[3][2][pvBin]++;totStationRingIL[3][2][ilBin]++;totStationRingRun[3][2][runBin]++;totStationRingChamberRun[3][2][CSCCh4][runBin]++;totStationRingLCY[3][2][lCYBin4]++;totStationRingLCYLCT[3][2][lC3YBin4]++;totStationRingLCS[3][2][lCSBin4]++;totStationRingLCSLCT[3][2][lC3SBin4]++;totStationRingChamberLCY[3][2][CSCCh4][lCYBin4]++;totStationRingChamberLCS[3][2][CSCCh4][lCSBin4]++;totStationRingChamberLCW[3][2][CSCCh4][lCWBin4]++;totStationRingChamberDCFEB[3][2][CSCCh4][dCFEBBin4]++;totStationRingChamberDCFEBLCT[3][2][CSCCh4][dCFEB3Bin4]++;
+		  //if (inZMass) segDenStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
 		  if (inZMass) segDenStationRingChamberRun[3][2][CSCCh4]->Fill(run_number);
 		  zMassSegDenStationRingChamber[3][2][CSCCh4]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[3][2][CSCCh4]->Fill(CSCDxyTTSeg4);resSigmaSegStationRingChamber[3][2][CSCCh4]->Fill(CSCDxyTTSeg4/CSCDxyErrTTSeg4);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[3][2][CSCCh4][iiLayer]++;
+		    if (foundHit4[iiLayer]) passStationRingChamberLayerSeg[3][2][CSCCh4][iiLayer]++;
+		  }
 		}
-		if (foundSeg4) {
+	        if (foundSeg4) {
 		  passGlobalSeg++;
-		  if (CSCRg4==1) {passStationRingSeg[3][1]++;passStationRingChamberSeg[3][1][CSCCh4]++;passStationRingPtSeg[3][1][pTBin]++;passStationRingEtaSeg[3][1][etaBin4]++;passStationRingIsoSeg[3][1][isoBin]++;passStationRingPVSeg[3][1][pvBin]++;passStationRingILSeg[3][1][ilBin]++;passStationRingRunSeg[3][1][runBin]++;passStationRingChamberRunSeg[3][1][CSCCh4][runBin]++;passStationRingLCYSeg[3][1][lCYBin4]++;passStationRingLCSSeg[3][1][lCSBin4]++;passStationRingChamberLCYSeg[3][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[3][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[3][1][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==1) {passStationRingSeg[3][1]++;passStationRingChamberSeg[3][1][CSCCh4]++;passStationRingPtSeg[3][1][pTBin]++;passStationRingEtaSeg[3][1][etaBin4]++;passStationRingIsoSeg[3][1][isoBin]++;passStationRingPVSeg[3][1][pvBin]++;passStationRingILSeg[3][1][ilBin]++;passStationRingRunSeg[3][1][runBin]++;passStationRingChamberRunSeg[3][1][CSCCh4][runBin]++;passStationRingLCYSeg[3][1][lCYBin4]++;passStationRingLCSSeg[3][1][lCSBin4]++;passStationRingChamberLCYSeg[3][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[3][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[3][1][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBSeg[3][1][CSCCh4][dCFEBBin4]++;
 		    if (inZMass) segNumStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
 		    zMassSegNumStationRingChamber[3][1][CSCCh4]->Fill(invMass);
 		  }
-		  if (CSCRg4==2) {passStationRingSeg[3][2]++;passStationRingChamberSeg[3][2][CSCCh4]++;passStationRingPtSeg[3][2][pTBin]++;passStationRingEtaSeg[3][2][etaBin4]++;passStationRingIsoSeg[3][2][isoBin]++;passStationRingPVSeg[3][2][pvBin]++;passStationRingILSeg[3][2][ilBin]++;passStationRingRunSeg[3][2][runBin]++;passStationRingChamberRunSeg[3][2][CSCCh4][runBin]++;passStationRingLCYSeg[3][2][lCYBin4]++;passStationRingLCSSeg[3][2][lCSBin4]++;passStationRingChamberLCYSeg[3][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[3][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[3][2][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==2) {passStationRingSeg[3][2]++;passStationRingChamberSeg[3][2][CSCCh4]++;passStationRingPtSeg[3][2][pTBin]++;passStationRingEtaSeg[3][2][etaBin4]++;passStationRingIsoSeg[3][2][isoBin]++;passStationRingPVSeg[3][2][pvBin]++;passStationRingILSeg[3][2][ilBin]++;passStationRingRunSeg[3][2][runBin]++;passStationRingChamberRunSeg[3][2][CSCCh4][runBin]++;passStationRingLCYSeg[3][2][lCYBin4]++;passStationRingLCSSeg[3][2][lCSBin4]++;passStationRingChamberLCYSeg[3][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[3][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[3][2][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBSeg[3][2][CSCCh4][dCFEBBin4]++;
 		    if (inZMass) segNumStationRingChamberRun[3][2][CSCCh4]->Fill(run_number);
 		    zMassSegNumStationRingChamber[3][2][CSCCh4]->Fill(invMass);
 		  }
 		}
 		if (foundLCT4) {
 		  passGlobalLCT++;
-		  if (CSCRg4==1) {passStationRingLCT[3][1]++;passStationRingChamberLCT[3][1][CSCCh4]++;passStationRingPtLCT[3][1][pTBin]++;passStationRingEtaLCT[3][1][etaBin4]++;passStationRingIsoLCT[3][1][isoBin]++;passStationRingPVLCT[3][1][pvBin]++;passStationRingILLCT[3][1][ilBin]++;passStationRingRunLCT[3][1][runBin]++;passStationRingChamberRunLCT[3][1][CSCCh4][runBin]++;passStationRingLCYLCT[3][1][lC3YBin4]++;passStationRingLCSLCT[3][1][lC3SBin4]++;passStationRingChamberLCYLCT[3][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[3][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[3][1][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==1) {passStationRingLCT[3][1]++;passStationRingChamberLCT[3][1][CSCCh4]++;passStationRingPtLCT[3][1][pTBin]++;passStationRingEtaLCT[3][1][etaBin4]++;passStationRingIsoLCT[3][1][isoBin]++;passStationRingPVLCT[3][1][pvBin]++;passStationRingILLCT[3][1][ilBin]++;passStationRingRunLCT[3][1][runBin]++;passStationRingChamberRunLCT[3][1][CSCCh4][runBin]++;passStationRingLCYLCT[3][1][lC3YBin4]++;passStationRingLCSLCT[3][1][lC3SBin4]++;passStationRingChamberLCYLCT[3][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[3][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[3][1][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBLCT[3][1][CSCCh4][dCFEB3Bin4]++;
 		    if (inZMass) LCTNumStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
 		  }
-		  if (CSCRg4==2) {passStationRingLCT[3][2]++;passStationRingChamberLCT[3][2][CSCCh4]++;passStationRingPtLCT[3][2][pTBin]++;passStationRingEtaLCT[3][2][etaBin4]++;passStationRingIsoLCT[3][2][isoBin]++;passStationRingPVLCT[3][2][pvBin]++;passStationRingILLCT[3][2][ilBin]++;passStationRingRunLCT[3][2][runBin]++;passStationRingChamberRunLCT[3][2][CSCCh4][runBin]++;passStationRingLCYLCT[3][2][lC3YBin4]++;passStationRingLCSLCT[3][2][lC3SBin4]++;passStationRingChamberLCYLCT[3][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[3][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[3][2][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==2) {passStationRingLCT[3][2]++;passStationRingChamberLCT[3][2][CSCCh4]++;passStationRingPtLCT[3][2][pTBin]++;passStationRingEtaLCT[3][2][etaBin4]++;passStationRingIsoLCT[3][2][isoBin]++;passStationRingPVLCT[3][2][pvBin]++;passStationRingILLCT[3][2][ilBin]++;passStationRingRunLCT[3][2][runBin]++;passStationRingChamberRunLCT[3][2][CSCCh4][runBin]++;passStationRingLCYLCT[3][2][lC3YBin4]++;passStationRingLCSLCT[3][2][lC3SBin4]++;passStationRingChamberLCYLCT[3][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[3][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[3][2][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBLCT[3][2][CSCCh4][dCFEB3Bin4]++;
 		    if (inZMass) LCTNumStationRingChamberRun[3][2][CSCCh4]->Fill(run_number);
 		  }
 		}
@@ -1352,168 +1876,211 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
 	    if (CSCEndCapPlus){
 	      if (fiducial1||fiducial11){
 		totGlobal++;
-		if (CSCRg1==4&&fiducial11) {totStationRing[4][0]++;totStationRingChamber[4][0][CSCCh1]++;totStationRingPt[4][0][pTBin]++;totStationRingEta[4][0][etaBin]++;totStationRingIso[4][0][isoBin]++;totStationRingPV[4][0][pvBin]++;totStationRingIL[4][0][ilBin]++;totStationRingRun[4][0][runBin]++;totStationRingChamberRun[4][0][CSCCh1][runBin]++;totStationRingLCY[4][0][lCYBin1]++;totStationRingLCYLCT[4][0][lC3YBin1]++;totStationRingLCS[4][0][lCSBin1]++;totStationRingLCSLCT[4][0][lC3SBin1]++;totStationRingChamberLCY[4][0][CSCCh1][lCYBin1]++;totStationRingChamberLCS[4][0][CSCCh1][lCSBin1]++;totStationRingChamberLCW[4][0][CSCCh1][lCWBin1]++;
+		if (CSCRg1==4&&fiducial11) {totStationRing[4][0]++;totStationRingChamber[4][0][CSCCh1]++;totStationRingPt[4][0][pTBin]++;totStationRingEta[4][0][etaBin]++;totStationRingIso[4][0][isoBin]++;totStationRingPV[4][0][pvBin]++;totStationRingIL[4][0][ilBin]++;totStationRingRun[4][0][runBin]++;totStationRingChamberRun[4][0][CSCCh1][runBin]++;totStationRingLCY[4][0][lCYBin1]++;totStationRingLCYLCT[4][0][lC3YBin1]++;totStationRingLCS[4][0][lCSBin1]++;totStationRingLCSLCT[4][0][lC3SBin1]++;totStationRingChamberLCY[4][0][CSCCh1][lCYBin1]++;totStationRingChamberLCS[4][0][CSCCh1][lCSBin1]++;totStationRingChamberLCW[4][0][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[4][0][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[4][0][CSCCh1][dCFEB3Bin1]++;
+		  //if (inZMass) segDenStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
 		  if (inZMass) segDenStationRingChamberRun[4][0][CSCCh1]->Fill(run_number);
 		  zMassSegDenStationRingChamber[4][0][CSCCh1]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[4][0][CSCCh1]->Fill(CSCDxyTTSeg1);resSigmaSegStationRingChamber[4][0][CSCCh1]->Fill(CSCDxyTTSeg1/CSCDxyErrTTSeg1);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[4][0][CSCCh1][iiLayer]++;
+		    if (foundHit1[iiLayer]) passStationRingChamberLayerSeg[4][0][CSCCh1][iiLayer]++;
+		  }
 		  if (CSCCh1%2 == 0 ) {totStationRing[5][0]++;totStationRingChamber[5][0][CSCCh1]++;totStationRingPt[5][0][pTBin]++;totStationRingEta[5][0][etaBin]++;totStationRingIso[5][0][isoBin]++;totStationRingPV[5][0][pvBin]++;totStationRingIL[5][0][ilBin]++;totStationRingRun[5][0][runBin]++;totStationRingChamberRun[5][0][CSCCh1][runBin]++;totStationRingLCY[5][0][lCYBin1]++;totStationRingLCYLCT[5][0][lC3YBin1]++;totStationRingLCS[5][0][lCSBin1]++;totStationRingLCSLCT[5][0][lC3SBin1]++;}
 		  else {totStationRing[5][3]++;totStationRingChamber[5][3][CSCCh1]++;totStationRingPt[5][3][pTBin]++;totStationRingEta[5][3][etaBin]++;totStationRingIso[5][3][isoBin]++;totStationRingPV[5][3][pvBin]++;totStationRingIL[5][3][ilBin]++;totStationRingRun[5][3][runBin]++;totStationRingChamberRun[5][3][CSCCh1][runBin]++;totStationRingLCY[5][3][lCYBin1]++;totStationRingLCYLCT[5][3][lC3YBin1]++;totStationRingLCS[5][3][lCSBin1]++;totStationRingLCSLCT[5][3][lC3SBin1]++;}
 		}
-		if (CSCRg1==1&&fiducial11) {totStationRing[4][1]++;totStationRingChamber[4][1][CSCCh1]++;totStationRingPt[4][1][pTBin]++;totStationRingEta[4][1][etaBin]++;totStationRingIso[4][1][isoBin]++;totStationRingPV[4][1][pvBin]++;totStationRingIL[4][1][ilBin]++;totStationRingRun[4][1][runBin]++;totStationRingChamberRun[4][1][CSCCh1][runBin]++;totStationRingLCY[4][1][lCYBin1]++;totStationRingLCYLCT[4][1][lC3YBin1]++;totStationRingLCS[4][1][lCSBin1]++;totStationRingLCSLCT[4][1][lC3SBin1]++;totStationRingChamberLCY[4][1][CSCCh1][lCYBin1]++;totStationRingChamberLCS[4][1][CSCCh1][lCSBin1]++;totStationRingChamberLCW[4][1][CSCCh1][lCWBin1]++;
+		if (CSCRg1==1&&fiducial11) {totStationRing[4][1]++;totStationRingChamber[4][1][CSCCh1]++;totStationRingPt[4][1][pTBin]++;totStationRingEta[4][1][etaBin]++;totStationRingIso[4][1][isoBin]++;totStationRingPV[4][1][pvBin]++;totStationRingIL[4][1][ilBin]++;totStationRingRun[4][1][runBin]++;totStationRingChamberRun[4][1][CSCCh1][runBin]++;totStationRingLCY[4][1][lCYBin1]++;totStationRingLCYLCT[4][1][lC3YBin1]++;totStationRingLCS[4][1][lCSBin1]++;totStationRingLCSLCT[4][1][lC3SBin1]++;totStationRingChamberLCY[4][1][CSCCh1][lCYBin1]++;totStationRingChamberLCS[4][1][CSCCh1][lCSBin1]++;totStationRingChamberLCW[4][1][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[4][1][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[4][1][CSCCh1][dCFEB3Bin1]++;
+		  //if (inZMass) segDenStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
 		  if (inZMass) segDenStationRingChamberRun[4][1][CSCCh1]->Fill(run_number);
 		  zMassSegDenStationRingChamber[4][1][CSCCh1]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[4][1][CSCCh1]->Fill(CSCDxyTTSeg1);resSigmaSegStationRingChamber[4][1][CSCCh1]->Fill(CSCDxyTTSeg1/CSCDxyErrTTSeg1);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[4][1][CSCCh1][iiLayer]++;
+		    if (foundHit1[iiLayer]) passStationRingChamberLayerSeg[4][1][CSCCh1][iiLayer]++;
+		  }
 		  if (CSCCh1%2 == 0 ) {totStationRing[6][0]++;totStationRingChamber[6][0][CSCCh1]++;totStationRingPt[6][0][pTBin]++;totStationRingEta[6][0][etaBin]++;totStationRingIso[6][0][isoBin]++;totStationRingPV[6][0][pvBin]++;totStationRingIL[6][0][ilBin]++;totStationRingRun[6][0][runBin]++;totStationRingChamberRun[6][0][CSCCh1][runBin]++;totStationRingLCY[6][0][lCYBin1]++;totStationRingLCYLCT[6][0][lC3YBin1]++;totStationRingLCS[6][0][lCSBin1]++;totStationRingLCSLCT[6][0][lC3SBin1]++;}
 		  else {totStationRing[6][3]++;totStationRingChamber[6][3][CSCCh1]++;totStationRingPt[6][3][pTBin]++;totStationRingEta[6][3][etaBin]++;totStationRingIso[6][3][isoBin]++;totStationRingPV[6][3][pvBin]++;totStationRingIL[6][3][ilBin]++;totStationRingRun[6][3][runBin]++;totStationRingChamberRun[6][3][CSCCh1][runBin]++;totStationRingLCY[6][3][lCYBin1]++;totStationRingLCYLCT[6][3][lC3YBin1]++;totStationRingLCS[6][3][lCSBin1]++;totStationRingLCSLCT[6][3][lC3SBin1]++;}
 		}
-		if (CSCRg1==2) {totStationRing[4][2]++;totStationRingChamber[4][2][CSCCh1]++;totStationRingPt[4][2][pTBin]++;totStationRingEta[4][2][etaBin]++;totStationRingIso[4][2][isoBin]++;totStationRingPV[4][2][pvBin]++;totStationRingIL[4][2][ilBin]++;totStationRingRun[4][2][runBin]++;totStationRingChamberRun[4][2][CSCCh1][runBin]++;totStationRingLCY[4][2][lCYBin1]++;totStationRingLCYLCT[4][2][lC3YBin1]++;totStationRingLCS[4][2][lCSBin1]++;totStationRingLCSLCT[4][2][lC3SBin1]++;totStationRingChamberLCY[4][2][CSCCh1][lCYBin1]++;totStationRingChamberLCS[4][2][CSCCh1][lCSBin1]++;totStationRingChamberLCW[4][2][CSCCh1][lCWBin1]++;
+		if (CSCRg1==2) {totStationRing[4][2]++;totStationRingChamber[4][2][CSCCh1]++;totStationRingPt[4][2][pTBin]++;totStationRingEta[4][2][etaBin]++;totStationRingIso[4][2][isoBin]++;totStationRingPV[4][2][pvBin]++;totStationRingIL[4][2][ilBin]++;totStationRingRun[4][2][runBin]++;totStationRingChamberRun[4][2][CSCCh1][runBin]++;totStationRingLCY[4][2][lCYBin1]++;totStationRingLCYLCT[4][2][lC3YBin1]++;totStationRingLCS[4][2][lCSBin1]++;totStationRingLCSLCT[4][2][lC3SBin1]++;totStationRingChamberLCY[4][2][CSCCh1][lCYBin1]++;totStationRingChamberLCS[4][2][CSCCh1][lCSBin1]++;totStationRingChamberLCW[4][2][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[4][2][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[4][2][CSCCh1][dCFEB3Bin1]++;
+		  //if (inZMass) segDenStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
 		  if (inZMass) segDenStationRingChamberRun[4][2][CSCCh1]->Fill(run_number);
 		  zMassSegDenStationRingChamber[4][2][CSCCh1]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[4][2][CSCCh1]->Fill(CSCDxyTTSeg1);resSigmaSegStationRingChamber[4][2][CSCCh1]->Fill(CSCDxyTTSeg1/CSCDxyErrTTSeg1);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[4][2][CSCCh1][iiLayer]++;
+		    if (foundHit1[iiLayer]) passStationRingChamberLayerSeg[4][2][CSCCh1][iiLayer]++;
+		  }
 		}
-		if (CSCRg1==3) {totStationRing[4][3]++;totStationRingChamber[4][3][CSCCh1]++;totStationRingPt[4][3][pTBin]++;totStationRingEta[4][3][etaBin]++;totStationRingIso[4][3][isoBin]++;totStationRingPV[4][3][pvBin]++;totStationRingIL[4][3][ilBin]++;totStationRingRun[4][3][runBin]++;totStationRingChamberRun[4][3][CSCCh1][runBin]++;totStationRingLCY[4][3][lCYBin1]++;totStationRingLCYLCT[4][3][lC3YBin1]++;totStationRingLCS[4][3][lCSBin1]++;totStationRingLCSLCT[4][3][lC3SBin1]++;totStationRingChamberLCY[4][3][CSCCh1][lCYBin1]++;totStationRingChamberLCS[4][3][CSCCh1][lCSBin1]++;totStationRingChamberLCW[4][3][CSCCh1][lCWBin1]++;
+		if (CSCRg1==3) {totStationRing[4][3]++;totStationRingChamber[4][3][CSCCh1]++;totStationRingPt[4][3][pTBin]++;totStationRingEta[4][3][etaBin]++;totStationRingIso[4][3][isoBin]++;totStationRingPV[4][3][pvBin]++;totStationRingIL[4][3][ilBin]++;totStationRingRun[4][3][runBin]++;totStationRingChamberRun[4][3][CSCCh1][runBin]++;totStationRingLCY[4][3][lCYBin1]++;totStationRingLCYLCT[4][3][lC3YBin1]++;totStationRingLCS[4][3][lCSBin1]++;totStationRingLCSLCT[4][3][lC3SBin1]++;totStationRingChamberLCY[4][3][CSCCh1][lCYBin1]++;totStationRingChamberLCS[4][3][CSCCh1][lCSBin1]++;totStationRingChamberLCW[4][3][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[4][3][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[4][3][CSCCh1][dCFEB3Bin1]++;
 		  if (inZMass) segDenStationRingChamberRun[4][3][CSCCh1]->Fill(run_number);
 		  zMassSegDenStationRingChamber[4][3][CSCCh1]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[4][3][CSCCh1]->Fill(CSCDxyTTSeg1);resSigmaSegStationRingChamber[4][3][CSCCh1]->Fill(CSCDxyTTSeg1/CSCDxyErrTTSeg1);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[4][3][CSCCh1][iiLayer]++;
+		    if (foundHit1[iiLayer]) passStationRingChamberLayerSeg[4][3][CSCCh1][iiLayer]++;
+		  }
 		}
 		if (foundSeg1) {
 		  passGlobalSeg++;
-		  if (CSCRg1==4&&fiducial11) {passStationRingSeg[4][0]++;passStationRingChamberSeg[4][0][CSCCh1]++;passStationRingPtSeg[4][0][pTBin]++;passStationRingEtaSeg[4][0][etaBin]++;passStationRingIsoSeg[4][0][isoBin]++;passStationRingPVSeg[4][0][pvBin]++;passStationRingILSeg[4][0][ilBin]++;passStationRingRunSeg[4][0][runBin]++;passStationRingChamberRunSeg[4][0][CSCCh1][runBin]++;passStationRingLCYSeg[4][0][lCYBin1]++;passStationRingLCSSeg[4][0][lCSBin1]++;passStationRingChamberLCYSeg[4][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[4][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[4][0][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==4&&fiducial11) {passStationRingSeg[4][0]++;passStationRingChamberSeg[4][0][CSCCh1]++;passStationRingPtSeg[4][0][pTBin]++;passStationRingEtaSeg[4][0][etaBin]++;passStationRingIsoSeg[4][0][isoBin]++;passStationRingPVSeg[4][0][pvBin]++;passStationRingILSeg[4][0][ilBin]++;passStationRingRunSeg[4][0][runBin]++;passStationRingChamberRunSeg[4][0][CSCCh1][runBin]++;passStationRingLCYSeg[4][0][lCYBin1]++;passStationRingLCSSeg[4][0][lCSBin1]++;passStationRingChamberLCYSeg[4][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[4][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[4][0][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBSeg[4][0][CSCCh1][dCFEBBin1]++;
 		    if (inZMass) segNumStationRingChamberRun[4][0][CSCCh1]->Fill(run_number);
 		    zMassSegNumStationRingChamber[4][0][CSCCh1]->Fill(invMass);
 		    if (CSCCh1%2 == 0 ) {passStationRingSeg[5][0]++;passStationRingChamberSeg[5][0][CSCCh1]++;passStationRingPtSeg[5][0][pTBin]++;passStationRingEtaSeg[5][0][etaBin]++;passStationRingIsoSeg[5][0][isoBin]++;passStationRingPVSeg[5][0][pvBin]++;passStationRingILSeg[5][0][ilBin]++;passStationRingRunSeg[5][0][runBin]++;passStationRingChamberRunSeg[5][0][CSCCh1][runBin]++;passStationRingLCYSeg[5][0][lCYBin1]++;passStationRingLCSSeg[5][0][lCSBin1]++;}
 		    else {passStationRingSeg[5][3]++;passStationRingChamberSeg[5][3][CSCCh1]++;passStationRingPtSeg[5][3][pTBin]++;passStationRingEtaSeg[5][3][etaBin]++;passStationRingIsoSeg[5][3][isoBin]++;passStationRingPVSeg[5][3][pvBin]++;passStationRingILSeg[5][3][ilBin]++;passStationRingRunSeg[5][3][runBin]++;passStationRingChamberRunSeg[5][3][CSCCh1][runBin]++;passStationRingLCYSeg[5][3][lCYBin1]++;passStationRingLCSSeg[5][3][lCSBin1]++;}
 		  }
-		  if (CSCRg1==1&&fiducial11) {passStationRingSeg[4][1]++;passStationRingChamberSeg[4][1][CSCCh1]++;passStationRingPtSeg[4][1][pTBin]++;passStationRingEtaSeg[4][1][etaBin]++;passStationRingIsoSeg[4][1][isoBin]++;passStationRingPVSeg[4][1][pvBin]++;passStationRingILSeg[4][1][ilBin]++;passStationRingRunSeg[4][1][runBin]++;passStationRingChamberRunSeg[4][1][CSCCh1][runBin]++;passStationRingLCYSeg[4][1][lCYBin1]++;passStationRingLCSSeg[4][1][lCSBin1]++;passStationRingChamberLCYSeg[4][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[4][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[4][1][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==1&&fiducial11) {passStationRingSeg[4][1]++;passStationRingChamberSeg[4][1][CSCCh1]++;passStationRingPtSeg[4][1][pTBin]++;passStationRingEtaSeg[4][1][etaBin]++;passStationRingIsoSeg[4][1][isoBin]++;passStationRingPVSeg[4][1][pvBin]++;passStationRingILSeg[4][1][ilBin]++;passStationRingRunSeg[4][1][runBin]++;passStationRingChamberRunSeg[4][1][CSCCh1][runBin]++;passStationRingLCYSeg[4][1][lCYBin1]++;passStationRingLCSSeg[4][1][lCSBin1]++;passStationRingChamberLCYSeg[4][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[4][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[4][1][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBSeg[4][1][CSCCh1][dCFEBBin1]++;
 		    if (inZMass) segNumStationRingChamberRun[4][1][CSCCh1]->Fill(run_number);
 		    zMassSegNumStationRingChamber[4][1][CSCCh1]->Fill(invMass);
 		    if (CSCCh1%2 == 0 ) {passStationRingSeg[6][0]++;passStationRingChamberSeg[6][0][CSCCh1]++;passStationRingPtSeg[6][0][pTBin]++;passStationRingEtaSeg[6][0][etaBin]++;passStationRingIsoSeg[6][0][isoBin]++;passStationRingPVSeg[6][0][pvBin]++;passStationRingILSeg[6][0][ilBin]++;passStationRingRunSeg[6][0][runBin]++;passStationRingChamberRunSeg[6][0][CSCCh1][runBin]++;passStationRingLCYSeg[6][0][lCYBin1]++;passStationRingLCSSeg[6][0][lCSBin1]++;}
 		    else {passStationRingSeg[6][3]++;passStationRingChamberSeg[6][3][CSCCh1]++;passStationRingPtSeg[6][3][pTBin]++;passStationRingEtaSeg[6][3][etaBin]++;passStationRingIsoSeg[6][3][isoBin]++;passStationRingPVSeg[6][3][pvBin]++;passStationRingILSeg[6][3][ilBin]++;passStationRingRunSeg[6][3][runBin]++;passStationRingChamberRunSeg[6][3][CSCCh1][runBin]++;passStationRingLCYSeg[6][3][lCYBin1]++;passStationRingLCSSeg[6][3][lCSBin1]++;}
 		  }
-		  if (CSCRg1==2) {passStationRingSeg[4][2]++;passStationRingChamberSeg[4][2][CSCCh1]++;passStationRingPtSeg[4][2][pTBin]++;passStationRingEtaSeg[4][2][etaBin]++;passStationRingIsoSeg[4][2][isoBin]++;passStationRingPVSeg[4][2][pvBin]++;passStationRingILSeg[4][2][ilBin]++;passStationRingRunSeg[4][2][runBin]++;passStationRingChamberRunSeg[4][2][CSCCh1][runBin]++;passStationRingLCYSeg[4][2][lCYBin1]++;passStationRingLCSSeg[4][2][lCSBin1]++;passStationRingChamberLCYSeg[4][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[4][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[4][2][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==2) {passStationRingSeg[4][2]++;passStationRingChamberSeg[4][2][CSCCh1]++;passStationRingPtSeg[4][2][pTBin]++;passStationRingEtaSeg[4][2][etaBin]++;passStationRingIsoSeg[4][2][isoBin]++;passStationRingPVSeg[4][2][pvBin]++;passStationRingILSeg[4][2][ilBin]++;passStationRingRunSeg[4][2][runBin]++;passStationRingChamberRunSeg[4][2][CSCCh1][runBin]++;passStationRingLCYSeg[4][2][lCYBin1]++;passStationRingLCSSeg[4][2][lCSBin1]++;passStationRingChamberLCYSeg[4][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[4][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[4][2][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBSeg[4][2][CSCCh1][dCFEBBin1]++;
 		    if (inZMass) segNumStationRingChamberRun[4][2][CSCCh1]->Fill(run_number);
 		    zMassSegNumStationRingChamber[4][2][CSCCh1]->Fill(invMass);
 		  }
-		  if (CSCRg1==3) {passStationRingSeg[4][3]++;passStationRingChamberSeg[4][3][CSCCh1]++;passStationRingPtSeg[4][3][pTBin]++;passStationRingEtaSeg[4][3][etaBin]++;passStationRingIsoSeg[4][3][isoBin]++;passStationRingPVSeg[4][3][pvBin]++;passStationRingILSeg[4][3][ilBin]++;passStationRingRunSeg[4][3][runBin]++;passStationRingChamberRunSeg[4][3][CSCCh1][runBin]++;passStationRingLCYSeg[4][3][lCYBin1]++;passStationRingLCSSeg[4][3][lCSBin1]++;passStationRingChamberLCYSeg[4][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[4][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[4][3][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==3) {passStationRingSeg[4][3]++;passStationRingChamberSeg[4][3][CSCCh1]++;passStationRingPtSeg[4][3][pTBin]++;passStationRingEtaSeg[4][3][etaBin]++;passStationRingIsoSeg[4][3][isoBin]++;passStationRingPVSeg[4][3][pvBin]++;passStationRingILSeg[4][3][ilBin]++;passStationRingRunSeg[4][3][runBin]++;passStationRingChamberRunSeg[4][3][CSCCh1][runBin]++;passStationRingLCYSeg[4][3][lCYBin1]++;passStationRingLCSSeg[4][3][lCSBin1]++;passStationRingChamberLCYSeg[4][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[4][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWSeg[4][3][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBSeg[4][3][CSCCh1][dCFEBBin1]++;
 		    if (inZMass) segNumStationRingChamberRun[4][3][CSCCh1]->Fill(run_number);
 		    zMassSegNumStationRingChamber[4][3][CSCCh1]->Fill(invMass);
 		  }
 		}
 		if (foundLCT1) {
 		  passGlobalLCT++;
-		  if (CSCRg1==4&&fiducial11) {passStationRingLCT[4][0]++;passStationRingChamberLCT[4][0][CSCCh1]++;passStationRingPtLCT[4][0][pTBin]++;passStationRingEtaLCT[4][0][etaBin]++;passStationRingIsoLCT[4][0][isoBin]++;passStationRingPVLCT[4][0][pvBin]++;passStationRingILLCT[4][0][ilBin]++;passStationRingRunLCT[4][0][runBin]++;passStationRingChamberRunLCT[4][0][CSCCh1][runBin]++;passStationRingLCYLCT[4][0][lC3YBin1]++;passStationRingLCSLCT[4][0][lC3SBin1]++;passStationRingChamberLCYLCT[4][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][0][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==4&&fiducial11) {passStationRingLCT[4][0]++;passStationRingChamberLCT[4][0][CSCCh1]++;passStationRingPtLCT[4][0][pTBin]++;passStationRingEtaLCT[4][0][etaBin]++;passStationRingIsoLCT[4][0][isoBin]++;passStationRingPVLCT[4][0][pvBin]++;passStationRingILLCT[4][0][ilBin]++;passStationRingRunLCT[4][0][runBin]++;passStationRingChamberRunLCT[4][0][CSCCh1][runBin]++;passStationRingLCYLCT[4][0][lC3YBin1]++;passStationRingLCSLCT[4][0][lC3SBin1]++;passStationRingChamberLCYLCT[4][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][0][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][0][CSCCh1][dCFEB3Bin1]++;
 		    if (inZMass) LCTNumStationRingChamberRun[4][0][CSCCh1]->Fill(run_number);		    
 		    if (CSCCh1%2 == 0 ) {passStationRingLCT[5][0]++;passStationRingChamberLCT[5][0][CSCCh1]++;passStationRingPtLCT[5][0][pTBin]++;passStationRingEtaLCT[5][0][etaBin]++;passStationRingIsoLCT[5][0][isoBin]++;passStationRingPVLCT[5][0][pvBin]++;passStationRingILLCT[5][0][ilBin]++;passStationRingRunLCT[5][0][runBin]++;passStationRingChamberRunLCT[5][0][CSCCh1][runBin]++;passStationRingLCYLCT[5][0][lC3YBin1]++;passStationRingLCSLCT[5][0][lC3SBin1]++;}
 		    else {passStationRingLCT[5][3]++;passStationRingChamberLCT[5][3][CSCCh1]++;passStationRingPtLCT[5][3][pTBin]++;passStationRingEtaLCT[5][3][etaBin]++;;passStationRingIsoLCT[5][3][isoBin]++;passStationRingPVLCT[5][3][pvBin]++;passStationRingILLCT[5][3][ilBin]++;passStationRingRunLCT[5][3][runBin]++;passStationRingChamberRunLCT[5][3][CSCCh1][runBin]++;passStationRingLCYLCT[5][3][lC3YBin1]++;passStationRingLCSLCT[5][3][lC3SBin1]++;}
 		  }
-		  if (CSCRg1==1&&fiducial11) {passStationRingLCT[4][1]++;passStationRingChamberLCT[4][1][CSCCh1]++;passStationRingPtLCT[4][1][pTBin]++;passStationRingEtaLCT[4][1][etaBin]++;passStationRingIsoLCT[4][1][isoBin]++;passStationRingPVLCT[4][1][pvBin]++;passStationRingILLCT[4][1][ilBin]++;passStationRingRunLCT[4][1][runBin]++;passStationRingChamberRunLCT[4][1][CSCCh1][runBin]++;passStationRingLCYLCT[4][1][lC3YBin1]++;passStationRingLCSLCT[4][1][lC3SBin1]++;passStationRingChamberLCYLCT[4][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][1][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==1&&fiducial11) {passStationRingLCT[4][1]++;passStationRingChamberLCT[4][1][CSCCh1]++;passStationRingPtLCT[4][1][pTBin]++;passStationRingEtaLCT[4][1][etaBin]++;passStationRingIsoLCT[4][1][isoBin]++;passStationRingPVLCT[4][1][pvBin]++;passStationRingILLCT[4][1][ilBin]++;passStationRingRunLCT[4][1][runBin]++;passStationRingChamberRunLCT[4][1][CSCCh1][runBin]++;passStationRingLCYLCT[4][1][lC3YBin1]++;passStationRingLCSLCT[4][1][lC3SBin1]++;passStationRingChamberLCYLCT[4][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][1][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][1][CSCCh1][dCFEB3Bin1]++;
 		    if (inZMass) LCTNumStationRingChamberRun[4][1][CSCCh1]->Fill(run_number);		    
 		    if (CSCCh1%2 == 0 ) {passStationRingLCT[6][0]++;passStationRingChamberLCT[6][0][CSCCh1]++;passStationRingPtLCT[6][0][pTBin]++;passStationRingEtaLCT[6][0][etaBin]++;passStationRingIsoLCT[6][0][isoBin]++;passStationRingPVLCT[6][0][pvBin]++;passStationRingILLCT[6][0][ilBin]++;passStationRingRunLCT[6][0][runBin]++;passStationRingChamberRunLCT[6][0][CSCCh1][runBin]++;passStationRingLCYLCT[6][0][lC3YBin1]++;passStationRingLCSLCT[6][0][lC3SBin1]++;}
 		    else {passStationRingLCT[6][3]++;passStationRingChamberLCT[6][3][CSCCh1]++;passStationRingPtLCT[6][3][pTBin]++;passStationRingEtaLCT[6][3][etaBin]++;passStationRingIsoLCT[6][3][isoBin]++;passStationRingPVLCT[6][3][pvBin]++;passStationRingILLCT[6][3][ilBin]++;passStationRingRunLCT[6][3][runBin]++;passStationRingChamberRunLCT[6][3][CSCCh1][runBin]++;passStationRingLCYLCT[6][3][lC3YBin1]++;passStationRingLCSLCT[6][3][lC3SBin1]++;}
 		  }
-		  if (CSCRg1==2) {passStationRingLCT[4][2]++;passStationRingChamberLCT[4][2][CSCCh1]++;passStationRingPtLCT[4][2][pTBin]++;passStationRingEtaLCT[4][2][etaBin]++;passStationRingIsoLCT[4][2][isoBin]++;passStationRingPVLCT[4][2][pvBin]++;passStationRingILLCT[4][2][ilBin]++;passStationRingRunLCT[4][2][runBin]++;passStationRingChamberRunLCT[4][2][CSCCh1][runBin]++;passStationRingLCYLCT[4][2][lC3YBin1]++;passStationRingLCSLCT[4][2][lC3SBin1]++;passStationRingChamberLCYLCT[4][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][2][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==2) {passStationRingLCT[4][2]++;passStationRingChamberLCT[4][2][CSCCh1]++;passStationRingPtLCT[4][2][pTBin]++;passStationRingEtaLCT[4][2][etaBin]++;passStationRingIsoLCT[4][2][isoBin]++;passStationRingPVLCT[4][2][pvBin]++;passStationRingILLCT[4][2][ilBin]++;passStationRingRunLCT[4][2][runBin]++;passStationRingChamberRunLCT[4][2][CSCCh1][runBin]++;passStationRingLCYLCT[4][2][lC3YBin1]++;passStationRingLCSLCT[4][2][lC3SBin1]++;passStationRingChamberLCYLCT[4][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][2][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][2][CSCCh1][dCFEB3Bin1]++;
 		    if (inZMass) LCTNumStationRingChamberRun[4][2][CSCCh1]->Fill(run_number);
 		  }
-		  if (CSCRg1==3) {passStationRingLCT[4][3]++;passStationRingChamberLCT[4][3][CSCCh1]++;passStationRingPtLCT[4][3][pTBin]++;passStationRingEtaLCT[4][3][etaBin]++;passStationRingIsoLCT[4][3][isoBin]++;passStationRingPVLCT[4][3][pvBin]++;passStationRingILLCT[4][3][ilBin]++;passStationRingRunLCT[4][3][runBin]++;passStationRingChamberRunLCT[4][3][CSCCh1][runBin]++;passStationRingLCYLCT[4][3][lC3YBin1]++;passStationRingLCSLCT[4][3][lC3SBin1]++;passStationRingChamberLCYLCT[4][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][3][CSCCh1][lCWBin1]++;
+		  if (CSCRg1==3) {passStationRingLCT[4][3]++;passStationRingChamberLCT[4][3][CSCCh1]++;passStationRingPtLCT[4][3][pTBin]++;passStationRingEtaLCT[4][3][etaBin]++;passStationRingIsoLCT[4][3][isoBin]++;passStationRingPVLCT[4][3][pvBin]++;passStationRingILLCT[4][3][ilBin]++;passStationRingRunLCT[4][3][runBin]++;passStationRingChamberRunLCT[4][3][CSCCh1][runBin]++;passStationRingLCYLCT[4][3][lC3YBin1]++;passStationRingLCSLCT[4][3][lC3SBin1]++;passStationRingChamberLCYLCT[4][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][3][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][3][CSCCh1][dCFEB3Bin1]++;
 		    if (inZMass) LCTNumStationRingChamberRun[4][3][CSCCh1]->Fill(run_number);
 		  }
 		}
 	      }
 	      if (fiducial2){
 		totGlobal++;
-		if (CSCRg2==1) {totStationRing[5][1]++;totStationRingChamber[5][1][CSCCh2]++;totStationRingPt[5][1][pTBin]++;totStationRingEta[5][1][etaBin2]++;totStationRingIso[5][1][isoBin]++;totStationRingPV[5][1][pvBin]++;totStationRingIL[5][1][ilBin]++;totStationRingRun[5][1][runBin]++;totStationRingChamberRun[5][1][CSCCh2][runBin]++;totStationRingLCY[5][1][lCYBin2]++;totStationRingLCYLCT[5][1][lC3YBin2]++;totStationRingLCS[5][1][lCSBin2]++;totStationRingLCSLCT[5][1][lC3SBin2]++;totStationRingChamberLCY[5][1][CSCCh2][lCYBin2]++;totStationRingChamberLCS[5][1][CSCCh2][lCSBin2]++;totStationRingChamberLCW[5][1][CSCCh2][lCWBin2]++;
+		if (CSCRg2==1) {totStationRing[5][1]++;totStationRingChamber[5][1][CSCCh2]++;totStationRingPt[5][1][pTBin]++;totStationRingEta[5][1][etaBin2]++;totStationRingIso[5][1][isoBin]++;totStationRingPV[5][1][pvBin]++;totStationRingIL[5][1][ilBin]++;totStationRingRun[5][1][runBin]++;totStationRingChamberRun[5][1][CSCCh2][runBin]++;totStationRingLCY[5][1][lCYBin2]++;totStationRingLCYLCT[5][1][lC3YBin2]++;totStationRingLCS[5][1][lCSBin2]++;totStationRingLCSLCT[5][1][lC3SBin2]++;totStationRingChamberLCY[5][1][CSCCh2][lCYBin2]++;totStationRingChamberLCS[5][1][CSCCh2][lCSBin2]++;totStationRingChamberLCW[5][1][CSCCh2][lCWBin2]++;totStationRingChamberDCFEB[5][1][CSCCh2][dCFEBBin2]++;totStationRingChamberDCFEBLCT[5][1][CSCCh2][dCFEB3Bin2]++;
 		  if (inZMass) segDenStationRingChamberRun[5][1][CSCCh2]->Fill(run_number);
 		  zMassSegDenStationRingChamber[5][1][CSCCh2]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[5][1][CSCCh2]->Fill(CSCDxyTTSeg2);resSigmaSegStationRingChamber[5][1][CSCCh2]->Fill(CSCDxyTTSeg2/CSCDxyErrTTSeg2);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[5][1][CSCCh2][iiLayer]++;
+		    if (foundHit2[iiLayer]) passStationRingChamberLayerSeg[5][1][CSCCh2][iiLayer]++;
+		  }
 		}
-		if (CSCRg2==2) {totStationRing[5][2]++;totStationRingChamber[5][2][CSCCh2]++;totStationRingPt[5][2][pTBin]++;totStationRingEta[5][2][etaBin2]++;totStationRingIso[5][2][isoBin]++;totStationRingPV[5][2][pvBin]++;totStationRingIL[5][2][ilBin]++;totStationRingRun[5][2][runBin]++;totStationRingChamberRun[5][2][CSCCh2][runBin]++;totStationRingLCY[5][2][lCYBin2]++;totStationRingLCYLCT[5][2][lC3YBin2]++;totStationRingLCS[5][2][lCSBin2]++;totStationRingLCSLCT[5][2][lC3SBin2]++;totStationRingChamberLCY[5][2][CSCCh2][lCYBin2]++;totStationRingChamberLCS[5][2][CSCCh2][lCSBin2]++;totStationRingChamberLCW[5][2][CSCCh2][lCWBin2]++;
+		if (CSCRg2==2) {totStationRing[5][2]++;totStationRingChamber[5][2][CSCCh2]++;totStationRingPt[5][2][pTBin]++;totStationRingEta[5][2][etaBin2]++;totStationRingIso[5][2][isoBin]++;totStationRingPV[5][2][pvBin]++;totStationRingIL[5][2][ilBin]++;totStationRingRun[5][2][runBin]++;totStationRingChamberRun[5][2][CSCCh2][runBin]++;totStationRingLCY[5][2][lCYBin2]++;totStationRingLCYLCT[5][2][lC3YBin2]++;totStationRingLCS[5][2][lCSBin2]++;totStationRingLCSLCT[5][2][lC3SBin2]++;totStationRingChamberLCY[5][2][CSCCh2][lCYBin2]++;totStationRingChamberLCS[5][2][CSCCh2][lCSBin2]++;totStationRingChamberLCW[5][2][CSCCh2][lCWBin2]++;totStationRingChamberDCFEB[5][2][CSCCh2][dCFEBBin2]++;totStationRingChamberDCFEBLCT[5][2][CSCCh2][dCFEB3Bin2]++;
 		  if (inZMass) segDenStationRingChamberRun[5][2][CSCCh2]->Fill(run_number);
 		  zMassSegDenStationRingChamber[5][2][CSCCh2]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[5][2][CSCCh2]->Fill(CSCDxyTTSeg2);resSigmaSegStationRingChamber[5][2][CSCCh2]->Fill(CSCDxyTTSeg2/CSCDxyErrTTSeg2);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[5][2][CSCCh2][iiLayer]++;
+		    if (foundHit2[iiLayer]) passStationRingChamberLayerSeg[5][2][CSCCh2][iiLayer]++;
+		  }
 		}
 		if (foundSeg2) {
 		  passGlobalSeg++;
-		  if (CSCRg2==1) {passStationRingSeg[5][1]++;passStationRingChamberSeg[5][1][CSCCh2]++;passStationRingPtSeg[5][1][pTBin]++;passStationRingEtaSeg[5][1][etaBin2]++;passStationRingIsoSeg[5][1][isoBin]++;passStationRingPVSeg[5][1][pvBin]++;passStationRingILSeg[5][1][ilBin]++;passStationRingRunSeg[5][1][runBin]++;passStationRingChamberRunSeg[5][1][CSCCh2][runBin]++;passStationRingLCYSeg[5][1][lCYBin2]++;passStationRingLCSSeg[5][1][lCSBin2]++;passStationRingChamberLCYSeg[5][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSSeg[5][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWSeg[5][1][CSCCh2][lCWBin2]++;
+		  if (CSCRg2==1) {passStationRingSeg[5][1]++;passStationRingChamberSeg[5][1][CSCCh2]++;passStationRingPtSeg[5][1][pTBin]++;passStationRingEtaSeg[5][1][etaBin2]++;passStationRingIsoSeg[5][1][isoBin]++;passStationRingPVSeg[5][1][pvBin]++;passStationRingILSeg[5][1][ilBin]++;passStationRingRunSeg[5][1][runBin]++;passStationRingChamberRunSeg[5][1][CSCCh2][runBin]++;passStationRingLCYSeg[5][1][lCYBin2]++;passStationRingLCSSeg[5][1][lCSBin2]++;passStationRingChamberLCYSeg[5][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSSeg[5][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWSeg[5][1][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBSeg[5][1][CSCCh2][dCFEBBin2]++;
 		    if (inZMass) segNumStationRingChamberRun[5][1][CSCCh2]->Fill(run_number);
 		    zMassSegNumStationRingChamber[5][1][CSCCh2]->Fill(invMass);
 		  }
-		  if (CSCRg2==2) {passStationRingSeg[5][2]++;passStationRingChamberSeg[5][2][CSCCh2]++;passStationRingPtSeg[5][2][pTBin]++;passStationRingEtaSeg[5][2][etaBin2]++;passStationRingIsoSeg[5][2][isoBin]++;passStationRingPVSeg[5][2][pvBin]++;passStationRingILSeg[5][2][ilBin]++;passStationRingRunSeg[5][2][runBin]++;passStationRingChamberRunSeg[5][2][CSCCh2][runBin]++;passStationRingLCYSeg[5][2][lCYBin2]++;passStationRingLCSSeg[5][2][lCSBin2]++;passStationRingChamberLCYSeg[5][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSSeg[5][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWSeg[5][2][CSCCh2][lCWBin2]++;
+		  if (CSCRg2==2) {passStationRingSeg[5][2]++;passStationRingChamberSeg[5][2][CSCCh2]++;passStationRingPtSeg[5][2][pTBin]++;passStationRingEtaSeg[5][2][etaBin2]++;passStationRingIsoSeg[5][2][isoBin]++;passStationRingPVSeg[5][2][pvBin]++;passStationRingILSeg[5][2][ilBin]++;passStationRingRunSeg[5][2][runBin]++;passStationRingChamberRunSeg[5][2][CSCCh2][runBin]++;passStationRingLCYSeg[5][2][lCYBin2]++;passStationRingLCSSeg[5][2][lCSBin2]++;passStationRingChamberLCYSeg[5][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSSeg[5][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWSeg[5][2][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBSeg[5][2][CSCCh2][dCFEBBin2]++;
 		    if (inZMass) segNumStationRingChamberRun[5][2][CSCCh2]->Fill(run_number);
 		    zMassSegNumStationRingChamber[5][2][CSCCh2]->Fill(invMass);
 		  }
 		}
 		if (foundLCT2) {
 		  passGlobalLCT++;
-		  if (CSCRg2==1) {passStationRingLCT[5][1]++;passStationRingChamberLCT[5][1][CSCCh2]++;passStationRingPtLCT[5][1][pTBin]++;passStationRingEtaLCT[5][1][etaBin2]++;passStationRingIsoLCT[5][1][isoBin]++;passStationRingPVLCT[5][1][pvBin]++;passStationRingILLCT[5][1][ilBin]++;passStationRingRunLCT[5][1][runBin]++;passStationRingChamberRunLCT[5][1][CSCCh2][runBin]++;passStationRingLCYLCT[5][1][lC3YBin2]++;passStationRingLCSLCT[5][1][lC3SBin2]++;passStationRingChamberLCYLCT[5][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[5][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[5][1][CSCCh2][lCWBin2]++;
+		  if (CSCRg2==1) {passStationRingLCT[5][1]++;passStationRingChamberLCT[5][1][CSCCh2]++;passStationRingPtLCT[5][1][pTBin]++;passStationRingEtaLCT[5][1][etaBin2]++;passStationRingIsoLCT[5][1][isoBin]++;passStationRingPVLCT[5][1][pvBin]++;passStationRingILLCT[5][1][ilBin]++;passStationRingRunLCT[5][1][runBin]++;passStationRingChamberRunLCT[5][1][CSCCh2][runBin]++;passStationRingLCYLCT[5][1][lC3YBin2]++;passStationRingLCSLCT[5][1][lC3SBin2]++;passStationRingChamberLCYLCT[5][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[5][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[5][1][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBLCT[5][1][CSCCh2][dCFEB3Bin2]++;
 		    if (inZMass) LCTNumStationRingChamberRun[5][1][CSCCh2]->Fill(run_number);
 		  }
-		  if (CSCRg2==2) {passStationRingLCT[5][2]++;passStationRingChamberLCT[5][2][CSCCh2]++;passStationRingPtLCT[5][2][pTBin]++;passStationRingEtaLCT[5][2][etaBin2]++;passStationRingIsoLCT[5][2][isoBin]++;passStationRingPVLCT[5][2][pvBin]++;passStationRingILLCT[5][2][ilBin]++;passStationRingRunLCT[5][2][runBin]++;passStationRingChamberRunLCT[5][2][CSCCh2][runBin]++;passStationRingLCYLCT[5][2][lC3YBin2]++;passStationRingLCSLCT[5][2][lC3SBin2]++;passStationRingChamberLCYLCT[5][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[5][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[5][2][CSCCh2][lCWBin2]++;
+		  if (CSCRg2==2) {passStationRingLCT[5][2]++;passStationRingChamberLCT[5][2][CSCCh2]++;passStationRingPtLCT[5][2][pTBin]++;passStationRingEtaLCT[5][2][etaBin2]++;passStationRingIsoLCT[5][2][isoBin]++;passStationRingPVLCT[5][2][pvBin]++;passStationRingILLCT[5][2][ilBin]++;passStationRingRunLCT[5][2][runBin]++;passStationRingChamberRunLCT[5][2][CSCCh2][runBin]++;passStationRingLCYLCT[5][2][lC3YBin2]++;passStationRingLCSLCT[5][2][lC3SBin2]++;passStationRingChamberLCYLCT[5][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[5][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[5][2][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBLCT[5][2][CSCCh2][dCFEB3Bin2]++;
 		    if (inZMass) LCTNumStationRingChamberRun[5][2][CSCCh2]->Fill(run_number);
 		  }
 		}
 	      }
 	      if (fiducial3){
 		totGlobal++;
-		if (CSCRg3==1) {totStationRing[6][1]++;totStationRingChamber[6][1][CSCCh3]++;totStationRingPt[6][1][pTBin]++;totStationRingEta[6][1][etaBin3]++;totStationRingIso[6][1][isoBin]++;totStationRingPV[6][1][pvBin]++;totStationRingIL[6][1][ilBin]++;totStationRingRun[6][1][runBin]++;totStationRingChamberRun[6][1][CSCCh3][runBin]++;totStationRingLCY[6][1][lCYBin3]++;totStationRingLCYLCT[6][1][lC3YBin3]++;totStationRingLCS[6][1][lCSBin3]++;totStationRingLCSLCT[6][1][lC3SBin3]++;totStationRingChamberLCY[6][1][CSCCh3][lCYBin3]++;totStationRingChamberLCS[6][1][CSCCh3][lCSBin3]++;totStationRingChamberLCW[6][1][CSCCh3][lCWBin3]++;
+		if (CSCRg3==1) {totStationRing[6][1]++;totStationRingChamber[6][1][CSCCh3]++;totStationRingPt[6][1][pTBin]++;totStationRingEta[6][1][etaBin3]++;totStationRingIso[6][1][isoBin]++;totStationRingPV[6][1][pvBin]++;totStationRingIL[6][1][ilBin]++;totStationRingRun[6][1][runBin]++;totStationRingChamberRun[6][1][CSCCh3][runBin]++;totStationRingLCY[6][1][lCYBin3]++;totStationRingLCYLCT[6][1][lC3YBin3]++;totStationRingLCS[6][1][lCSBin3]++;totStationRingLCSLCT[6][1][lC3SBin3]++;totStationRingChamberLCY[6][1][CSCCh3][lCYBin3]++;totStationRingChamberLCS[6][1][CSCCh3][lCSBin3]++;totStationRingChamberLCW[6][1][CSCCh3][lCWBin3]++;totStationRingChamberDCFEB[6][1][CSCCh3][dCFEBBin3]++;totStationRingChamberDCFEBLCT[6][1][CSCCh3][dCFEB3Bin3]++;
 		  if (inZMass) segDenStationRingChamberRun[6][1][CSCCh3]->Fill(run_number);
 		  zMassSegDenStationRingChamber[6][1][CSCCh3]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[6][1][CSCCh3]->Fill(CSCDxyTTSeg3);resSigmaSegStationRingChamber[6][1][CSCCh3]->Fill(CSCDxyTTSeg3/CSCDxyErrTTSeg3);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[6][1][CSCCh3][iiLayer]++;
+		    if (foundHit3[iiLayer]) passStationRingChamberLayerSeg[6][1][CSCCh3][iiLayer]++;
+		  }
 		}
-		if (CSCRg3==2) {totStationRing[6][2]++;totStationRingChamber[6][2][CSCCh3]++;totStationRingPt[6][2][pTBin]++;totStationRingEta[6][2][etaBin3]++;totStationRingIso[6][2][isoBin]++;totStationRingPV[6][2][pvBin]++;totStationRingIL[6][2][ilBin]++;totStationRingRun[6][2][runBin]++;totStationRingChamberRun[6][2][CSCCh3][runBin]++;totStationRingLCY[6][2][lCYBin3]++;totStationRingLCYLCT[6][2][lC3YBin3]++;totStationRingLCS[6][2][lCSBin3]++;totStationRingLCSLCT[6][2][lC3SBin3]++;totStationRingChamberLCY[6][2][CSCCh3][lCYBin3]++;totStationRingChamberLCS[6][2][CSCCh3][lCSBin3]++;totStationRingChamberLCW[6][2][CSCCh3][lCWBin3]++;
+		if (CSCRg3==2) {totStationRing[6][2]++;totStationRingChamber[6][2][CSCCh3]++;totStationRingPt[6][2][pTBin]++;totStationRingEta[6][2][etaBin3]++;totStationRingIso[6][2][isoBin]++;totStationRingPV[6][2][pvBin]++;totStationRingIL[6][2][ilBin]++;totStationRingRun[6][2][runBin]++;totStationRingChamberRun[6][2][CSCCh3][runBin]++;totStationRingLCY[6][2][lCYBin3]++;totStationRingLCYLCT[6][2][lC3YBin3]++;totStationRingLCS[6][2][lCSBin3]++;totStationRingLCSLCT[6][2][lC3SBin3]++;totStationRingChamberLCY[6][2][CSCCh3][lCYBin3]++;totStationRingChamberLCS[6][2][CSCCh3][lCSBin3]++;totStationRingChamberLCW[6][2][CSCCh3][lCWBin3]++;totStationRingChamberDCFEB[6][2][CSCCh3][dCFEBBin3]++;totStationRingChamberDCFEBLCT[6][2][CSCCh3][dCFEB3Bin3]++;
 		  if (inZMass) segDenStationRingChamberRun[6][2][CSCCh3]->Fill(run_number);
 		  zMassSegDenStationRingChamber[6][2][CSCCh3]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[6][2][CSCCh3]->Fill(CSCDxyTTSeg3);resSigmaSegStationRingChamber[6][2][CSCCh3]->Fill(CSCDxyTTSeg3/CSCDxyErrTTSeg3);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[6][2][CSCCh3][iiLayer]++;
+		    if (foundHit3[iiLayer]) passStationRingChamberLayerSeg[6][2][CSCCh3][iiLayer]++;
+		  }
 		}
 		if (foundSeg3) {
 		  passGlobalSeg++;
-		  if (CSCRg3==1) {passStationRingSeg[6][1]++;passStationRingChamberSeg[6][1][CSCCh3]++;passStationRingPtSeg[6][1][pTBin]++;passStationRingEtaSeg[6][1][etaBin3]++;passStationRingIsoSeg[6][1][isoBin]++;passStationRingPVSeg[6][1][pvBin]++;passStationRingILSeg[6][1][ilBin]++;passStationRingRunSeg[6][1][runBin]++;passStationRingChamberRunSeg[6][1][CSCCh3][runBin]++;passStationRingLCYSeg[6][1][lCYBin3]++;passStationRingLCSSeg[6][1][lCSBin3]++;passStationRingChamberLCYSeg[6][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSSeg[6][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWSeg[6][1][CSCCh3][lCWBin3]++;
+		  if (CSCRg3==1) {passStationRingSeg[6][1]++;passStationRingChamberSeg[6][1][CSCCh3]++;passStationRingPtSeg[6][1][pTBin]++;passStationRingEtaSeg[6][1][etaBin3]++;passStationRingIsoSeg[6][1][isoBin]++;passStationRingPVSeg[6][1][pvBin]++;passStationRingILSeg[6][1][ilBin]++;passStationRingRunSeg[6][1][runBin]++;passStationRingChamberRunSeg[6][1][CSCCh3][runBin]++;passStationRingLCYSeg[6][1][lCYBin3]++;passStationRingLCSSeg[6][1][lCSBin3]++;passStationRingChamberLCYSeg[6][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSSeg[6][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWSeg[6][1][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBSeg[6][1][CSCCh3][dCFEBBin3]++;
 		    if (inZMass) segNumStationRingChamberRun[6][1][CSCCh3]->Fill(run_number);
 		    zMassSegNumStationRingChamber[6][1][CSCCh3]->Fill(invMass);
 		  }
-		  if (CSCRg3==2) {passStationRingSeg[6][2]++;passStationRingChamberSeg[6][2][CSCCh3]++;passStationRingPtSeg[6][2][pTBin]++;passStationRingEtaSeg[6][2][etaBin3]++;passStationRingIsoSeg[6][2][isoBin]++;passStationRingPVSeg[6][2][pvBin]++;passStationRingILSeg[6][2][ilBin]++;passStationRingRunSeg[6][2][runBin]++;passStationRingChamberRunSeg[6][2][CSCCh3][runBin]++;passStationRingLCYSeg[6][2][lCYBin3]++;passStationRingLCSSeg[6][2][lCSBin3]++;passStationRingChamberLCYSeg[6][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSSeg[6][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWSeg[6][2][CSCCh3][lCWBin3]++;
+		  if (CSCRg3==2) {passStationRingSeg[6][2]++;passStationRingChamberSeg[6][2][CSCCh3]++;passStationRingPtSeg[6][2][pTBin]++;passStationRingEtaSeg[6][2][etaBin3]++;passStationRingIsoSeg[6][2][isoBin]++;passStationRingPVSeg[6][2][pvBin]++;passStationRingILSeg[6][2][ilBin]++;passStationRingRunSeg[6][2][runBin]++;passStationRingChamberRunSeg[6][2][CSCCh3][runBin]++;passStationRingLCYSeg[6][2][lCYBin3]++;passStationRingLCSSeg[6][2][lCSBin3]++;passStationRingChamberLCYSeg[6][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSSeg[6][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWSeg[6][2][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBSeg[6][2][CSCCh3][dCFEBBin3]++;
 		    if (inZMass) segNumStationRingChamberRun[6][2][CSCCh3]->Fill(run_number);
 		    zMassSegNumStationRingChamber[6][2][CSCCh3]->Fill(invMass);
 		  }
 		}
 		if (foundLCT3) {
 		  passGlobalLCT++;
-		  if (CSCRg3==1) {passStationRingLCT[6][1]++;passStationRingChamberLCT[6][1][CSCCh3]++;passStationRingPtLCT[6][1][pTBin]++;passStationRingEtaLCT[6][1][etaBin3]++;passStationRingIsoLCT[6][1][isoBin]++;passStationRingPVLCT[6][1][pvBin]++;passStationRingILLCT[6][1][ilBin]++;passStationRingRunLCT[6][1][runBin]++;passStationRingChamberRunLCT[6][1][CSCCh3][runBin]++;passStationRingLCYLCT[6][1][lC3YBin3]++;passStationRingLCSLCT[6][1][lC3SBin3]++;passStationRingChamberLCYLCT[6][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[6][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[6][1][CSCCh3][lCWBin3]++;
+		  if (CSCRg3==1) {passStationRingLCT[6][1]++;passStationRingChamberLCT[6][1][CSCCh3]++;passStationRingPtLCT[6][1][pTBin]++;passStationRingEtaLCT[6][1][etaBin3]++;passStationRingIsoLCT[6][1][isoBin]++;passStationRingPVLCT[6][1][pvBin]++;passStationRingILLCT[6][1][ilBin]++;passStationRingRunLCT[6][1][runBin]++;passStationRingChamberRunLCT[6][1][CSCCh3][runBin]++;passStationRingLCYLCT[6][1][lC3YBin3]++;passStationRingLCSLCT[6][1][lC3SBin3]++;passStationRingChamberLCYLCT[6][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[6][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[6][1][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[6][1][CSCCh3][dCFEB3Bin3]++;
 		    if (inZMass) LCTNumStationRingChamberRun[6][1][CSCCh3]->Fill(run_number);
 		  }
-		  if (CSCRg3==2) {passStationRingLCT[6][2]++;passStationRingChamberLCT[6][2][CSCCh3]++;passStationRingPtLCT[6][2][pTBin]++;passStationRingEtaLCT[6][2][etaBin3]++;passStationRingIsoLCT[6][2][isoBin]++;passStationRingPVLCT[6][2][pvBin]++;passStationRingILLCT[6][2][ilBin]++;passStationRingRunLCT[6][2][runBin]++;passStationRingChamberRunLCT[6][2][CSCCh3][runBin]++;passStationRingLCYLCT[6][2][lC3YBin3]++;passStationRingLCSLCT[6][2][lC3SBin3]++;passStationRingChamberLCYLCT[6][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[6][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[6][2][CSCCh3][lCWBin3]++;
+		  if (CSCRg3==2) {passStationRingLCT[6][2]++;passStationRingChamberLCT[6][2][CSCCh3]++;passStationRingPtLCT[6][2][pTBin]++;passStationRingEtaLCT[6][2][etaBin3]++;passStationRingIsoLCT[6][2][isoBin]++;passStationRingPVLCT[6][2][pvBin]++;passStationRingILLCT[6][2][ilBin]++;passStationRingRunLCT[6][2][runBin]++;passStationRingChamberRunLCT[6][2][CSCCh3][runBin]++;passStationRingLCYLCT[6][2][lC3YBin3]++;passStationRingLCSLCT[6][2][lC3SBin3]++;passStationRingChamberLCYLCT[6][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[6][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[6][2][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[6][2][CSCCh3][dCFEB3Bin3]++;
 		    if (inZMass) LCTNumStationRingChamberRun[6][2][CSCCh3]->Fill(run_number);
 		  }
 		}
 	      }
 	      if (fiducial4){
 		totGlobal++;
-		if (CSCRg4==1) {totStationRing[7][1]++;totStationRingChamber[7][1][CSCCh4]++;totStationRingPt[7][1][pTBin]++;totStationRingEta[7][1][etaBin4]++;totStationRingIso[7][1][isoBin]++;totStationRingPV[7][1][pvBin]++;totStationRingIL[7][1][ilBin]++;totStationRingRun[7][1][runBin]++;totStationRingChamberRun[7][1][CSCCh4][runBin]++;totStationRingLCY[7][1][lCYBin4]++;totStationRingLCYLCT[7][1][lC3YBin4]++;totStationRingLCS[7][1][lCSBin4]++;totStationRingLCSLCT[7][1][lC3SBin4]++;totStationRingChamberLCY[7][1][CSCCh4][lCYBin4]++;totStationRingChamberLCS[7][1][CSCCh4][lCSBin4]++;totStationRingChamberLCW[7][1][CSCCh4][lCWBin4]++;
+		if (CSCRg4==1) {totStationRing[7][1]++;totStationRingChamber[7][1][CSCCh4]++;totStationRingPt[7][1][pTBin]++;totStationRingEta[7][1][etaBin4]++;totStationRingIso[7][1][isoBin]++;totStationRingPV[7][1][pvBin]++;totStationRingIL[7][1][ilBin]++;totStationRingRun[7][1][runBin]++;totStationRingChamberRun[7][1][CSCCh4][runBin]++;totStationRingLCY[7][1][lCYBin4]++;totStationRingLCYLCT[7][1][lC3YBin4]++;totStationRingLCS[7][1][lCSBin4]++;totStationRingLCSLCT[7][1][lC3SBin4]++;totStationRingChamberLCY[7][1][CSCCh4][lCYBin4]++;totStationRingChamberLCS[7][1][CSCCh4][lCSBin4]++;totStationRingChamberLCW[7][1][CSCCh4][lCWBin4]++;totStationRingChamberDCFEB[7][1][CSCCh4][dCFEBBin4]++;totStationRingChamberDCFEBLCT[7][1][CSCCh4][dCFEB3Bin4]++;
 		  if (inZMass) segDenStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
 		  zMassSegDenStationRingChamber[7][1][CSCCh4]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[7][1][CSCCh4]->Fill(CSCDxyTTSeg4);resSigmaSegStationRingChamber[7][1][CSCCh4]->Fill(CSCDxyTTSeg4/CSCDxyErrTTSeg4);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[7][1][CSCCh4][iiLayer]++;
+		    if (foundHit4[iiLayer]) passStationRingChamberLayerSeg[7][1][CSCCh4][iiLayer]++;
+		  }
 		}
-		if (CSCRg4==2) {totStationRing[7][2]++;totStationRingChamber[7][2][CSCCh4]++;totStationRingPt[7][2][pTBin]++;totStationRingEta[7][2][etaBin4]++;totStationRingIso[7][2][isoBin]++;totStationRingPV[7][2][pvBin]++;totStationRingIL[7][2][ilBin]++;totStationRingRun[7][2][runBin]++;totStationRingChamberRun[7][2][CSCCh4][runBin]++;totStationRingLCY[7][2][lCYBin4]++;totStationRingLCYLCT[7][2][lC3YBin4]++;totStationRingLCS[7][2][lCSBin4]++;totStationRingLCSLCT[7][2][lC3SBin4]++;totStationRingChamberLCY[7][2][CSCCh4][lCYBin4]++;totStationRingChamberLCS[7][2][CSCCh4][lCSBin4]++;totStationRingChamberLCW[7][2][CSCCh4][lCWBin4]++;
+		if (CSCRg4==2) {totStationRing[7][2]++;totStationRingChamber[7][2][CSCCh4]++;totStationRingPt[7][2][pTBin]++;totStationRingEta[7][2][etaBin4]++;totStationRingIso[7][2][isoBin]++;totStationRingPV[7][2][pvBin]++;totStationRingIL[7][2][ilBin]++;totStationRingRun[7][2][runBin]++;totStationRingChamberRun[7][2][CSCCh4][runBin]++;totStationRingLCY[7][2][lCYBin4]++;totStationRingLCYLCT[7][2][lC3YBin4]++;totStationRingLCS[7][2][lCSBin4]++;totStationRingLCSLCT[7][2][lC3SBin4]++;totStationRingChamberLCY[7][2][CSCCh4][lCYBin4]++;totStationRingChamberLCS[7][2][CSCCh4][lCSBin4]++;totStationRingChamberLCW[7][2][CSCCh4][lCWBin4]++;totStationRingChamberDCFEB[7][2][CSCCh4][dCFEBBin4]++;totStationRingChamberDCFEBLCT[7][2][CSCCh4][dCFEB3Bin4]++;
 		  if (inZMass) segDenStationRingChamberRun[7][2][CSCCh4]->Fill(run_number);
 		  zMassSegDenStationRingChamber[7][2][CSCCh4]->Fill(invMass);
 		  if (inZMass) {resSegStationRingChamber[7][2][CSCCh4]->Fill(CSCDxyTTSeg4);resSigmaSegStationRingChamber[7][2][CSCCh4]->Fill(CSCDxyTTSeg4/CSCDxyErrTTSeg4);}
+		  for (Int_t iiLayer = 0; iiLayer < 6; iiLayer++){
+		    totStationRingChamberLayer[7][2][CSCCh4][iiLayer]++;
+		    if (foundHit4[iiLayer]) passStationRingChamberLayerSeg[7][2][CSCCh4][iiLayer]++;
+		  }
 		}
 		if (foundSeg4) {
 		  passGlobalSeg++;
-		  if (CSCRg4==1) {passStationRingSeg[7][1]++;passStationRingChamberSeg[7][1][CSCCh4]++;passStationRingPtSeg[7][1][pTBin]++;passStationRingEtaSeg[7][1][etaBin4]++;passStationRingIsoSeg[7][1][isoBin]++;passStationRingPVSeg[7][1][pvBin]++;passStationRingILSeg[7][1][ilBin]++;passStationRingRunSeg[7][1][runBin]++;passStationRingChamberRunSeg[7][1][CSCCh4][runBin]++;passStationRingLCYSeg[7][1][lCYBin4]++;passStationRingLCSSeg[7][1][lCSBin4]++;passStationRingChamberLCYSeg[7][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[7][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[7][1][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==1) {passStationRingSeg[7][1]++;passStationRingChamberSeg[7][1][CSCCh4]++;passStationRingPtSeg[7][1][pTBin]++;passStationRingEtaSeg[7][1][etaBin4]++;passStationRingIsoSeg[7][1][isoBin]++;passStationRingPVSeg[7][1][pvBin]++;passStationRingILSeg[7][1][ilBin]++;passStationRingRunSeg[7][1][runBin]++;passStationRingChamberRunSeg[7][1][CSCCh4][runBin]++;passStationRingLCYSeg[7][1][lCYBin4]++;passStationRingLCSSeg[7][1][lCSBin4]++;passStationRingChamberLCYSeg[7][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[7][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[7][1][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBSeg[7][1][CSCCh4][dCFEBBin4]++;
 		    if (inZMass) segNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
 		    zMassSegNumStationRingChamber[7][1][CSCCh4]->Fill(invMass);
 		  }
-		  if (CSCRg4==2) {passStationRingSeg[7][2]++;passStationRingChamberSeg[7][2][CSCCh4]++;passStationRingPtSeg[7][2][pTBin]++;passStationRingEtaSeg[7][2][etaBin4]++;passStationRingIsoSeg[7][2][isoBin]++;passStationRingPVSeg[7][2][pvBin]++;passStationRingILSeg[7][2][ilBin]++;passStationRingRunSeg[7][2][runBin]++;passStationRingChamberRunSeg[7][2][CSCCh4][runBin]++;passStationRingLCYSeg[7][2][lCYBin4]++;passStationRingLCSSeg[7][2][lCSBin4]++;passStationRingChamberLCYSeg[7][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[7][2][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==2) {passStationRingSeg[7][2]++;passStationRingChamberSeg[7][2][CSCCh4]++;passStationRingPtSeg[7][2][pTBin]++;passStationRingEtaSeg[7][2][etaBin4]++;passStationRingIsoSeg[7][2][isoBin]++;passStationRingPVSeg[7][2][pvBin]++;passStationRingILSeg[7][2][ilBin]++;passStationRingRunSeg[7][2][runBin]++;passStationRingChamberRunSeg[7][2][CSCCh4][runBin]++;passStationRingLCYSeg[7][2][lCYBin4]++;passStationRingLCSSeg[7][2][lCSBin4]++;passStationRingChamberLCYSeg[7][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[7][2][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBSeg[7][2][CSCCh4][dCFEBBin4]++;
 		    if (inZMass) segNumStationRingChamberRun[7][2][CSCCh4]->Fill(run_number);
 		    zMassSegNumStationRingChamber[7][2][CSCCh4]->Fill(invMass);
 		  }
 		}
 		if (foundLCT4) {
 		  passGlobalLCT++;
-		  if (CSCRg4==1) {passStationRingLCT[7][1]++;passStationRingChamberLCT[7][1][CSCCh4]++;passStationRingPtLCT[7][1][pTBin]++;passStationRingEtaLCT[7][1][etaBin4]++;passStationRingIsoLCT[7][1][isoBin]++;passStationRingPVLCT[7][1][pvBin]++;passStationRingILLCT[7][1][ilBin]++;passStationRingRunLCT[7][1][runBin]++;passStationRingChamberRunLCT[7][1][CSCCh4][runBin]++;passStationRingLCYLCT[7][1][lC3YBin4]++;passStationRingLCSLCT[7][1][lC3SBin4]++;passStationRingChamberLCYLCT[7][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][1][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==1) {passStationRingLCT[7][1]++;passStationRingChamberLCT[7][1][CSCCh4]++;passStationRingPtLCT[7][1][pTBin]++;passStationRingEtaLCT[7][1][etaBin4]++;passStationRingIsoLCT[7][1][isoBin]++;passStationRingPVLCT[7][1][pvBin]++;passStationRingILLCT[7][1][ilBin]++;passStationRingRunLCT[7][1][runBin]++;passStationRingChamberRunLCT[7][1][CSCCh4][runBin]++;passStationRingLCYLCT[7][1][lC3YBin4]++;passStationRingLCSLCT[7][1][lC3SBin4]++;passStationRingChamberLCYLCT[7][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][1][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBLCT[7][1][CSCCh4][dCFEB3Bin4]++;
 		    if (inZMass) LCTNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
 		  }
-		  if (CSCRg4==2) {passStationRingLCT[7][2]++;passStationRingChamberLCT[7][2][CSCCh4]++;passStationRingPtLCT[7][2][pTBin]++;passStationRingEtaLCT[7][2][etaBin4]++;passStationRingIsoLCT[7][2][isoBin]++;passStationRingPVLCT[7][2][pvBin]++;passStationRingILLCT[7][2][ilBin]++;passStationRingRunLCT[7][2][runBin]++;passStationRingChamberRunLCT[7][2][CSCCh4][runBin]++;passStationRingLCYLCT[7][2][lC3YBin4]++;passStationRingLCSLCT[7][2][lC3SBin4]++;passStationRingChamberLCYLCT[7][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][2][CSCCh4][lCWBin4]++;
+		  if (CSCRg4==2) {passStationRingLCT[7][2]++;passStationRingChamberLCT[7][2][CSCCh4]++;passStationRingPtLCT[7][2][pTBin]++;passStationRingEtaLCT[7][2][etaBin4]++;passStationRingIsoLCT[7][2][isoBin]++;passStationRingPVLCT[7][2][pvBin]++;passStationRingILLCT[7][2][ilBin]++;passStationRingRunLCT[7][2][runBin]++;passStationRingChamberRunLCT[7][2][CSCCh4][runBin]++;passStationRingLCYLCT[7][2][lC3YBin4]++;passStationRingLCSLCT[7][2][lC3SBin4]++;passStationRingChamberLCYLCT[7][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][2][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBLCT[7][2][CSCCh4][dCFEB3Bin4]++;
 		    if (inZMass) LCTNumStationRingChamberRun[7][2][CSCCh4]->Fill(run_number);
 		  }
 		}
@@ -1970,15 +2537,37 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
    	 LCTEff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
    	 LCTEff2DStationRingChamber->SetBinError(iiChamber,ybin,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
 
+	     
          segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(segNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
          segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
          segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
+	 
 
 	 LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
          LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
          LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
+	 for (Int_t ii=0; ii< lastRun-firstRun; ii++){
+	   if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0&&segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
+	     segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,-0.001);
+	       }
+	   if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)>0&&segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
+	     segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,0.001);
+	       }
+
+	   if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0&&LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
+	     LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,-0.001);
+	       }
+	   if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)>0&&LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
+	     LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,0.001);
+	       }
+
+
+	 }
+
+
+	 
 
 
    // 	 // if (fitEff) {
@@ -2041,13 +2630,58 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
    	 LCTEff2DStationRingChamberRun[iiStation][iiRing]->Write();
    	 yySegStationRing[iiStation][iiRing]->Write();
 	 	 
+
+ 	 for (Int_t iiLayer=0; iiLayer< numLayerBins; iiLayer++){
+
+       if ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]>0.5)&&((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer])>0.5)) {
+   	 effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer] = (passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
+   	 effSigmaStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer] = sqrt(((passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]+passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]))+ ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])+(totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]))*effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]*effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
+   	 //effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer] = (passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
+   	 //effSigmaStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer] = sqrt(((passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]+passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]))+ ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])+(totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]))*effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]*effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
        }
-       // segEffStationRingChamber[iiStation][iiRing]->Write();
-       // //segEffStationRingChamber[iiStation][iiRing]->Print("all");  
-       // LCTEffStationRingChamber[iiStation][iiRing]->Write();
-       // //LCTEffStationRingChamber[iiStation][iiRing]->Print("all");  
 
 
+
+	   
+   	   segEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinContent(iiChamber,iiLayer+1,effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]);
+   	   segEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinError(iiChamber,iiLayer+1,effSigmaStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]);
+   	   //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinContent(iiChamber,iiLayer+1,effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]);
+   	   //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinError(iiChamber,iiLayer+1,effSigmaStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]);
+
+   	 }
+
+   	 segEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
+   	 LCTEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
+
+
+ 
+ 
+       
+
+  	 for (Int_t iiDCFEB=0; iiDCFEB< numDCFEBBins; iiDCFEB++){
+
+       if ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]>0.5)&&((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB])>0.5)) {
+   	 effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB] = (passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
+   	 effSigmaStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB] = sqrt(((passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]+passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]))+ ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])+(totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]))*effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]*effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
+   	 effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB] = (passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
+   	 effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB] = sqrt(((passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]+passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]))+ ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])+(totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]))*effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]*effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
+       }
+
+
+
+	   
+   	   segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]);
+   	   segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]);
+   	   LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
+   	   LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
+
+   	 }
+
+   	 segEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
+   	 LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
+	 	 
+       }
+ 
 
 
        for (Int_t iiPt=0; iiPt< numPtBins; iiPt++){
@@ -2405,71 +3039,71 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
    // 	 LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->Write();
    //     }       
 
-   //     for (Int_t iiLCY=0; iiLCY< numLCYBins; iiLCY++){
-   //     // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)  effStationRingLCYSeg[iiStation][iiRing][iiLCY] = passStationRingLCYSeg[iiStation][iiRing][iiLCY]/totStationRingLCY[iiStation][iiRing][iiLCY];
-   //     // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5) effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(effStationRingLCYSeg[iiStation][iiRing][iiLCY]*(1.0-effStationRingLCYSeg[iiStation][iiRing][iiLCY])/totStationRingLCY[iiStation][iiRing][iiLCY]);
-   //     // 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCY Bin " << iiLCY << std::endl;
-   //     // 	 //std::cout << "tot: " << totStationRingLCY[iiStation][iiRing][iiLCY] << std::endl;
-   //     // 	 //std::cout << "eff: " << effStationRingLCYSeg[iiStation][iiRing][iiLCY] << " +/- " << effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] << std::endl;
+       for (Int_t iiLCY=0; iiLCY< numLCYBins; iiLCY++){
+       // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)  effStationRingLCYSeg[iiStation][iiRing][iiLCY] = passStationRingLCYSeg[iiStation][iiRing][iiLCY]/totStationRingLCY[iiStation][iiRing][iiLCY];
+       // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5) effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(effStationRingLCYSeg[iiStation][iiRing][iiLCY]*(1.0-effStationRingLCYSeg[iiStation][iiRing][iiLCY])/totStationRingLCY[iiStation][iiRing][iiLCY]);
+       // 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCY Bin " << iiLCY << std::endl;
+       // 	 //std::cout << "tot: " << totStationRingLCY[iiStation][iiRing][iiLCY] << std::endl;
+       // 	 //std::cout << "eff: " << effStationRingLCYSeg[iiStation][iiRing][iiLCY] << " +/- " << effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] << std::endl;
 
-   //     // if ((totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY])>0.5)) {
-   //     // 	 effStationRingLCYSeg[iiStation][iiRing][iiLCY] = (passStationRingLCYSeg[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
-   //     // 	 effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY]))+ ((totStationRingLCY[iiStation][iiRing][iiLCY]-passStationRingLCYSeg[iiStation][iiRing][iiLCY])+(totSBStationRingLCY[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]))*effStationRingLCYSeg[iiStation][iiRing][iiLCY]*effStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
-   //     // }
-   //     // if ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY])>0.5)) {
-   //     // 	 effStationRingLCYLCT[iiStation][iiRing][iiLCY] = (passStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-   //     // 	 effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY]))+ ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-passStationRingLCYLCT[iiStation][iiRing][iiLCY])+(totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]))*effStationRingLCYLCT[iiStation][iiRing][iiLCY]*effStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-   //     // }
+       // if ((totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY])>0.5)) {
+       // 	 effStationRingLCYSeg[iiStation][iiRing][iiLCY] = (passStationRingLCYSeg[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
+       // 	 effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY]))+ ((totStationRingLCY[iiStation][iiRing][iiLCY]-passStationRingLCYSeg[iiStation][iiRing][iiLCY])+(totSBStationRingLCY[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]))*effStationRingLCYSeg[iiStation][iiRing][iiLCY]*effStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
+       // }
+       // if ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY])>0.5)) {
+       // 	 effStationRingLCYLCT[iiStation][iiRing][iiLCY] = (passStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+       // 	 effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY]))+ ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-passStationRingLCYLCT[iiStation][iiRing][iiLCY])+(totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]))*effStationRingLCYLCT[iiStation][iiRing][iiLCY]*effStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+       // }
 
-   //     // 	 if ((iiStation<4)&&((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])>0.5)&&(((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]))>0.5)) {
-   //     // 	   effStationCRingLCYSeg[iiStation][iiRing][iiLCY] = ((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-   //     // 	   effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYSeg[iiStation][iiRing][iiLCY]*effStationCRingLCYSeg[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+       // 	 if ((iiStation<4)&&((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])>0.5)&&(((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]))>0.5)) {
+       // 	   effStationCRingLCYSeg[iiStation][iiRing][iiLCY] = ((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+       // 	   effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYSeg[iiStation][iiRing][iiLCY]*effStationCRingLCYSeg[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
 
-   //     // 	   effStationCRingLCYLCT[iiStation][iiRing][iiLCY] = ((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-   //     // 	   effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYLCT[iiStation][iiRing][iiLCY]*effStationCRingLCYLCT[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-   //     // 	 }
-
-       
-   //     // segEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYSeg[iiStation][iiRing][iiLCY]);
-   //     // segEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY]);
-   //     // LCTEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-   //     // LCTEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-   //     // if (iiStation<4){
-   //     // segEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
-   //     // segEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
-   //     // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
-   //     // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
-   //     // }
-
-   //     for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-
-   //     	 if ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]>0.5)&&((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY])>0.5)) {
-   //     	   effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-   //     	   effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-
-   //     	   effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-   //     	   effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-   //     	 }	 
-
-   //     	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
-   //     	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
-   //     	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
-   //     	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
-
-   //     }
+       // 	   effStationCRingLCYLCT[iiStation][iiRing][iiLCY] = ((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+       // 	   effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYLCT[iiStation][iiRing][iiLCY]*effStationCRingLCYLCT[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+       // 	 }
 
        
-   //     } //end loog over LCY bins
-   //     // segEffStationRingLCY[iiStation][iiRing]->Write();
-   //     // LCTEffStationRingLCY[iiStation][iiRing]->Write();
-   //     // if (iiStation<4){
-   //     // segEffStationCRingLCY[iiStation][iiRing]->Write();
-   //     // LCTEffStationCRingLCY[iiStation][iiRing]->Write();
-   //     // }
-   //     for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-   //     	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-   //     	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-   //     }      
+       // segEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYSeg[iiStation][iiRing][iiLCY]);
+       // segEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY]);
+       // LCTEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+       // LCTEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+       // if (iiStation<4){
+       // segEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
+       // segEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
+       // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
+       // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
+       // }
+
+       for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+
+       	 if ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]>0.5)&&((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY])>0.5)) {
+       	   effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+       	   effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+
+       	   effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+       	   effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+       	 }	 
+
+       	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
+       	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
+       	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
+       	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
+
+       }
+
+       
+       } //end loog over LCY bins
+       // segEffStationRingLCY[iiStation][iiRing]->Write();
+       // LCTEffStationRingLCY[iiStation][iiRing]->Write();
+       // if (iiStation<4){
+       // segEffStationCRingLCY[iiStation][iiRing]->Write();
+       // LCTEffStationCRingLCY[iiStation][iiRing]->Write();
+       // }
+       for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+       	 segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
+       	 LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
+       }      
 
        for (Int_t iiLCS=0; iiLCS< numLCSBins; iiLCS++){
        // 	 //if (totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)  effStationRingLCSSeg[iiStation][iiRing][iiLCS] = passStationRingLCSSeg[iiStation][iiRing][iiLCS]/totStationRingLCS[iiStation][iiRing][iiLCS];
@@ -2577,8 +3211,36 @@ badChamber[1][3-1][1][12-1] = true;   badChamberRun[1][3-1][1][12-1][0] = 316000
     zMassAll->Write();
     zMassGood->Write();
     zMassBad->Write();
-   
 
+    muonSegmentsFidAll->Write();
+    muonSegmentsFid1->Write();
+    muonSegmentsFid2->Write();
+    muonSegmentsWithME21->Write();
+    muonSegmentsNoME21->Write();
+
+    segmentsFidAll->Write();
+    segmentsFid1->Write();
+    segmentsFid2->Write();
+    segmentsWithME21->Write();
+    segmentsNoME21->Write();
+
+    segmentsFid1HighPV->Write();
+    segmentsFid2HighPV->Write();
+    segmentsFid1LowPV->Write();
+    segmentsFid2LowPV->Write();
+
+    muonSegmentsFid1HighPV->Write();
+    muonSegmentsFid2HighPV->Write();
+    muonSegmentsFid1LowPV->Write();
+    muonSegmentsFid2LowPV->Write();
+
+    segmentsFid1HighpT->Write();
+    segmentsFid2HighpT->Write();
+ 
+    
+
+    std::cout << "Total, pass, fail " << totalFiducial << " " << totalPass << " " << totalFail << std::endl;
+    
    // globalCSCSegEffPt->Write();
 
    cscEffHistoFile.Write();

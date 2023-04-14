@@ -245,6 +245,8 @@ vtxsrc_= pSet_.getUntrackedParameter<std::string>("vtxsrc","offlinePrimaryVertic
   fractNtuple->Branch("LumiBlock",       &LumiBlock,"LumiBlock/I") ;
   fractNtuple->Branch("LumiSection",       &LumiSection,"LumiSection/I") ;
 
+ 
+  
   LumiInst=new vector<Float_t>();
   LumiInstErr=new vector<Float_t>();
   LumiInstQlty=new vector<Float_t>();
@@ -675,6 +677,14 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   //  event.getByLabel("cscSegments", cscSegments); 
   event.getByToken(seg_token, cscSegments); 
 
+
+ if (run_number == 356004 && event_number == 14788293) {
+   std::cout << "Bad event Segment and RecHits size "<< cscSegments->size() << " " << recHits->size() << std::endl;
+  }
+  std::cout << "run event "<< run_number << " " << event_number << std::endl;
+  std::cout << "Segment and RecHits size "<< cscSegments->size() << " " << recHits->size() << std::endl;
+
+  
   edm::Handle<CSCCorrelatedLCTDigiCollection> mpclcts;
   try{
 //    event.getByLabel("csctfunpacker","", mpclcts);

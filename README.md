@@ -16,8 +16,8 @@
    
 ## Installation
 <pre>
-cmsrel CMSSW_12_4_3
-cd CMSSW_12_4_3/src
+cmsrel CMSSW_12_4_10
+cd CMSSW_12_4_10/src
 cmsenv
 mkdir CSCEfficiency
 git clone https://github.com/herndon/CSCefficiency CSCEfficiency
@@ -55,3 +55,6 @@ CSCEffFast* cscEffFast = new CSCEffFast()
 </pre>
 This makes the file cscEffHistoFile.root
 The file commands.txt has commands to make pretty plots from cscEffHistoFile.root.
+There is scipt to make plots automatically.  However, you likely have to create of copy over the directory structure made under plots/ first.
+root6
+.x PlotCSCEffFast.C
