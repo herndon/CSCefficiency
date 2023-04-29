@@ -34,9 +34,9 @@ void CSCEffFast::Loop()
 
 	bool DoubleMuGun = false;
 	bool LowStats = false;
-	bool badRunRangesTrack = true; // Min removal for 2022ABCDEFG
-	bool badRunRangesTrack2 = true; // Max removal for 2022ABCDEFG
-	bool badChambersTrack = true; // Chamber fremoval for 2022ABCDEFG
+	bool badRunRangesTrack = false; // Min removal for 2022ABCDEFG
+	bool badRunRangesTrack2 = false; // Max removal for 2022ABCDEFG
+	bool badChambersTrack = false; // Chamber fremoval for 2022ABCDEFG
 	bool oldBadChambersTrack = false; // Removal for Run2
 
 

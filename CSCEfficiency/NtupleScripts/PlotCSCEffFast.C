@@ -20,6 +20,9 @@
 using namespace std;
 
 void PlotCSCEffFast(){
+	gErrorIgnoreLevel = kWarning;
+	cout << "Beginning plots..." << endl;
+
 	char file[50];
 	char name[50];
 	char stationRing[10];
@@ -2448,5 +2451,6 @@ void PlotCSCEffFast(){
 		}
 	}
 	//Closing File and Exiting
-	cscTextEffData.close();    
+	cscTextEffData.close();
+	cout << "Done." << endl;
 }
