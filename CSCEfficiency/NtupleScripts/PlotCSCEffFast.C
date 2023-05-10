@@ -20,25 +20,31 @@
 using namespace std;
 
 void PlotCSCEffFast(){
-	gErrorIgnoreLevel = kWarning;
-	cout << "Beginning plots..." << endl;
-
+	//Constants
+	float effThreshold = 0.8;	// Efficiency threshold for file readouts.
+	double lowEff = 0.6;
+	double highEff = 1.02;
+	int firstRun = 355000;
+	int lastRun = 362800;
+	
+	//Flags
+	bool verbose = false;
+	bool chamberPlots = true;
+	
+	//Initializing
 	char file[50];
 	char name[50];
 	char stationRing[10];
 	char title[100];
 
-	bool chamberPlots = true;
-
-	double lowEff = 0.6;
-	double highEff = 1.02;
-
-	int firstRun = 355000;
-	int lastRun = 362800;
-
 	//Opening Text File
+	cout << "Beginning plots..." << std::endl;
+	if (!verbose) gErrorIgnoreLevel = kWarning;
+	
 	ofstream cscTextEffData; 
 	cscTextEffData.open("cscTextEffData.txt");
+	ofstream cscDCFEBCheck;
+	cscDCFEBCheck.open("cscDCFEBCheck.txt");
 
 	//Setting Plotting Styles
 	gROOT->SetStyle("Plain");   	// set plain TStyle
@@ -270,7 +276,7 @@ void PlotCSCEffFast(){
 	TH1F * segEffPTStation1CRing3 = (TH1F*)file0->Get("segEffPTStation1CRing3");
 
 	segEffPTStation1CRing0->SetTitle("     CSC Segment Efficiency vs p_{T}         Run 3 Data");
-	segEffPTStation1CRing0->GetYaxis()->SetRangeUser(lowEff,1.02);
+	segEffPTStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
 	segEffPTStation1CRing0->GetXaxis()->SetRangeUser(10.0,100.0);
 	segEffPTStation1CRing0->SetLineColor(kRed);
 	segEffPTStation1CRing0->SetMarkerColor(kRed);
@@ -2184,7 +2190,7 @@ void PlotCSCEffFast(){
 				for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
 					if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
 					if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
-					
+
 					//Drawing CSC Segment Efficiency vs. Strip LC
 					sprintf(name,"segEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
 					if (iiStation<4) {
@@ -2303,7 +2309,7 @@ void PlotCSCEffFast(){
 					segEffChamberRun->GetXaxis()->SetTickLength(0.015);
 					segEffChamberRun->GetYaxis()->SetTickLength(0.015);
 					segEffChamberRun->GetYaxis()->SetRangeUser(0.0,1.05);
-					segEffChamberRun->GetXaxis()->SetRangeUser(355000.0,lastRun);
+					segEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
 					segEffChamberRun->SetLineColor(kBlack);
 					segEffChamberRun->SetMarkerColor(kBlack);
 					segEffChamberRun->SetMarkerStyle(8);
@@ -2315,11 +2321,10 @@ void PlotCSCEffFast(){
 					// first run 355100
 					cscTextEffData << file << std::endl;
 					for (Int_t ii=0; ii< lastRun-firstRun; ii++){
-						if (segEffChamberRun->GetBinContent(ii)>0.0&&segEffChamberRun->GetBinContent(ii)<0.8){
+						if (segEffChamberRun->GetBinContent(ii)>0.0&&segEffChamberRun->GetBinContent(ii) < effThreshold){
 							cscTextEffData << segEffChamberRun->GetXaxis()->GetBinCenter(ii) << " " << segEffChamberRun->GetBinContent(ii) << std::endl;
 						}
-					}	  
-
+					}
 
 					//Drawing LCT Efficiency vs. Strip LC
 					sprintf(name,"LCTEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
@@ -2439,7 +2444,7 @@ void PlotCSCEffFast(){
 					LCTEffChamberRun->GetXaxis()->SetTickLength(0.015);
 					LCTEffChamberRun->GetYaxis()->SetTickLength(0.015);
 					LCTEffChamberRun->GetYaxis()->SetRangeUser(0.0,1.05);
-					LCTEffChamberRun->GetXaxis()->SetRangeUser(355000.0,lastRun);
+					LCTEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
 					LCTEffChamberRun->SetLineColor(kBlack);
 					LCTEffChamberRun->SetMarkerColor(kBlack);
 					LCTEffChamberRun->SetMarkerStyle(8);
@@ -2452,5 +2457,5 @@ void PlotCSCEffFast(){
 	}
 	//Closing File and Exiting
 	cscTextEffData.close();
-	cout << "Done." << endl;
+	cscDCFEBCheck.close();
 }
