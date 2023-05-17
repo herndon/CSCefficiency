@@ -30,7 +30,7 @@ void PlotCSCEffFast(){
 
 	// Flags
 	bool verbose = false;
-	bool summaryPlots = false; // Efficiency plot per ring or for the full system
+	bool summaryPlots = true; // Efficiency plot per ring or for the full system
 	bool chamberPlots = false;   // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
 	bool runAnalysis = false;   // Run Analysis per chamber wont get done unless chamber plots are on
 	bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
@@ -45,7 +45,7 @@ void PlotCSCEffFast(){
 	// int firstRun = 355000;
 	// int lastRun = 362800;
 	int firstRun = 366400;
-	int lastRun = 367100;
+	int lastRun = 367400;
 
 	// Efficiency Check text files
 	cout << "Beginning plots..." << std::endl;
@@ -82,6 +82,7 @@ void PlotCSCEffFast(){
 		zMassAll->GetXaxis()->SetRangeUser(75.0,105.0);
 		zMassAll->Draw();
 		c1.Print("plots/zMassRun3.png");
+
 
 
 		// Drawing Muon Segments
@@ -123,6 +124,7 @@ void PlotCSCEffFast(){
 		c1.Print("plots/muonSegmentsNoME21.png");
 
 
+
 		// Drawing CSC Segments
 		TH1F * segmentsFidAll = (TH1F*)file0->Get("segmentsFidAll");
 		segmentsFidAll->GetXaxis()->SetRangeUser(-0.5,5.5);
@@ -149,6 +151,7 @@ void PlotCSCEffFast(){
 		segmentsFid1->SetLineColor(kRed);
 		segmentsFid1->Draw("SAME");
 		c1.Print("plots/segmentsFid1vsFid2.png");
+
 
 
 		// Drawing CSC Segments with Low/High PV
@@ -195,6 +198,7 @@ void PlotCSCEffFast(){
 		c1.Print("plots/segmentsinME22LowVsHighPV.png");
 
 
+
 		// Drawing Muon Segments with Low/High PV
 		TH1F * muonSegmentsFid1HighPV = (TH1F*)file0->Get("muonSegmentsFid1HighPV");
 		muonSegmentsFid1HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
@@ -239,6 +243,7 @@ void PlotCSCEffFast(){
 		c1.Print("plots/muonSegmentsinME22LowVsHighPV.png");
 
 
+
 		// Drawing CSC Segments with High pT
 		TH1F * segmentsFid1HighpT = (TH1F*)file0->Get("segmentsFid1HighpT");
 		segmentsFid1HighpT->GetXaxis()->SetRangeUser(-0.5,5.5);
@@ -253,6 +258,7 @@ void PlotCSCEffFast(){
 		segmentsFid1HighpT->SetLineColor(kRed);
 		segmentsFid1HighpT->Draw("SAME");
 		c1.Print("plots/segmentsFid1vsFid2HighpT.png");
+
 
 
 		// Drawing CSC Segments with and without ME21
@@ -273,6 +279,7 @@ void PlotCSCEffFast(){
 		segmentsNoME21->SetLineColor(kRed);
 		segmentsNoME21->Draw("SAME");
 		c1.Print("plots/segmentsWvsW)ME21.png");
+
 
 
 		// Setting New Stat Block
@@ -314,6 +321,7 @@ void PlotCSCEffFast(){
 		legendSegPT->Draw();
 
 		c1.Print("plots/CSCSegEffRun3DataME1vsPt.png");  
+
 
 
 		// Drawing CSC Segment Efficiency vs. pT
@@ -369,6 +377,8 @@ void PlotCSCEffFast(){
 
 		c1.Print("plots/CSCSegEffRun3DataME234vsPt.png");
 
+
+
 		// Drawing CSC Segment Efficiency vs. Eta
 		TH1F * segEffEtaStation1CRing0 = (TH1F*)file0->Get("segEffEtaStation1CRing0");
 		TH1F * segEffEtaStation1CRing1 = (TH1F*)file0->Get("segEffEtaStation1CRing1");
@@ -405,6 +415,8 @@ void PlotCSCEffFast(){
 		legendSegEta->Draw();
 
 		c1.Print("plots/CSCSegEffRun3DataME1vsEta.png");  
+
+
 
 		// Drawing CSC Segment Efficiency vs. Eta
 		TH1F * segEffEtaStation2CRing1 = (TH1F*)file0->Get("segEffEtaStation2CRing1");
@@ -460,6 +472,7 @@ void PlotCSCEffFast(){
 		c1.Print("plots/CSCSegEffRun3DataME234vsEta.png");
 
 
+
 		// Drawing CSC Segment Efficiency vs. PV (CRing)
 		TH1F * segEffPVStation1CRing0 = (TH1F*)file0->Get("segEffPVStation1CRing0");
 		TH1F * segEffPVStation1CRing1 = (TH1F*)file0->Get("segEffPVStation1CRing1");
@@ -497,7 +510,8 @@ void PlotCSCEffFast(){
 
 		c1.Print("plots/CSCSegEffRun3DataME1vsPV.png");  
 
-		
+
+
 		// Drawing CSC Segment Efficiency vs. PV (CRing)
 		TH1F * segEffPVStation2CRing1 = (TH1F*)file0->Get("segEffPVStation2CRing1");
 		TH1F * segEffPVStation2CRing2 = (TH1F*)file0->Get("segEffPVStation2CRing2");
@@ -550,6 +564,7 @@ void PlotCSCEffFast(){
 		legendSegPV2->Draw();
 
 		c1.Print("plots/CSCSegEffRun3DataME234vsPV.png");
+
 
 
 		// Drawing CSC Segment Efficiency vs. PV (Ring)
@@ -606,6 +621,7 @@ void PlotCSCEffFast(){
 		c1.Print("plots/CSCSegEffRun3DataME-234vsPV.png");
 
 
+
 		// Drawing CSC Segment Efficiency vs. PV (Ring)
 		TH1F * segEffPVStation6Ring1 = (TH1F*)file0->Get("segEffPVStation6Ring1");
 		TH1F * segEffPVStation6Ring2 = (TH1F*)file0->Get("segEffPVStation6Ring2");
@@ -660,6 +676,7 @@ void PlotCSCEffFast(){
 		c1.Print("plots/CSCSegEffRun3DataME+234vsPV.png");
 
 
+
 		// Drawing 2D CSC Segment Efficiency
 		TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
 
@@ -669,6 +686,7 @@ void PlotCSCEffFast(){
 		segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
 		segEff2DStationRingChamber->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DRingChamber.png");
+
 
 
 		// Drawing CSC LCT Efficiency vs. pT
@@ -707,6 +725,7 @@ void PlotCSCEffFast(){
 		legendLCTPT->Draw();
 
 		c1.Print("plots/CSCLCTEffRun3DataME1vsPt.png");  
+
 
 
 		// Drawing CSC LCT Efficiency vs. pT
@@ -761,7 +780,9 @@ void PlotCSCEffFast(){
 		legendLCTPT2->Draw();
 
 		c1.Print("plots/CSCLCTEffRun3DataME234vsPt.png");
-		
+
+
+
 		// Drawing CSC LCT Efficiency vs. Eta
 		TH1F * LCTEffEtaStation1CRing0 = (TH1F*)file0->Get("LCTEffEtaStation1CRing0");
 		TH1F * LCTEffEtaStation1CRing1 = (TH1F*)file0->Get("LCTEffEtaStation1CRing1");
@@ -798,6 +819,7 @@ void PlotCSCEffFast(){
 		legendLCTEta->Draw();
 
 		c1.Print("plots/CSCLCTEffRun3DataME1vsEta.png");  
+
 
 
 		// Drawing CSC LCT Efficiency vs. Eta
@@ -853,7 +875,8 @@ void PlotCSCEffFast(){
 
 		c1.Print("plots/CSCLCTEffRun3DataME234vsEta.png");
 
-		
+
+
 		// Drawing CSC LCT Efficiency vs. PV (CRing)
 		TH1F * LCTEffPVStation1CRing0 = (TH1F*)file0->Get("LCTEffPVStation1CRing0");
 		TH1F * LCTEffPVStation1CRing1 = (TH1F*)file0->Get("LCTEffPVStation1CRing1");
@@ -890,6 +913,7 @@ void PlotCSCEffFast(){
 		legendLCTPV->Draw();
 
 		c1.Print("plots/CSCLCTEffRun3DataME1vsPV.png");  
+
 
 
 		// Drawing CSC LCT Efficiency vs. PV (CRing)
@@ -946,6 +970,7 @@ void PlotCSCEffFast(){
 		c1.Print("plots/CSCLCTEffRun3DataME234vsPV.png");
 
 
+
 		// Drawing CSC LCT Efficiency vs. PV (Ring)
 		TH1F * LCTEffPVStation2Ring1 = (TH1F*)file0->Get("LCTEffPVStation2Ring1");
 		TH1F * LCTEffPVStation2Ring2 = (TH1F*)file0->Get("LCTEffPVStation2Ring2");
@@ -1000,6 +1025,7 @@ void PlotCSCEffFast(){
 		c1.Print("plots/CSCLCTEffRun3DataME-234vsPV.png");
 
 
+
 		// Drawing CSC LCT Efficiency vs. PV (Ring)
 		TH1F * LCTEffPVStation6Ring1 = (TH1F*)file0->Get("LCTEffPVStation6Ring1");
 		TH1F * LCTEffPVStation6Ring2 = (TH1F*)file0->Get("LCTEffPVStation6Ring2");
@@ -1052,6 +1078,7 @@ void PlotCSCEffFast(){
 		legendLCTPV4->Draw();
 
 		c1.Print("plots/CSCLCTEffRun3DataME+234vsPV.png");
+
 
 
 		// Drawing 2D CSC LCT Efficiency
@@ -1232,7 +1259,7 @@ void PlotCSCEffFast(){
 		segEff2DStation3Ring2ChamberRun->SetMarkerSize(0.75);
 		segEff2DStation3Ring2ChamberRun->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberRunME-32.png");
-		
+
 		// Drawing 2D CSC Segment Efficiency and Run (ME-41)
 		TH2F * segEff2DStation4Ring1ChamberRun = (TH2F*)file0->Get("segEff2DStation4Ring1ChamberRun");
 
@@ -1346,7 +1373,8 @@ void PlotCSCEffFast(){
 		c1.Print("plots/CSCSegEffRun3Data2DChamberRunME+42.png");
 
 
-		
+
+
 		// Drawing 2D CSC Segment Efficiency and Layer (ME-11A)
 		TH2F * segEff2DStation1Ring0ChamberLayer = (TH2F*)file0->Get("segEff2DStation1Ring0ChamberLayer");
 
@@ -1357,7 +1385,7 @@ void PlotCSCEffFast(){
 		segEff2DStation1Ring0ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring0ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring0ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation1Ring0ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation1Ring0ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation1Ring0ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-11A.png");
 
@@ -1371,7 +1399,7 @@ void PlotCSCEffFast(){
 		segEff2DStation1Ring1ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring1ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring1ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation1Ring1ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation1Ring1ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation1Ring1ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-11B.png");
 
@@ -1385,7 +1413,7 @@ void PlotCSCEffFast(){
 		segEff2DStation1Ring2ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring2ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring2ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation1Ring2ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation1Ring2ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation1Ring2ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-12.png");
 
@@ -1399,7 +1427,7 @@ void PlotCSCEffFast(){
 		segEff2DStation1Ring3ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring3ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring3ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation1Ring3ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation1Ring3ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation1Ring3ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-13.png");
 
@@ -1413,7 +1441,7 @@ void PlotCSCEffFast(){
 		segEff2DStation5Ring0ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring0ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring0ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation5Ring0ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation5Ring0ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation5Ring0ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+11A.png");
 
@@ -1427,7 +1455,7 @@ void PlotCSCEffFast(){
 		segEff2DStation5Ring1ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring1ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring1ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation5Ring1ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation5Ring1ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation5Ring1ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+11B.png");
 
@@ -1441,7 +1469,7 @@ void PlotCSCEffFast(){
 		segEff2DStation5Ring2ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring2ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring2ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation5Ring2ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation5Ring2ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation5Ring2ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+12.png");
 
@@ -1455,7 +1483,7 @@ void PlotCSCEffFast(){
 		segEff2DStation5Ring3ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring3ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring3ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation5Ring3ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation5Ring3ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation5Ring3ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+13.png");
 
@@ -1469,7 +1497,7 @@ void PlotCSCEffFast(){
 		segEff2DStation2Ring1ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation2Ring1ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation2Ring1ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation2Ring1ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation2Ring1ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation2Ring1ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-21.png");
 
@@ -1483,7 +1511,7 @@ void PlotCSCEffFast(){
 		segEff2DStation2Ring2ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation2Ring2ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation2Ring2ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation2Ring2ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation2Ring2ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation2Ring2ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-22.png");
 
@@ -1497,7 +1525,7 @@ void PlotCSCEffFast(){
 		segEff2DStation3Ring1ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation3Ring1ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation3Ring1ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation3Ring1ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation3Ring1ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation3Ring1ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-31.png");
 
@@ -1511,7 +1539,7 @@ void PlotCSCEffFast(){
 		segEff2DStation3Ring2ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation3Ring2ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation3Ring2ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation3Ring2ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation3Ring2ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation3Ring2ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-32.png");
 
@@ -1525,7 +1553,7 @@ void PlotCSCEffFast(){
 		segEff2DStation4Ring1ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation4Ring1ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation4Ring1ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation4Ring1ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation4Ring1ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation4Ring1ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-41.png");
 
@@ -1539,7 +1567,7 @@ void PlotCSCEffFast(){
 		segEff2DStation4Ring2ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation4Ring2ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation4Ring2ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation4Ring2ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation4Ring2ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation4Ring2ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME-42.png");
 
@@ -1553,7 +1581,7 @@ void PlotCSCEffFast(){
 		segEff2DStation6Ring1ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation6Ring1ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation6Ring1ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation6Ring1ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation6Ring1ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation6Ring1ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+21.png");
 
@@ -1567,7 +1595,7 @@ void PlotCSCEffFast(){
 		segEff2DStation6Ring2ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation6Ring2ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation6Ring2ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation6Ring2ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation6Ring2ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation6Ring2ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+22.png");
 
@@ -1581,7 +1609,7 @@ void PlotCSCEffFast(){
 		segEff2DStation7Ring1ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation7Ring1ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation7Ring1ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation7Ring1ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation7Ring1ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation7Ring1ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+31.png");
 
@@ -1595,7 +1623,7 @@ void PlotCSCEffFast(){
 		segEff2DStation7Ring2ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation7Ring2ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation7Ring2ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation7Ring2ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation7Ring2ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation7Ring2ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+32.png");
 
@@ -1609,7 +1637,7 @@ void PlotCSCEffFast(){
 		segEff2DStation8Ring1ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation8Ring1ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation8Ring1ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation8Ring1ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation8Ring1ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation8Ring1ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+41.png");
 
@@ -1623,9 +1651,10 @@ void PlotCSCEffFast(){
 		segEff2DStation8Ring2ChamberLayer->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation8Ring2ChamberLayer->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation8Ring2ChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation8Ring2ChamberLayer->SetMarkerSize(0.6);
+		segEff2DStation8Ring2ChamberLayer->SetMarkerSize(0.75);
 		segEff2DStation8Ring2ChamberLayer->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberLayerME+42.png");
+
 
 
 
@@ -1639,7 +1668,7 @@ void PlotCSCEffFast(){
 		segEff2DStation1Ring0ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring0ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring0ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation1Ring0ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation1Ring0ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation1Ring0ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-11A.png");
 
@@ -1653,7 +1682,7 @@ void PlotCSCEffFast(){
 		segEff2DStation1Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation1Ring1ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation1Ring1ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation1Ring1ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-11B.png");
 
@@ -1667,7 +1696,7 @@ void PlotCSCEffFast(){
 		segEff2DStation1Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation1Ring2ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation1Ring2ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation1Ring2ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-12.png");
 
@@ -1681,7 +1710,7 @@ void PlotCSCEffFast(){
 		segEff2DStation1Ring3ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring3ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation1Ring3ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation1Ring3ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation1Ring3ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation1Ring3ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-13.png");
 
@@ -1695,7 +1724,7 @@ void PlotCSCEffFast(){
 		segEff2DStation5Ring0ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring0ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring0ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation5Ring0ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation5Ring0ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation5Ring0ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+11A.png");
 
@@ -1709,7 +1738,7 @@ void PlotCSCEffFast(){
 		segEff2DStation5Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation5Ring1ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation5Ring1ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation5Ring1ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+11B.png");
 
@@ -1723,7 +1752,7 @@ void PlotCSCEffFast(){
 		segEff2DStation5Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation5Ring2ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation5Ring2ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation5Ring2ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+12.png");
 
@@ -1737,7 +1766,7 @@ void PlotCSCEffFast(){
 		segEff2DStation5Ring3ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring3ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation5Ring3ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation5Ring3ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation5Ring3ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation5Ring3ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+13.png");
 
@@ -1751,7 +1780,7 @@ void PlotCSCEffFast(){
 		segEff2DStation2Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation2Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation2Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation2Ring1ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation2Ring1ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation2Ring1ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-21.png");
 
@@ -1765,7 +1794,7 @@ void PlotCSCEffFast(){
 		segEff2DStation2Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation2Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation2Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation2Ring2ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation2Ring2ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation2Ring2ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-22.png");
 
@@ -1779,7 +1808,7 @@ void PlotCSCEffFast(){
 		segEff2DStation3Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation3Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation3Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation3Ring1ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation3Ring1ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation3Ring1ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-31.png");
 
@@ -1793,7 +1822,7 @@ void PlotCSCEffFast(){
 		segEff2DStation3Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation3Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation3Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation3Ring2ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation3Ring2ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation3Ring2ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-32.png");
 
@@ -1807,7 +1836,7 @@ void PlotCSCEffFast(){
 		segEff2DStation4Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation4Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation4Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation4Ring1ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation4Ring1ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation4Ring1ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-41.png");
 
@@ -1821,7 +1850,7 @@ void PlotCSCEffFast(){
 		segEff2DStation4Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation4Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation4Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation4Ring2ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation4Ring2ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation4Ring2ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME-42.png");
 
@@ -1835,7 +1864,7 @@ void PlotCSCEffFast(){
 		segEff2DStation6Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation6Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation6Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation6Ring1ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation6Ring1ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation6Ring1ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+21.png");
 
@@ -1849,7 +1878,7 @@ void PlotCSCEffFast(){
 		segEff2DStation6Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation6Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation6Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation6Ring2ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation6Ring2ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation6Ring2ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+22.png");
 
@@ -1863,7 +1892,7 @@ void PlotCSCEffFast(){
 		segEff2DStation7Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation7Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation7Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation7Ring1ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation7Ring1ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation7Ring1ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+31.png");
 
@@ -1877,7 +1906,7 @@ void PlotCSCEffFast(){
 		segEff2DStation7Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation7Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation7Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation7Ring2ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation7Ring2ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation7Ring2ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+32.png");
 
@@ -1891,7 +1920,7 @@ void PlotCSCEffFast(){
 		segEff2DStation8Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation8Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation8Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation8Ring1ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation8Ring1ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation8Ring1ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+41.png");
 
@@ -1905,9 +1934,291 @@ void PlotCSCEffFast(){
 		segEff2DStation8Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
 		segEff2DStation8Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
 		segEff2DStation8Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
-		segEff2DStation8Ring2ChamberDCFEB->SetMarkerSize(0.6);
+		segEff2DStation8Ring2ChamberDCFEB->SetMarkerSize(0.75);
 		segEff2DStation8Ring2ChamberDCFEB->Draw("COLZ TEXT");
 		c1.Print("plots/CSCSegEffRun3Data2DChamberDCFEBME+42.png");
+
+
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-11A)
+		TH2F * LCTEff2DStation1Ring0ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation1Ring0ChamberDCFEB");
+
+		LCTEff2DStation1Ring0ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-11A");
+		LCTEff2DStation1Ring0ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation1Ring0ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation1Ring0ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation1Ring0ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation1Ring0ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation1Ring0ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation1Ring0ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation1Ring0ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-11A.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-11B)
+		TH2F * LCTEff2DStation1Ring1ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation1Ring1ChamberDCFEB");
+
+		LCTEff2DStation1Ring1ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-11B");
+		LCTEff2DStation1Ring1ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation1Ring1ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation1Ring1ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation1Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation1Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation1Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation1Ring1ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation1Ring1ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-11B.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-12)
+		TH2F * LCTEff2DStation1Ring2ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation1Ring2ChamberDCFEB");
+
+		LCTEff2DStation1Ring2ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-12");
+		LCTEff2DStation1Ring2ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation1Ring2ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation1Ring2ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation1Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation1Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation1Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation1Ring2ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation1Ring2ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-12.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-13)
+		TH2F * LCTEff2DStation1Ring3ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation1Ring3ChamberDCFEB");
+
+		LCTEff2DStation1Ring3ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-13");
+		LCTEff2DStation1Ring3ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation1Ring3ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation1Ring3ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation1Ring3ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation1Ring3ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation1Ring3ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation1Ring3ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation1Ring3ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-13.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+11A)
+		TH2F * LCTEff2DStation5Ring0ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation5Ring0ChamberDCFEB");
+
+		LCTEff2DStation5Ring0ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+11A");
+		LCTEff2DStation5Ring0ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation5Ring0ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation5Ring0ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation5Ring0ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation5Ring0ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation5Ring0ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation5Ring0ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation5Ring0ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+11A.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+11B)
+		TH2F * LCTEff2DStation5Ring1ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation5Ring1ChamberDCFEB");
+
+		LCTEff2DStation5Ring1ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+11B");
+		LCTEff2DStation5Ring1ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation5Ring1ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation5Ring1ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation5Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation5Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation5Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation5Ring1ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation5Ring1ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+11B.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+12)
+		TH2F * LCTEff2DStation5Ring2ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation5Ring2ChamberDCFEB");
+
+		LCTEff2DStation5Ring2ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+12");
+		LCTEff2DStation5Ring2ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation5Ring2ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation5Ring2ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation5Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation5Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation5Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation5Ring2ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation5Ring2ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+12.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+13)
+		TH2F * LCTEff2DStation5Ring3ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation5Ring3ChamberDCFEB");
+
+		LCTEff2DStation5Ring3ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+13");
+		LCTEff2DStation5Ring3ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation5Ring3ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation5Ring3ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation5Ring3ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation5Ring3ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation5Ring3ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation5Ring3ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation5Ring3ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+13.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-21)
+		TH2F * LCTEff2DStation2Ring1ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation2Ring1ChamberDCFEB");
+
+		LCTEff2DStation2Ring1ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-21");
+		LCTEff2DStation2Ring1ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation2Ring1ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation2Ring1ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation2Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation2Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation2Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation2Ring1ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation2Ring1ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-21.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-22)
+		TH2F * LCTEff2DStation2Ring2ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation2Ring2ChamberDCFEB");
+
+		LCTEff2DStation2Ring2ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-22");
+		LCTEff2DStation2Ring2ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation2Ring2ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation2Ring2ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation2Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation2Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation2Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation2Ring2ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation2Ring2ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-22.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-31)
+		TH2F * LCTEff2DStation3Ring1ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation3Ring1ChamberDCFEB");
+
+		LCTEff2DStation3Ring1ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-31");
+		LCTEff2DStation3Ring1ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation3Ring1ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation3Ring1ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation3Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation3Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation3Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation3Ring1ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation3Ring1ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-31.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-32)
+		TH2F * LCTEff2DStation3Ring2ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation3Ring2ChamberDCFEB");
+
+		LCTEff2DStation3Ring2ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-32");
+		LCTEff2DStation3Ring2ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation3Ring2ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation3Ring2ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation3Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation3Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation3Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation3Ring2ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation3Ring2ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-32.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-41)
+		TH2F * LCTEff2DStation4Ring1ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation4Ring1ChamberDCFEB");
+
+		LCTEff2DStation4Ring1ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-41");
+		LCTEff2DStation4Ring1ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation4Ring1ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation4Ring1ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation4Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation4Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation4Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation4Ring1ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation4Ring1ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-41.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME-42)
+		TH2F * LCTEff2DStation4Ring2ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation4Ring2ChamberDCFEB");
+
+		LCTEff2DStation4Ring2ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME-42");
+		LCTEff2DStation4Ring2ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation4Ring2ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation4Ring2ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation4Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation4Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation4Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation4Ring2ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation4Ring2ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME-42.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+21)
+		TH2F * LCTEff2DStation6Ring1ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation6Ring1ChamberDCFEB");
+
+		LCTEff2DStation6Ring1ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+21");
+		LCTEff2DStation6Ring1ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation6Ring1ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation6Ring1ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation6Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation6Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation6Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation6Ring1ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation6Ring1ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+21.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+22)
+		TH2F * LCTEff2DStation6Ring2ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation6Ring2ChamberDCFEB");
+
+		LCTEff2DStation6Ring2ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+22");
+		LCTEff2DStation6Ring2ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation6Ring2ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation6Ring2ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation6Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation6Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation6Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation6Ring2ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation6Ring2ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+22.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+31)
+		TH2F * LCTEff2DStation7Ring1ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation7Ring1ChamberDCFEB");
+
+		LCTEff2DStation7Ring1ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+31");
+		LCTEff2DStation7Ring1ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation7Ring1ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation7Ring1ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation7Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation7Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation7Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation7Ring1ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation7Ring1ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+31.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+32)
+		TH2F * LCTEff2DStation7Ring2ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation7Ring2ChamberDCFEB");
+
+		LCTEff2DStation7Ring2ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+32");
+		LCTEff2DStation7Ring2ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation7Ring2ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation7Ring2ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation7Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation7Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation7Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation7Ring2ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation7Ring2ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+32.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+41)
+		TH2F * LCTEff2DStation8Ring1ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation8Ring1ChamberDCFEB");
+
+		LCTEff2DStation8Ring1ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+41");
+		LCTEff2DStation8Ring1ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation8Ring1ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation8Ring1ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation8Ring1ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation8Ring1ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation8Ring1ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation8Ring1ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation8Ring1ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+41.png");
+
+		// Drawing 2D CSC LCT Efficiency and DCFEB (ME+42)
+		TH2F * LCTEff2DStation8Ring2ChamberDCFEB = (TH2F*)file0->Get("LCTEff2DStation8Ring2ChamberDCFEB");
+
+		LCTEff2DStation8Ring2ChamberDCFEB->SetTitle("CSC LCT Efficiency vs Chamber and DCFEB ME+42");
+		LCTEff2DStation8Ring2ChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
+		LCTEff2DStation8Ring2ChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
+		LCTEff2DStation8Ring2ChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
+		LCTEff2DStation8Ring2ChamberDCFEB->GetXaxis()->SetTickLength(0.015);
+		LCTEff2DStation8Ring2ChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+		LCTEff2DStation8Ring2ChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+		LCTEff2DStation8Ring2ChamberDCFEB->SetMarkerSize(0.75);
+		LCTEff2DStation8Ring2ChamberDCFEB->Draw("COLZ TEXT");
+		c1.Print("plots/CSCLCTEffRun3Data2DChamberDCFEBME+42.png");
 
 
 
@@ -2192,6 +2503,8 @@ void PlotCSCEffFast(){
 		c1.Print("plots/CSCLCTEffRun3Data2DChamberRunME+42.png");
 
 	}
+
+
 
 	// Begin Chamber Plots
 	if (chamberPlots){
