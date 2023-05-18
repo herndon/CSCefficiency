@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
+#include <dirent.h>
+#include <sys/stat.h>
 
 #include "TStyle.h"
 #include "TH1F.h"
@@ -30,10 +32,10 @@ void PlotCSCEffFast(){
 
   // Flags
   bool verbose = false;
-  bool summaryPlots = false; // Efficiency plot per ring or for the full system
-  bool chamberPlots = false;   // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
-  bool runAnalysis = false;   // Run Analysis per chamber wont get done unless chamber plots are on
-  bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
+  bool summaryPlots = false;  // Efficiency plot per ring or for the full system
+  bool chamberPlots = true;  // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
+  bool runAnalysis = true;   // Run Analysis per chamber wont get done unless chamber plots are on
+  bool effCheck = true;       // Run efficiency check analysis, right now only an analysis of DCFEBs
   bool DCFEBAnalysis = true;
 
   // Constants
@@ -51,9 +53,9 @@ void PlotCSCEffFast(){
   // Efficiency Check text files
   if (!verbose) gErrorIgnoreLevel = kWarning;
   ofstream cscRunEffData; 
-  cscRunEffData.open("cscRunEffData.txt");
+  if (runAnalysis) cscRunEffData.open("cscRunEffData.txt");
   ofstream cscEffCheck;
-  cscEffCheck.open("cscEffCheck.txt");
+  if (effCheck) cscEffCheck.open("cscEffCheck.txt");
 
   // Setting Plotting Styles
   gROOT->SetStyle("Plain");     // set plain TStyle
@@ -77,6 +79,13 @@ void PlotCSCEffFast(){
 
 
   if (summaryPlots) {
+    // Check for plots/ directory
+    {
+      DIR *plotdir = opendir("plots");
+      if (!plotdir) mkdir("plots", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      else closedir(plotdir);
+    }
+
     // Z Mass
     TH1F * zMassAll = (TH1F*)file0->Get("zMassAll");
     zMassAll->GetXaxis()->SetRangeUser(75.0,105.0);
@@ -2510,6 +2519,12 @@ void PlotCSCEffFast(){
   if (chamberPlots){
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
+        // Check for chamber plot directory
+        {
+          DIR *chdir = opendir(("plots/" + GetMELabel(iiStation, iiRing)).c_str());
+          if (!chdir) mkdir(("plots/" + GetMELabel(iiStation, iiRing)).c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+          else closedir(chdir);
+        }
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
@@ -2782,7 +2797,6 @@ void PlotCSCEffFast(){
   }
 
   //TODO Add auto-header
-  //TODO what is badChamberLCS
   float segEff, LCTEff;
   bool printedHeader, deadChamber;
   stringstream ssDeadChambers, ssDeadDCFEBs;
@@ -2794,6 +2808,8 @@ void PlotCSCEffFast(){
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
+          string indexstr = (string)"[0][" + (iiStation<4? "0":"1") + "][" + to_string(iiStation+1) + "-1][" 
+            + to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
 
           // Identifying Dead DCFEBs and Chambers
           deadChamber = false;
@@ -2806,18 +2822,17 @@ void PlotCSCEffFast(){
             if (segEff == 0.00){
               if (!deadChamber && iiDCFEB == 1) deadChamber = true;
               else if (deadChamber && iiDCFEB == 5){
-                // Print out information if chamber has been dead for all DCFEBs
+                // List dead chamber
                 ssDeadChambers << GetMELabel(iiStation, iiRing) << "/" << iiChamber << std::endl;
 
+                // Generate automatic array values for removal in CSCEffFast.C
                 if (!printedHeader){
-                  autoHeader << std::endl << "// " << GetMELabel(iiStation, iiRing) << std::endl;
+                  autoHeader << std::endl << "    // " << GetMELabel(iiStation, iiRing) << std::endl;
                   printedHeader = true;
                 }
-                string indexstr = (string)"[0][" + (iiStation<4? "0":"1") + "][" + to_string(iiStation+1) + "-1][" 
-									+ to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
-                autoHeader << "badChamber" << indexstr << " = true;  ";
+                autoHeader << "    badChamber" << indexstr << " = true;  ";
                 autoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
-								autoHeader << "badChamberRun" << indexstr << "[1] = lastRun;" << std::endl << std::endl;
+                autoHeader << "badChamberRun" << indexstr << "[1] = lastRun;" << std::endl << std::endl;
               }
               continue;
             }
@@ -2826,16 +2841,16 @@ void PlotCSCEffFast(){
             // Check for dead DCFEB
             if (segEff < DEAD_DCFEB_THRESHOLD){
               if (LCTEff < DEAD_DCFEB_THRESHOLD){
+                // List dead DCFEB
                 ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
                 ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ")" << std::endl;
 
+                // Generate automatic array values for removal in CSCEffFast.C
                 if (!printedHeader){
-                  autoHeader << std::endl << "// " << GetMELabel(iiStation, iiRing) << std::endl;
+                  autoHeader << std::endl << "    // " << GetMELabel(iiStation, iiRing) << std::endl;
                   printedHeader = true;
                 }
-                string indexstr = (string)"[0][" + (iiStation<4? "0":"1") + "][" + to_string(iiStation+1) + "][" 
-									+ to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
-                autoHeader << "badChamber" << indexstr << " = true;  ";
+                autoHeader << "    badChamber" << indexstr << " = true;  ";
                 autoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
                 autoHeader << "badChamberRun" << indexstr << "[1] = lastRun;  ";
                 autoHeader << "badChamberLCS" << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
