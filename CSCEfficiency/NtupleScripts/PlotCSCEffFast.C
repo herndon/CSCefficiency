@@ -30,7 +30,7 @@ void PlotCSCEffFast(){
 
 	// Flags
 	bool verbose = false;
-	bool summaryPlots = true; // Efficiency plot per ring or for the full system
+	bool summaryPlots = false; // Efficiency plot per ring or for the full system
 	bool chamberPlots = false;   // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
 	bool runAnalysis = false;   // Run Analysis per chamber wont get done unless chamber plots are on
 	bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
@@ -48,7 +48,6 @@ void PlotCSCEffFast(){
 	int lastRun = 367400;
 
 	// Efficiency Check text files
-	cout << "Beginning plots..." << std::endl;
 	if (!verbose) gErrorIgnoreLevel = kWarning;
 	ofstream cscRunEffData; 
 	cscRunEffData.open("cscRunEffData.txt");
@@ -2781,9 +2780,11 @@ void PlotCSCEffFast(){
 		}
 	}
 
-	float binContent;
-	bool printedDCFEBCheck,deadChamber;
-	stringstream cscEffCheckBanner;
+	//TODO Add LCT efficiency checks alongside segments
+	float segEff, LCTEff;
+	bool deadChamber;
+	stringstream ssDeadChambers, ssDeadDCFEBs;
+	stringstream autoHeader;
 	if (effCheck){
 		for (Int_t iiStation=0; iiStation < 8; iiStation++){
 			for (Int_t iiRing=0; iiRing < 4; iiRing++){
@@ -2792,52 +2793,40 @@ void PlotCSCEffFast(){
 					if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
 
 					// Identifying Dead DCFEBs and Chambers
-					snprintf(name,50,"segEff2DStation%dRing%dChamberDCFEB",iiStation+1,iiRing);
-					printedDCFEBCheck = false;
 					deadChamber = false;
-					cscEffCheckBanner.str(std::string());
-					cscEffCheckBanner << "--------------------------------------" << std::endl;
-					cscEffCheckBanner << "CSC Segment Efficiency Station " << iiStation+1 << " Ring " << iiRing;
-					cscEffCheckBanner << " (" << GetMELabel(iiStation, iiRing) << "/" << iiChamber << ")" << std::endl << std::endl;
 					for (Int_t iiDCFEB = 1; iiDCFEB < 6; iiDCFEB++){
-						binContent = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber,iiDCFEB);
+						segEff = ((TH2F*)file0->Get(("segEff2DStation" + to_string(iiStation+1) + "Ring" + to_string(iiRing) + "ChamberDCFEB").c_str()))
+							->GetBinContent(iiChamber,iiDCFEB);
+						LCTEff = ((TH2F*)file0->Get(("LCTEff2DStation" + to_string(iiStation+1) + "Ring" + to_string(iiRing) + "ChamberDCFEB").c_str()))
+							->GetBinContent(iiChamber,iiDCFEB);
 						// Check for dead chamber
-						if (binContent == 0.00){
+						if (segEff == 0.00){
 							if (!deadChamber && iiDCFEB == 1) deadChamber = true;
 							else if (deadChamber && iiDCFEB == 5){
 								// Print out information if chamber has been dead for all DCFEBs
-								if (!printedDCFEBCheck){
-									cscEffCheck << cscEffCheckBanner.str();
-									printedDCFEBCheck = true;
-								}
-								cscEffCheck << "Potential Failure: Chamber " << iiChamber << std::endl;
+								ssDeadChambers << GetMELabel(iiStation, iiRing) << "/" << iiChamber << std::endl;
 							}
 							continue;
 						}
 						else if (deadChamber) deadChamber = false;
 
 						// Check for dead DCFEB
-						if (binContent < DEAD_DCFEB_THRESHOLD){
-							if (!printedDCFEBCheck){
-								cscEffCheck << cscEffCheckBanner.str();
-								printedDCFEBCheck = true;
-							}
-							cscEffCheck << "Potential Failure: DCFEB " << iiDCFEB << " (" << binContent << ")" << std::endl;
+						if (segEff < DEAD_DCFEB_THRESHOLD){
+							ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
+							ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ")" << std::endl;
 						}
 						// Check for low efficiency TODO
-						else if (binContent < 0.90){
+						else if (segEff < 0.90){
 							continue;
-							if (!printedDCFEBCheck){
-								cscEffCheck << cscEffCheckBanner.str();
-								printedDCFEBCheck = true;
-							}
-							cscEffCheck << "Low Efficiency: DCFEB " << iiDCFEB << " (" << binContent << ")" << std::endl;
+							cscEffCheck << "Low Efficiency: DCFEB " << iiDCFEB << " (" << segEff << ")" << std::endl;
 						}
 					}
 				}
 			}
 		}
 	}
+	cscEffCheck << "Dead Chambers" << std::endl << ssDeadChambers.str() << std::endl;
+	cscEffCheck << "Dead DCFEBs" << std::endl << ssDeadDCFEBs.str() << std::endl;
 	// Closing Text Files and Exiting
 	cscRunEffData.close();
 	cscEffCheck.close();
