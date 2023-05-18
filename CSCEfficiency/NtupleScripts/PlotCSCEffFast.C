@@ -39,6 +39,7 @@ void PlotCSCEffFast(){
   // Constants
   float DEAD_DCFEB_THRESHOLD = 0.25;  // Efficiency threshold for dead (D)CFEBs.
   float effThreshold = 0.8;      // Efficiency threshold for file readouts.
+  float DCFEBRanges[5][2] = { {-2.0,18.0}, {14.0,34.0}, {30.0,50.0}, {46.0,66.0},{62.0,82.0}};
   double lowEff = 0.6;
   double highEff = 1.02;
 
@@ -2780,14 +2781,16 @@ void PlotCSCEffFast(){
     }
   }
 
-  //TODO Add LCT efficiency checks alongside segments
+  //TODO Add auto-header
+  //TODO what is badChamberLCS
   float segEff, LCTEff;
-  bool deadChamber;
+  bool printedHeader, deadChamber;
   stringstream ssDeadChambers, ssDeadDCFEBs;
   stringstream autoHeader;
   if (effCheck){
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
+        printedHeader = false;
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
@@ -2805,6 +2808,16 @@ void PlotCSCEffFast(){
               else if (deadChamber && iiDCFEB == 5){
                 // Print out information if chamber has been dead for all DCFEBs
                 ssDeadChambers << GetMELabel(iiStation, iiRing) << "/" << iiChamber << std::endl;
+
+                if (!printedHeader){
+                  autoHeader << std::endl << "// " << GetMELabel(iiStation, iiRing) << std::endl;
+                  printedHeader = true;
+                }
+                string indexstr = (string)"[0][" + (iiStation<4? "0":"1") + "][" + to_string(iiStation+1) + "-1][" 
+									+ to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
+                autoHeader << "badChamber" << indexstr << " = true;  ";
+                autoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
+								autoHeader << "badChamberRun" << indexstr << "[1] = lastRun;" << std::endl << std::endl;
               }
               continue;
             }
@@ -2812,11 +2825,35 @@ void PlotCSCEffFast(){
 
             // Check for dead DCFEB
             if (segEff < DEAD_DCFEB_THRESHOLD){
-              ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
-              ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ")" << std::endl;
+              if (LCTEff < DEAD_DCFEB_THRESHOLD){
+                ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
+                ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ")" << std::endl;
+
+                if (!printedHeader){
+                  autoHeader << std::endl << "// " << GetMELabel(iiStation, iiRing) << std::endl;
+                  printedHeader = true;
+                }
+                string indexstr = (string)"[0][" + (iiStation<4? "0":"1") + "][" + to_string(iiStation+1) + "][" 
+									+ to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
+                autoHeader << "badChamber" << indexstr << " = true;  ";
+                autoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
+                autoHeader << "badChamberRun" << indexstr << "[1] = lastRun;  ";
+                autoHeader << "badChamberLCS" << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
+                autoHeader << "badChamberLCS" << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";  ";
+                autoHeader << "// " << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB << std::endl << std::endl;
+              }
+              else{
+                ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
+                ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ") *" << std::endl;
+              }
             }
+            else if (LCTEff < DEAD_DCFEB_THRESHOLD){
+              ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
+              ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ") **" << std::endl;
+            }
+
             // Check for low efficiency TODO
-            else if (segEff < 0.90){
+            if (segEff > DEAD_DCFEB_THRESHOLD && segEff < 0.90){
               continue;
               cscEffCheck << "Low Efficiency: DCFEB " << iiDCFEB << " (" << segEff << ")" << std::endl;
             }
@@ -2827,6 +2864,9 @@ void PlotCSCEffFast(){
   }
   cscEffCheck << "Dead Chambers" << std::endl << ssDeadChambers.str() << std::endl;
   cscEffCheck << "Dead DCFEBs" << std::endl << ssDeadDCFEBs.str() << std::endl;
+  cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+  cscEffCheck << std::endl << "Auto Header" << std::endl << "-----------" << std::endl;
+  cscEffCheck << autoHeader.str() << std::endl;
   // Closing Text Files and Exiting
   cscRunEffData.close();
   cscEffCheck.close();
