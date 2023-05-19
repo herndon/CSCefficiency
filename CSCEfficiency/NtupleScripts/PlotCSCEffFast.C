@@ -21,7 +21,7 @@
 
 using namespace std;
 
-string GetMELabel(Int_t station, Int_t ring);
+string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
 
 void PlotCSCEffFast(){
   // Initializing
@@ -32,15 +32,16 @@ void PlotCSCEffFast(){
 
   // Flags
   bool verbose = false;
-  bool summaryPlots = false;  // Efficiency plot per ring or for the full system
-  bool chamberPlots = true;  // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
-  bool runAnalysis = true;   // Run Analysis per chamber wont get done unless chamber plots are on
-  bool effCheck = true;       // Run efficiency check analysis, right now only an analysis of DCFEBs
+  bool summaryPlots = false; // Efficiency plot per ring or for the full system
+  bool chamberPlots = false; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
+  bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on
+  bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
   bool DCFEBAnalysis = true;
 
   // Constants
-  float DEAD_DCFEB_THRESHOLD = 0.25;  // Efficiency threshold for dead (D)CFEBs.
-  float effThreshold = 0.8;      // Efficiency threshold for file readouts.
+  float deadDCFEBThreshold = 0.25; // Efficiency threshold for dead (D)CFEBs.
+  float effThreshold = 0.80; // Efficiency threshold for file readouts.
+  float maxRemovalThreshold = 0.50; // Efficiency threshold for maximal removal of low efficiency DCFEBs
   float DCFEBRanges[5][2] = { {-2.0,18.0}, {14.0,34.0}, {30.0,50.0}, {46.0,66.0},{62.0,82.0}};
   double lowEff = 0.6;
   double highEff = 1.02;
@@ -2797,22 +2798,26 @@ void PlotCSCEffFast(){
   }
 
   //TODO Add auto-header
+  int numMaxRemoval=0;
   float segEff, LCTEff;
-  bool printedHeader, deadChamber;
-  stringstream ssDeadChambers, ssDeadDCFEBs;
-  stringstream autoHeader;
+  bool bPrintedHeader, bDeadChamber;
+  stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssAutoHeader; 
+  ssDeadDCFEBsWithEff << fixed << setprecision(2);
+  ssAutoHeader << fixed << setprecision(2);
   if (effCheck){
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
-        printedHeader = false;
+        if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
+        numMaxRemoval = 0;
+
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
-          if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
+          bPrintedHeader = false;
           string indexstr = (string)"[0][" + (iiStation<4? "0":"1") + "][" + to_string(iiStation+1) + "-1][" 
             + to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
 
           // Identifying Dead DCFEBs and Chambers
-          deadChamber = false;
+          bDeadChamber = false;
           for (Int_t iiDCFEB = 1; iiDCFEB < 6; iiDCFEB++){
             segEff = ((TH2F*)file0->Get(("segEff2DStation" + to_string(iiStation+1) + "Ring" + to_string(iiRing) + "ChamberDCFEB").c_str()))
               ->GetBinContent(iiChamber,iiDCFEB);
@@ -2820,77 +2825,163 @@ void PlotCSCEffFast(){
               ->GetBinContent(iiChamber,iiDCFEB);
             // Check for dead chamber
             if (segEff == 0.00){
-              if (!deadChamber && iiDCFEB == 1) deadChamber = true;
-              else if (deadChamber && iiDCFEB == 5){
+              if (!bDeadChamber && iiDCFEB == 1) bDeadChamber = true;
+              else if (bDeadChamber && iiDCFEB == 5){
                 // List dead chamber
-                ssDeadChambers << GetMELabel(iiStation, iiRing) << "/" << iiChamber << std::endl;
+                ssDeadChambers << GetMELabel(iiStation, iiRing, iiChamber) << std::endl;
 
                 // Generate automatic array values for removal in CSCEffFast.C
-                if (!printedHeader){
-                  autoHeader << std::endl << "    // " << GetMELabel(iiStation, iiRing) << std::endl;
-                  printedHeader = true;
+                if (!bPrintedHeader){
+                  ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  bPrintedHeader = true;
                 }
-                autoHeader << "    badChamber" << indexstr << " = true;  ";
-                autoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
-                autoHeader << "badChamberRun" << indexstr << "[1] = lastRun;" << std::endl << std::endl;
+                ssAutoHeader << "    // Dead Chamber" << std::endl;
+                ssAutoHeader << "    badChamber" << indexstr << " = true;  ";
+                ssAutoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
+                ssAutoHeader << "badChamberRun" << indexstr << "[1] = lastRun;  " << std::endl << std::endl;
               }
               continue;
             }
-            else if (deadChamber) deadChamber = false;
+            else if (bDeadChamber) bDeadChamber = false;
 
             // Check for dead DCFEB
-            if (segEff < DEAD_DCFEB_THRESHOLD){
-              if (LCTEff < DEAD_DCFEB_THRESHOLD){
-                // List dead DCFEB
-                ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
-                ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ")" << std::endl;
+            if (segEff < deadDCFEBThreshold){
+              // Generate automatic array values for removal in CSCEffFast.C
+              if (!bPrintedHeader){
+                ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                bPrintedHeader = true;
+              }
+              ssAutoHeader << "    // Dead DCFEB " << iiDCFEB;
 
-                // Generate automatic array values for removal in CSCEffFast.C
-                if (!printedHeader){
-                  autoHeader << std::endl << "    // " << GetMELabel(iiStation, iiRing) << std::endl;
-                  printedHeader = true;
-                }
-                autoHeader << "    badChamber" << indexstr << " = true;  ";
-                autoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
-                autoHeader << "badChamberRun" << indexstr << "[1] = lastRun;  ";
-                autoHeader << "badChamberLCS" << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
-                autoHeader << "badChamberLCS" << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";  ";
-                autoHeader << "// " << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB << std::endl << std::endl;
+              if (LCTEff < deadDCFEBThreshold){
+                ssAutoHeader << " seg " << (segEff*100) << "\% LCT " << (LCTEff*100) << "\%";
+                // List dead DCFEB (Seg and LCT)
+                ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << std::endl;
+                ssDeadDCFEBsWithEff << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB;
+                ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%)" << std::endl;
               }
               else{
-                ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
-                ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ") *" << std::endl;
+                ssAutoHeader << " seg " << (segEff*100) << "\%";
+                // List dead DCFEB (Seg only)
+                ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << " *" << std::endl;
+                ssDeadDCFEBsWithEff << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB;
+                ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%) *" << std::endl;
               }
+              ssAutoHeader << " all runs" << std::endl;
+              ssAutoHeader << "    badChamber" << indexstr << " = true;  ";
+              ssAutoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
+              ssAutoHeader << "badChamberRun" << indexstr << "[1] = lastRun;  ";
+              ssAutoHeader << "badChamberLCS" << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
+              ssAutoHeader << "badChamberLCS" << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
+              ssAutoHeader << std::endl << std::endl;
             }
-            else if (LCTEff < DEAD_DCFEB_THRESHOLD){
-              ssDeadDCFEBs << GetMELabel(iiStation, iiRing) << "/" << iiChamber << " DCFEB " << iiDCFEB;
-              ssDeadDCFEBs << ": (" << fixed << setprecision(2) << (segEff*100) << ") **" << std::endl;
+            else if (LCTEff < deadDCFEBThreshold){
+              // Generate automatic array values for removal in CSCEffFast.C
+              if (!bPrintedHeader){
+                ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                bPrintedHeader = true;
+              }
+              ssAutoHeader << "    //  Dead DCFEB " << iiDCFEB;
+              ssAutoHeader << " LCT " << (LCTEff*100) << "\% all runs" << std::endl;
+              ssAutoHeader << "    badChamber" << indexstr << " = true;  ";
+              ssAutoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
+              ssAutoHeader << "badChamberRun" << indexstr << "[1] = lastRun;  ";
+              ssAutoHeader << "badChamberLCS" << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
+              ssAutoHeader << "badChamberLCS" << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
+              ssAutoHeader << std::endl << std::endl;
+
+              // List dead DCFEB (LCT only)
+              ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << " **" << std::endl;
+              ssDeadDCFEBsWithEff << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB;
+              ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%) **" << std::endl;
             }
 
-            // Check for low efficiency TODO
-            if (segEff > DEAD_DCFEB_THRESHOLD && segEff < 0.90){
-              continue;
-              cscEffCheck << "Low Efficiency: DCFEB " << iiDCFEB << " (" << segEff << ")" << std::endl;
+            // Maximal Removal for low efficiency DCFEBs
+            if (segEff > deadDCFEBThreshold && segEff < maxRemovalThreshold){
+              numMaxRemoval++;
+              if (numMaxRemoval == 5) cscEffCheck << GetMELabel(iiStation,iiRing, iiChamber) << ": " << (segEff*100) << std::endl;
+              // Generate automatic array values for removal in CSCEffFast.C
+              if (!bPrintedHeader){
+                ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                bPrintedHeader = true;
+              }
+              ssAutoHeader << "    // Low Efficiency DCFEB " << iiDCFEB;
+              if (LCTEff > deadDCFEBThreshold && LCTEff < maxRemovalThreshold){
+                ssAutoHeader << " seg " << (segEff*100) << "\% LCT " << (LCTEff*100) << "\%";
+              }
+              else{
+                ssAutoHeader << " seg " << (segEff*100) << "\%";
+              }
+              ssAutoHeader << " all runs" << std::endl;
+              ssAutoHeader << "    badChamber" << indexstr << " = true;  ";
+              ssAutoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
+              ssAutoHeader << "badChamberRun" << indexstr << "[1] = lastRun;  ";
+              ssAutoHeader << "badChamberLCS" << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
+              ssAutoHeader << "badChamberLCS" << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
+              ssAutoHeader << std::endl << std::endl;
+            }
+            else if (LCTEff > deadDCFEBThreshold && LCTEff < maxRemovalThreshold){
+              // Generate automatic array values for removal in CSCEffFast.C
+              if (!bPrintedHeader){
+                ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                bPrintedHeader = true;
+              }
+              ssAutoHeader << "    //  Low Efficiency DCFEB " << iiDCFEB;
+              ssAutoHeader << " LCT " << (LCTEff*100) << "\% all runs" << std::endl;
+              ssAutoHeader << "    badChamber" << indexstr << " = true;  ";
+              ssAutoHeader << "badChamberRun" << indexstr << "[0] = firstRun;  ";
+              ssAutoHeader << "badChamberRun" << indexstr << "[1] = lastRun;  ";
+              ssAutoHeader << "badChamberLCS" << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
+              ssAutoHeader << "badChamberLCS" << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
+              ssAutoHeader << std::endl << std::endl;
+            }
+
+            // Low efficiency TODO
+            if (segEff > maxRemovalThreshold && segEff < 0.90){
+              if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
+
+              }
+              else{
+
+              }
+            }
+            else if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
+
             }
           }
         }
+        if (numMaxRemoval != 0) cout << GetMELabel(iiStation, iiRing) << ": " << numMaxRemoval << std::endl;
       }
     }
   }
-  cscEffCheck << "Dead Chambers" << std::endl << ssDeadChambers.str() << std::endl;
-  cscEffCheck << "Dead DCFEBs" << std::endl << ssDeadDCFEBs.str() << std::endl;
+  //Print Dead Chambers to File
+  cscEffCheck << "Dead Chambers" << std::endl << "-------------" << std::endl;
+  cscEffCheck << ssDeadChambers.str() << std::endl;
+  //Print Dead DCFEBs to File (without efficiency)
+  cscEffCheck << std::endl;
+  cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
+  cscEffCheck << ssDeadDCFEBs.str() << std::endl;
   cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+  //Print Dead DCFEBs to File (with efficiency)
+  cscEffCheck << std::endl;
+  cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
+  cscEffCheck << ssDeadDCFEBsWithEff.str() << std::endl;
+  cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+  //Print auto-generated removal statements
+  cscEffCheck << std::endl;
   cscEffCheck << std::endl << "Auto Header" << std::endl << "-----------" << std::endl;
-  cscEffCheck << autoHeader.str() << std::endl;
+  cscEffCheck << ssAutoHeader.str() << std::endl;
   // Closing Text Files and Exiting
   cscRunEffData.close();
   cscEffCheck.close();
 }
 
 // Helper functions
-string GetMELabel(Int_t station, Int_t ring){
+string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   string result = "";
   if ((station==1||station==2||station==3||station==5||station==6||station==7)&&(ring==0||ring==3))
+    return result;
+  if ((station==1||station==2||station==3||station==5||station==6||station==7)&&ring==1&&chamber>18&&chamber!=-1)
     return result;
   string symb = (station < 4)? "-" : "+";
   if (station >= 4) station -= 4;
@@ -2899,6 +2990,9 @@ string GetMELabel(Int_t station, Int_t ring){
   if (ring == 0) result += "1A";
   else if (station == 0 && ring == 1) result += "1B";
   else result += to_string(ring);
+  
+  if (chamber != -1)
+    result += "/" + to_string(chamber);
 
   return result;
 }
