@@ -2797,21 +2797,24 @@ void PlotCSCEffFast(){
     }
   }
 
-  //TODO Add auto-header
-  int numMaxRemoval=0;
+  // Efficiency Checking
+  int numMaxRemoval, numIneffDCFEBs;
   float segEff, LCTEff;
   bool bPrintedHeader, bDeadChamber;
-  stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssAutoHeader; 
+  stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssLowEffChambers;
+  stringstream ssAutoHeader;
+  ssDeadDCFEBsWithEff << fixed << setprecision(2);
   ssDeadDCFEBsWithEff << fixed << setprecision(2);
   ssAutoHeader << fixed << setprecision(2);
   if (effCheck){
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
-        numMaxRemoval = 0;
 
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
+          numMaxRemoval=0;
+          numIneffDCFEBs=0;
           bPrintedHeader = false;
           string indexstr = (string)"[0][" + (iiStation<4? "0":"1") + "][" + to_string(iiStation+1) + "-1][" 
             + to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
@@ -2899,7 +2902,6 @@ void PlotCSCEffFast(){
             // Maximal Removal for low efficiency DCFEBs
             if (segEff > deadDCFEBThreshold && segEff < maxRemovalThreshold){
               numMaxRemoval++;
-              if (numMaxRemoval == 5) cscEffCheck << GetMELabel(iiStation,iiRing, iiChamber) << ": " << (segEff*100) << std::endl;
               // Generate automatic array values for removal in CSCEffFast.C
               if (!bPrintedHeader){
                 ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
@@ -2921,6 +2923,7 @@ void PlotCSCEffFast(){
               ssAutoHeader << std::endl << std::endl;
             }
             else if (LCTEff > deadDCFEBThreshold && LCTEff < maxRemovalThreshold){
+              numMaxRemoval++;
               // Generate automatic array values for removal in CSCEffFast.C
               if (!bPrintedHeader){
                 ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
@@ -2937,24 +2940,31 @@ void PlotCSCEffFast(){
             }
 
             // Low efficiency TODO
+            // - Mark chambers with ALL DCFEBs below 90% (or some other threshold)
             if (segEff > maxRemovalThreshold && segEff < 0.90){
+              numIneffDCFEBs++;
               if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
-
+                if (numIneffDCFEBs == 5) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << std::endl;
               }
-              else{
-
-              }
+              else if (numIneffDCFEBs == 5) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " *" << std::endl;
             }
             else if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
-
+              numIneffDCFEBs++;
+              if (numIneffDCFEBs == 5) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " **" << std::endl;
             }
+
           }
+          if (numMaxRemoval != 0) cout << GetMELabel(iiStation, iiRing) << ": " << numMaxRemoval << std::endl;
         }
-        if (numMaxRemoval != 0) cout << GetMELabel(iiStation, iiRing) << ": " << numMaxRemoval << std::endl;
       }
     }
   }
+  //Print Low Efficiency Chambers to File
+  cscEffCheck << "Low Efficiency Chambers" << std::endl << "-----------------------" << std::endl;
+  cscEffCheck << ssLowEffChambers.str() << std::endl;
+  cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
   //Print Dead Chambers to File
+  cscEffCheck << std::endl;
   cscEffCheck << "Dead Chambers" << std::endl << "-------------" << std::endl;
   cscEffCheck << ssDeadChambers.str() << std::endl;
   //Print Dead DCFEBs to File (without efficiency)
