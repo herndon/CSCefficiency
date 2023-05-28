@@ -21,6 +21,8 @@
 // Header file for the classes stored in the TTree if any.
 #include <vector>
 
+#define newData true
+
 class CSCEffFast {
   public :
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -681,8 +683,6 @@ CSCEffFast::CSCEffFast() : fChain(0)
 {
   Int_t numberFiles = 0;
   TChain *chain = new TChain("aodDump/Fraction");
-
-  bool newData = true;
 
   if (newData){
 
