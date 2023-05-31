@@ -31,7 +31,7 @@ void PlotCSCEffFast(){
   char title[100];
 
   // Flags
-  bool verbose = false;
+  bool verbose = true;
   bool summaryPlots = false; // Efficiency plot per ring or for the full system
   bool chamberPlots = false; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
   bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on
@@ -2520,6 +2520,7 @@ void PlotCSCEffFast(){
   if (chamberPlots){
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
+        if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
         // Check for chamber plot directory
         {
           DIR *chdir = opendir(("plots/" + GetMELabel(iiStation, iiRing)).c_str());
@@ -2528,7 +2529,6 @@ void PlotCSCEffFast(){
         }
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
-          if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
 
           // Drawing CSC Segment Efficiency vs. Strip LC
           sprintf(name,"segEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
@@ -2810,7 +2810,6 @@ void PlotCSCEffFast(){
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
-
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
           numMaxRemoval=0;
