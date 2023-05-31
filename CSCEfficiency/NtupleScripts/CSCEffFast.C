@@ -43,7 +43,7 @@ void CSCEffFast::Loop()
   bool badRunRanges2023Track = false; // Min removal for 2023B
   bool badChambers2023Track = false; // Chamber and DCFEB Removal for 2023B
 
-  int firstRun, lastRun;
+  Int_t firstRun, lastRun;
   if (newData){
     firstRun = 366400; //2023
     lastRun = 367400; //2023
