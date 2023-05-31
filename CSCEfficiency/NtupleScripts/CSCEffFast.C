@@ -2852,13 +2852,13 @@ void CSCEffFast::Loop()
 
         segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(segNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
         segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
-        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
+        //segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
 
 
         LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
         LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
-        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
+        //LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
         for (Int_t ii=0; ii< lastRun-firstRun; ii++){
           if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0&&segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
@@ -2912,10 +2912,10 @@ void CSCEffFast::Loop()
 
 
 
-        zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Write();
-        zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Write();
-        resSegStationRingChamber[iiStation][iiRing][iiChamber]->Write();
-        resSigmaSegStationRingChamber[iiStation][iiRing][iiChamber]->Write();
+        //zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Write();
+        //zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Write();
+        //resSegStationRingChamber[iiStation][iiRing][iiChamber]->Write();
+        //resSigmaSegStationRingChamber[iiStation][iiRing][iiChamber]->Write();
 
 
 
@@ -2944,10 +2944,6 @@ void CSCEffFast::Loop()
 
         }
 
-        segEff2DStationRingChamberRun[iiStation][iiRing]->Write();
-        LCTEff2DStationRingChamberRun[iiStation][iiRing]->Write();
-        yySegStationRing[iiStation][iiRing]->Write();
-
 
         for (Int_t iiLayer=0; iiLayer< numLayerBins; iiLayer++){
 
@@ -2967,9 +2963,6 @@ void CSCEffFast::Loop()
           //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinError(iiChamber,iiLayer+1,effSigmaStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]);
 
         }
-
-        segEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
-        LCTEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
 
 
 
@@ -3019,14 +3012,21 @@ void CSCEffFast::Loop()
 
           }
 
-          if (iiChamber == 36) segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->Write();
-          if (iiChamber == 36) LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->Write();
-        }//
-
-        segEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
-        LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
-
+        }
       }
+      //segEff2DStationRingChamberRun[iiStation][iiRing]->Write();
+      //LCTEff2DStationRingChamberRun[iiStation][iiRing]->Write();
+      //yySegStationRing[iiStation][iiRing]->Write();
+	  
+      //segEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
+      //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
+
+      //segEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
+      //LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
+      //for (Int_t iiDCFEB=0; iiDCFEB< numDCFEBBins; iiDCFEB++){
+      //    segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->Write();
+      //    LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->Write();
+	  //}
 
 
 
@@ -3075,12 +3075,12 @@ void CSCEffFast::Loop()
           LCTEffStationCRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationCRingPtLCT[iiStation][iiRing][iiPt]);
         }
       }
-      segEffStationRingPT[iiStation][iiRing]->Write();
-      LCTEffStationRingPT[iiStation][iiRing]->Write();
-      if (iiStation<4){
-        segEffStationRingPT[iiStation][iiRing]->Write();
-        LCTEffStationRingPT[iiStation][iiRing]->Write();
-      }
+      //segEffStationRingPT[iiStation][iiRing]->Write();
+      //LCTEffStationRingPT[iiStation][iiRing]->Write();
+      //if (iiStation<4){
+      //  segEffStationRingPT[iiStation][iiRing]->Write();
+      //  LCTEffStationRingPT[iiStation][iiRing]->Write();
+      //}
 
 
       for (Int_t iiEta=0; iiEta< numEtaBins; iiEta++){
@@ -3129,13 +3129,12 @@ void CSCEffFast::Loop()
 
 
       }
-      segEffStationRingEta[iiStation][iiRing]->Write();
-      LCTEffStationRingEta[iiStation][iiRing]->Write();
-
-      if (iiStation < 4) {
-        segEffStationCRingEta[iiStation][iiRing]->Write();
-        LCTEffStationCRingEta[iiStation][iiRing]->Write();
-      }
+      //segEffStationRingEta[iiStation][iiRing]->Write();
+      //LCTEffStationRingEta[iiStation][iiRing]->Write();
+      //if (iiStation < 4) {
+      //  segEffStationCRingEta[iiStation][iiRing]->Write();
+      //  LCTEffStationCRingEta[iiStation][iiRing]->Write();
+      //}
 
       if (!LowStats) {
 
@@ -3175,13 +3174,12 @@ void CSCEffFast::Loop()
 
 
         }
-        segEffStationRingIso[iiStation][iiRing]->Write();
-        LCTEffStationRingIso[iiStation][iiRing]->Write();
-
-        if (iiStation<4){
-          segEffStationCRingIso[iiStation][iiRing]->Write();
-          LCTEffStationCRingIso[iiStation][iiRing]->Write();
-        }
+        //segEffStationRingIso[iiStation][iiRing]->Write();
+        //LCTEffStationRingIso[iiStation][iiRing]->Write();
+        //if (iiStation<4){
+        //  segEffStationCRingIso[iiStation][iiRing]->Write();
+        //  LCTEffStationCRingIso[iiStation][iiRing]->Write();
+        //}
 
       }     
 
@@ -3237,12 +3235,12 @@ void CSCEffFast::Loop()
 
 
         }
-        segEffStationRingPV[iiStation][iiRing]->Write();
-        LCTEffStationRingPV[iiStation][iiRing]->Write();
-        if (iiStation<4){
-          segEffStationCRingPV[iiStation][iiRing]->Write();
-          LCTEffStationCRingPV[iiStation][iiRing]->Write();
-        }
+        //segEffStationRingPV[iiStation][iiRing]->Write();
+        //LCTEffStationRingPV[iiStation][iiRing]->Write();
+        //if (iiStation<4){
+        //  segEffStationCRingPV[iiStation][iiRing]->Write();
+        //  LCTEffStationCRingPV[iiStation][iiRing]->Write();
+        //}
 
 
       }
@@ -3284,12 +3282,12 @@ void CSCEffFast::Loop()
 
 
         }
-        segEffStationRingIL[iiStation][iiRing]->Write();
-        LCTEffStationRingIL[iiStation][iiRing]->Write();
-        if (iiStation<4){
-          segEffStationCRingIL[iiStation][iiRing]->Write();
-          LCTEffStationCRingIL[iiStation][iiRing]->Write();
-        }
+        //segEffStationRingIL[iiStation][iiRing]->Write();
+        //LCTEffStationRingIL[iiStation][iiRing]->Write();
+        //if (iiStation<4){
+        //  segEffStationCRingIL[iiStation][iiRing]->Write();
+        //  LCTEffStationCRingIL[iiStation][iiRing]->Write();
+        //}
 
 
 
@@ -3316,8 +3314,8 @@ void CSCEffFast::Loop()
 
 
       }
-      segEffStationRingRun[iiStation][iiRing]->Write();
-      LCTEffStationRingRun[iiStation][iiRing]->Write();
+      //segEffStationRingRun[iiStation][iiRing]->Write();
+      //LCTEffStationRingRun[iiStation][iiRing]->Write();
 
 
 
@@ -3449,10 +3447,10 @@ void CSCEffFast::Loop()
         // segEffStationCRingLCY[iiStation][iiRing]->Write();
         // LCTEffStationCRingLCY[iiStation][iiRing]->Write();
         // }
-      for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-        segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-        LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-      }      
+      //for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+      //  segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
+      //  LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
+      //}      
 
       for (Int_t iiLCS=0; iiLCS< numLCSBins; iiLCS++){
         // 	 //if (totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)  effStationRingLCSSeg[iiStation][iiRing][iiLCS] = passStationRingLCSSeg[iiStation][iiRing][iiLCS]/totStationRingLCS[iiStation][iiRing][iiLCS];
@@ -3515,10 +3513,10 @@ void CSCEffFast::Loop()
         // segEffStationCRingLCS[iiStation][iiRing]->Write();
         // LCTEffStationCRingLCS[iiStation][iiRing]->Write();
         // }
-      for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-        segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
-        LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
-      }      
+      //for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+      //  segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
+      //  LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
+      //}      
 
 
 
@@ -3556,7 +3554,7 @@ void CSCEffFast::Loop()
   // std::cout << "Failed dxy       " << nFailDxy << std::endl;
 
 
-
+  /*
   zMassAll->Write();
   zMassGood->Write();
   zMassBad->Write();
@@ -3585,7 +3583,7 @@ void CSCEffFast::Loop()
 
   segmentsFid1HighpT->Write();
   segmentsFid2HighpT->Write();
-
+  */
 
 
   std::cout << "Total, pass, fail " << totalFiducial << " " << totalPass << " " << totalFail << std::endl;
