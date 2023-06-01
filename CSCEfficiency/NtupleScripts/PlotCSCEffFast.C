@@ -2820,7 +2820,7 @@ void PlotCSCEffFast(){
           string indexstr = "[0][";
           if (iiStation < 4) indexstr += "0][" + to_string(iiStation+1);
           else indexstr += "1][" + to_string(iiStation+1-4);
-          indexstr += "-1][" + to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
+          indexstr += "-1][" + to_string(iiRing) + "][" + to_string(iiChamber) + "-1]";
 
           // Identifying Dead DCFEBs and Chambers
           bDeadChamber = false;
