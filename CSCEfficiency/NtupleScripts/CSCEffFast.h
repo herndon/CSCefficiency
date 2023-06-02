@@ -24,656 +24,656 @@
 #define newData true
 
 class CSCEffFast {
-public :
-  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-  Int_t           fCurrent; //!current Tree number in a TChain
+  public :
+    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+    Int_t           fCurrent; //!current Tree number in a TChain
 
-  // Fixed size dimensions of array or collections stored in the TTree if any.
+    // Fixed size dimensions of array or collections stored in the TTree if any.
 
-  // Fixed size dimensions of array or collections stored in the TTree if any.
+    // Fixed size dimensions of array or collections stored in the TTree if any.
 
-  // Declaration of leaf types
-  Int_t           run_number;
-  Int_t           event_number;
-  Int_t           LumiBlock;
-  Int_t           LumiSection;
-  std::vector<float>   *LumiInst;
-  std::vector<float>   *LumiInstErr;
-  std::vector<float>   *LumiInstQlty;
-  std::vector<float>   *LumiEtInst;
-  std::vector<float>   *LumiEtInstErr;
-  std::vector<float>   *LumiEtInstQlty;
-  std::vector<float>   *LumiStartOrbit;
-  std::vector<float>   *LumiNumOrbits;
-  Int_t           bunchX;
-  Int_t           orbitNumb;
-  Float_t         mcweight;
-  UInt_t          numberOfPUVertices;
-  Float_t         numberOfPUVerticesMixingTruth;
-  UInt_t          numberOfPUVerticesTot;
-  UInt_t          numberOfPrimaryVertices;
-  Bool_t          trgSingle;
-  Int_t           nTrkCountCSCSeg;
-  Int_t           nTotalTrks;
-  Bool_t          trackVeto_strict;
-  Bool_t          trackVeto_isClosestToLCT;
-  Int_t           myRegion;
-  Float_t         MuTagPt;
-  Float_t         MuTagEta;
-  Float_t         MuTagPhi;
-  Float_t         MuTagIsoR03Ratio;
-  Float_t         MuTagIsoR05Ratio;
-  Float_t         MuTagPFIsoR04Ratio;
-  Int_t           MuTagPromt;
-  Int_t           MuTagnSegTrkArb;
-  Bool_t          MuTagCaloL;
-  Bool_t          MuTagCaloT;
-  Float_t         MuTagtracktruth_pt;
-  Float_t         MuTagtracktruth_p;
-  Float_t         MuTagtracktruth_id;
-  ULong64_t       MuTagtracktruth_type;
-  Bool_t          MuTagtracktruth_isPileup;
-  Int_t           MuTagtracktruth_thesamewith;
-  Float_t         vtx_r;
-  Float_t         vtx_z;
-  Float_t         vtx_rError;
-  Float_t         vtx_zError;
-  Float_t         vtx_normChi2;
-  Int_t           vtx_size;
-  Bool_t          iSameVtx;
-  Float_t         invMass;
-  Float_t         tracks_e;
-  Float_t         tracks_pt;
-  Float_t         tracks_eta;
-  Float_t         tracks_phi;
-  Int_t           tracks_charge;
-  Int_t           tracks_id;
-  Float_t         tracks_normchi2;
-  Float_t         tracks_dxy;
-  Float_t         tracks_dz;
-  Float_t         tracks_vx;
-  Float_t         tracks_vy;
-  Float_t         tracks_vz;
-  Float_t         tracks_IsoR03Ratio;
-  Float_t         tracks_IsoR05Ratio;
-  Float_t         tracks_qoverp;
-  Float_t         tracks_lambda;
-  Int_t           tracks_recHitsSize;
-  Int_t           tracks_numberOfValidHits;
-  Int_t           tracks_numberOfLostHits;
-  Float_t         tracks_qoverpError;
-  Float_t         tracks_ptError;
-  Float_t         tracks_thetaError;
-  Float_t         tracks_lambdaError;
-  Float_t         tracks_etaError;
-  Float_t         tracks_phiError;
-  Float_t         tracks_dxyError;
-  Float_t         tracks_d0Error;
-  Float_t         tracks_dszError;
-  Float_t         tracks_dzError;
-  Bool_t          tracks_isCaloMuTrk;
-  Bool_t          tracks_isTrackerMuTrk;
-  Int_t           tracks_numberOfMatches;
-  Float_t         tracktruth_pt;
-  Float_t         tracktruth_p;
-  Float_t         tracktruth_e;
-  Float_t         tracktruth_id;
-  ULong64_t       tracktruth_type;
-  Bool_t          tracktruth_isPileup;
-  Int_t           tracktruth_thesamewith;
-  Bool_t          CSCEndCapPlus;
-  UChar_t         CSCRg1;
-  UChar_t         CSCCh1;
-  Bool_t          CSCCBad1;
-  Float_t         CSCDyProjHVGap1;
-  Float_t         CSCDyErrProjHVGap1;
-  Float_t         CSCProjDistEdge1;
-  Float_t         CSCProjDistErrEdge1;
-  Float_t         CSCTTxLc1;
-  Float_t         CSCTTwLc1;
-  Float_t         CSCTTyLc1;
-  Float_t         CSCTTsLc1;
-  Float_t         CSCTTwSegxLc1;
-  Float_t         CSCTTwSegyLc1;
-  Float_t         CSCTT3xLc1;
-  Float_t         CSCTT3wLc1;
-  Float_t         CSCTT3yLc1;
-  Float_t         CSCTT3sLc1;
-  Float_t         CSCTT3wLCTxLc1;
-  Float_t         CSCTT3wLCTyLc1;
-  Float_t         CSCTTxGc1;
-  Float_t         CSCTTyGc1;
-  Float_t         CSCTTzGc1;
-  Float_t         CSCTTetaGc1;
-  Float_t         CSCTT3xGc1;
-  Float_t         CSCTT3yGc1;
-  Float_t         CSCTT3zGc1;
-  Float_t         CSCTT3etaGc1;
-  Float_t         CSCSegNumber1;
-  Float_t         DTSegNumber1;
-  Float_t         RPCSegNumber1;
-  Float_t         CSCSegxLc1;
-  Float_t         CSCSegyLc1;
-  Float_t         CSCSegxErrLc1;
-  Float_t         CSCSegyErrLc1;
-  Float_t         CSCdXdZTTSeg1;
-  Float_t         CSCdYdZTTSeg1;
-  Float_t         CSCSegChisqProb1;
-  Int_t           CSCnSegHits1;
-  Float_t         CSCDxTTSeg1;
-  Float_t         CSCDxErrTTSeg1;
-  Float_t         CSCDyTTSeg1;
-  Float_t         CSCDyErrTTSeg1;
-  Float_t         CSCDxyTTSeg1;
-  Float_t         CSCDxyErrTTSeg1;
-  Float_t         CSCLCTxLc1;
-  Float_t         CSCLCTyLc1;
-  Int_t           CSCLCTbx1;
-  Int_t           N_seg_inChamber1;
-  Float_t         CSCDxTTLCT1;
-  Float_t         CSCDxErrTTLCT1;
-  Float_t         CSCDyTTLCT1;
-  Float_t         CSCDyErrTTLCT1;
-  Float_t         CSCDxyTTLCT1;
-  Float_t         CSCDxyErrTTLCT1;
-  Float_t         dRTkMu1;
-  UChar_t         CSCRg2;
-  UChar_t         CSCCh2;
-  Bool_t          CSCCBad2;
-  Float_t         CSCDyProjHVGap2;
-  Float_t         CSCDyErrProjHVGap2;
-  Float_t         CSCProjDistEdge2;
-  Float_t         CSCProjDistErrEdge2;
-  Float_t         CSCTTxLc2;
-  Float_t         CSCTTwLc2;
-  Float_t         CSCTTyLc2;
-  Float_t         CSCTTsLc2;
-  Float_t         CSCTTwSegxLc2;
-  Float_t         CSCTTwSegyLc2;
-  Float_t         CSCTT3xLc2;
-  Float_t         CSCTT3wLc2;
-  Float_t         CSCTT3yLc2;
-  Float_t         CSCTT3sLc2;
-  Float_t         CSCTT3wLCTxLc2;
-  Float_t         CSCTT3wLCTyLc2;
-  Float_t         CSCTTxGc2;
-  Float_t         CSCTTyGc2;
-  Float_t         CSCTTzGc2;
-  Float_t         CSCTTetaGc2;
-  Float_t         CSCTT3xGc2;
-  Float_t         CSCTT3yGc2;
-  Float_t         CSCTT3zGc2;
-  Float_t         CSCTT3etaGc2;
-  Float_t         CSCSegNumber2;
-  Float_t         DTSegNumber2;
-  Float_t         RPCSegNumber2;
-  Float_t         CSCSegxLc2;
-  Float_t         CSCSegyLc2;
-  Float_t         CSCSegxErrLc2;
-  Float_t         CSCSegyErrLc2;
-  Float_t         CSCdXdZTTSeg2;
-  Float_t         CSCdYdZTTSeg2;
-  Float_t         CSCSegChisqProb2;
-  Int_t           CSCnSegHits2;
-  Float_t         CSCDxTTSeg2;
-  Float_t         CSCDxErrTTSeg2;
-  Float_t         CSCDyTTSeg2;
-  Float_t         CSCDyErrTTSeg2;
-  Float_t         CSCDxyTTSeg2;
-  Float_t         CSCDxyErrTTSeg2;
-  Float_t         CSCLCTxLc2;
-  Float_t         CSCLCTyLc2;
-  Int_t           CSCLCTbx2;
-  Int_t           N_seg_inChamber2;
-  Float_t         CSCDxTTLCT2;
-  Float_t         CSCDxErrTTLCT2;
-  Float_t         CSCDyTTLCT2;
-  Float_t         CSCDyErrTTLCT2;
-  Float_t         CSCDxyTTLCT2;
-  Float_t         CSCDxyErrTTLCT2;
-  Float_t         dRTkMu2;
-  UChar_t         CSCRg3;
-  UChar_t         CSCCh3;
-  Bool_t          CSCCBad3;
-  Float_t         CSCDyProjHVGap3;
-  Float_t         CSCDyErrProjHVGap3;
-  Float_t         CSCProjDistEdge3;
-  Float_t         CSCProjDistErrEdge3;
-  Float_t         CSCTTxLc3;
-  Float_t         CSCTTwLc3;
-  Float_t         CSCTTyLc3;
-  Float_t         CSCTTsLc3;
-  Float_t         CSCTTwSegxLc3;
-  Float_t         CSCTTwSegyLc3;
-  Float_t         CSCTT3xLc3;
-  Float_t         CSCTT3wLc3;
-  Float_t         CSCTT3yLc3;
-  Float_t         CSCTT3sLc3;
-  Float_t         CSCTT3wLCTxLc3;
-  Float_t         CSCTT3wLCTyLc3;
-  Float_t         CSCTTxGc3;
-  Float_t         CSCTTyGc3;
-  Float_t         CSCTTzGc3;
-  Float_t         CSCTTetaGc3;
-  Float_t         CSCTT3xGc3;
-  Float_t         CSCTT3yGc3;
-  Float_t         CSCTT3zGc3;
-  Float_t         CSCTT3etaGc3;
-  Float_t         CSCSegNumber3;
-  Float_t         DTSegNumber3;
-  Float_t         RPCSegNumber3;
-  Float_t         CSCSegxLc3;
-  Float_t         CSCSegyLc3;
-  Float_t         CSCSegxErrLc3;
-  Float_t         CSCSegyErrLc3;
-  Float_t         CSCdXdZTTSeg3;
-  Float_t         CSCdYdZTTSeg3;
-  Float_t         CSCSegChisqProb3;
-  Int_t           CSCnSegHits3;
-  Float_t         CSCDxTTSeg3;
-  Float_t         CSCDxErrTTSeg3;
-  Float_t         CSCDyTTSeg3;
-  Float_t         CSCDyErrTTSeg3;
-  Float_t         CSCDxyTTSeg3;
-  Float_t         CSCDxyErrTTSeg3;
-  Float_t         CSCLCTxLc3;
-  Float_t         CSCLCTyLc3;
-  Int_t           CSCLCTbx3;
-  Int_t           N_seg_inChamber3;
-  Float_t         CSCDxTTLCT3;
-  Float_t         CSCDxErrTTLCT3;
-  Float_t         CSCDyTTLCT3;
-  Float_t         CSCDyErrTTLCT3;
-  Float_t         CSCDxyTTLCT3;
-  Float_t         CSCDxyErrTTLCT3;
-  Float_t         dRTkMu3;
-  UChar_t         CSCRg4;
-  UChar_t         CSCCh4;
-  Bool_t          CSCCBad4;
-  Float_t         CSCDyProjHVGap4;
-  Float_t         CSCDyErrProjHVGap4;
-  Float_t         CSCProjDistEdge4;
-  Float_t         CSCProjDistErrEdge4;
-  Float_t         CSCTTxLc4;
-  Float_t         CSCTTwLc4;
-  Float_t         CSCTTyLc4;
-  Float_t         CSCTTsLc4;
-  Float_t         CSCTTwSegxLc4;
-  Float_t         CSCTTwSegyLc4;
-  Float_t         CSCTT3xLc4;
-  Float_t         CSCTT3wLc4;
-  Float_t         CSCTT3yLc4;
-  Float_t         CSCTT3sLc4;
-  Float_t         CSCTT3wLCTxLc4;
-  Float_t         CSCTT3wLCTyLc4;
-  Float_t         CSCTTxGc4;
-  Float_t         CSCTTyGc4;
-  Float_t         CSCTTzGc4;
-  Float_t         CSCTTetaGc4;
-  Float_t         CSCTT3xGc4;
-  Float_t         CSCTT3yGc4;
-  Float_t         CSCTT3zGc4;
-  Float_t         CSCTT3etaGc4;
-  Float_t         CSCSegNumber4;
-  Float_t         DTSegNumber4;
-  Float_t         RPCSegNumber4;
-  Float_t         CSCSegxLc4;
-  Float_t         CSCSegyLc4;
-  Float_t         CSCSegxErrLc4;
-  Float_t         CSCSegyErrLc4;
-  Float_t         CSCdXdZTTSeg4;
-  Float_t         CSCdYdZTTSeg4;
-  Float_t         CSCSegChisqProb4;
-  Int_t           CSCnSegHits4;
-  Float_t         CSCDxTTSeg4;
-  Float_t         CSCDxErrTTSeg4;
-  Float_t         CSCDyTTSeg4;
-  Float_t         CSCDyErrTTSeg4;
-  Float_t         CSCDxyTTSeg4;
-  Float_t         CSCDxyErrTTSeg4;
-  Float_t         CSCLCTxLc4;
-  Float_t         CSCLCTyLc4;
-  Int_t           CSCLCTbx4;
-  Int_t           N_seg_inChamber4;
-  Float_t         CSCDxTTLCT4;
-  Float_t         CSCDxErrTTLCT4;
-  Float_t         CSCDyTTLCT4;
-  Float_t         CSCDyErrTTLCT4;
-  Float_t         CSCDxyTTLCT4;
-  Float_t         CSCDxyErrTTLCT4;
-  Float_t         dRTkMu4;
-  std::vector<bool>    *HLTMuAcceptance;
-  Float_t         HLTDiMuAcceptance;
-  std::vector<float>   *minDRHLTMu;
-  Float_t         minDRHLTDiMu;
-  Float_t         minDRHLTAllSingleMu;
+    // Declaration of leaf types
+    Int_t           run_number;
+    Int_t           event_number;
+    Int_t           LumiBlock;
+    Int_t           LumiSection;
+    std::vector<float>   *LumiInst;
+    std::vector<float>   *LumiInstErr;
+    std::vector<float>   *LumiInstQlty;
+    std::vector<float>   *LumiEtInst;
+    std::vector<float>   *LumiEtInstErr;
+    std::vector<float>   *LumiEtInstQlty;
+    std::vector<float>   *LumiStartOrbit;
+    std::vector<float>   *LumiNumOrbits;
+    Int_t           bunchX;
+    Int_t           orbitNumb;
+    Float_t         mcweight;
+    UInt_t          numberOfPUVertices;
+    Float_t         numberOfPUVerticesMixingTruth;
+    UInt_t          numberOfPUVerticesTot;
+    UInt_t          numberOfPrimaryVertices;
+    Bool_t          trgSingle;
+    Int_t           nTrkCountCSCSeg;
+    Int_t           nTotalTrks;
+    Bool_t          trackVeto_strict;
+    Bool_t          trackVeto_isClosestToLCT;
+    Int_t           myRegion;
+    Float_t         MuTagPt;
+    Float_t         MuTagEta;
+    Float_t         MuTagPhi;
+    Float_t         MuTagIsoR03Ratio;
+    Float_t         MuTagIsoR05Ratio;
+    Float_t         MuTagPFIsoR04Ratio;
+    Int_t           MuTagPromt;
+    Int_t           MuTagnSegTrkArb;
+    Bool_t          MuTagCaloL;
+    Bool_t          MuTagCaloT;
+    Float_t         MuTagtracktruth_pt;
+    Float_t         MuTagtracktruth_p;
+    Float_t         MuTagtracktruth_id;
+    ULong64_t       MuTagtracktruth_type;
+    Bool_t          MuTagtracktruth_isPileup;
+    Int_t           MuTagtracktruth_thesamewith;
+    Float_t         vtx_r;
+    Float_t         vtx_z;
+    Float_t         vtx_rError;
+    Float_t         vtx_zError;
+    Float_t         vtx_normChi2;
+    Int_t           vtx_size;
+    Bool_t          iSameVtx;
+    Float_t         invMass;
+    Float_t         tracks_e;
+    Float_t         tracks_pt;
+    Float_t         tracks_eta;
+    Float_t         tracks_phi;
+    Int_t           tracks_charge;
+    Int_t           tracks_id;
+    Float_t         tracks_normchi2;
+    Float_t         tracks_dxy;
+    Float_t         tracks_dz;
+    Float_t         tracks_vx;
+    Float_t         tracks_vy;
+    Float_t         tracks_vz;
+    Float_t         tracks_IsoR03Ratio;
+    Float_t         tracks_IsoR05Ratio;
+    Float_t         tracks_qoverp;
+    Float_t         tracks_lambda;
+    Int_t           tracks_recHitsSize;
+    Int_t           tracks_numberOfValidHits;
+    Int_t           tracks_numberOfLostHits;
+    Float_t         tracks_qoverpError;
+    Float_t         tracks_ptError;
+    Float_t         tracks_thetaError;
+    Float_t         tracks_lambdaError;
+    Float_t         tracks_etaError;
+    Float_t         tracks_phiError;
+    Float_t         tracks_dxyError;
+    Float_t         tracks_d0Error;
+    Float_t         tracks_dszError;
+    Float_t         tracks_dzError;
+    Bool_t          tracks_isCaloMuTrk;
+    Bool_t          tracks_isTrackerMuTrk;
+    Int_t           tracks_numberOfMatches;
+    Float_t         tracktruth_pt;
+    Float_t         tracktruth_p;
+    Float_t         tracktruth_e;
+    Float_t         tracktruth_id;
+    ULong64_t       tracktruth_type;
+    Bool_t          tracktruth_isPileup;
+    Int_t           tracktruth_thesamewith;
+    Bool_t          CSCEndCapPlus;
+    UChar_t         CSCRg1;
+    UChar_t         CSCCh1;
+    Bool_t          CSCCBad1;
+    Float_t         CSCDyProjHVGap1;
+    Float_t         CSCDyErrProjHVGap1;
+    Float_t         CSCProjDistEdge1;
+    Float_t         CSCProjDistErrEdge1;
+    Float_t         CSCTTxLc1;
+    Float_t         CSCTTwLc1;
+    Float_t         CSCTTyLc1;
+    Float_t         CSCTTsLc1;
+    Float_t         CSCTTwSegxLc1;
+    Float_t         CSCTTwSegyLc1;
+    Float_t         CSCTT3xLc1;
+    Float_t         CSCTT3wLc1;
+    Float_t         CSCTT3yLc1;
+    Float_t         CSCTT3sLc1;
+    Float_t         CSCTT3wLCTxLc1;
+    Float_t         CSCTT3wLCTyLc1;
+    Float_t         CSCTTxGc1;
+    Float_t         CSCTTyGc1;
+    Float_t         CSCTTzGc1;
+    Float_t         CSCTTetaGc1;
+    Float_t         CSCTT3xGc1;
+    Float_t         CSCTT3yGc1;
+    Float_t         CSCTT3zGc1;
+    Float_t         CSCTT3etaGc1;
+    Float_t         CSCSegNumber1;
+    Float_t         DTSegNumber1;
+    Float_t         RPCSegNumber1;
+    Float_t         CSCSegxLc1;
+    Float_t         CSCSegyLc1;
+    Float_t         CSCSegxErrLc1;
+    Float_t         CSCSegyErrLc1;
+    Float_t         CSCdXdZTTSeg1;
+    Float_t         CSCdYdZTTSeg1;
+    Float_t         CSCSegChisqProb1;
+    Int_t           CSCnSegHits1;
+    Float_t         CSCDxTTSeg1;
+    Float_t         CSCDxErrTTSeg1;
+    Float_t         CSCDyTTSeg1;
+    Float_t         CSCDyErrTTSeg1;
+    Float_t         CSCDxyTTSeg1;
+    Float_t         CSCDxyErrTTSeg1;
+    Float_t         CSCLCTxLc1;
+    Float_t         CSCLCTyLc1;
+    Int_t           CSCLCTbx1;
+    Int_t           N_seg_inChamber1;
+    Float_t         CSCDxTTLCT1;
+    Float_t         CSCDxErrTTLCT1;
+    Float_t         CSCDyTTLCT1;
+    Float_t         CSCDyErrTTLCT1;
+    Float_t         CSCDxyTTLCT1;
+    Float_t         CSCDxyErrTTLCT1;
+    Float_t         dRTkMu1;
+    UChar_t         CSCRg2;
+    UChar_t         CSCCh2;
+    Bool_t          CSCCBad2;
+    Float_t         CSCDyProjHVGap2;
+    Float_t         CSCDyErrProjHVGap2;
+    Float_t         CSCProjDistEdge2;
+    Float_t         CSCProjDistErrEdge2;
+    Float_t         CSCTTxLc2;
+    Float_t         CSCTTwLc2;
+    Float_t         CSCTTyLc2;
+    Float_t         CSCTTsLc2;
+    Float_t         CSCTTwSegxLc2;
+    Float_t         CSCTTwSegyLc2;
+    Float_t         CSCTT3xLc2;
+    Float_t         CSCTT3wLc2;
+    Float_t         CSCTT3yLc2;
+    Float_t         CSCTT3sLc2;
+    Float_t         CSCTT3wLCTxLc2;
+    Float_t         CSCTT3wLCTyLc2;
+    Float_t         CSCTTxGc2;
+    Float_t         CSCTTyGc2;
+    Float_t         CSCTTzGc2;
+    Float_t         CSCTTetaGc2;
+    Float_t         CSCTT3xGc2;
+    Float_t         CSCTT3yGc2;
+    Float_t         CSCTT3zGc2;
+    Float_t         CSCTT3etaGc2;
+    Float_t         CSCSegNumber2;
+    Float_t         DTSegNumber2;
+    Float_t         RPCSegNumber2;
+    Float_t         CSCSegxLc2;
+    Float_t         CSCSegyLc2;
+    Float_t         CSCSegxErrLc2;
+    Float_t         CSCSegyErrLc2;
+    Float_t         CSCdXdZTTSeg2;
+    Float_t         CSCdYdZTTSeg2;
+    Float_t         CSCSegChisqProb2;
+    Int_t           CSCnSegHits2;
+    Float_t         CSCDxTTSeg2;
+    Float_t         CSCDxErrTTSeg2;
+    Float_t         CSCDyTTSeg2;
+    Float_t         CSCDyErrTTSeg2;
+    Float_t         CSCDxyTTSeg2;
+    Float_t         CSCDxyErrTTSeg2;
+    Float_t         CSCLCTxLc2;
+    Float_t         CSCLCTyLc2;
+    Int_t           CSCLCTbx2;
+    Int_t           N_seg_inChamber2;
+    Float_t         CSCDxTTLCT2;
+    Float_t         CSCDxErrTTLCT2;
+    Float_t         CSCDyTTLCT2;
+    Float_t         CSCDyErrTTLCT2;
+    Float_t         CSCDxyTTLCT2;
+    Float_t         CSCDxyErrTTLCT2;
+    Float_t         dRTkMu2;
+    UChar_t         CSCRg3;
+    UChar_t         CSCCh3;
+    Bool_t          CSCCBad3;
+    Float_t         CSCDyProjHVGap3;
+    Float_t         CSCDyErrProjHVGap3;
+    Float_t         CSCProjDistEdge3;
+    Float_t         CSCProjDistErrEdge3;
+    Float_t         CSCTTxLc3;
+    Float_t         CSCTTwLc3;
+    Float_t         CSCTTyLc3;
+    Float_t         CSCTTsLc3;
+    Float_t         CSCTTwSegxLc3;
+    Float_t         CSCTTwSegyLc3;
+    Float_t         CSCTT3xLc3;
+    Float_t         CSCTT3wLc3;
+    Float_t         CSCTT3yLc3;
+    Float_t         CSCTT3sLc3;
+    Float_t         CSCTT3wLCTxLc3;
+    Float_t         CSCTT3wLCTyLc3;
+    Float_t         CSCTTxGc3;
+    Float_t         CSCTTyGc3;
+    Float_t         CSCTTzGc3;
+    Float_t         CSCTTetaGc3;
+    Float_t         CSCTT3xGc3;
+    Float_t         CSCTT3yGc3;
+    Float_t         CSCTT3zGc3;
+    Float_t         CSCTT3etaGc3;
+    Float_t         CSCSegNumber3;
+    Float_t         DTSegNumber3;
+    Float_t         RPCSegNumber3;
+    Float_t         CSCSegxLc3;
+    Float_t         CSCSegyLc3;
+    Float_t         CSCSegxErrLc3;
+    Float_t         CSCSegyErrLc3;
+    Float_t         CSCdXdZTTSeg3;
+    Float_t         CSCdYdZTTSeg3;
+    Float_t         CSCSegChisqProb3;
+    Int_t           CSCnSegHits3;
+    Float_t         CSCDxTTSeg3;
+    Float_t         CSCDxErrTTSeg3;
+    Float_t         CSCDyTTSeg3;
+    Float_t         CSCDyErrTTSeg3;
+    Float_t         CSCDxyTTSeg3;
+    Float_t         CSCDxyErrTTSeg3;
+    Float_t         CSCLCTxLc3;
+    Float_t         CSCLCTyLc3;
+    Int_t           CSCLCTbx3;
+    Int_t           N_seg_inChamber3;
+    Float_t         CSCDxTTLCT3;
+    Float_t         CSCDxErrTTLCT3;
+    Float_t         CSCDyTTLCT3;
+    Float_t         CSCDyErrTTLCT3;
+    Float_t         CSCDxyTTLCT3;
+    Float_t         CSCDxyErrTTLCT3;
+    Float_t         dRTkMu3;
+    UChar_t         CSCRg4;
+    UChar_t         CSCCh4;
+    Bool_t          CSCCBad4;
+    Float_t         CSCDyProjHVGap4;
+    Float_t         CSCDyErrProjHVGap4;
+    Float_t         CSCProjDistEdge4;
+    Float_t         CSCProjDistErrEdge4;
+    Float_t         CSCTTxLc4;
+    Float_t         CSCTTwLc4;
+    Float_t         CSCTTyLc4;
+    Float_t         CSCTTsLc4;
+    Float_t         CSCTTwSegxLc4;
+    Float_t         CSCTTwSegyLc4;
+    Float_t         CSCTT3xLc4;
+    Float_t         CSCTT3wLc4;
+    Float_t         CSCTT3yLc4;
+    Float_t         CSCTT3sLc4;
+    Float_t         CSCTT3wLCTxLc4;
+    Float_t         CSCTT3wLCTyLc4;
+    Float_t         CSCTTxGc4;
+    Float_t         CSCTTyGc4;
+    Float_t         CSCTTzGc4;
+    Float_t         CSCTTetaGc4;
+    Float_t         CSCTT3xGc4;
+    Float_t         CSCTT3yGc4;
+    Float_t         CSCTT3zGc4;
+    Float_t         CSCTT3etaGc4;
+    Float_t         CSCSegNumber4;
+    Float_t         DTSegNumber4;
+    Float_t         RPCSegNumber4;
+    Float_t         CSCSegxLc4;
+    Float_t         CSCSegyLc4;
+    Float_t         CSCSegxErrLc4;
+    Float_t         CSCSegyErrLc4;
+    Float_t         CSCdXdZTTSeg4;
+    Float_t         CSCdYdZTTSeg4;
+    Float_t         CSCSegChisqProb4;
+    Int_t           CSCnSegHits4;
+    Float_t         CSCDxTTSeg4;
+    Float_t         CSCDxErrTTSeg4;
+    Float_t         CSCDyTTSeg4;
+    Float_t         CSCDyErrTTSeg4;
+    Float_t         CSCDxyTTSeg4;
+    Float_t         CSCDxyErrTTSeg4;
+    Float_t         CSCLCTxLc4;
+    Float_t         CSCLCTyLc4;
+    Int_t           CSCLCTbx4;
+    Int_t           N_seg_inChamber4;
+    Float_t         CSCDxTTLCT4;
+    Float_t         CSCDxErrTTLCT4;
+    Float_t         CSCDyTTLCT4;
+    Float_t         CSCDyErrTTLCT4;
+    Float_t         CSCDxyTTLCT4;
+    Float_t         CSCDxyErrTTLCT4;
+    Float_t         dRTkMu4;
+    std::vector<bool>    *HLTMuAcceptance;
+    Float_t         HLTDiMuAcceptance;
+    std::vector<float>   *minDRHLTMu;
+    Float_t         minDRHLTDiMu;
+    Float_t         minDRHLTAllSingleMu;
 
-  // List of branches
-  TBranch        *b_run_number;   //!
-  TBranch        *b_event_number;   //!
-  TBranch        *b_LumiBlock;   //!
-  TBranch        *b_LumiSection;   //!
-  TBranch        *b_LumiInst;   //!
-  TBranch        *b_LumiInstErr;   //!
-  TBranch        *b_LumiInstQlty;   //!
-  TBranch        *b_LumiEtInst;   //!
-  TBranch        *b_LumiEtInstErr;   //!
-  TBranch        *b_LumiEtInstQlty;   //!
-  TBranch        *b_LumiStartOrbit;   //!
-  TBranch        *b_LumiNumOrbits;   //!
-  TBranch        *b_bunchX;   //!
-  TBranch        *b_orbitNumb;   //!
-  TBranch        *b_mcweight;   //!
-  TBranch        *b_numberOfPUVertices;   //!
-  TBranch        *b_numberOfPUVerticesMixingTruth;   //!
-  TBranch        *b_numberOfPUVerticesTot;   //!
-  TBranch        *b_numberOfPrimaryVertices;   //!
-  TBranch        *b_trgSingle;   //!
-  TBranch        *b_nTrkCountCSCSeg;   //!
-  TBranch        *b_nTotalTrks;   //!
-  TBranch        *b_trackVeto_strict;   //!
-  TBranch        *b_trackVeto_isClosestToLCT;   //!
-  TBranch        *b_myRegion;   //!
-  TBranch        *b_MuTagPt;   //!
-  TBranch        *b_MuTagEta;   //!
-  TBranch        *b_MuTagPhi;   //!
-  TBranch        *b_MuTagIsoR03Ratio;   //!
-  TBranch        *b_MuTagIsoR05Ratio;   //!
-  TBranch        *b_MuTagPFIsoR04Ratio;   //!
-  TBranch        *b_MuTagPromt;   //!
-  TBranch        *b_MuTagnSegTrkArb;   //!
-  TBranch        *b_MuTagCaloL;   //!
-  TBranch        *b_MuTagCaloT;   //!
-  TBranch        *b_MuTagtracktruth_pt;   //!
-  TBranch        *b_MuTagtracktruth_p;   //!
-  TBranch        *b_MuTagtracktruth_id;   //!
-  TBranch        *b_MuTagtracktruth_type;   //!
-  TBranch        *b_MuTagtracktruth_isPileup;   //!
-  TBranch        *b_MuTagtracktruth_thesamewith;   //!
-  TBranch        *b_vtx_r;   //!
-  TBranch        *b_vtx_z;   //!
-  TBranch        *b_vtx_rError;   //!
-  TBranch        *b_vtx_zError;   //!
-  TBranch        *b_vtx_normChi2;   //!
-  TBranch        *b_vtx_size;   //!
-  TBranch        *b_iSameVtx;   //!
-  TBranch        *b_invMass;   //!
-  TBranch        *b_tracks_e;   //!
-  TBranch        *b_tracks_pt;   //!
-  TBranch        *b_tracks_eta;   //!
-  TBranch        *b_tracks_phi;   //!
-  TBranch        *b_tracks_charge;   //!
-  TBranch        *b_tracks_id;   //!
-  TBranch        *b_tracks_normchi2;   //!
-  TBranch        *b_tracks_dxy;   //!
-  TBranch        *b_tracks_dz;   //!
-  TBranch        *b_tracks_vx;   //!
-  TBranch        *b_tracks_vy;   //!
-  TBranch        *b_tracks_vz;   //!
-  TBranch        *b_tracks_IsoR03Ratio;   //!
-  TBranch        *b_tracks_IsoR05Ratio;   //!
-  TBranch        *b_tracks_qoverp;   //!
-  TBranch        *b_tracks_lambda;   //!
-  TBranch        *b_tracks_recHitsSize;   //!
-  TBranch        *b_tracks_numberOfValidHits;   //!
-  TBranch        *b_tracks_numberOfLostHits;   //!
-  TBranch        *b_tracks_qoverpError;   //!
-  TBranch        *b_tracks_ptError;   //!
-  TBranch        *b_tracks_thetaError;   //!
-  TBranch        *b_tracks_lambdaError;   //!
-  TBranch        *b_tracks_etaError;   //!
-  TBranch        *b_tracks_phiError;   //!
-  TBranch        *b_tracks_dxyError;   //!
-  TBranch        *b_tracks_d0Error;   //!
-  TBranch        *b_tracks_dszError;   //!
-  TBranch        *b_tracks_dzError;   //!
-  TBranch        *b_tracks_isCaloMuTrk;   //!
-  TBranch        *b_tracks_isTrackerMuTrk;   //!
-  TBranch        *b_tracks_numberOfMatches;   //!
-  TBranch        *b_tracktruth_pt;   //!
-  TBranch        *b_tracktruth_p;   //!
-  TBranch        *b_tracktruth_e;   //!
-  TBranch        *b_tracktruth_id;   //!
-  TBranch        *b_tracktruth_type;   //!
-  TBranch        *b_tracktruth_isPileup;   //!
-  TBranch        *b_tracktruth_thesamewith;   //!
-  TBranch        *b_CSCEndCapPlus;   //!
-  TBranch        *b_CSCRg1;   //!
-  TBranch        *b_CSCCh1;   //!
-  TBranch        *b_CSCCBad1;   //!
-  TBranch        *b_CSCDyProjHVGap1;   //!
-  TBranch        *b_CSCDyErrProjHVGap1;   //!
-  TBranch        *b_CSCProjDistEdge1;   //!
-  TBranch        *b_CSCProjDistErrEdge1;   //!
-  TBranch        *b_CSCTTxLc1;   //!
-  TBranch        *b_CSCTTwLc1;   //!
-  TBranch        *b_CSCTTyLc1;   //!
-  TBranch        *b_CSCTTsLc1;   //!
-  TBranch        *b_CSCTTwSegxLc1;   //!
-  TBranch        *b_CSCTTwSegyLc1;   //!
-  TBranch        *b_CSCTT3xLc1;   //!
-  TBranch        *b_CSCTT3wLc1;   //!
-  TBranch        *b_CSCTT3yLc1;   //!
-  TBranch        *b_CSCTT3sLc1;   //!
-  TBranch        *b_CSCTT3wLCTxLc1;   //!
-  TBranch        *b_CSCTT3wLCTyLc1;   //!
-  TBranch        *b_CSCTTxGc1;   //!
-  TBranch        *b_CSCTTyGc1;   //!
-  TBranch        *b_CSCTTzGc1;   //!
-  TBranch        *b_CSCTTetaGc1;   //!
-  TBranch        *b_CSCTT3xGc1;   //!
-  TBranch        *b_CSCTT3yGc1;   //!
-  TBranch        *b_CSCTT3zGc1;   //!
-  TBranch        *b_CSCTT3etaGc1;   //!
-  TBranch        *b_CSCSegNumber1;   //!
-  TBranch        *b_DTSegNumber1;   //!
-  TBranch        *b_RPCSegNumber1;   //!
-  TBranch        *b_CSCSegxLc1;   //!
-  TBranch        *b_CSCSegyLc1;   //!
-  TBranch        *b_CSCSegxErrLc1;   //!
-  TBranch        *b_CSCSegyErrLc1;   //!
-  TBranch        *b_CSCdXdZTTSeg1;   //!
-  TBranch        *b_CSCdYdZTTSeg1;   //!
-  TBranch        *b_CSCSegChisqProb1;   //!
-  TBranch        *b_CSCnSegHits1;   //!
-  TBranch        *b_CSCDxTTSeg1;   //!
-  TBranch        *b_CSCDxErrTTSeg1;   //!
-  TBranch        *b_CSCDyTTSeg1;   //!
-  TBranch        *b_CSCDyErrTTSeg1;   //!
-  TBranch        *b_CSCDxyTTSeg1;   //!
-  TBranch        *b_CSCDxyErrTTSeg1;   //!
-  TBranch        *b_CSCLCTxLc1;   //!
-  TBranch        *b_CSCLCTyLc1;   //!
-  TBranch        *b_CSCLCTbx1;   //!
-  TBranch        *b_N_seg_inChamber1;   //!
-  TBranch        *b_CSCDxTTLCT1;   //!
-  TBranch        *b_CSCDxErrTTLCT1;   //!
-  TBranch        *b_CSCDyTTLCT1;   //!
-  TBranch        *b_CSCDyErrTTLCT1;   //!
-  TBranch        *b_CSCDxyTTLCT1;   //!
-  TBranch        *b_CSCDxyErrTTLCT1;   //!
-  TBranch        *b_dRTkMu1;   //!
-  TBranch        *b_CSCRg2;   //!
-  TBranch        *b_CSCCh2;   //!
-  TBranch        *b_CSCCBad2;   //!
-  TBranch        *b_CSCDyProjHVGap2;   //!
-  TBranch        *b_CSCDyErrProjHVGap2;   //!
-  TBranch        *b_CSCProjDistEdge2;   //!
-  TBranch        *b_CSCProjDistErrEdge2;   //!
-  TBranch        *b_CSCTTxLc2;   //!
-  TBranch        *b_CSCTTwLc2;   //!
-  TBranch        *b_CSCTTyLc2;   //!
-  TBranch        *b_CSCTTsLc2;   //!
-  TBranch        *b_CSCTTwSegxLc2;   //!
-  TBranch        *b_CSCTTwSegyLc2;   //!
-  TBranch        *b_CSCTT3xLc2;   //!
-  TBranch        *b_CSCTT3wLc2;   //!
-  TBranch        *b_CSCTT3yLc2;   //!
-  TBranch        *b_CSCTT3sLc2;   //!
-  TBranch        *b_CSCTT3wLCTxLc2;   //!
-  TBranch        *b_CSCTT3wLCTyLc2;   //!
-  TBranch        *b_CSCTTxGc2;   //!
-  TBranch        *b_CSCTTyGc2;   //!
-  TBranch        *b_CSCTTzGc2;   //!
-  TBranch        *b_CSCTTetaGc2;   //!
-  TBranch        *b_CSCTT3xGc2;   //!
-  TBranch        *b_CSCTT3yGc2;   //!
-  TBranch        *b_CSCTT3zGc2;   //!
-  TBranch        *b_CSCTT3etaGc2;   //!
-  TBranch        *b_CSCSegNumber2;   //!
-  TBranch        *b_DTSegNumber2;   //!
-  TBranch        *b_RPCSegNumber2;   //!
-  TBranch        *b_CSCSegxLc2;   //!
-  TBranch        *b_CSCSegyLc2;   //!
-  TBranch        *b_CSCSegxErrLc2;   //!
-  TBranch        *b_CSCSegyErrLc2;   //!
-  TBranch        *b_CSCdXdZTTSeg2;   //!
-  TBranch        *b_CSCdYdZTTSeg2;   //!
-  TBranch        *b_CSCSegChisqProb2;   //!
-  TBranch        *b_CSCnSegHits2;   //!
-  TBranch        *b_CSCDxTTSeg2;   //!
-  TBranch        *b_CSCDxErrTTSeg2;   //!
-  TBranch        *b_CSCDyTTSeg2;   //!
-  TBranch        *b_CSCDyErrTTSeg2;   //!
-  TBranch        *b_CSCDxyTTSeg2;   //!
-  TBranch        *b_CSCDxyErrTTSeg2;   //!
-  TBranch        *b_CSCLCTxLc2;   //!
-  TBranch        *b_CSCLCTyLc2;   //!
-  TBranch        *b_CSCLCTbx2;   //!
-  TBranch        *b_N_seg_inChamber2;   //!
-  TBranch        *b_CSCDxTTLCT2;   //!
-  TBranch        *b_CSCDxErrTTLCT2;   //!
-  TBranch        *b_CSCDyTTLCT2;   //!
-  TBranch        *b_CSCDyErrTTLCT2;   //!
-  TBranch        *b_CSCDxyTTLCT2;   //!
-  TBranch        *b_CSCDxyErrTTLCT2;   //!
-  TBranch        *b_dRTkMu2;   //!
-  TBranch        *b_CSCRg3;   //!
-  TBranch        *b_CSCCh3;   //!
-  TBranch        *b_CSCCBad3;   //!
-  TBranch        *b_CSCDyProjHVGap3;   //!
-  TBranch        *b_CSCDyErrProjHVGap3;   //!
-  TBranch        *b_CSCProjDistEdge3;   //!
-  TBranch        *b_CSCProjDistErrEdge3;   //!
-  TBranch        *b_CSCTTxLc3;   //!
-  TBranch        *b_CSCTTwLc3;   //!
-  TBranch        *b_CSCTTyLc3;   //!
-  TBranch        *b_CSCTTsLc3;   //!
-  TBranch        *b_CSCTTwSegxLc3;   //!
-  TBranch        *b_CSCTTwSegyLc3;   //!
-  TBranch        *b_CSCTT3xLc3;   //!
-  TBranch        *b_CSCTT3wLc3;   //!
-  TBranch        *b_CSCTT3yLc3;   //!
-  TBranch        *b_CSCTT3sLc3;   //!
-  TBranch        *b_CSCTT3wLCTxLc3;   //!
-  TBranch        *b_CSCTT3wLCTyLc3;   //!
-  TBranch        *b_CSCTTxGc3;   //!
-  TBranch        *b_CSCTTyGc3;   //!
-  TBranch        *b_CSCTTzGc3;   //!
-  TBranch        *b_CSCTTetaGc3;   //!
-  TBranch        *b_CSCTT3xGc3;   //!
-  TBranch        *b_CSCTT3yGc3;   //!
-  TBranch        *b_CSCTT3zGc3;   //!
-  TBranch        *b_CSCTT3etaGc3;   //!
-  TBranch        *b_CSCSegNumber3;   //!
-  TBranch        *b_DTSegNumber3;   //!
-  TBranch        *b_RPCSegNumber3;   //!
-  TBranch        *b_CSCSegxLc3;   //!
-  TBranch        *b_CSCSegyLc3;   //!
-  TBranch        *b_CSCSegxErrLc3;   //!
-  TBranch        *b_CSCSegyErrLc3;   //!
-  TBranch        *b_CSCdXdZTTSeg3;   //!
-  TBranch        *b_CSCdYdZTTSeg3;   //!
-  TBranch        *b_CSCSegChisqProb3;   //!
-  TBranch        *b_CSCnSegHits3;   //!
-  TBranch        *b_CSCDxTTSeg3;   //!
-  TBranch        *b_CSCDxErrTTSeg3;   //!
-  TBranch        *b_CSCDyTTSeg3;   //!
-  TBranch        *b_CSCDyErrTTSeg3;   //!
-  TBranch        *b_CSCDxyTTSeg3;   //!
-  TBranch        *b_CSCDxyErrTTSeg3;   //!
-  TBranch        *b_CSCLCTxLc3;   //!
-  TBranch        *b_CSCLCTyLc3;   //!
-  TBranch        *b_CSCLCTbx3;   //!
-  TBranch        *b_N_seg_inChamber3;   //!
-  TBranch        *b_CSCDxTTLCT3;   //!
-  TBranch        *b_CSCDxErrTTLCT3;   //!
-  TBranch        *b_CSCDyTTLCT3;   //!
-  TBranch        *b_CSCDyErrTTLCT3;   //!
-  TBranch        *b_CSCDxyTTLCT3;   //!
-  TBranch        *b_CSCDxyErrTTLCT3;   //!
-  TBranch        *b_dRTkMu3;   //!
-  TBranch        *b_CSCRg4;   //!
-  TBranch        *b_CSCCh4;   //!
-  TBranch        *b_CSCCBad4;   //!
-  TBranch        *b_CSCDyProjHVGap4;   //!
-  TBranch        *b_CSCDyErrProjHVGap4;   //!
-  TBranch        *b_CSCProjDistEdge4;   //!
-  TBranch        *b_CSCProjDistErrEdge4;   //!
-  TBranch        *b_CSCTTxLc4;   //!
-  TBranch        *b_CSCTTwLc4;   //!
-  TBranch        *b_CSCTTyLc4;   //!
-  TBranch        *b_CSCTTsLc4;   //!
-  TBranch        *b_CSCTTwSegxLc4;   //!
-  TBranch        *b_CSCTTwSegyLc4;   //!
-  TBranch        *b_CSCTT3xLc4;   //!
-  TBranch        *b_CSCTT3wLc4;   //!
-  TBranch        *b_CSCTT3yLc4;   //!
-  TBranch        *b_CSCTT3sLc4;   //!
-  TBranch        *b_CSCTT3wLCTxLc4;   //!
-  TBranch        *b_CSCTT3wLCTyLc4;   //!
-  TBranch        *b_CSCTTxGc4;   //!
-  TBranch        *b_CSCTTyGc4;   //!
-  TBranch        *b_CSCTTzGc4;   //!
-  TBranch        *b_CSCTTetaGc4;   //!
-  TBranch        *b_CSCTT3xGc4;   //!
-  TBranch        *b_CSCTT3yGc4;   //!
-  TBranch        *b_CSCTT3zGc4;   //!
-  TBranch        *b_CSCTT3etaGc4;   //!
-  TBranch        *b_CSCSegNumber4;   //!
-  TBranch        *b_DTSegNumber4;   //!
-  TBranch        *b_RPCSegNumber4;   //!
-  TBranch        *b_CSCSegxLc4;   //!
-  TBranch        *b_CSCSegyLc4;   //!
-  TBranch        *b_CSCSegxErrLc4;   //!
-  TBranch        *b_CSCSegyErrLc4;   //!
-  TBranch        *b_CSCdXdZTTSeg4;   //!
-  TBranch        *b_CSCdYdZTTSeg4;   //!
-  TBranch        *b_CSCSegChisqProb4;   //!
-  TBranch        *b_CSCnSegHits4;   //!
-  TBranch        *b_CSCDxTTSeg4;   //!
-  TBranch        *b_CSCDxErrTTSeg4;   //!
-  TBranch        *b_CSCDyTTSeg4;   //!
-  TBranch        *b_CSCDyErrTTSeg4;   //!
-  TBranch        *b_CSCDxyTTSeg4;   //!
-  TBranch        *b_CSCDxyErrTTSeg4;   //!
-  TBranch        *b_CSCLCTxLc4;   //!
-  TBranch        *b_CSCLCTyLc4;   //!
-  TBranch        *b_CSCLCTbx4;   //!
-  TBranch        *b_N_seg_inChamber4;   //!
-  TBranch        *b_CSCDxTTLCT4;   //!
-  TBranch        *b_CSCDxErrTTLCT4;   //!
-  TBranch        *b_CSCDyTTLCT4;   //!
-  TBranch        *b_CSCDyErrTTLCT4;   //!
-  TBranch        *b_CSCDxyTTLCT4;   //!
-  TBranch        *b_CSCDxyErrTTLCT4;   //!
-  TBranch        *b_dRTkMu4;   //!
-  TBranch        *b_HLTMuAcceptance;   //!
-  TBranch        *b_HLTDiMuAcceptance;   //!
-  TBranch        *b_minDRHLTMu;   //!
-  TBranch        *b_minDRHLTDiMu;   //!
-  TBranch        *b_minDRHLTAllSingleMu;   //!
+    // List of branches
+    TBranch        *b_run_number;   //!
+    TBranch        *b_event_number;   //!
+    TBranch        *b_LumiBlock;   //!
+    TBranch        *b_LumiSection;   //!
+    TBranch        *b_LumiInst;   //!
+    TBranch        *b_LumiInstErr;   //!
+    TBranch        *b_LumiInstQlty;   //!
+    TBranch        *b_LumiEtInst;   //!
+    TBranch        *b_LumiEtInstErr;   //!
+    TBranch        *b_LumiEtInstQlty;   //!
+    TBranch        *b_LumiStartOrbit;   //!
+    TBranch        *b_LumiNumOrbits;   //!
+    TBranch        *b_bunchX;   //!
+    TBranch        *b_orbitNumb;   //!
+    TBranch        *b_mcweight;   //!
+    TBranch        *b_numberOfPUVertices;   //!
+    TBranch        *b_numberOfPUVerticesMixingTruth;   //!
+    TBranch        *b_numberOfPUVerticesTot;   //!
+    TBranch        *b_numberOfPrimaryVertices;   //!
+    TBranch        *b_trgSingle;   //!
+    TBranch        *b_nTrkCountCSCSeg;   //!
+    TBranch        *b_nTotalTrks;   //!
+    TBranch        *b_trackVeto_strict;   //!
+    TBranch        *b_trackVeto_isClosestToLCT;   //!
+    TBranch        *b_myRegion;   //!
+    TBranch        *b_MuTagPt;   //!
+    TBranch        *b_MuTagEta;   //!
+    TBranch        *b_MuTagPhi;   //!
+    TBranch        *b_MuTagIsoR03Ratio;   //!
+    TBranch        *b_MuTagIsoR05Ratio;   //!
+    TBranch        *b_MuTagPFIsoR04Ratio;   //!
+    TBranch        *b_MuTagPromt;   //!
+    TBranch        *b_MuTagnSegTrkArb;   //!
+    TBranch        *b_MuTagCaloL;   //!
+    TBranch        *b_MuTagCaloT;   //!
+    TBranch        *b_MuTagtracktruth_pt;   //!
+    TBranch        *b_MuTagtracktruth_p;   //!
+    TBranch        *b_MuTagtracktruth_id;   //!
+    TBranch        *b_MuTagtracktruth_type;   //!
+    TBranch        *b_MuTagtracktruth_isPileup;   //!
+    TBranch        *b_MuTagtracktruth_thesamewith;   //!
+    TBranch        *b_vtx_r;   //!
+    TBranch        *b_vtx_z;   //!
+    TBranch        *b_vtx_rError;   //!
+    TBranch        *b_vtx_zError;   //!
+    TBranch        *b_vtx_normChi2;   //!
+    TBranch        *b_vtx_size;   //!
+    TBranch        *b_iSameVtx;   //!
+    TBranch        *b_invMass;   //!
+    TBranch        *b_tracks_e;   //!
+    TBranch        *b_tracks_pt;   //!
+    TBranch        *b_tracks_eta;   //!
+    TBranch        *b_tracks_phi;   //!
+    TBranch        *b_tracks_charge;   //!
+    TBranch        *b_tracks_id;   //!
+    TBranch        *b_tracks_normchi2;   //!
+    TBranch        *b_tracks_dxy;   //!
+    TBranch        *b_tracks_dz;   //!
+    TBranch        *b_tracks_vx;   //!
+    TBranch        *b_tracks_vy;   //!
+    TBranch        *b_tracks_vz;   //!
+    TBranch        *b_tracks_IsoR03Ratio;   //!
+    TBranch        *b_tracks_IsoR05Ratio;   //!
+    TBranch        *b_tracks_qoverp;   //!
+    TBranch        *b_tracks_lambda;   //!
+    TBranch        *b_tracks_recHitsSize;   //!
+    TBranch        *b_tracks_numberOfValidHits;   //!
+    TBranch        *b_tracks_numberOfLostHits;   //!
+    TBranch        *b_tracks_qoverpError;   //!
+    TBranch        *b_tracks_ptError;   //!
+    TBranch        *b_tracks_thetaError;   //!
+    TBranch        *b_tracks_lambdaError;   //!
+    TBranch        *b_tracks_etaError;   //!
+    TBranch        *b_tracks_phiError;   //!
+    TBranch        *b_tracks_dxyError;   //!
+    TBranch        *b_tracks_d0Error;   //!
+    TBranch        *b_tracks_dszError;   //!
+    TBranch        *b_tracks_dzError;   //!
+    TBranch        *b_tracks_isCaloMuTrk;   //!
+    TBranch        *b_tracks_isTrackerMuTrk;   //!
+    TBranch        *b_tracks_numberOfMatches;   //!
+    TBranch        *b_tracktruth_pt;   //!
+    TBranch        *b_tracktruth_p;   //!
+    TBranch        *b_tracktruth_e;   //!
+    TBranch        *b_tracktruth_id;   //!
+    TBranch        *b_tracktruth_type;   //!
+    TBranch        *b_tracktruth_isPileup;   //!
+    TBranch        *b_tracktruth_thesamewith;   //!
+    TBranch        *b_CSCEndCapPlus;   //!
+    TBranch        *b_CSCRg1;   //!
+    TBranch        *b_CSCCh1;   //!
+    TBranch        *b_CSCCBad1;   //!
+    TBranch        *b_CSCDyProjHVGap1;   //!
+    TBranch        *b_CSCDyErrProjHVGap1;   //!
+    TBranch        *b_CSCProjDistEdge1;   //!
+    TBranch        *b_CSCProjDistErrEdge1;   //!
+    TBranch        *b_CSCTTxLc1;   //!
+    TBranch        *b_CSCTTwLc1;   //!
+    TBranch        *b_CSCTTyLc1;   //!
+    TBranch        *b_CSCTTsLc1;   //!
+    TBranch        *b_CSCTTwSegxLc1;   //!
+    TBranch        *b_CSCTTwSegyLc1;   //!
+    TBranch        *b_CSCTT3xLc1;   //!
+    TBranch        *b_CSCTT3wLc1;   //!
+    TBranch        *b_CSCTT3yLc1;   //!
+    TBranch        *b_CSCTT3sLc1;   //!
+    TBranch        *b_CSCTT3wLCTxLc1;   //!
+    TBranch        *b_CSCTT3wLCTyLc1;   //!
+    TBranch        *b_CSCTTxGc1;   //!
+    TBranch        *b_CSCTTyGc1;   //!
+    TBranch        *b_CSCTTzGc1;   //!
+    TBranch        *b_CSCTTetaGc1;   //!
+    TBranch        *b_CSCTT3xGc1;   //!
+    TBranch        *b_CSCTT3yGc1;   //!
+    TBranch        *b_CSCTT3zGc1;   //!
+    TBranch        *b_CSCTT3etaGc1;   //!
+    TBranch        *b_CSCSegNumber1;   //!
+    TBranch        *b_DTSegNumber1;   //!
+    TBranch        *b_RPCSegNumber1;   //!
+    TBranch        *b_CSCSegxLc1;   //!
+    TBranch        *b_CSCSegyLc1;   //!
+    TBranch        *b_CSCSegxErrLc1;   //!
+    TBranch        *b_CSCSegyErrLc1;   //!
+    TBranch        *b_CSCdXdZTTSeg1;   //!
+    TBranch        *b_CSCdYdZTTSeg1;   //!
+    TBranch        *b_CSCSegChisqProb1;   //!
+    TBranch        *b_CSCnSegHits1;   //!
+    TBranch        *b_CSCDxTTSeg1;   //!
+    TBranch        *b_CSCDxErrTTSeg1;   //!
+    TBranch        *b_CSCDyTTSeg1;   //!
+    TBranch        *b_CSCDyErrTTSeg1;   //!
+    TBranch        *b_CSCDxyTTSeg1;   //!
+    TBranch        *b_CSCDxyErrTTSeg1;   //!
+    TBranch        *b_CSCLCTxLc1;   //!
+    TBranch        *b_CSCLCTyLc1;   //!
+    TBranch        *b_CSCLCTbx1;   //!
+    TBranch        *b_N_seg_inChamber1;   //!
+    TBranch        *b_CSCDxTTLCT1;   //!
+    TBranch        *b_CSCDxErrTTLCT1;   //!
+    TBranch        *b_CSCDyTTLCT1;   //!
+    TBranch        *b_CSCDyErrTTLCT1;   //!
+    TBranch        *b_CSCDxyTTLCT1;   //!
+    TBranch        *b_CSCDxyErrTTLCT1;   //!
+    TBranch        *b_dRTkMu1;   //!
+    TBranch        *b_CSCRg2;   //!
+    TBranch        *b_CSCCh2;   //!
+    TBranch        *b_CSCCBad2;   //!
+    TBranch        *b_CSCDyProjHVGap2;   //!
+    TBranch        *b_CSCDyErrProjHVGap2;   //!
+    TBranch        *b_CSCProjDistEdge2;   //!
+    TBranch        *b_CSCProjDistErrEdge2;   //!
+    TBranch        *b_CSCTTxLc2;   //!
+    TBranch        *b_CSCTTwLc2;   //!
+    TBranch        *b_CSCTTyLc2;   //!
+    TBranch        *b_CSCTTsLc2;   //!
+    TBranch        *b_CSCTTwSegxLc2;   //!
+    TBranch        *b_CSCTTwSegyLc2;   //!
+    TBranch        *b_CSCTT3xLc2;   //!
+    TBranch        *b_CSCTT3wLc2;   //!
+    TBranch        *b_CSCTT3yLc2;   //!
+    TBranch        *b_CSCTT3sLc2;   //!
+    TBranch        *b_CSCTT3wLCTxLc2;   //!
+    TBranch        *b_CSCTT3wLCTyLc2;   //!
+    TBranch        *b_CSCTTxGc2;   //!
+    TBranch        *b_CSCTTyGc2;   //!
+    TBranch        *b_CSCTTzGc2;   //!
+    TBranch        *b_CSCTTetaGc2;   //!
+    TBranch        *b_CSCTT3xGc2;   //!
+    TBranch        *b_CSCTT3yGc2;   //!
+    TBranch        *b_CSCTT3zGc2;   //!
+    TBranch        *b_CSCTT3etaGc2;   //!
+    TBranch        *b_CSCSegNumber2;   //!
+    TBranch        *b_DTSegNumber2;   //!
+    TBranch        *b_RPCSegNumber2;   //!
+    TBranch        *b_CSCSegxLc2;   //!
+    TBranch        *b_CSCSegyLc2;   //!
+    TBranch        *b_CSCSegxErrLc2;   //!
+    TBranch        *b_CSCSegyErrLc2;   //!
+    TBranch        *b_CSCdXdZTTSeg2;   //!
+    TBranch        *b_CSCdYdZTTSeg2;   //!
+    TBranch        *b_CSCSegChisqProb2;   //!
+    TBranch        *b_CSCnSegHits2;   //!
+    TBranch        *b_CSCDxTTSeg2;   //!
+    TBranch        *b_CSCDxErrTTSeg2;   //!
+    TBranch        *b_CSCDyTTSeg2;   //!
+    TBranch        *b_CSCDyErrTTSeg2;   //!
+    TBranch        *b_CSCDxyTTSeg2;   //!
+    TBranch        *b_CSCDxyErrTTSeg2;   //!
+    TBranch        *b_CSCLCTxLc2;   //!
+    TBranch        *b_CSCLCTyLc2;   //!
+    TBranch        *b_CSCLCTbx2;   //!
+    TBranch        *b_N_seg_inChamber2;   //!
+    TBranch        *b_CSCDxTTLCT2;   //!
+    TBranch        *b_CSCDxErrTTLCT2;   //!
+    TBranch        *b_CSCDyTTLCT2;   //!
+    TBranch        *b_CSCDyErrTTLCT2;   //!
+    TBranch        *b_CSCDxyTTLCT2;   //!
+    TBranch        *b_CSCDxyErrTTLCT2;   //!
+    TBranch        *b_dRTkMu2;   //!
+    TBranch        *b_CSCRg3;   //!
+    TBranch        *b_CSCCh3;   //!
+    TBranch        *b_CSCCBad3;   //!
+    TBranch        *b_CSCDyProjHVGap3;   //!
+    TBranch        *b_CSCDyErrProjHVGap3;   //!
+    TBranch        *b_CSCProjDistEdge3;   //!
+    TBranch        *b_CSCProjDistErrEdge3;   //!
+    TBranch        *b_CSCTTxLc3;   //!
+    TBranch        *b_CSCTTwLc3;   //!
+    TBranch        *b_CSCTTyLc3;   //!
+    TBranch        *b_CSCTTsLc3;   //!
+    TBranch        *b_CSCTTwSegxLc3;   //!
+    TBranch        *b_CSCTTwSegyLc3;   //!
+    TBranch        *b_CSCTT3xLc3;   //!
+    TBranch        *b_CSCTT3wLc3;   //!
+    TBranch        *b_CSCTT3yLc3;   //!
+    TBranch        *b_CSCTT3sLc3;   //!
+    TBranch        *b_CSCTT3wLCTxLc3;   //!
+    TBranch        *b_CSCTT3wLCTyLc3;   //!
+    TBranch        *b_CSCTTxGc3;   //!
+    TBranch        *b_CSCTTyGc3;   //!
+    TBranch        *b_CSCTTzGc3;   //!
+    TBranch        *b_CSCTTetaGc3;   //!
+    TBranch        *b_CSCTT3xGc3;   //!
+    TBranch        *b_CSCTT3yGc3;   //!
+    TBranch        *b_CSCTT3zGc3;   //!
+    TBranch        *b_CSCTT3etaGc3;   //!
+    TBranch        *b_CSCSegNumber3;   //!
+    TBranch        *b_DTSegNumber3;   //!
+    TBranch        *b_RPCSegNumber3;   //!
+    TBranch        *b_CSCSegxLc3;   //!
+    TBranch        *b_CSCSegyLc3;   //!
+    TBranch        *b_CSCSegxErrLc3;   //!
+    TBranch        *b_CSCSegyErrLc3;   //!
+    TBranch        *b_CSCdXdZTTSeg3;   //!
+    TBranch        *b_CSCdYdZTTSeg3;   //!
+    TBranch        *b_CSCSegChisqProb3;   //!
+    TBranch        *b_CSCnSegHits3;   //!
+    TBranch        *b_CSCDxTTSeg3;   //!
+    TBranch        *b_CSCDxErrTTSeg3;   //!
+    TBranch        *b_CSCDyTTSeg3;   //!
+    TBranch        *b_CSCDyErrTTSeg3;   //!
+    TBranch        *b_CSCDxyTTSeg3;   //!
+    TBranch        *b_CSCDxyErrTTSeg3;   //!
+    TBranch        *b_CSCLCTxLc3;   //!
+    TBranch        *b_CSCLCTyLc3;   //!
+    TBranch        *b_CSCLCTbx3;   //!
+    TBranch        *b_N_seg_inChamber3;   //!
+    TBranch        *b_CSCDxTTLCT3;   //!
+    TBranch        *b_CSCDxErrTTLCT3;   //!
+    TBranch        *b_CSCDyTTLCT3;   //!
+    TBranch        *b_CSCDyErrTTLCT3;   //!
+    TBranch        *b_CSCDxyTTLCT3;   //!
+    TBranch        *b_CSCDxyErrTTLCT3;   //!
+    TBranch        *b_dRTkMu3;   //!
+    TBranch        *b_CSCRg4;   //!
+    TBranch        *b_CSCCh4;   //!
+    TBranch        *b_CSCCBad4;   //!
+    TBranch        *b_CSCDyProjHVGap4;   //!
+    TBranch        *b_CSCDyErrProjHVGap4;   //!
+    TBranch        *b_CSCProjDistEdge4;   //!
+    TBranch        *b_CSCProjDistErrEdge4;   //!
+    TBranch        *b_CSCTTxLc4;   //!
+    TBranch        *b_CSCTTwLc4;   //!
+    TBranch        *b_CSCTTyLc4;   //!
+    TBranch        *b_CSCTTsLc4;   //!
+    TBranch        *b_CSCTTwSegxLc4;   //!
+    TBranch        *b_CSCTTwSegyLc4;   //!
+    TBranch        *b_CSCTT3xLc4;   //!
+    TBranch        *b_CSCTT3wLc4;   //!
+    TBranch        *b_CSCTT3yLc4;   //!
+    TBranch        *b_CSCTT3sLc4;   //!
+    TBranch        *b_CSCTT3wLCTxLc4;   //!
+    TBranch        *b_CSCTT3wLCTyLc4;   //!
+    TBranch        *b_CSCTTxGc4;   //!
+    TBranch        *b_CSCTTyGc4;   //!
+    TBranch        *b_CSCTTzGc4;   //!
+    TBranch        *b_CSCTTetaGc4;   //!
+    TBranch        *b_CSCTT3xGc4;   //!
+    TBranch        *b_CSCTT3yGc4;   //!
+    TBranch        *b_CSCTT3zGc4;   //!
+    TBranch        *b_CSCTT3etaGc4;   //!
+    TBranch        *b_CSCSegNumber4;   //!
+    TBranch        *b_DTSegNumber4;   //!
+    TBranch        *b_RPCSegNumber4;   //!
+    TBranch        *b_CSCSegxLc4;   //!
+    TBranch        *b_CSCSegyLc4;   //!
+    TBranch        *b_CSCSegxErrLc4;   //!
+    TBranch        *b_CSCSegyErrLc4;   //!
+    TBranch        *b_CSCdXdZTTSeg4;   //!
+    TBranch        *b_CSCdYdZTTSeg4;   //!
+    TBranch        *b_CSCSegChisqProb4;   //!
+    TBranch        *b_CSCnSegHits4;   //!
+    TBranch        *b_CSCDxTTSeg4;   //!
+    TBranch        *b_CSCDxErrTTSeg4;   //!
+    TBranch        *b_CSCDyTTSeg4;   //!
+    TBranch        *b_CSCDyErrTTSeg4;   //!
+    TBranch        *b_CSCDxyTTSeg4;   //!
+    TBranch        *b_CSCDxyErrTTSeg4;   //!
+    TBranch        *b_CSCLCTxLc4;   //!
+    TBranch        *b_CSCLCTyLc4;   //!
+    TBranch        *b_CSCLCTbx4;   //!
+    TBranch        *b_N_seg_inChamber4;   //!
+    TBranch        *b_CSCDxTTLCT4;   //!
+    TBranch        *b_CSCDxErrTTLCT4;   //!
+    TBranch        *b_CSCDyTTLCT4;   //!
+    TBranch        *b_CSCDyErrTTLCT4;   //!
+    TBranch        *b_CSCDxyTTLCT4;   //!
+    TBranch        *b_CSCDxyErrTTLCT4;   //!
+    TBranch        *b_dRTkMu4;   //!
+    TBranch        *b_HLTMuAcceptance;   //!
+    TBranch        *b_HLTDiMuAcceptance;   //!
+    TBranch        *b_minDRHLTMu;   //!
+    TBranch        *b_minDRHLTDiMu;   //!
+    TBranch        *b_minDRHLTAllSingleMu;   //!
 
 
-  CSCEffFast();
-  virtual ~CSCEffFast();
-  virtual Int_t    Cut(Long64_t entry);
-  virtual Int_t    GetEntry(Long64_t entry);
-  virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
-  virtual void     Loop();
-  virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
+    CSCEffFast();
+    virtual ~CSCEffFast();
+    virtual Int_t    Cut(Long64_t entry);
+    virtual Int_t    GetEntry(Long64_t entry);
+    virtual Long64_t LoadTree(Long64_t entry);
+    virtual void     Init(TTree *tree);
+    virtual void     Loop();
+    virtual Bool_t   Notify();
+    virtual void     Show(Long64_t entry = -1);
 };
 
 #endif
@@ -686,7 +686,7 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
   if (newData){
 
-  
+
     //        chain->Add("/afs/hep.wisc.edu/home/herndon/software/cscEffRun3_2023/CMSSW_13_0_3/src/CSCEfficiency/CSCEfficiency/test_2023_7.root");
     //     numberFiles++;
 
@@ -719,88 +719,123 @@ CSCEffFast::CSCEffFast() : fChain(0)
     //  }
     // }
 
-    // 2023 C
-    for (int fileNum=0;fileNum < 380;fileNum++) {
-      if ((!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_1/230513_012701/0000/CSCeff_Muon_2023C0_%d.root",fileNum)))&&fileNum!=88) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_1/230513_012701/0000/CSCeff_Muon_2023C0_%d.root",fileNum));
+    // 2023 C old
+    // for (int fileNum=0;fileNum < 380;fileNum++) {
+    //   if ((!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_1/230513_012701/0000/CSCeff_Muon_2023C0_%d.root",fileNum)))&&fileNum!=88) {
+    // 	chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_1/230513_012701/0000/CSCeff_Muon_2023C0_%d.root",fileNum));
+    // 	numberFiles++;
+    //   }
+    // }
+
+    // for (int fileNum=0;fileNum < 380;fileNum++) {
+    //   if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_1/230513_012833/0000/CSCeff_Muon_2023C1_%d.root",fileNum))) {
+    // 	chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_1/230513_012833/0000/CSCeff_Muon_2023C1_%d.root",fileNum));
+    // 	numberFiles++;
+    //   }
+    // }
+
+    // 2023 C new v1 and v2
+
+    // v1
+    for (int fileNum=0;fileNum < 460;fileNum++) {
+      if ((!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_3/230522_230520/0000/CSCeff_Muon_2023C0v2_%d.root",fileNum)))&&fileNum!=88) {
+	chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_3/230522_230520/0000/CSCeff_Muon_2023C0v2_%d.root",fileNum));
 	numberFiles++;
       }
     }
 
-    for (int fileNum=0;fileNum < 380;fileNum++) {
-      if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_1/230513_012833/0000/CSCeff_Muon_2023C1_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_1/230513_012833/0000/CSCeff_Muon_2023C1_%d.root",fileNum));
+	
+    for (int fileNum=0;fileNum < 460;fileNum++) {
+      if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_3/230522_232605/0000/CSCeff_Muon_2023C1v2_%d.root",fileNum))) {
+	chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_3/230522_232605/0000/CSCeff_Muon_2023C1v2_%d.root",fileNum));
 	numberFiles++;
       }
     }
 
+    
+    // v2
+    for (int fileNum=0;fileNum < 725;fileNum++) {
+      if ((!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_2/230522_170454/0000/CSCeff_Muon_2023C0_%d.root",fileNum)))&&fileNum!=88) {
+	chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_2/230522_170454/0000/CSCeff_Muon_2023C0_%d.root",fileNum));
+	numberFiles++;
+      }
+    }
+
+	
+    for (int fileNum=0;fileNum < 725;fileNum++) {
+      if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_2/230522_170711/0000/CSCeff_Muon_2023C1_%d.root",fileNum))) {
+	chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_2/230522_170711/0000/CSCeff_Muon_2023C1_%d.root",fileNum));
+	numberFiles++;
+      }
+    }
+
+    
   } else { 
-    
-    
+
     // 2022 g
     for (int fileNum=0;fileNum < 1000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022G2_2023_0221_01/230222_040427/0000/CSCeff_SingleMuon_2022G2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022G2_2023_0221_01/230222_040427/0000/CSCeff_SingleMuon_2022G2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022G2_2023_0221_01/230222_040427/0000/CSCeff_SingleMuon_2022G2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
 
     for (int fileNum=1000;fileNum < 1225;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022G2_2023_0221_01/230222_040427/0001/CSCeff_SingleMuon_2022G2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022G2_2023_0221_01/230222_040427/0001/CSCeff_SingleMuon_2022G2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022G2_2023_0221_01/230222_040427/0001/CSCeff_SingleMuon_2022G2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
-  
+
     // 2022 F
     for (int fileNum=0;fileNum < 1000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0000/CSCeff_SingleMuon_2022F2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0000/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0000/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=1000;fileNum < 2000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0001/CSCeff_SingleMuon_2022F2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0001/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0001/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=2000;fileNum < 3000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0002/CSCeff_SingleMuon_2022F2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0002/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0002/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=3000;fileNum < 4000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0003/CSCeff_SingleMuon_2022F2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0003/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0003/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=4000;fileNum < 5000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0004/CSCeff_SingleMuon_2022F2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0004/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0004/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=5000;fileNum < 6000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0005/CSCeff_SingleMuon_2022F2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0005/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0005/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=6000;fileNum < 6603;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0006/CSCeff_SingleMuon_2022F2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0006/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022F2_2022_1026_03/221122_231823/0006/CSCeff_SingleMuon_2022F2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
@@ -808,81 +843,81 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
 
 
- 
+
     // 2022 E
     for (int fileNum=0;fileNum < 1000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0000/CSCeff_SingleMuon_2022E2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0000/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0000/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=1000;fileNum < 2000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0001/CSCeff_SingleMuon_2022E2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0001/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0001/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=2000;fileNum < 2204;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0002/CSCeff_SingleMuon_2022E2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0002/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_32/221012_134114/0002/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=0;fileNum < 1000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_34/221025_210323/0000/CSCeff_SingleMuon_2022E2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_34/221025_210323/0000/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_34/221025_210323/0000/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=1000;fileNum < 1614;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_34/221025_210323/0001/CSCeff_SingleMuon_2022E2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_34/221025_210323/0001/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022E2_2022_1004_34/221025_210323/0001/CSCeff_SingleMuon_2022E2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     // 2022 B-D 
-  
-	 for (int fileNum=0;fileNum < 200;fileNum++) {
-	   if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022B_20220725_9/220725_221302/0000/CSCeff_SingleMuon_2022B_%d.root",fileNum))) {
-	     chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022B_20220725_9/220725_221302/0000/CSCeff_SingleMuon_2022B_%d.root",fileNum));
-	     numberFiles++;
-	   }
-	 }
+
+    for (int fileNum=0;fileNum < 200;fileNum++) {
+      if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022B_20220725_9/220725_221302/0000/CSCeff_SingleMuon_2022B_%d.root",fileNum))) {
+        chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022B_20220725_9/220725_221302/0000/CSCeff_SingleMuon_2022B_%d.root",fileNum));
+        numberFiles++;
+      }
+    }
     for (int fileNum=0;fileNum < 800;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022C_20220809_8/220809_153259/0000/CSCeff_SingleMuon_2022C_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022C_20220809_8/220809_153259/0000/CSCeff_SingleMuon_2022C_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/SingleMuon/CSCEff2022C_20220809_8/220809_153259/0000/CSCeff_SingleMuon_2022C_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=0;fileNum < 1000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022C2_20220824_21/220824_152209/0000/CSCeff_SingleMuon_2022C2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022C2_20220824_21/220824_152209/0000/CSCeff_SingleMuon_2022C2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022C2_20220824_21/220824_152209/0000/CSCeff_SingleMuon_2022C2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=1000;fileNum < 2000;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022C2_20220824_21/220824_152209/0001/CSCeff_SingleMuon_2022C2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022C2_20220824_21/220824_152209/0001/CSCeff_SingleMuon_2022C2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022C2_20220824_21/220824_152209/0001/CSCeff_SingleMuon_2022C2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     for (int fileNum=0;fileNum < 355;fileNum++) {
       if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon/CSCEff2022D2_20220824_20/220824_161937/0000/CSCeff_SingleMuon_2022D2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022D2_20220824_20/220824_161937/0000/CSCeff_SingleMuon_2022D2_%d.root",fileNum));
-	numberFiles++;
+        chain->Add(Form("/hdfs/store/user/herndon/Muon/CSCEff2022D2_20220824_20/220824_161937/0000/CSCeff_SingleMuon_2022D2_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
   }
-  
+
   //if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/DYToLL_M-50_TuneCP5_14TeV-pythia8/CSCEffRun3MC2_20220519_2/220519_175853/0001/CSCEff_Zmm_MC_Run3_1__%d.root",fileNum))) {
   // chain->Add(Form("/hdfs/store/user/herndon/DYToLL_M-50_TuneCP5_14TeV-pythia8/CSCEffRun3MC2_20220519_2/220519_175853/0001/CSCEff_Zmm_MC_Run3_1__%d.root",fileNum));
   //    numberFiles++;
@@ -894,7 +929,7 @@ CSCEffFast::CSCEffFast() : fChain(0)
   //  }
 
 
-  
+
 
 
   std::cout << "Number Files: " << numberFiles << std::endl;

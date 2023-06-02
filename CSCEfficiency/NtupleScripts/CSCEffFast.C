@@ -40,13 +40,15 @@ void CSCEffFast::Loop()
   bool badChambersTrack = false; // Chamber and DCFEB fremoval for 2022ABCDEFG
   bool oldBadChambersTrack = false; // Removal for Run2
 
-  bool badRunRanges2023Track = false; // Min removal for 2023B
-  bool badChambers2023Track = false; // Chamber and DCFEB Removal for 2023B
+  bool badRunRanges2023Track = false; // Min removal for 2023C, none yet
+  bool badChambers2023Track = true; // Chamber and DCFEB Removal for 2023C
+  bool badChambers2023Track2 = false; // Max Chamber and DCFEB Removal for 2023C
 
-  int firstRun, lastRun;
+  
+  Int_t firstRun, lastRun;
   if (newData){
-    firstRun = 366400; //2023
-    lastRun = 367400; //2023
+    firstRun = 367100; //2023 excluding B and first few runs of C where MEx1 was bad
+    lastRun = 367800; //2023
   }
   else{
     firstRun = 355000; //2022
@@ -63,7 +65,7 @@ void CSCEffFast::Loop()
 
 
   const Int_t numEtaBins=16;       //number of eta bins in eff plots 51 or 33 or 16
-  // Eta bins around 2.05-2.1 are chossen to make one overlap bin where both even and odd ME11 chambers populate the same bin
+                                   // Eta bins around 2.05-2.1 are chossen to make one overlap bin where both even and odd ME11 chambers populate the same bin
   Float_t etaBins[(numEtaBins+1)] = {0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.50,1.6,1.7,1.8,1.9,2.0,2.1120,2.2,2.3,2.45};
   // 33 bins Float_t etaBins[(numEtaBins+1)] = {0.8,0.85,0.9,0.95,1.0,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.50,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2.0,2.0568,2.1120,2.15,2.2,2.25,2.3,2.35,2.4,2.45};
 
@@ -81,22 +83,23 @@ void CSCEffFast::Loop()
   const Int_t numILBins=25;       //number instantatanious lumi bins in eff plots
   Float_t ilBins[(numILBins+1)] = {0.0,1000.0,2000.0,3000.0,4000.0,5000.0,6000.0,7000.0,8000.0,9000.0,10000.0,11000.0,12000.0,13000.0,14000.0,15000.0,16000.0,17000.0,18000.0,19000.0,20000.0,21000.0,22000.0,23000.0,24000.0,25000.0};
 
-  const Int_t numRunBins = newData? 10:35;
+  const Int_t numRunBins = newData? 7:35;
   Float_t *runBins;
-  
+
   // 2018D
   //const Int_t numRunBins=50;       //number of run in eff plots 50
   //Float_t runBins[(numRunBins+1)] = {315200.0,315400.0,315600.0,315800.0,316000.0,316200.0,316400.0,316600.0,316800.0,317000.0,317200.0,317400.0,317600.0,317800.0,318000.0,318200.0,318400.0,318600.0,318800.0,319100.0,319200.0,319400.0,319600.0,319800.0,320000.0,320200.0,320400.0,320600.0,320800.0,321000.0,321200.0,321400.0,321600.0,321800.0,322000.0,322200.0,322400.0,322600.0,322800.0,323000.0,323200.0,323400.0,323600.0,323800.0,324000.0,324200.0,324400.0,324600.0,324800.0,325000.0,325200.0};
 
 #if newData
   // Run 3 2023 B,C
-  runBins = new Float_t[(numRunBins+1)]{366400.1,366500.1,366600.1,366700.1,366800.1,366900.1,367000.1,367100.1,367200.1,367300.1,367400.1};
+  //runBins = new Float_t[(numRunBins+1)]{366400.1,366500.1,366600.1,366700.1,366800.1,366900.1,367000.1,367100.1,367200.1,367300.1,367400.1,367500.1,367600.1,367700.1,367800.1};
+  // Run 3 2023 C only
+  runBins = new Float_t[(numRunBins+1)]{367100.1,367200.1,367300.1,367400.1,367500.1,367600.1,367700.1,367800.1};
 #else
   // Run 3 2022 A-G
   runBins = new Float_t[(numRunBins+1)]{355000.1,355200.1,355400.1,355600.1,355800.1,356000.1,356200.1,356400.1,356600.1,356800.1,357000.1,357200.1,357400.1,357600.1,357800.1,358000.1,359000.1,359200.1,359400.1,359600.1,359800.1,360000.1,360200.1,360400.1,360600.1,360800.1,361000.1,361200.1,361400.1,361600.1,361800.1,362000.1,362200.1,362400.1,362600.1,362800.1};
 #endif
 
-  						\
   // layers bins, hits by layer
   const Int_t numLayerBins=6;       //number of layers
   Float_t layerBins[(numLayerBins+1)] = {0.5,1.5,2.5,3.5,4.5,5.5,6.5};
@@ -125,17 +128,17 @@ void CSCEffFast::Loop()
   /* 				     100.0,110.0,120.0,130.0,140.0,150.0,160.0}; */
   const Int_t numLCYBins=16;       //number of local coordinate y bins in eff plots
   Float_t lCYBins[(numLCYBins+1)] = {-160.0,-140.0,-120.0,
-				     -100.0,-80.0,-60.0,-40.0,-20.0,
-				     0.0,20.0,40.0,60.0,80.0,
-				     100.0,120.0,140.0,160.0};
+    -100.0,-80.0,-60.0,-40.0,-20.0,
+    0.0,20.0,40.0,60.0,80.0,
+    100.0,120.0,140.0,160.0};
 
   // LCS info for chambers
   /* const Int_t numLCSBins=41;       //number of local coordinate strip bins in eff plots */
   /* Float_t lCSBins[(numLCSBins+1)] = {-1.5,0.5,2.5,4.5,6.5,8.5,10.5,12.5,14.5,16.5,18.5,20.5,22.5,24.5,26.5,28.5,30.5,32.5,34.5,36.5,38.5, */
   /* 				     40.5,42.5,44.5,46.5,48.5,50.5,52.5,54.5,56.5,58.5,60.5,62.5,64.5,66.5,68.5,70.5,72.5,74.5,76.5,78.5,80.5}; */
- const Int_t numLCSBins=21;       //number of local coordinate strip bins in eff plots
+  const Int_t numLCSBins=21;       //number of local coordinate strip bins in eff plots
   Float_t lCSBins[(numLCSBins+1)] = {-2.5,2.5,6.5,10.5,14.5,18.5,22.5,26.5,30.5,34.5,38.5,
-				     42.5,46.5,50.5,54.5,58.5,62.5,66.5,70.5,74.5,78.5,82.5};
+    42.5,46.5,50.5,54.5,58.5,62.5,66.5,70.5,74.5,78.5,82.5};
 
   const Int_t numLCWBins=36;       //number of local coordinate wire bins in eff plots
   Float_t lCWBins[(numLCWBins+1)] = {-128.0,-112.0,-96.0,-88.0,-80.0,-72.0,-64.0,-56.0,-48.0,-40.0,-32.0,-24.0,-16.0,-8.0,0.0,8.0,16.0,24.0,32.0,40.0,48.0,56.0,64.0,72.0,80.0,88.0,96.0,112.0,128.0,144.0,160.0,176.0,192.0,208.0,224.0,240.0,256.0,};
@@ -210,7 +213,7 @@ void CSCEffFast::Loop()
 
   TH2F * segEff2DStationRingDCFEBChamberRun[8][4][5];
   TH2F * LCTEff2DStationRingDCFEBChamberRun[8][4][5];
-  
+
   TH1F *resSegStationRingChamber[8][4][37];
   TH1F *resSigmaSegStationRingChamber[8][4][37];
 
@@ -298,110 +301,110 @@ void CSCEffFast::Loop()
 
       // +/- together
       if (iiStation<4){
-	sprintf(name,"segEffPTStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"Segment Efficiency vs p_{T} for Station %d Ring %d",iiStation+1,iiRing);
-	segEffStationCRingPT[iiStation][iiRing] = new TH1F(name,title,numPtBins, &(*ptBins));
-	segEffStationCRingPT[iiStation][iiRing]->GetXaxis()->SetTitle("probe p_{T} (GeV)");
-	segEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitle("CSC Segment Reconstruction Efficiency");
-	segEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
-	segEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
-	segEffStationCRingPT[iiStation][iiRing]->SetMarkerStyle(8);
-	segEffStationCRingPT[iiStation][iiRing]->SetMarkerSize(0.65);
-	sprintf(name,"LCTEffPTStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"LCT Efficiency vs p_{T} for Station %d Ring %d",iiStation+1,iiRing);
-	LCTEffStationCRingPT[iiStation][iiRing] = new TH1F(name,title,numPtBins, &(*ptBins));
-	LCTEffStationCRingPT[iiStation][iiRing]->GetXaxis()->SetTitle("probe p_{T} (GeV)");
-	LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
-	LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
-	LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
-	LCTEffStationCRingPT[iiStation][iiRing]->SetMarkerStyle(8);
-	LCTEffStationCRingPT[iiStation][iiRing]->SetMarkerSize(0.65);
+        sprintf(name,"segEffPTStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"Segment Efficiency vs p_{T} for Station %d Ring %d",iiStation+1,iiRing);
+        segEffStationCRingPT[iiStation][iiRing] = new TH1F(name,title,numPtBins, &(*ptBins));
+        segEffStationCRingPT[iiStation][iiRing]->GetXaxis()->SetTitle("probe p_{T} (GeV)");
+        segEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitle("CSC Segment Reconstruction Efficiency");
+        segEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
+        segEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
+        segEffStationCRingPT[iiStation][iiRing]->SetMarkerStyle(8);
+        segEffStationCRingPT[iiStation][iiRing]->SetMarkerSize(0.65);
+        sprintf(name,"LCTEffPTStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"LCT Efficiency vs p_{T} for Station %d Ring %d",iiStation+1,iiRing);
+        LCTEffStationCRingPT[iiStation][iiRing] = new TH1F(name,title,numPtBins, &(*ptBins));
+        LCTEffStationCRingPT[iiStation][iiRing]->GetXaxis()->SetTitle("probe p_{T} (GeV)");
+        LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
+        LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
+        LCTEffStationCRingPT[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
+        LCTEffStationCRingPT[iiStation][iiRing]->SetMarkerStyle(8);
+        LCTEffStationCRingPT[iiStation][iiRing]->SetMarkerSize(0.65);
 
 
-	sprintf(name,"segEffEtaStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"Segement Efficiency vs #eta for Station %d Ring %d",iiStation+1,iiRing);
-	segEffStationCRingEta[iiStation][iiRing] = new TH1F(name,title,numEtaBins, &(*etaBins));
-	segEffStationCRingEta[iiStation][iiRing]->GetXaxis()->SetTitle("probe #eta");
-	segEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitle("CSC Segment Reconstruction Efficiency");
-	segEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
-	segEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
-	segEffStationCRingEta[iiStation][iiRing]->SetMarkerStyle(8);
-	segEffStationCRingEta[iiStation][iiRing]->SetMarkerSize(0.65);
-	sprintf(name,"LCTEffEtaStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"LCT Efficiency vs #eta for Station %d Ring %d",iiStation+1,iiRing);
-	LCTEffStationCRingEta[iiStation][iiRing] = new TH1F(name,title,numEtaBins, &(*etaBins));
-	LCTEffStationCRingEta[iiStation][iiRing]->GetXaxis()->SetTitle("probe #eta");
-	LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
-	LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
-	LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
-	LCTEffStationCRingEta[iiStation][iiRing]->SetMarkerStyle(8);
-	LCTEffStationCRingEta[iiStation][iiRing]->SetMarkerSize(0.65);
+        sprintf(name,"segEffEtaStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"Segement Efficiency vs #eta for Station %d Ring %d",iiStation+1,iiRing);
+        segEffStationCRingEta[iiStation][iiRing] = new TH1F(name,title,numEtaBins, &(*etaBins));
+        segEffStationCRingEta[iiStation][iiRing]->GetXaxis()->SetTitle("probe #eta");
+        segEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitle("CSC Segment Reconstruction Efficiency");
+        segEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
+        segEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
+        segEffStationCRingEta[iiStation][iiRing]->SetMarkerStyle(8);
+        segEffStationCRingEta[iiStation][iiRing]->SetMarkerSize(0.65);
+        sprintf(name,"LCTEffEtaStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"LCT Efficiency vs #eta for Station %d Ring %d",iiStation+1,iiRing);
+        LCTEffStationCRingEta[iiStation][iiRing] = new TH1F(name,title,numEtaBins, &(*etaBins));
+        LCTEffStationCRingEta[iiStation][iiRing]->GetXaxis()->SetTitle("probe #eta");
+        LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
+        LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetRangeUser(0.8,1.02);
+        LCTEffStationCRingEta[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
+        LCTEffStationCRingEta[iiStation][iiRing]->SetMarkerStyle(8);
+        LCTEffStationCRingEta[iiStation][iiRing]->SetMarkerSize(0.65);
 
-	sprintf(name,"segEffIsoStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"Segement Efficiency vs Iso for Station %d Ring %d",iiStation+1,iiRing);
-	segEffStationCRingIso[iiStation][iiRing] = new TH1F(name,title,numIsoBins, &(*isoBins));
-	sprintf(name,"LCTEffIsoStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"LCT Efficiency vs Iso for Station %d Ring %d",iiStation+1,iiRing);
-	LCTEffStationCRingIso[iiStation][iiRing] = new TH1F(name,title,numIsoBins, &(*isoBins));
+        sprintf(name,"segEffIsoStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"Segement Efficiency vs Iso for Station %d Ring %d",iiStation+1,iiRing);
+        segEffStationCRingIso[iiStation][iiRing] = new TH1F(name,title,numIsoBins, &(*isoBins));
+        sprintf(name,"LCTEffIsoStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"LCT Efficiency vs Iso for Station %d Ring %d",iiStation+1,iiRing);
+        LCTEffStationCRingIso[iiStation][iiRing] = new TH1F(name,title,numIsoBins, &(*isoBins));
 
-	sprintf(name,"segEffPVStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"Segement Efficiency vs PV for Station %d Ring %d",iiStation+1,iiRing);
-	segEffStationCRingPV[iiStation][iiRing] = new TH1F(name,title,numPVBins, &(*pvBins));
-	segEffStationCRingPV[iiStation][iiRing]->GetXaxis()->SetTitle("Number of Primary Vertices");
-	segEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitle("CSC Segment Reconstruction Efficiency");
-	segEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
-	segEffStationCRingPV[iiStation][iiRing]->SetMarkerStyle(8);
-	segEffStationCRingPV[iiStation][iiRing]->SetMarkerSize(0.65);
-	sprintf(name,"LCTEffPVStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"LCT Efficiency vs PV for Station %d Ring %d",iiStation+1,iiRing);
-	LCTEffStationCRingPV[iiStation][iiRing] = new TH1F(name,title,numPVBins, &(*pvBins));
-	LCTEffStationCRingPV[iiStation][iiRing]->GetXaxis()->SetTitle("Number of Primary Vertices");
-	LCTEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
-	LCTEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
-	LCTEffStationCRingPV[iiStation][iiRing]->SetMarkerStyle(8);
-	LCTEffStationCRingPV[iiStation][iiRing]->SetMarkerSize(0.65);
+        sprintf(name,"segEffPVStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"Segement Efficiency vs PV for Station %d Ring %d",iiStation+1,iiRing);
+        segEffStationCRingPV[iiStation][iiRing] = new TH1F(name,title,numPVBins, &(*pvBins));
+        segEffStationCRingPV[iiStation][iiRing]->GetXaxis()->SetTitle("Number of Primary Vertices");
+        segEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitle("CSC Segment Reconstruction Efficiency");
+        segEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
+        segEffStationCRingPV[iiStation][iiRing]->SetMarkerStyle(8);
+        segEffStationCRingPV[iiStation][iiRing]->SetMarkerSize(0.65);
+        sprintf(name,"LCTEffPVStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"LCT Efficiency vs PV for Station %d Ring %d",iiStation+1,iiRing);
+        LCTEffStationCRingPV[iiStation][iiRing] = new TH1F(name,title,numPVBins, &(*pvBins));
+        LCTEffStationCRingPV[iiStation][iiRing]->GetXaxis()->SetTitle("Number of Primary Vertices");
+        LCTEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitle("CSC LCT Efficiency");
+        LCTEffStationCRingPV[iiStation][iiRing]->GetYaxis()->SetTitleOffset(1.2);
+        LCTEffStationCRingPV[iiStation][iiRing]->SetMarkerStyle(8);
+        LCTEffStationCRingPV[iiStation][iiRing]->SetMarkerSize(0.65);
 
-	sprintf(name,"segEffILStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"Segement Efficiency vs IL for Station %d Ring %d",iiStation+1,iiRing);
-	segEffStationCRingIL[iiStation][iiRing] = new TH1F(name,title,numILBins, &(*ilBins));
-	sprintf(name,"LCTEffILStation%dCRing%d",iiStation+1,iiRing);
-	sprintf(title,"LCT Efficiency vs IL for Station %d Ring %d",iiStation+1,iiRing);
-	LCTEffStationCRingIL[iiStation][iiRing] = new TH1F(name,title,numILBins, &(*ilBins));
+        sprintf(name,"segEffILStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"Segement Efficiency vs IL for Station %d Ring %d",iiStation+1,iiRing);
+        segEffStationCRingIL[iiStation][iiRing] = new TH1F(name,title,numILBins, &(*ilBins));
+        sprintf(name,"LCTEffILStation%dCRing%d",iiStation+1,iiRing);
+        sprintf(title,"LCT Efficiency vs IL for Station %d Ring %d",iiStation+1,iiRing);
+        LCTEffStationCRingIL[iiStation][iiRing] = new TH1F(name,title,numILBins, &(*ilBins));
 
 
 
-	// sprintf(name,"segEffLCYStation%dCRing%d",iiStation+1,iiRing);
-	// sprintf(title,"Segement Efficiency vs Y LC for Station %d Ring %d",iiStation+1,iiRing);
-	// segEffStationCRingLCY[iiStation][iiRing] = new TH1F(name,title,numLCYBins, &(*lCYBins));
-	// sprintf(name,"LCTEffLCYStation%dCRing%d",iiStation+1,iiRing);
-	// sprintf(title,"LCT Efficiency vs LCY for Station %d Ring %d",iiStation+1,iiRing);
-	// LCTEffStationCRingLCY[iiStation][iiRing] = new TH1F(name,title,numLCYBins, &(*lCYBins));
+        // sprintf(name,"segEffLCYStation%dCRing%d",iiStation+1,iiRing);
+        // sprintf(title,"Segement Efficiency vs Y LC for Station %d Ring %d",iiStation+1,iiRing);
+        // segEffStationCRingLCY[iiStation][iiRing] = new TH1F(name,title,numLCYBins, &(*lCYBins));
+        // sprintf(name,"LCTEffLCYStation%dCRing%d",iiStation+1,iiRing);
+        // sprintf(title,"LCT Efficiency vs LCY for Station %d Ring %d",iiStation+1,iiRing);
+        // LCTEffStationCRingLCY[iiStation][iiRing] = new TH1F(name,title,numLCYBins, &(*lCYBins));
 
-	// sprintf(name,"segEffLCWStation%dCRing%d",iiStation+1,iiRing);
-	// sprintf(title,"Segement Efficiency vs Wire LC for Station %d Ring %d",iiStation+1,iiRing);
-	// segEffStationCRingLCW[iiStation][iiRing] = new TH1F(name,title,numLCWBins, &(*lCWBins));
-	// sprintf(name,"LCTEffLCWStation%dCRing%d",iiStation+1,iiRing);
-	// sprintf(title,"LCT Efficiency vs Wire LC for Station %d Ring %d",iiStation+1,iiRing);
-	// LCTEffStationCRingLCW[iiStation][iiRing] = new TH1F(name,title,numLCWBins, &(*lCWBins));
+        // sprintf(name,"segEffLCWStation%dCRing%d",iiStation+1,iiRing);
+        // sprintf(title,"Segement Efficiency vs Wire LC for Station %d Ring %d",iiStation+1,iiRing);
+        // segEffStationCRingLCW[iiStation][iiRing] = new TH1F(name,title,numLCWBins, &(*lCWBins));
+        // sprintf(name,"LCTEffLCWStation%dCRing%d",iiStation+1,iiRing);
+        // sprintf(title,"LCT Efficiency vs Wire LC for Station %d Ring %d",iiStation+1,iiRing);
+        // LCTEffStationCRingLCW[iiStation][iiRing] = new TH1F(name,title,numLCWBins, &(*lCWBins));
 
-	// sprintf(name,"segEffLCSStation%dCRing%d",iiStation+1,iiRing);
-	// sprintf(title,"Segement Efficiency vs Strip LC for Station %d Ring %d",iiStation+1,iiRing);
-	// segEffStationCRingLCS[iiStation][iiRing] = new TH1F(name,title,numLCSBins, &(*lCSBins));
-	// sprintf(name,"LCTEffLCSStation%dCRing%d",iiStation+1,iiRing);
-	// sprintf(title,"LCT Efficiency vs LCS for Station %d Ring %d",iiStation+1,iiRing);
-	// LCTEffStationCRingLCS[iiStation][iiRing] = new TH1F(name,title,numLCSBins, &(*lCSBins));
+        // sprintf(name,"segEffLCSStation%dCRing%d",iiStation+1,iiRing);
+        // sprintf(title,"Segement Efficiency vs Strip LC for Station %d Ring %d",iiStation+1,iiRing);
+        // segEffStationCRingLCS[iiStation][iiRing] = new TH1F(name,title,numLCSBins, &(*lCSBins));
+        // sprintf(name,"LCTEffLCSStation%dCRing%d",iiStation+1,iiRing);
+        // sprintf(title,"LCT Efficiency vs LCS for Station %d Ring %d",iiStation+1,iiRing);
+        // LCTEffStationCRingLCS[iiStation][iiRing] = new TH1F(name,title,numLCSBins, &(*lCSBins));
 
-	// sprintf(name,"segEffChamberStation%dCRing%d",iiStation+1,iiRing);
-	// sprintf(title,"Segement Efficiency vs Chamber for Station %d Ring %d",iiStation+1,iiRing);
-	// segEffStationCRingChamber[iiStation][iiRing] = new TH1F(name,title,36,0.5,36.5);
-	// sprintf(name,"LCTEffChamberStation%dCRing%d",iiStation+1,iiRing);
-	// sprintf(title,"LCT Efficiency vs Chamber for Station %d Ring %d",iiStation+1,iiRing);
-	// LCTEffStationCRingChamber[iiStation][iiRing] = new TH1F(name,title,36,0.5,36.5);
+        // sprintf(name,"segEffChamberStation%dCRing%d",iiStation+1,iiRing);
+        // sprintf(title,"Segement Efficiency vs Chamber for Station %d Ring %d",iiStation+1,iiRing);
+        // segEffStationCRingChamber[iiStation][iiRing] = new TH1F(name,title,36,0.5,36.5);
+        // sprintf(name,"LCTEffChamberStation%dCRing%d",iiStation+1,iiRing);
+        // sprintf(title,"LCT Efficiency vs Chamber for Station %d Ring %d",iiStation+1,iiRing);
+        // LCTEffStationCRingChamber[iiStation][iiRing] = new TH1F(name,title,36,0.5,36.5);
 
       }
 
       // +/- seperated 
-	     sprintf(name,"segEffPTStation%dRing%d",iiStation+1,iiRing);
+      sprintf(name,"segEffPTStation%dRing%d",iiStation+1,iiRing);
       sprintf(title,"Segement Efficiency vs Pt for Station %d Ring %d",iiStation+1,iiRing);
       segEffStationRingPT[iiStation][iiRing] = new TH1F(name,title,numPtBins, &(*ptBins));
       sprintf(name,"LCTEffPTStation%dRing%d",iiStation+1,iiRing);
@@ -523,83 +526,83 @@ void CSCEffFast::Loop()
       yySegStationRing[iiStation][iiRing]->SetMarkerSize(0.5);
 
       for (Int_t iiPV=0; iiPV < numPVBins; iiPV++){
-	sprintf(name,"zMassSegDenStation%dRing%dPV%d",iiStation+1,iiRing,iiPV);
-	sprintf(title,"Z Mass Segment Den for Station %d Ring %d PV %d",iiStation+1,iiRing,iiPV);
-	zMassSegDenStationRingPV[iiStation][iiRing][iiPV] = new TH1F(name,title, 120, 76.0, 106.0);
-	sprintf(name,"zMassSegNumStation%dRing%dPV%d",iiStation+1,iiRing,iiPV);
-	sprintf(title,"Z Mass Segment Num for Station %d Ring %d PV %d",iiStation+1,iiRing,iiPV);
-	zMassSegNumStationRingPV[iiStation][iiRing][iiPV] = new TH1F(name,title, 120, 76.0, 106.0);
+        sprintf(name,"zMassSegDenStation%dRing%dPV%d",iiStation+1,iiRing,iiPV);
+        sprintf(title,"Z Mass Segment Den for Station %d Ring %d PV %d",iiStation+1,iiRing,iiPV);
+        zMassSegDenStationRingPV[iiStation][iiRing][iiPV] = new TH1F(name,title, 120, 76.0, 106.0);
+        sprintf(name,"zMassSegNumStation%dRing%dPV%d",iiStation+1,iiRing,iiPV);
+        sprintf(title,"Z Mass Segment Num for Station %d Ring %d PV %d",iiStation+1,iiRing,iiPV);
+        zMassSegNumStationRingPV[iiStation][iiRing][iiPV] = new TH1F(name,title, 120, 76.0, 106.0);
 
-	sprintf(name,"zMassLCTNumStation%dRing%dPV%d",iiStation+1,iiRing,iiPV);
-	sprintf(title,"Z Mass LCT Num for Station %d Ring %d PV %d",iiStation+1,iiRing,iiPV);
-	zMassLCTNumStationRingPV[iiStation][iiRing][iiPV] = new TH1F(name,title, 120, 76.0, 106.0);
+        sprintf(name,"zMassLCTNumStation%dRing%dPV%d",iiStation+1,iiRing,iiPV);
+        sprintf(title,"Z Mass LCT Num for Station %d Ring %d PV %d",iiStation+1,iiRing,iiPV);
+        zMassLCTNumStationRingPV[iiStation][iiRing][iiPV] = new TH1F(name,title, 120, 76.0, 106.0);
 
       }
 
 
       for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-	sprintf(name,"segDenStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Segement Den vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	segDenStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
-	sprintf(name,"segNumStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Segement Num vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	segNumStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
-	sprintf(name,"segEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Segement Efficiency vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	segEffStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
-	segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerSize(0.5);
-	segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerStyle(8);
+        sprintf(name,"segDenStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Segement Den vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        segDenStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
+        sprintf(name,"segNumStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Segement Num vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        segNumStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
+        sprintf(name,"segEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Segement Efficiency vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerSize(0.5);
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerStyle(8);
 
 
-	sprintf(name,"LCTDenStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"LCT Den vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	LCTDenStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
-	sprintf(name,"LCTNumStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"LCT Num vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
-	sprintf(name,"LCTEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"LCT Efficiency vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
-	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerSize(0.5);
-	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerStyle(8);
+        sprintf(name,"LCTDenStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"LCT Den vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        LCTDenStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
+        sprintf(name,"LCTNumStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"LCT Num vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
+        sprintf(name,"LCTEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"LCT Efficiency vs Run for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber] = new TH1F(name,title,lastRun-firstRun,firstRun,lastRun);
+        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerSize(0.5);
+        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetMarkerStyle(8);
 
 
-	sprintf(name,"zMassSegDenStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Z Mass Segment Den for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 120, 76.0, 106.0);
-	sprintf(name,"zMassSegNumStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Z Mass Segment Num for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 120, 76.0, 106.0);
+        sprintf(name,"zMassSegDenStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Z Mass Segment Den for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 120, 76.0, 106.0);
+        sprintf(name,"zMassSegNumStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Z Mass Segment Num for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 120, 76.0, 106.0);
 
-	sprintf(name,"resSegStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Segment Residuals for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	resSegStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 200, -20.0, 20.0);
+        sprintf(name,"resSegStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Segment Residuals for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        resSegStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 200, -20.0, 20.0);
 
-	sprintf(name,"resSigmaSegStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Segment Residuals for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	resSigmaSegStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 200, -10.0, 10.0);
+        sprintf(name,"resSigmaSegStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Segment Residuals for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        resSigmaSegStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 200, -10.0, 10.0);
 
-	sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Segement Efficiency vs Y LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	segEffStationRingChamberLCY[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCYBins, &(*lCYBins));
-	sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"LCT Efficiency vs LCY for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCYBins, &(*lCYBins));
+        sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Segement Efficiency vs Y LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        segEffStationRingChamberLCY[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCYBins, &(*lCYBins));
+        sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"LCT Efficiency vs LCY for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCYBins, &(*lCYBins));
 
-	/* sprintf(name,"segEffLCWStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber); */
-	/* sprintf(title,"Segement Efficiency vs Wire LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber); */
-	/* segEffStationRingChamberLCW[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCWBins, &(*lCWBins)); */
-	/* sprintf(name,"LCTEffLCWStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber); */
-	/* sprintf(title,"LCT Efficiency vs Wire LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber); */
-	/* LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCWBins, &(*lCWBins)); */
+        /* sprintf(name,"segEffLCWStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber); */
+        /* sprintf(title,"Segement Efficiency vs Wire LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber); */
+        /* segEffStationRingChamberLCW[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCWBins, &(*lCWBins)); */
+        /* sprintf(name,"LCTEffLCWStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber); */
+        /* sprintf(title,"LCT Efficiency vs Wire LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber); */
+        /* LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCWBins, &(*lCWBins)); */
 
 
-	sprintf(name,"segEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"Segement Efficiency vs Strip LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	segEffStationRingChamberLCS[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCSBins, &(*lCSBins));
-	sprintf(name,"LCTEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-	sprintf(title,"LCT Efficiency vs LCS for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
-	LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCSBins, &(*lCSBins));
+        sprintf(name,"segEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"Segement Efficiency vs Strip LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        segEffStationRingChamberLCS[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCSBins, &(*lCSBins));
+        sprintf(name,"LCTEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"LCT Efficiency vs LCS for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCSBins, &(*lCSBins));
 
       }
     }
@@ -711,23 +714,23 @@ void CSCEffFast::Loop()
   // Numerology, station, ring, chamber
   // [s][r][c] station ring chamber
   // s 0 = -endcap station 1, 1 = -endcap station 2, 2 = -endcap station 3, 3 = -endcap station 4 
-       // s 4 = +endcap station 1, 5 = +endcap station 2, 6 = +endcap station 3, 7 = +endcap station 4 
-	    // r 0 = ring 1(b), r 1 = ring 1(a), r 2 = ring 2, r 3 = ring 3
-	    // c 0 = chamber 01 to 17 = or 35 = chamger 16 or 32 
+  // s 4 = +endcap station 1, 5 = +endcap station 2, 6 = +endcap station 3, 7 = +endcap station 4 
+  // r 0 = ring 1(b), r 1 = ring 1(a), r 2 = ring 2, r 3 = ring 3
+  // c 0 = chamber 01 to 17 = or 35 = chamger 16 or 32 
 
-		 // ME11 even odd plot in:
-		 // iiStation 1,2 and 5,6
-		 // iiStation 1, iiRing 0 = even ME11B, iiRing 3, odd ME11B
-		 // iiStation 2, iiRing 0 = even ME11A, iiRing 3, odd ME11A
+  // ME11 even odd plot in:
+  // iiStation 1,2 and 5,6
+  // iiStation 1, iiRing 0 = even ME11B, iiRing 3, odd ME11B
+  // iiStation 2, iiRing 0 = even ME11A, iiRing 3, odd ME11A
 
 
-		 // Define Efficiency counters
-		 // Efficiencies based on counting with sideband subtraction
-		 // Fit code exists for cross check and systematic uncerainty
+  // Define Efficiency counters
+  // Efficiencies based on counting with sideband subtraction
+  // Fit code exists for cross check and systematic uncerainty
 
-		 // Global effiency couters
+  // Global effiency couters
 
-		 Float_t totGlobal=0,passGlobalSeg=0,passGlobalLCT=0,totSBGlobal=0,passSBGlobalSeg=0,passSBGlobalLCT=0,effGlobalSeg = 0,effSigmaGlobalSeg = 0,effGlobalLCT = 0,effSigmaGlobalLCT = 0;
+  Float_t totGlobal=0,passGlobalSeg=0,passGlobalLCT=0,totSBGlobal=0,passSBGlobalSeg=0,passSBGlobalLCT=0,effGlobalSeg = 0,effSigmaGlobalSeg = 0,effGlobalLCT = 0,effSigmaGlobalLCT = 0;
 
   Float_t totGlobalPt[numPtBins]={0},passGlobalSegPt[numPtBins]={0},passGlobalLCTPt[numPtBins]={0},totSBGlobalPt[numPtBins]={0},passSBGlobalSegPt[numPtBins]={0},passSBGlobalLCTPt[numPtBins]={0},effGlobalSegPt[numPtBins]={0},effSigmaGlobalSegPt[numPtBins]={0},effGlobalLCTPt[numPtBins]={0},effSigmaGlobalLCTPt[numPtBins]={0};
 
@@ -776,7 +779,7 @@ void CSCEffFast::Loop()
   Float_t totStationRingDCFEBChamberRun[8][4][5][37][numRunBins]={0}, passStationRingDCFEBChamberRunSeg[8][4][5][37][numRunBins]={0},  passStationRingDCFEBChamberRunLCT[8][4][5][37][numRunBins]={0}, totSBStationRingDCFEBChamberRun[8][4][5][37][numRunBins]={0}, passSBStationRingDCFEBChamberRunSeg[8][4][5][37][numRunBins]={0},passSBStationRingDCFEBChamberRunLCT[8][4][5][37][numRunBins]={0}, effStationRingDCFEBChamberRunSeg[8][4][5][37][numRunBins]={0}, effSigmaStationRingDCFEBChamberRunSeg[8][4][5][37][numRunBins]={0}, effStationRingDCFEBChamberRunLCT[8][4][5][37][numRunBins]={0}, effSigmaStationRingDCFEBChamberRunLCT[8][4][5][37][numRunBins]={0};
 
 
-  
+
   // Local coordinate Y Efficiency counters
   Float_t totStationRingLCY[8][4][numLCYBins]={0},totStationRingLCYLCT[8][4][numLCYBins]={0},passStationRingLCYSeg[8][4][numLCYBins]={0}, passStationRingLCYLCT[8][4][numLCYBins]={0}, totSBStationRingLCY[8][4][numLCYBins]={0},  totSBStationRingLCYLCT[8][4][numLCYBins]={0}, passSBStationRingLCYSeg[8][4][numLCYBins]={0},passSBStationRingLCYLCT[8][4][numLCYBins]={0}, effStationRingLCYSeg[8][4][numLCYBins]={0}, effSigmaStationRingLCYSeg[8][4][numLCYBins]={0}, effStationRingLCYLCT[8][4][numLCYBins]={0}, effSigmaStationRingLCYLCT[8][4][numLCYBins]={0},effStationCRingLCYSeg[4][4][numLCYBins]={0}, effSigmaStationCRingLCYSeg[4][4][numLCYBins]={0}, effStationCRingLCYLCT[4][4][numLCYBins]={0}, effSigmaStationCRingLCYLCT[4][4][numLCYBins]={0};
 
@@ -894,10 +897,280 @@ void CSCEffFast::Loop()
   // Removing chambers bellow 80%
   // move start from period D, 320394to period B, 318800
 
-
+  // New data chamberes Run 3 auto generated
   if (badChambers2023Track) {
 
-    // New dead chamber Run 3 2023
+
+    if (badChambers2023Track2) {
+    // ----- ME-11A/1 -----
+    // Dead DCFEB 1-3 seg 43.04% LCT 42.05% all runs
+    badChamber[0][0][1-1][0][1-1] = true;  badChamberRun[0][0][1-1][0][1-1][0] = firstRun;  badChamberRun[0][0][1-1][0][1-1][1] = lastRun;
+
+    // ----- ME-11A/4 -----
+    // Dead DCFEB 1-4 seg 31.81% LCT 31.20% all runs
+    badChamber[0][0][1-1][0][4-1] = true;  badChamberRun[0][0][1-1][0][4-1][0] = firstRun;  badChamberRun[0][0][1-1][0][4-1][1] = lastRun;
+
+
+
+    // ----- ME-11B/1 -----
+    // Dead DCFEB 1-4 seg 40.60% LCT 39.73% all runs
+    badChamber[0][0][1-1][1][1-1] = true;  badChamberRun[0][0][1-1][1][1-1][0] = firstRun;  badChamberRun[0][0][1-1][1][1-1][1] = lastRun;  
+
+
+
+    // ----- ME-11B/4 -----
+    // Dead DCFEB 1-4 seg 34.01% LCT 33.69% all runs
+    badChamber[0][0][1-1][1][1-1] = true;  badChamberRun[0][0][1-1][1][1-1][0] = firstRun;  badChamberRun[0][0][1-1][1][1-1][1] = lastRun;
+
+
+
+    // ----- ME-11A/20 -----
+    // Dead DCFEB 1 seg 2.70% LCT 13.31% all runs
+    // Dead DCFEB 3 seg 4.35% LCT 12.54% all runs
+    // only would leave 2
+   badChamber[0][0][1-1][0][20-1] = true;  badChamberRun[0][0][1-1][0][20-1][0] = firstRun;  badChamberRun[0][0][1-1][0][20-1][1] = lastRun;  
+
+
+       // ----- ME-42/4 -----
+    // ME-42/20 LCT 50%
+    badChamber[0][0][4-1][2][19-1] = true;  badChamberRun[0][0][4-1][2][19-1][0] = firstRun;  badChamberRun[0][0][4-1][2][19-1][1] = lastRun;  
+
+
+    // ----- ME+31/15 -----
+    // Dead DCFEB 1 seg 71.23% all runs
+    // go from 1-5
+
+    // Dead DCFEB 4 seg 78.83% all runs
+    badChamber[0][1][3-1][1][15-1] = true;  badChamberRun[0][1][3-1][1][15-1][0] = firstRun;  badChamberRun[0][1][3-1][1][15-1][1] = lastRun;
+
+
+    }
+
+    // ----- ME-11A/19 -----
+    // Dead DCFEB 3 seg 7.75% all runs
+    badChamber[0][0][1-1][0][19-1] = true;  badChamberRun[0][0][1-1][0][19-1][0] = firstRun;  badChamberRun[0][0][1-1][0][19-1][1] = lastRun;  badChamberLCS[0][0][1-1][0][19-1][0] = 30.00;  badChamberLCS[0][0][1-1][0][19-1][1] = 50.00;
+
+
+
+    // ----- ME-12/6 -----
+    // Dead DCFEB 4 seg 67.92% LCT 67.46% all runs
+    badChamber[0][0][1-1][2][6-1] = true;  badChamberRun[0][0][1-1][2][6-1][0] = firstRun;  badChamberRun[0][0][1-1][2][6-1][1] = lastRun;  badChamberLCS[0][0][1-1][2][6-1][0] = 46.00;  badChamberLCS[0][0][1-1][2][6-1][1] = 66.00;
+
+
+    // ----- ME-12/27 -----
+    // Dead DCFEB 1 seg 13.36% LCT 16.28% all runs
+    badChamber[0][0][1-1][2][27-1] = true;  badChamberRun[0][0][1-1][2][27-1][0] = firstRun;  badChamberRun[0][0][1-1][2][27-1][1] = lastRun;  badChamberLCS[0][0][1-1][2][27-1][0] = -2.00;  badChamberLCS[0][0][1-1][2][27-1][1] = 18.00;
+
+
+    // ----- ME-12/30 -----
+    //  Dead DCFEB 1 LCT 77.56% all runs
+    badChamber[0][0][1-1][2][30-1] = true;  badChamberRun[0][0][1-1][2][30-1][0] = firstRun;  badChamberRun[0][0][1-1][2][30-1][1] = lastRun;  badChamberLCS[0][0][1-1][2][30-1][0] = -2.00;  badChamberLCS[0][0][1-1][2][30-1][1] = 18.00;
+
+
+    // ----- ME-12/33 -----
+    // Dead DCFEB 1 seg 12.40% LCT 15.31% all runs
+    badChamber[0][0][1-1][2][33-1] = true;  badChamberRun[0][0][1-1][2][33-1][0] = firstRun;  badChamberRun[0][0][1-1][2][33-1][1] = lastRun;  badChamberLCS[0][0][1-1][2][33-1][0] = -2.00;  badChamberLCS[0][0][1-1][2][33-1][1] = 18.00;
+
+
+    // ----- ME-13/30 -----
+    //  Dead DCFEB 2 LCT 68.17% all runs
+    //  go from 2-3
+    //badChamber[0][0][1-1][3][30-1] = true;  badChamberRun[0][0][1-1][3][30-1][0] = firstRun;  badChamberRun[0][0][1-1][3][30-1][1] = lastRun;  badChamberLCS[0][0][1-1][3][30-1][0] = 14.00;  badChamberLCS[0][0][1-1][3][30-1][1] = 34.00;
+
+    //  Dead DCFEB 4 LCT 65.61% all runs
+    badChamber[0][0][1-1][3][30-1] = true;  badChamberRun[0][0][1-1][3][30-1][0] = firstRun;  badChamberRun[0][0][1-1][3][30-1][1] = lastRun;  badChamberLCS[0][0][1-1][3][30-1][0] = 14.00;  badChamberLCS[0][0][1-1][3][30-1][1] = 66.00;
+
+
+    // ----- ME-21/12 -----
+    // Dead DCFEB 1 seg 71.31% all runs
+    badChamber[0][0][2-1][1][12-1] = true;  badChamberRun[0][0][2-1][1][12-1][0] = firstRun;  badChamberRun[0][0][2-1][1][12-1][1] = lastRun;  badChamberLCS[0][0][2-1][1][12-1][0] = -2.00;  badChamberLCS[0][0][2-1][1][12-1][1] = 18.00;
+
+
+    // ----- ME-21/15 -----
+    // Dead DCFEB 1 seg 3.55% LCT 5.11% all runs
+    badChamber[0][0][2-1][1][15-1] = true;  badChamberRun[0][0][2-1][1][15-1][0] = firstRun;  badChamberRun[0][0][2-1][1][15-1][1] = lastRun;  badChamberLCS[0][0][2-1][1][15-1][0] = -2.00;  badChamberLCS[0][0][2-1][1][15-1][1] = 18.00;
+
+
+    // ----- ME-22/3 -----
+    // Dead DCFEB 2 seg 11.24% all runs
+    badChamber[0][0][2-1][2][3-1] = true;  badChamberRun[0][0][2-1][2][3-1][0] = firstRun;  badChamberRun[0][0][2-1][2][3-1][1] = lastRun;  badChamberLCS[0][0][2-1][2][3-1][0] = 14.00;  badChamberLCS[0][0][2-1][2][3-1][1] = 34.00;
+
+
+    // ----- ME-31/3 -----
+    // Dead DCFEB 1 seg 72.17% all runs
+    badChamber[0][0][3-1][1][3-1] = true;  badChamberRun[0][0][3-1][1][3-1][0] = firstRun;  badChamberRun[0][0][3-1][1][3-1][1] = lastRun;  badChamberLCS[0][0][3-1][1][3-1][0] = -2.00;  badChamberLCS[0][0][3-1][1][3-1][1] = 18.00;
+
+
+    // ----- ME-31/4 -----
+    // Dead DCFEB 3 seg 79.61% all runs
+    badChamber[0][0][3-1][1][4-1] = true;  badChamberRun[0][0][3-1][1][4-1][0] = firstRun;  badChamberRun[0][0][3-1][1][4-1][1] = lastRun;  badChamberLCS[0][0][3-1][1][4-1][0] = 30.00;  badChamberLCS[0][0][3-1][1][4-1][1] = 50.00;
+
+
+    // ----- ME-32/19 -----
+    // Dead DCFEB 4 seg 8.07% LCT 4.91% all runs
+    badChamber[0][0][3-1][2][19-1] = true;  badChamberRun[0][0][3-1][2][19-1][0] = firstRun;  badChamberRun[0][0][3-1][2][19-1][1] = lastRun;  badChamberLCS[0][0][3-1][2][19-1][0] = 46.00;  badChamberLCS[0][0][3-1][2][19-1][1] = 66.00;
+
+
+    // ----- ME-32/27 -----
+    //  Dead DCFEB 4 LCT 70.83% all runs
+    badChamber[0][0][3-1][2][27-1] = true;  badChamberRun[0][0][3-1][2][27-1][0] = firstRun;  badChamberRun[0][0][3-1][2][27-1][1] = lastRun;  badChamberLCS[0][0][3-1][2][27-1][0] = 46.00;  badChamberLCS[0][0][3-1][2][27-1][1] = 66.00;
+
+
+    // ----- ME-32/30 -----
+    //  Dead DCFEB 5 LCT 72.47% all runs
+    badChamber[0][0][3-1][2][30-1] = true;  badChamberRun[0][0][3-1][2][30-1][0] = firstRun;  badChamberRun[0][0][3-1][2][30-1][1] = lastRun;  badChamberLCS[0][0][3-1][2][30-1][0] = 62.00;  badChamberLCS[0][0][3-1][2][30-1][1] = 82.00;
+
+
+    // ----- ME-41/10 -----
+    // Dead DCFEB 1 seg 76.50% all runs
+    badChamber[0][0][4-1][1][10-1] = true;  badChamberRun[0][0][4-1][1][10-1][0] = firstRun;  badChamberRun[0][0][4-1][1][10-1][1] = lastRun;  badChamberLCS[0][0][4-1][1][10-1][0] = -2.00;  badChamberLCS[0][0][4-1][1][10-1][1] = 18.00;
+
+
+    // ----- ME-41/17 -----
+    // Dead DCFEB 4 seg 4.47% LCT 4.90% all runs
+    badChamber[0][0][4-1][1][17-1] = true;  badChamberRun[0][0][4-1][1][17-1][0] = firstRun;  badChamberRun[0][0][4-1][1][17-1][1] = lastRun;  badChamberLCS[0][0][4-1][1][17-1][0] = 46.00;  badChamberLCS[0][0][4-1][1][17-1][1] = 66.00;
+
+
+    // ----- ME-42/4 -----
+    // Dead Chamber
+    badChamber[0][0][4-1][2][4-1] = true;  badChamberRun[0][0][4-1][2][4-1][0] = firstRun;  badChamberRun[0][0][4-1][2][4-1][1] = lastRun;  
+
+
+    // ----- ME-42/27 -----
+    // Dead DCFEB 3 seg 15.82% LCT 13.30% all runs
+    badChamber[0][0][4-1][2][27-1] = true;  badChamberRun[0][0][4-1][2][27-1][0] = firstRun;  badChamberRun[0][0][4-1][2][27-1][1] = lastRun;  badChamberLCS[0][0][4-1][2][27-1][0] = 30.00;  badChamberLCS[0][0][4-1][2][27-1][1] = 50.00;
+
+
+    // ----- ME+11A/33 -----
+    // Dead DCFEB 1 seg 77.25% all runs
+    badChamber[0][1][1-1][0][33-1] = true;  badChamberRun[0][1][1-1][0][33-1][0] = firstRun;  badChamberRun[0][1][1-1][0][33-1][1] = lastRun;  badChamberLCS[0][1][1-1][0][33-1][0] = -2.00;  badChamberLCS[0][1][1-1][0][33-1][1] = 18.00;
+
+
+    // ----- ME+11B/12 -----
+    // Dead DCFEB 3 seg 9.45% LCT 14.09% all runs
+    badChamber[0][1][1-1][1][12-1] = true;  badChamberRun[0][1][1-1][1][12-1][0] = firstRun;  badChamberRun[0][1][1-1][1][12-1][1] = lastRun;  badChamberLCS[0][1][1-1][1][12-1][0] = 30.00;  badChamberLCS[0][1][1-1][1][12-1][1] = 50.00;
+
+
+    // ----- ME+12/10 -----
+    //  Dead DCFEB 3 LCT 64.13% all runs
+    // Go from 3 - 5
+    //badChamber[0][1][1-1][2][10-1] = true;  badChamberRun[0][1][1-1][2][10-1][0] = firstRun;  badChamberRun[0][1][1-1][2][10-1][1] = lastRun;  badChamberLCS[0][1][1-1][2][10-1][0] = 30.00;  badChamberLCS[0][1][1-1][2][10-1][1] = 50.00;
+
+    // Dead DCFEB 4 seg 75.38% LCT 56.92% all runs
+    //badChamber[0][1][1-1][2][10-1] = true;  badChamberRun[0][1][1-1][2][10-1][0] = firstRun;  badChamberRun[0][1][1-1][2][10-1][1] = lastRun;  badChamberLCS[0][1][1-1][2][10-1][0] = 46.00;  badChamberLCS[0][1][1-1][2][10-1][1] = 66.00;
+
+    //  Dead DCFEB 5 LCT 66.84% all runs
+    badChamber[0][1][1-1][2][10-1] = true;  badChamberRun[0][1][1-1][2][10-1][0] = firstRun;  badChamberRun[0][1][1-1][2][10-1][1] = lastRun;  badChamberLCS[0][1][1-1][2][10-1][0] = 30.00;  badChamberLCS[0][1][1-1][2][10-1][1] = 82.00;
+
+
+    // ----- ME+12/13 -----
+    // Dead DCFEB 5 seg 5.84% all runs
+    badChamber[0][1][1-1][2][13-1] = true;  badChamberRun[0][1][1-1][2][13-1][0] = firstRun;  badChamberRun[0][1][1-1][2][13-1][1] = lastRun;  badChamberLCS[0][1][1-1][2][13-1][0] = 62.00;  badChamberLCS[0][1][1-1][2][13-1][1] = 82.00;
+
+
+    // ----- ME+12/15 -----
+    // Dead DCFEB 1 seg 9.01% all runs
+    badChamber[0][1][1-1][2][15-1] = true;  badChamberRun[0][1][1-1][2][15-1][0] = firstRun;  badChamberRun[0][1][1-1][2][15-1][1] = lastRun;  badChamberLCS[0][1][1-1][2][15-1][0] = -2.00;  badChamberLCS[0][1][1-1][2][15-1][1] = 18.00;
+
+
+    // ----- ME+12/21 -----
+    // Dead DCFEB 2 seg 4.44% LCT 2.61% all runs
+    // Go from 2-4
+    //badChamber[0][1][1-1][2][21-1] = true;  badChamberRun[0][1][1-1][2][21-1][0] = firstRun;  badChamberRun[0][1][1-1][2][21-1][1] = lastRun;  badChamberLCS[0][1][1-1][2][21-1][0] = 14.00;  badChamberLCS[0][1][1-1][2][21-1][1] = 34.00;
+
+    // Dead DCFEB 4 seg 25.81% LCT 23.66% all runs
+    badChamber[0][1][1-1][2][21-1] = true;  badChamberRun[0][1][1-1][2][21-1][0] = firstRun;  badChamberRun[0][1][1-1][2][21-1][1] = lastRun;  badChamberLCS[0][1][1-1][2][21-1][0] = 14.00;  badChamberLCS[0][1][1-1][2][21-1][1] = 66.00;
+
+
+    // ----- ME+12/31 -----
+    // Dead DCFEB 5 seg 12.47% LCT 11.23% all runs
+    badChamber[0][1][1-1][2][31-1] = true;  badChamberRun[0][1][1-1][2][31-1][0] = firstRun;  badChamberRun[0][1][1-1][2][31-1][1] = lastRun;  badChamberLCS[0][1][1-1][2][31-1][0] = 62.00;  badChamberLCS[0][1][1-1][2][31-1][1] = 82.00;
+
+
+    // ----- ME+13/11 -----
+    // Dead DCFEB 3 seg 10.15% all runs
+    badChamber[0][1][1-1][3][11-1] = true;  badChamberRun[0][1][1-1][3][11-1][0] = firstRun;  badChamberRun[0][1][1-1][3][11-1][1] = lastRun;  badChamberLCS[0][1][1-1][3][11-1][0] = 30.00;  badChamberLCS[0][1][1-1][3][11-1][1] = 50.00;
+
+
+    // ----- ME+22/5 -----
+    // Dead DCFEB 1 seg 12.78% LCT 22.68% all runs
+    badChamber[0][1][2-1][2][5-1] = true;  badChamberRun[0][1][2-1][2][5-1][0] = firstRun;  badChamberRun[0][1][2-1][2][5-1][1] = lastRun;  badChamberLCS[0][1][2-1][2][5-1][0] = -2.00;  badChamberLCS[0][1][2-1][2][5-1][1] = 18.00;
+
+
+    // ----- ME+22/15 -----
+    // Dead DCFEB 5 seg 7.79% LCT 4.23% all runs
+    badChamber[0][1][2-1][2][15-1] = true;  badChamberRun[0][1][2-1][2][15-1][0] = firstRun;  badChamberRun[0][1][2-1][2][15-1][1] = lastRun;  badChamberLCS[0][1][2-1][2][15-1][0] = 62.00;  badChamberLCS[0][1][2-1][2][15-1][1] = 82.00;
+
+
+    // ----- ME+22/19 -----
+    // Dead DCFEB 5 seg 9.80% LCT 6.60% all runs
+    badChamber[0][1][2-1][2][19-1] = true;  badChamberRun[0][1][2-1][2][19-1][0] = firstRun;  badChamberRun[0][1][2-1][2][19-1][1] = lastRun;  badChamberLCS[0][1][2-1][2][19-1][0] = 62.00;  badChamberLCS[0][1][2-1][2][19-1][1] = 82.00;
+
+
+    // ----- ME+22/36 -----
+    //  Dead DCFEB 1 LCT 74.45% all runs
+    badChamber[0][1][2-1][2][36-1] = true;  badChamberRun[0][1][2-1][2][36-1][0] = firstRun;  badChamberRun[0][1][2-1][2][36-1][1] = lastRun;  badChamberLCS[0][1][2-1][2][36-1][0] = -2.00;  badChamberLCS[0][1][2-1][2][36-1][1] = 18.00;
+
+
+
+    // ----- ME+32/19 -----
+    // Dead DCFEB 5 seg 6.47% LCT 3.34% all runs
+    badChamber[0][1][3-1][2][19-1] = true;  badChamberRun[0][1][3-1][2][19-1][0] = firstRun;  badChamberRun[0][1][3-1][2][19-1][1] = lastRun;  badChamberLCS[0][1][3-1][2][19-1][0] = 62.00;  badChamberLCS[0][1][3-1][2][19-1][1] = 82.00;
+
+
+    // ----- ME+32/29 -----
+    // Dead DCFEB 4 seg 55.92% LCT 50.27% all runs
+    badChamber[0][1][3-1][2][29-1] = true;  badChamberRun[0][1][3-1][2][29-1][0] = firstRun;  badChamberRun[0][1][3-1][2][29-1][1] = lastRun;  badChamberLCS[0][1][3-1][2][29-1][0] = 46.00;  badChamberLCS[0][1][3-1][2][29-1][1] = 66.00;
+
+
+    // ----- ME+41/4 -----
+    // Dead DCFEB 4 seg 10.31% all runs
+    badChamber[0][1][4-1][1][4-1] = true;  badChamberRun[0][1][4-1][1][4-1][0] = firstRun;  badChamberRun[0][1][4-1][1][4-1][1] = lastRun;  badChamberLCS[0][1][4-1][1][4-1][0] = 46.00;  badChamberLCS[0][1][4-1][1][4-1][1] = 66.00;
+
+
+    // ----- ME+41/9 -----
+    // Dead DCFEB 2 seg 77.17% all runs
+    badChamber[0][1][4-1][1][9-1] = true;  badChamberRun[0][1][4-1][1][9-1][0] = firstRun;  badChamberRun[0][1][4-1][1][9-1][1] = lastRun;  badChamberLCS[0][1][4-1][1][9-1][0] = 14.00;  badChamberLCS[0][1][4-1][1][9-1][1] = 34.00;
+
+
+    // ----- ME+42/1 -----
+    // Dead DCFEB 5 seg 13.36% LCT 13.47% all runs
+    badChamber[0][1][4-1][2][1-1] = true;  badChamberRun[0][1][4-1][2][1-1][0] = firstRun;  badChamberRun[0][1][4-1][2][1-1][1] = lastRun;  badChamberLCS[0][1][4-1][2][1-1][0] = 62.00;  badChamberLCS[0][1][4-1][2][1-1][1] = 82.00;
+
+
+    // ----- ME+42/2 -----
+    // Dead DCFEB 1 seg 69.48% LCT 50.14% all runs
+    // Remove lower eff DCFEB
+    badChamber[0][1][4-1][2][2-1] = true;  badChamberRun[0][1][4-1][2][2-1][0] = firstRun;  badChamberRun[0][1][4-1][2][2-1][1] = lastRun;  badChamberLCS[0][1][4-1][2][2-1][0] = -2.00;  badChamberLCS[0][1][4-1][2][2-1][1] = 18.00;
+
+    //  Dead DCFEB 5 LCT 74.80% all runs
+    //badChamber[0][1][4-1][2][2-1] = true;  badChamberRun[0][1][4-1][2][2-1][0] = firstRun;  badChamberRun[0][1][4-1][2][2-1][1] = lastRun;  badChamberLCS[0][1][4-1][2][2-1][0] = 62.00;  badChamberLCS[0][1][4-1][2][2-1][1] = 82.00;
+
+
+    // ----- ME+42/6 -----
+    // Dead DCFEB 3 seg 12.02% LCT 9.18% all runs
+    badChamber[0][1][4-1][2][6-1] = true;  badChamberRun[0][1][4-1][2][6-1][0] = firstRun;  badChamberRun[0][1][4-1][2][6-1][1] = lastRun;  badChamberLCS[0][1][4-1][2][6-1][0] = 30.00;  badChamberLCS[0][1][4-1][2][6-1][1] = 50.00;
+
+
+    // ----- ME+42/22 -----
+    // Dead DCFEB 1 seg 61.23% LCT 62.96% all runs
+    badChamber[0][1][4-1][2][22-1] = true;  badChamberRun[0][1][4-1][2][22-1][0] = firstRun;  badChamberRun[0][1][4-1][2][22-1][1] = lastRun;  badChamberLCS[0][1][4-1][2][22-1][0] = -2.00;  badChamberLCS[0][1][4-1][2][22-1][1] = 18.00;
+
+
+    // ----- ME+42/23 -----
+    // Dead DCFEB 3 seg 77.91% LCT 76.06% all runs
+    badChamber[0][1][4-1][2][23-1] = true;  badChamberRun[0][1][4-1][2][23-1][0] = firstRun;  badChamberRun[0][1][4-1][2][23-1][1] = lastRun;  badChamberLCS[0][1][4-1][2][23-1][0] = 30.00;  badChamberLCS[0][1][4-1][2][23-1][1] = 50.00;
+
+
+  }
+    
+    // New dead chamber Run 3 2023 hand generated
+    bool badChambers2023TrackOld = false;
+
+    // Check if this works, I had it wrong
+  if (badChambers2023TrackOld) {
+
+     // New bad (D)CFEBs Run 3 and run ranges
 
 
     badChamber[0][0][4-1][2][4-1] = true;   badChamberRun[0][0][4-1][2][4-1][0] = firstRun; badChamberRun[0][0][4-1][2][4-1][1] = lastRun; // ME-42/04  Came back right at the end, has this been fixed?  No, still dead 2023
@@ -909,7 +1182,7 @@ void CSCEffFast::Loop()
     badChamber[0][1][4-1][2][1-1] = true;   badChamberRun[0][1][4-1][2][1-1][0] = firstRun; badChamberRun[0][1][4-1][2][1-1][1] = lastRun; badChamberLCS[0][1][4-1][2][1-1][0] = 62.0; badChamberLCS[0][1][4-1][2][1-1][1] = 82.0;// ME+42/1 DCFEB 5 all runs
 
     badChamber[0][1][4-1][2][2-1] = true;   badChamberRun[0][1][4-1][2][2-1][0] = firstRun; badChamberRun[0][1][4-1][2][2-1][1] = lastRun; badChamberLCS[0][1][4-1][2][2-1][0] = -2.0; badChamberLCS[0][1][4-1][2][2-1][1] = 18.0;// ME+42/2 50% eff DCFEB 1, all runs
-    // !!!!! Not removing DCFEB 5 74%
+                                                                                                                                                                                                                                  // !!!!! Not removing DCFEB 5 74%
 
     badChamber[0][1][4-1][2][6-1] = true;   badChamberRun[0][1][4-1][2][6-1][0] = firstRun; badChamberRun[0][1][4-1][2][6-1][1] = lastRun; badChamberLCS[0][1][4-1][2][6-1][0] = 30.0; badChamberLCS[0][1][4-1][2][6-1][1] = 50.0;// ME+42/6 DCFEB 3 all runs
 
@@ -922,7 +1195,7 @@ void CSCEffFast::Loop()
     // ME+32
     badChamber[0][1][3-1][2][19-1] = true;   badChamberRun[0][1][3-1][2][19-1][0] = firstRun; badChamberRun[0][1][3-1][2][19-1][1] = lastRun; badChamberLCS[0][1][3-1][2][19-1][0] = 62.0; badChamberLCS[0][1][3-1][2][19-1][1] = 82.0;// ME+32/19 DCFEB 5 all runs 
 
-																													    badChamber[0][1][3-1][2][29-1] = true;   badChamberRun[0][1][3-1][2][29-1][0] = firstRun; badChamberRun[0][1][3-1][2][29-1][1] = lastRun; badChamberLCS[0][1][3-1][2][29-1][0] = 46.0; badChamberLCS[0][1][3-1][2][29-1][1] = 66.0;// ME+32/29 DCFEB 4 all runs
+    badChamber[0][1][3-1][2][29-1] = true;   badChamberRun[0][1][3-1][2][29-1][0] = firstRun; badChamberRun[0][1][3-1][2][29-1][1] = lastRun; badChamberLCS[0][1][3-1][2][29-1][0] = 46.0; badChamberLCS[0][1][3-1][2][29-1][1] = 66.0;// ME+32/29 DCFEB 4 all runs
 
     badChamber[0][1][3-1][1][15-1] = true;   badChamberRun[0][1][3-1][1][15-1][0] = firstRun; badChamberRun[0][1][3-1][1][15-1][1] = lastRun; badChamberLCS[0][1][3-1][1][15-1][0] = 62.0; badChamberLCS[0][1][3-1][1][15-1][1] = 82.0;// ME+31/15 30% all runs
 
@@ -948,7 +1221,7 @@ void CSCEffFast::Loop()
     badChamber[0][1][1-1][2][15-1] = true;   badChamberRun[0][1][1-1][2][15-1][0] = firstRun; badChamberRun[0][1][1-1][2][15-1][1] = lastRun; badChamberLCS[0][1][1-1][2][15-1][0] = -2.0; badChamberLCS[0][1][1-1][2][15-1][1] = 18.0;// ME+12/15 DCFEB 1 
 
 
-																													    badChamber[0][1][1-1][2][21-1] = true;   badChamberRun[0][1][1-1][2][21-1][0] = firstRun; badChamberRun[0][1][1-1][2][21-1][1] = lastRun; badChamberLCS[0][1][1-1][2][21-1][0] = 14.0; badChamberLCS[0][1][1-1][2][21-1][1] = 66.0;// ME+12/21 DCFEB 2,4 all runs, 2 80%, 4 40%
+    badChamber[0][1][1-1][2][21-1] = true;   badChamberRun[0][1][1-1][2][21-1][0] = firstRun; badChamberRun[0][1][1-1][2][21-1][1] = lastRun; badChamberLCS[0][1][1-1][2][21-1][0] = 14.0; badChamberLCS[0][1][1-1][2][21-1][1] = 66.0;// ME+12/21 DCFEB 2,4 all runs, 2 80%, 4 40%
 
     badChamber[0][1][1-1][2][31-1] = true;   badChamberRun[0][1][1-1][2][31-1][0] = firstRun; badChamberRun[0][1][1-1][2][31-1][1] = lastRun; badChamberLCS[0][1][1-1][2][31-1][0] = 62.0; badChamberLCS[0][1][1-1][2][31-1][1] = 82.0;// ME+12/31 DCFEB 5 all runs
 
@@ -1001,7 +1274,7 @@ void CSCEffFast::Loop()
 
     // ME-21 	 
 
-	 badChamber[0][0][2-1][1][15-1] = true;   badChamberRun[0][0][2-1][1][15-1][0] = firstRun; badChamberRun[0][0][2-1][1][15-1][1] = lastRun; badChamberLCS[0][0][2-1][1][15-1][0] = -2.0; badChamberLCS[0][0][2-1][1][15-1][1] = 18.0;// ME-21/15 DCFEB 1 all runs
+    badChamber[0][0][2-1][1][15-1] = true;   badChamberRun[0][0][2-1][1][15-1][0] = firstRun; badChamberRun[0][0][2-1][1][15-1][1] = lastRun; badChamberLCS[0][0][2-1][1][15-1][0] = -2.0; badChamberLCS[0][0][2-1][1][15-1][1] = 18.0;// ME-21/15 DCFEB 1 all runs
 
 
 
@@ -1043,8 +1316,8 @@ void CSCEffFast::Loop()
 
     //?????? need to test if any of these are back  
 
-				   // New Dead Chambers Run 3
-				   badChamber[0][1][1-1][2][10-1] = true;   badChamberRun[0][1][1-1][2][10-1][0] = firstRun; badChamberRun[0][1][1-1][2][10-1][1] = lastRun; // ME+12/10
+    // New Dead Chambers Run 3
+    badChamber[0][1][1-1][2][10-1] = true;   badChamberRun[0][1][1-1][2][10-1][0] = firstRun; badChamberRun[0][1][1-1][2][10-1][1] = lastRun; // ME+12/10
 
     badChamber[0][1][2-1][2][31-1] = true;   badChamberRun[0][1][2-1][2][31-1][0] = firstRun; badChamberRun[0][1][2-1][2][31-1][1] = lastRun; // ME+22/31 Came back right at the end, has this been fixed
 
@@ -1068,18 +1341,18 @@ void CSCEffFast::Loop()
     //ME+41
     badChamber[0][1][4-1][1][4-1] = true;   badChamberRun[0][1][4-1][1][4-1][0] = firstRun; badChamberRun[0][1][4-1][1][4-1][1] = lastRun; badChamberLCS[0][1][4-1][1][4-1][0] = 46.0; badChamberLCS[0][1][4-1][1][4-1][1] = 66.0;// ME+42/4 DCFEB 4 all runs 
 
-																												       badChamber[0][1][4-1][1][9-1] = true;   badChamberRun[0][1][4-1][1][9-1][0] = 359700; badChamberRun[0][1][4-1][1][9-1][1] = lastRun; badChamberLCS[0][1][4-1][1][9-1][0] = 14.0; badChamberLCS[0][1][4-1][1][9-1][1] = 34.0;// ME+42/4 DCFEB 2 ~359700-lastRun partially bad 50% 
+    badChamber[0][1][4-1][1][9-1] = true;   badChamberRun[0][1][4-1][1][9-1][0] = 359700; badChamberRun[0][1][4-1][1][9-1][1] = lastRun; badChamberLCS[0][1][4-1][1][9-1][0] = 14.0; badChamberLCS[0][1][4-1][1][9-1][1] = 34.0;// ME+42/4 DCFEB 2 ~359700-lastRun partially bad 50% 
 
-																																																									badChamber[0][1][4-1][1][12-1] = true;   badChamberRun[0][1][4-1][1][12-1][0] = 362088; badChamberRun[0][1][4-1][1][12-1][1] = 362108; // ME+42/12 bad run range 362088-362108
-    // ME+41-15 also a few bad run ranges but less so
+    badChamber[0][1][4-1][1][12-1] = true;   badChamberRun[0][1][4-1][1][12-1][0] = 362088; badChamberRun[0][1][4-1][1][12-1][1] = 362108; // ME+42/12 bad run range 362088-362108
+                                                                                                                                           // ME+41-15 also a few bad run ranges but less so
 
-    // ME+32
+                                                                                                                                           // ME+32
     badChamber[0][1][3-1][2][19-1] = true;   badChamberRun[0][1][3-1][2][19-1][0] = firstRun; badChamberRun[0][1][3-1][2][19-1][1] = lastRun; badChamberLCS[0][1][3-1][2][19-1][0] = 62.0; badChamberLCS[0][1][3-1][2][19-1][1] = 82.0;// ME+32/19 DCFEB 5 all runs 
 
-																													    badChamber[0][1][3-1][2][24-1] = true;   badChamberRun[0][1][3-1][2][24-1][0] = 358500; badChamberRun[0][1][3-1][2][24-1][1] = lastRun; badChamberLCS[0][1][3-1][2][24-1][0] = 30.0; badChamberLCS[0][1][3-1][2][24-1][1] = 50.0;// ME+32/24 DCFEB 3 okay before 358500?????
+    badChamber[0][1][3-1][2][24-1] = true;   badChamberRun[0][1][3-1][2][24-1][0] = 358500; badChamberRun[0][1][3-1][2][24-1][1] = lastRun; badChamberLCS[0][1][3-1][2][24-1][0] = 30.0; badChamberLCS[0][1][3-1][2][24-1][1] = 50.0;// ME+32/24 DCFEB 3 okay before 358500?????
 
     badChamber[0][1][3-1][2][29-1] = true;   badChamberRun[0][1][3-1][2][29-1][0] = firstRun; badChamberRun[0][1][3-1][2][29-1][1] = lastRun; badChamberLCS[0][1][3-1][2][29-1][0] = 46.0; badChamberLCS[0][1][3-1][2][29-1][1] = 66.0;// ME+32/29 DCFEB 4 all runs good around 359000
-    // ME+32-31 maybe a bad DCFEB 1 right at the start then fixed
+                                                                                                                                                                                                                                       // ME+32-31 maybe a bad DCFEB 1 right at the start then fixed
     badChamber[0][1][3-1][2][33-1] = true;   badChamberRun[0][1][3-1][2][33-1][0] = 356476; badChamberRun[0][1][3-1][2][33-1][1] = 356490; // ME+32-33 bad run range 356476-356490 same as chamber 34
     badChamber[0][1][3-1][2][33-1] = true;   badChamberRun[0][1][3-1][2][34-1][0] = 356476; badChamberRun[0][1][3-1][2][34-1][1] = 356490; // ME+32-34 bad run range 356476-356490 same as chamber 33
 
@@ -1089,7 +1362,7 @@ void CSCEffFast::Loop()
 
     //ME+31/10 // 88% efficieincy no obvious reason other than OOS
     badChamber[0][1][3-1][1][10-1] = true;   badChamberRun[0][1][3-1][1][10-1][0] = 360942; badChamberRun[0][1][3-1][1][10-1][1] = 360952; // ME+31/10 // 0% eff in 360942-360952
-    //ME+31/12 // 89% efficieincy no obvious reason other than OOS
+                                                                                                                                           //ME+31/12 // 89% efficieincy no obvious reason other than OOS
     badChamber[0][1][3-1][1][13-1] = true;   badChamberRun[0][1][3-1][1][13-1][0] = 362148; badChamberRun[0][1][3-1][1][10-1][1] = 362168; // ME+31/13 0% in 362148-362168
 
     badChamber[0][1][3-1][1][15-1] = true;   badChamberRun[0][1][3-1][1][15-1][0] = firstRun; badChamberRun[0][1][3-1][1][15-1][1] = lastRun; badChamberLCS[0][1][3-1][1][15-1][0] = 62.0; badChamberLCS[0][1][3-1][1][15-1][1] = 82.0;// ME+31/15 30% all runs
@@ -1118,7 +1391,7 @@ void CSCEffFast::Loop()
 
     badChamber[0][1][2-1][1][6-1] = true;   badChamberRun[0][1][2-1][1][6-1][0] = firstRun; badChamberRun[0][1][2-1][1][6-1][1] = lastRun; badChamberLCS[0][1][2-1][1][6-1][0] = 30.0; badChamberLCS[0][1][2-1][1][6-1][1] = 50.0;// ME+21/6 all runs 
 
-																												       if (badRunRangesTrack) badChamber[0][1][2-1][1][11-1] = true;   badChamberRun[0][1][2-1][1][11-1][0] = 355118; badChamberRun[0][1][2-1][1][11-1][1] = 355560;// ME+21/11 four run ranges 355118-355560, 357438-357448, 357538-357734, 361298-361334 capture first 0 area,  Also 0-100% 50% ave eff LCT around 361300
+    if (badRunRangesTrack) badChamber[0][1][2-1][1][11-1] = true;   badChamberRun[0][1][2-1][1][11-1][0] = 355118; badChamberRun[0][1][2-1][1][11-1][1] = 355560;// ME+21/11 four run ranges 355118-355560, 357438-357448, 357538-357734, 361298-361334 capture first 0 area,  Also 0-100% 50% ave eff LCT around 361300
 
     // ME+13
     // ME+13/10 LCT 89% no dependence
@@ -1127,10 +1400,10 @@ void CSCEffFast::Loop()
     badChamber[0][1][1-1][3][12-1] = true;   badChamberRun[0][1][1-1][3][12-1][0] = 357734; badChamberRun[0][1][1-1][3][12-1][1] = 361958; // ME+13/12 for 357734-361958
 
     badChamber[0][1][1-1][3][20-1] = true;   badChamberRun[0][1][1-1][3][20-1][0] = firstRun; badChamberRun[0][1][1-1][3][20-1][1] = lastRun; badChamberLCS[0][1][1-1][3][20-1][0] = -2.0; badChamberLCS[0][1][1-1][3][20-1][1] = 18.0;// ME+31/20 DCFEB 1 70%
-    // ME+13/30 LCT only 90%
+                                                                                                                                                                                                                                       // ME+13/30 LCT only 90%
 
 
-    // ME+12
+                                                                                                                                                                                                                                       // ME+12
     badChamber[0][1][1-1][2][13-1] = true;   badChamberRun[0][1][1-1][2][13-1][0] = firstRun; badChamberRun[0][1][1-1][2][13-1][1] = lastRun; badChamberLCS[0][1][1-1][2][13-1][0] = 62.0; badChamberLCS[0][1][1-1][2][13-1][1] = 82.0;// ME+12/13 DCFEB 5 all runs good around 359000
 
     badChamber[0][1][1-1][2][15-1] = true;   badChamberRun[0][1][1-1][2][15-1][0] = 357078; badChamberRun[0][1][1-1][2][15-1][1] = lastRun; badChamberLCS[0][1][1-1][2][15-1][0] = -2.0; badChamberLCS[0][1][1-1][2][15-1][1] = 18.0;// ME+12/15 DCFEB 1 all runs good around 359000 and before except for 357078 to 357734
@@ -1138,7 +1411,7 @@ void CSCEffFast::Loop()
     //ME+12-20 a few zero runs
 
     badChamber[0][1][1-1][2][21-1] = true;   badChamberRun[0][1][1-1][2][21-1][0] = firstRun; badChamberRun[0][1][1-1][2][21-1][1] = lastRun; badChamberLCS[0][1][1-1][2][21-1][0] = 14.0; badChamberLCS[0][1][1-1][2][21-1][1] = 66.0;// ME+12/21 DCFEB 2,4 all runs, breifly brought back around 359200
-    //ME+12=24 a few low eff runs
+                                                                                                                                                                                                                                       //ME+12=24 a few low eff runs
 
     badChamber[0][1][1-1][2][31-1] = true;   badChamberRun[0][1][1-1][2][31-1][0] = firstRun; badChamberRun[0][1][1-1][2][31-1][1] = lastRun; badChamberLCS[0][1][1-1][2][31-1][0] = 62.0; badChamberLCS[0][1][1-1][2][31-1][1] = 82.0;// ME+12/31 all runs
 
@@ -1166,7 +1439,7 @@ void CSCEffFast::Loop()
 
     // ME-11A/B
     // also less inefficinecy earlier  
-	 if (badRunRangesTrack) badChamber[0][0][1-1][1][4-1] = true;   badChamberRun[0][0][1-1][1][4-1][0] = 359602; badChamberRun[0][0][1-1][1][4-1][1] = 359814;// ME-11A/4 359602 to 359814
+    if (badRunRangesTrack) badChamber[0][0][1-1][1][4-1] = true;   badChamberRun[0][0][1-1][1][4-1][0] = 359602; badChamberRun[0][0][1-1][1][4-1][1] = 359814;// ME-11A/4 359602 to 359814
     if (badRunRangesTrack) badChamber[0][0][1-1][0][4-1] = true;   badChamberRun[0][0][1-1][0][4-1][0] = 359602; badChamberRun[0][0][1-1][0][4-1][1] = 359814;// ME-11B/4 359602 to 359814
     if (badRunRangesTrack) badChamber[0][0][1-1][0][33-1] = true;   badChamberRun[0][0][1-1][0][33-1][0] = 356722; badChamberRun[0][0][1-1][0][33-1][1] = 357112;// ME-11B/33
 
@@ -1200,7 +1473,7 @@ void CSCEffFast::Loop()
 
     // ME-21 	 
 
-	 badChamber[0][0][2-1][1][15-1] = true;   badChamberRun[0][0][2-1][1][15-1][0] = firstRun; badChamberRun[0][0][2-1][1][15-1][1] = lastRun; badChamberLCS[0][0][2-1][1][15-1][0] = -2.0; badChamberLCS[0][0][2-1][1][15-1][1] = 18.0;// ME-21/15 also 0% 355988-356078
+    badChamber[0][0][2-1][1][15-1] = true;   badChamberRun[0][0][2-1][1][15-1][0] = firstRun; badChamberRun[0][0][2-1][1][15-1][1] = lastRun; badChamberLCS[0][0][2-1][1][15-1][0] = -2.0; badChamberLCS[0][0][2-1][1][15-1][1] = 18.0;// ME-21/15 also 0% 355988-356078
 
     //worst ME-21 chamber Seg and LCT also a few zero eff runs
     //badChamber[0][0][2-1][1][18-1] = true;   badChamberRun[0][0][2-1][1][18-1][0] = firstRun; badChamberRun[0][0][2-1][1][18-1][1] = lastRun;// ME-21/18
@@ -1210,22 +1483,22 @@ void CSCEffFast::Loop()
     // ME-22/1 86% LCT only no dependence
     badChamber[0][0][2-1][2][3-1] = true;   badChamberRun[0][0][2-1][2][3-1][0] = firstRun; badChamberRun[0][0][2-1][2][3-1][1] = lastRun; badChamberLCS[0][0][2-1][2][3-1][0] = 14.0; badChamberLCS[0][0][2-1][2][3-1][1] = 34.0;// ME-22/3 DCFEB 2 all runs, gen low LCT 86%
     badChamber[0][0][2-1][2][27-1] = true;   badChamberRun[0][0][2-1][2][27-1][0] = firstRun; badChamberRun[0][0][2-1][2][27-1][1] = lastRun; badChamberLCS[0][0][2-1][2][27-1][0] = 62.0; badChamberLCS[0][0][2-1][2][27-1][1] = 82.0;// ME-22/27 DCFEB 5 all runs good around 359000
-    // ME-22/15 DCFEB 2 80% eff
+                                                                                                                                                                                                                                       // ME-22/15 DCFEB 2 80% eff
 
-    //ME-31
+                                                                                                                                                                                                                                       //ME-31
     badChamber[0][0][3-1][1][3-1] = true;   badChamberRun[0][0][3-1][1][3-1][0] = firstRun; badChamberRun[0][0][3-1][1][3-1][1] = 359000; badChamberLCS[0][0][3-1][1][3-1][0] = -2.0; badChamberLCS[0][0][3-1][1][3-1][1] = 18.0;// ME-31/3 B-D also 0% 356048-356078
     if (badRunRangesTrack) badChamber[0][0][3-1][1][5-1] = true;   badChamberRun[0][0][3-1][1][5-1][0] = 355862; badChamberRun[0][0][3-1][1][5-1][1] = 356824;// ME-31/5 transient B
-    //ME-31/9 one run 362440 0.296893 and other single runs
+                                                                                                                                                              //ME-31/9 one run 362440 0.296893 and other single runs
     if (badRunRangesTrack) badChamber[0][0][3-1][1][14-1] = true;   badChamberRun[0][0][3-1][1][14-1][0] = 357478; badChamberRun[0][0][3-1][1][14-1][1] = 357734;// ME-31/14 transient B
     if (badRunRangesTrack) badChamber[0][0][3-1][1][18-1] = true;   badChamberRun[0][0][3-1][1][18-1][0] = 355680; badChamberRun[0][0][3-1][1][18-1][1] = 357734;// ME-31/18 B-D
 
     // ME-32
     badChamber[0][0][3-1][2][19-1] = true;   badChamberRun[0][0][3-1][2][19-1][0] = firstRun; badChamberRun[0][0][3-1][2][19-1][1] = lastRun; badChamberLCS[0][0][3-1][2][19-1][0] = 46.0; badChamberLCS[0][0][3-1][2][19-1][1] = 66.0;// ME-32/19 DCFEB 3 all runs, also poor efficiency runs 361188-362760 ??????
     badChamber[0][0][3-1][2][24-1] = true;   badChamberRun[0][0][3-1][2][24-1][0] = 360486; badChamberRun[0][0][3-1][2][24-1][1] = 361110; // ME-32/24 and some other single runs
-    // ME-31/30 LCT 1-4 87%
+                                                                                                                                           // ME-31/30 LCT 1-4 87%
 
 
-    // ME-41
+                                                                                                                                           // ME-41
     if (badRunRangesTrack&&badRunRangesTrack) badChamber[0][0][4-1][1][3-1] = true;   badChamberRun[0][0][4-1][1][3-1][0] = 357330; badChamberRun[0][0][4-1][1][3-1][1] = 357734;// ME-41/3 B-D to area of bad runs 355408-356048, 357330-357734
     if (badRunRangesTrack) badChamber[0][0][4-1][1][12-1] = true;   badChamberRun[0][0][4-1][1][12-1][0] = 355862; badChamberRun[0][0][4-1][1][12-1][1] = 357734;// ME-41/12 transient B several area of zero eff 355862-355872, 356446-357734
     badChamber[0][0][4-1][1][17-1] = true;   badChamberRun[0][0][4-1][1][17-1][0] = firstRun; badChamberRun[0][0][4-1][1][17-1][1] = lastRun; badChamberLCS[0][0][4-1][1][17-1][0] = 46.0; badChamberLCS[0][0][4-1][1][17-1][1] = 66.0;// ME-41/17 DCFEB 4 all reun
@@ -1261,16 +1534,16 @@ void CSCEffFast::Loop()
     //badChamber[0][0][1-1][0][9-1] = true;  badChamberRun[0][0][1-1][0][9-1][0] = 322599; badChamberRun[0][0][1-1][0][9-1][1] = 322633; // ME-11A/9 322599-322633 !!!!! me-1/1/09	2018-08-19	DCFEB1	opt link with ODMB time correct
     // ME-11A/10 bad in first run section
     badChamber[0][0][1-1][0][11-1] = true;  badChamberRun[0][0][1-1][0][11-1][0] = 316000; badChamberRun[0][0][1-1][0][11-1][1] = 325172; badChamberLCS[0][0][1-1][0][11-1][0] = 31.0; badChamberLCS[0][0][1-1][0][11-1][1] = 50.0;// ME-11A/11
-    //badChamber[0][0][1-1][0][12-1] = true;   badChamberRun[0][0][1-1][0][12-1][0] = 322355; badChamberRun[0][0][1-1][0][12-1][1] = 322492;// ME-11B/12 322355-322492 !!!!! General low efficiencies more toward end, Nothing
+                                                                                                                                                                                                                                   //badChamber[0][0][1-1][0][12-1] = true;   badChamberRun[0][0][1-1][0][12-1][0] = 322355; badChamberRun[0][0][1-1][0][12-1][1] = 322492;// ME-11B/12 322355-322492 !!!!! General low efficiencies more toward end, Nothing
     badChamber[0][0][1-1][0][25-1] = true;  badChamberRun[0][0][1-1][0][25-1][0] = 321067; badChamberRun[0][0][1-1][0][25-1][1] = 325172; badChamberLCS[0][0][1-1][0][25-1][0] = 0.0; badChamberLCS[0][0][1-1][0][25-1][1] = 16.5;// ME-11A/11 okay before 321067
-    // ME-11A/26 bad at 322057 !!!!! Some low efficiencies me-1/1/26	2018-07-21	DCFEB3	opt link with ODMB, me-1/1/26	2018-12-01	DCFEB3	OTMB time note correct
-    // badChamber[0][0][1-1][0][29-1] = true;  badChamberRun[0][0][1-1][0][29-1][0] = 322605; badChamberRun[0][0][1-1][0][29-1][1] = 322605;// ME-11A/29 322605 !!!!! Some low efficiencies Nothing
+                                                                                                                                                                                                                                  // ME-11A/26 bad at 322057 !!!!! Some low efficiencies me-1/1/26	2018-07-21	DCFEB3	opt link with ODMB, me-1/1/26	2018-12-01	DCFEB3	OTMB time note correct
+                                                                                                                                                                                                                                  // badChamber[0][0][1-1][0][29-1] = true;  badChamberRun[0][0][1-1][0][29-1][0] = 322605; badChamberRun[0][0][1-1][0][29-1][1] = 322605;// ME-11A/29 322605 !!!!! Some low efficiencies Nothing
 
     badChamber[0][0][1-1][1][5-1] = true;   badChamberRun[0][0][1-1][1][5-1][0] = 316000; badChamberRun[0][0][1-1][1][5-1][1] = 325172; badChamberLCS[0][0][1-1][1][5-1][0] = 0.0; badChamberLCS[0][0][1-1][1][5-1][1] = 16.5;// ME-11B/5
-    // ME-11B/10 bad in first run section
-    // badChamber[0][0][1-1][1][12-1] = true;   badChamberRun[0][0][1-1][1][12-1][0] = 322355; badChamberRun[0][0][1-1][1][12-1][1] = 322492;// ME-11B/12 322355-322492 !!!!! Some low efficiecies in middle Nothing
-    // ME-11B/26 70% one run at 321232 !!!!! me-1/1/26	2018-07-21	DCFEB3	opt link with ODMB time correct
-    // badChamber[0][0][1-1][1][29-1] = true;   badChamberRun[0][0][1-1][1][29-1][0] = 322605; badChamberRun[0][0][1-1][1][29-1][1] = 322605;// ME-11B/29 322605 !!!!! Some low efficiences in middle Nothing
+                                                                                                                                                                                                                              // ME-11B/10 bad in first run section
+                                                                                                                                                                                                                              // badChamber[0][0][1-1][1][12-1] = true;   badChamberRun[0][0][1-1][1][12-1][0] = 322355; badChamberRun[0][0][1-1][1][12-1][1] = 322492;// ME-11B/12 322355-322492 !!!!! Some low efficiecies in middle Nothing
+                                                                                                                                                                                                                              // ME-11B/26 70% one run at 321232 !!!!! me-1/1/26	2018-07-21	DCFEB3	opt link with ODMB time correct
+                                                                                                                                                                                                                              // badChamber[0][0][1-1][1][29-1] = true;   badChamberRun[0][0][1-1][1][29-1][0] = 322605; badChamberRun[0][0][1-1][1][29-1][1] = 322605;// ME-11B/29 322605 !!!!! Some low efficiences in middle Nothing
 
     badChamber[0][0][1-1][2][6-1] = true;   badChamberRun[0][0][1-1][2][6-1][0] = 323423; badChamberRun[0][0][1-1][2][6-1][1] = 323526; badChamberLCS[0][0][1-1][2][6-1][0] = 46.5; badChamberLCS[0][0][1-1][2][6-1][1] = 62.5;// ME-12/6 323423-323526
     badChamber[0][0][1-1][2][21-1] = true;   badChamberRun[0][0][1-1][2][21-1][0] = 316000; badChamberRun[0][0][1-1][2][21-1][1] = 325172; badChamberLCS[0][0][1-1][2][21-1][0] = 32.5; badChamberLCS[0][0][1-1][2][21-1][1] = 40.5;// ME-12/21 316000-325172
@@ -1288,7 +1561,7 @@ void CSCEffFast::Loop()
 
     badChamber[0][1][1-1][0][7-1] = true;  badChamberRun[0][1][1-1][0][7-1][0] = 318800; badChamberRun[0][1][1-1][0][7-1][1] = 325172; badChamberLCS[0][1][1-1][0][7-1][0] = 0.0; badChamberLCS[0][1][1-1][0][7-1][1] = 16.5;// ME+11A/7
     badChamber[0][1][1-1][0][20-1] = true; badChamberRun[0][1][1-1][0][20-1][0] = 318800; badChamberRun[0][1][1-1][0][20-1][1] = 325172; badChamberLCS[0][1][1-1][0][20-1][0] = 32.5; badChamberLCS[0][1][1-1][0][20-1][1] = 50.0; // ME+11A/20
-    // badChamber[0][1][1-1][0][21-1] = true; badChamberRun[0][1][1-1][0][21-1][0] = 323755; badChamberRun[0][1][1-1][0][21-1][1] = 324022; // ME+11A/21 323755-324022 40% !!!!! Some low efficiencies in middle me+1/1/21	2018-08-17	DCFEB3	opt link with OTMB time not correct
+                                                                                                                                                                                                                                   // badChamber[0][1][1-1][0][21-1] = true; badChamberRun[0][1][1-1][0][21-1][0] = 323755; badChamberRun[0][1][1-1][0][21-1][1] = 324022; // ME+11A/21 323755-324022 40% !!!!! Some low efficiencies in middle me+1/1/21	2018-08-17	DCFEB3	opt link with OTMB time not correct
     badChamber[0][1][1-1][0][29-1] = true; badChamberRun[0][1][1-1][0][29-1][0] = 318800; badChamberRun[0][1][1-1][0][29-1][1] = 325172; badChamberLCS[0][1][1-1][0][29-1][0] = 14.5; badChamberLCS[0][1][1-1][0][29-1][1] = 32.5;// ME+11A/29
 
 
@@ -1297,11 +1570,11 @@ void CSCEffFast::Loop()
 
 
     //ME+12/5 bad before 318800  
-	// badChamber[0][1][1-1][2][8-1] = true;   badChamberRun[0][1][1-1][2][8-1][0] = 321067; badChamberRun[0][1][1-1][2][8-1][1] = 321305;// ME+12/8 ** only 321067-321305 and 322013,322014 !!!!! A few low efficincies in the middle Nothing
-	badChamber[0][1][1-1][2][13-1] = true;  badChamberRun[0][1][1-1][2][13-1][0] = 316000; badChamberRun[0][1][1-1][2][13-1][1] = 325172; badChamberLCS[0][1][1-1][2][13-1][0] = 62.5; badChamberLCS[0][1][1-1][2][13-1][1] = 80.0;// ME+12/13
+    // badChamber[0][1][1-1][2][8-1] = true;   badChamberRun[0][1][1-1][2][8-1][0] = 321067; badChamberRun[0][1][1-1][2][8-1][1] = 321305;// ME+12/8 ** only 321067-321305 and 322013,322014 !!!!! A few low efficincies in the middle Nothing
+    badChamber[0][1][1-1][2][13-1] = true;  badChamberRun[0][1][1-1][2][13-1][0] = 316000; badChamberRun[0][1][1-1][2][13-1][1] = 325172; badChamberLCS[0][1][1-1][2][13-1][0] = 62.5; badChamberLCS[0][1][1-1][2][13-1][1] = 80.0;// ME+12/13
     badChamber[0][1][1-1][2][20-1] = true;  badChamberRun[0][1][1-1][2][20-1][0] = 316000; badChamberRun[0][1][1-1][2][20-1][1] = 325172; badChamberLCS[0][1][1-1][2][20-1][0] = 30.5; badChamberLCS[0][1][1-1][2][20-1][1] = 50.5;// ME+12/20
     badChamber[0][1][1-1][2][21-1] = true;  badChamberRun[0][1][1-1][2][21-1][0] = 316000; badChamberRun[0][1][1-1][2][21-1][1] = 325172; badChamberLCS[0][1][1-1][3][21-1][0] = 14.5; badChamberLCS[0][1][1-1][2][21-1][1] = 66.5;// ME+12/21
-    // badChamber[0][1][1-1][2][28-1] = true;  badChamberRun[0][1][1-1][2][28-1][0] = 320955; badChamberRun[0][1][1-1][2][28-1][1] = 320809; // ME+12/28 320804-320809 and 320955 !!!!! A few low efficiency in middle Nothing
+                                                                                                                                                                                                                                   // badChamber[0][1][1-1][2][28-1] = true;  badChamberRun[0][1][1-1][2][28-1][0] = 320955; badChamberRun[0][1][1-1][2][28-1][1] = 320809; // ME+12/28 320804-320809 and 320955 !!!!! A few low efficiency in middle Nothing
     badChamber[0][1][1-1][2][31-1] = true;  badChamberRun[0][1][1-1][2][31-1][0] = 316000; badChamberRun[0][1][1-1][2][31-1][1] = 325172; badChamberLCS[0][1][1-1][2][31-1][0] = 62.5; badChamberLCS[0][1][1-1][2][31-1][1] = 80.0;// ME+12/31
 
     badChamber[0][1][1-1][3][11-1] = true;  badChamberRun[0][1][1-1][3][11-1][0] = 316000; badChamberRun[0][1][1-1][3][11-1][1] = 325172; badChamberLCS[0][1][1-1][3][11-1][0] = 30.5; badChamberLCS[0][1][1-1][3][11-1][1] = 50.5;// ME+13/11
@@ -1344,7 +1617,7 @@ void CSCEffFast::Loop()
     badChamber[0][0][4-1][2][8-1] = true;   badChamberRun[0][0][4-1][2][8-1][0] = 316000; badChamberRun[0][0][4-1][2][8-1][1] = 325172; badChamberLCS[0][0][4-1][2][8-1][0] = 14.5; badChamberLCS[0][0][4-1][2][8-1][1] = 34.5;// ME-42/8
     badChamber[0][0][4-1][2][27-1] = true;   badChamberRun[0][0][4-1][2][27-1][0] = 316000; badChamberRun[0][0][4-1][2][27-1][1] = 324077; badChamberLCS[0][0][4-1][2][27-1][0] = 30.5; badChamberLCS[0][0][4-1][2][27-1][1] = 50.5; // ME-42/27 323693-324077
     badChamber[0][0][4-1][2][34-1] = true;   badChamberRun[0][0][4-1][2][34-1][0] = 316000; badChamberRun[0][0][4-1][2][34-1][1] = 325172; badChamberLCS[0][0][4-1][2][34-1][0] = 62.5; badChamberLCS[0][0][4-1][2][34-1][1] = 80.0;// ME-42/34
-    // ME-42/21 do data
+                                                                                                                                                                                                                                    // ME-42/21 do data
 
     badChamber[0][1][4-1][1][15-1] = true;   badChamberRun[0][1][4-1][1][15-1][0] = 316000; badChamberRun[0][1][4-1][1][15-1][1] = 325172; badChamberLCS[0][1][4-1][1][15-1][0] = 62.5; badChamberLCS[0][1][4-1][1][15-1][1] = 80.0;// ME+41/15
 
@@ -1354,8 +1627,8 @@ void CSCEffFast::Loop()
     // CFEB SCA memory saturation effect
 
     badChamber[0][0][2-1][1][5-1] = true;   badChamberRun[0][0][2-1][1][5-1][0] = 316000; badChamberRun[0][0][2-1][1][5-1][1] = 325172; //ME-21/5
-    //badChamber[0][0][2-1][1][8-1] = true;   badChamberRun[0][0][2-1][1][8-1][0] = 323423; badChamberRun[0][0][2-1][1][8-1][1] = 325172;// ME-21/9 323423-325172 Low efficiencies more at beginning and end, CFEB issue
-    // Expand to full range
+                                                                                                                                        //badChamber[0][0][2-1][1][8-1] = true;   badChamberRun[0][0][2-1][1][8-1][0] = 323423; badChamberRun[0][0][2-1][1][8-1][1] = 325172;// ME-21/9 323423-325172 Low efficiencies more at beginning and end, CFEB issue
+                                                                                                                                        // Expand to full range
     badChamber[0][0][2-1][1][8-1] = true;   badChamberRun[0][0][2-1][1][8-1][0] = 316000; badChamberRun[0][0][2-1][1][8-1][1] = 325172;//
 
     //badChamber[0][0][2-1][1][9-1] = true;   badChamberRun[0][0][2-1][1][9-1][0] = 318800; badChamberRun[0][0][2-1][1][9-1][1] = 325172; badChamberLCS[0][0][2-1][1][9-1][0] = 45.5; badChamberLCS[0][0][2-1][1][9-1][1] = 64.5;// ME-21/9 also  Low efficiencies more at end, CFEB issue
@@ -1464,7 +1737,9 @@ void CSCEffFast::Loop()
     bool badRun = (run_number==355991||run_number==355993||run_number==355994||run_number==355996||run_number==355997||run_number==356002||run_number==356003||run_number==356046||run_number==356164||run_number==356165||run_number==356170||run_number==356174||run_number==357734);
     // CSC partially off
     badRun = (badRun||run_number==355991||run_number==356001);
-
+    // Exclude runs outside of first, last run def
+    badRun = (badRun||(run_number<firstRun)||(run_number>lastRun));
+    
     // badRun=(badRun||(run_number<358500)||(run_number>359690)); //low lumi area
     // badRun=(badRun||(run_number<359690)||(run_number>360000)); // adjacent to low lumi area
 
@@ -1474,8 +1749,8 @@ void CSCEffFast::Loop()
     inZMassSideBand = inZMassLowSideBand || inZMassHighSideBand;
 
     goodTag = ((tracks_pt>10.0)&&(MuTagPt>25.0)&&(tracks_e > tagE)&&(minDRHLTAllSingleMu < maxDRHLTAllSingleMu) &&
-	       (dRTkMu1 > minDRTkMu1)&&(dRTkMu1<10.0)&&tracks_IsoR03Ratio<0.1&&tracks_IsoR05Ratio<0.1&&iSameVtx&&(!badRun)&&
-	       (inZMass||inZMassLowSideBand||inZMassHighSideBand)&&run_number>0);
+        (dRTkMu1 > minDRTkMu1)&&(dRTkMu1<10.0)&&tracks_IsoR03Ratio<0.1&&tracks_IsoR05Ratio<0.1&&iSameVtx&&(!badRun)&&
+        (inZMass||inZMassLowSideBand||inZMassHighSideBand)&&run_number>0);
 
     //&&run_number>355980&& (!(run_number>356612&&run_number<356728
 
@@ -1495,7 +1770,7 @@ void CSCEffFast::Loop()
     // Reset ring for ME11 ab cases that are mismatched due to eta problem
     if (CSCRg1==4 && CSCTTyLc1 > -999.0 && CSCTTyLc1 > -31.25) { CSCRg1=1;} //std::cout << "Resetting ring" <<std::endl;
     if (CSCRg1==1 && CSCTTyLc1 > -999.0 && CSCTTyLc1 < -31.25) { CSCRg1=4;} //std::cout << "Resetting ring" <<std::endl;
-    //std::cout << "Resetting ring" <<std::endl;      
+                                                                            //std::cout << "Resetting ring" <<std::endl;      
 
     Int_t ring1 = CSCRg1;
     if (ring1==4) ring1 = 0;
@@ -1510,10 +1785,10 @@ void CSCEffFast::Loop()
       CSCDyProjHVGap1>cscDyProjHVGap && 
       CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
       !(badChamber[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1]&&
-	run_number>=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
-	run_number<=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]&&
-	(CSCTTsLc1>badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
-	 (CSCTTsLc1<badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]||badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001))); 
+          run_number>=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
+          run_number<=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]&&
+          (CSCTTsLc1>badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
+           (CSCTTsLc1<badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]||badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001))); 
     //new requirements, temp restrict eta range 2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15
     //fabs(CSCTTetaGc1) > 2.04345 && fabs(CSCTTetaGc1) < 2.15 &&
     fiducial11 =   CSCProjDistEdge1<-1.0 &&  CSCProjDistEdge1> -100 && 
@@ -1523,10 +1798,10 @@ void CSCEffFast::Loop()
       CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
       fabs(CSCTTyLc1+31.25)>2.5 &&
       !(badChamber[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1]&&
-	run_number>=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
-	run_number<=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]&&
-	(CSCTTsLc1>badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
-	 (CSCTTsLc1<badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]||badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001))); 
+          run_number>=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
+          run_number<=badChamberRun[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]&&
+          (CSCTTsLc1>badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0]&&
+           (CSCTTsLc1<badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]||badChamberLCS[0][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001))); 
 
 
     fiducial2 = CSCProjDistEdge2<cscProjDistEdge &&  CSCProjDistEdge2> -100 && 
@@ -1534,28 +1809,28 @@ void CSCEffFast::Loop()
       CSCDyProjHVGap2>cscDyProjHVGap && 
       CSCDyProjHVGap2/CSCDyErrProjHVGap2>sigmaCSCDyProjHVGap &&
       !(badChamber[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1]&&
-	run_number>=badChamberRun[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0]&&
-	run_number<=badChamberRun[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]&&
-	(CSCTTsLc2>badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0]&&
-	 (CSCTTsLc2<badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]||badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]<0.00001))); 
+          run_number>=badChamberRun[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0]&&
+          run_number<=badChamberRun[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]&&
+          (CSCTTsLc2>badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0]&&
+           (CSCTTsLc2<badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]||badChamberLCS[0][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]<0.00001))); 
     fiducial3 = CSCProjDistEdge3<cscProjDistEdge &&  CSCProjDistEdge3> -100 && 
       CSCProjDistEdge2/CSCProjDistErrEdge3 < sigmaCSCProjDistEdge &&
       CSCDyProjHVGap3>cscDyProjHVGap && 
       CSCDyProjHVGap3/CSCDyErrProjHVGap3>sigmaCSCDyProjHVGap &&
       !(badChamber[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1]&&
-	run_number>=badChamberRun[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0]&&
-	run_number<=badChamberRun[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]&&
-	(CSCTTsLc3>badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0]&&
-	 (CSCTTsLc3<badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]||badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]<0.00001))); 
+          run_number>=badChamberRun[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0]&&
+          run_number<=badChamberRun[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]&&
+          (CSCTTsLc3>badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0]&&
+           (CSCTTsLc3<badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]||badChamberLCS[0][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]<0.00001))); 
     fiducial4 = CSCProjDistEdge4<cscProjDistEdge &&  CSCProjDistEdge4> -100 && 
       CSCProjDistEdge4/CSCProjDistErrEdge4 < sigmaCSCProjDistEdge &&
       CSCDyProjHVGap4>cscDyProjHVGap && 
       CSCDyProjHVGap4/CSCDyErrProjHVGap4>sigmaCSCDyProjHVGap &&
       !(badChamber[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1]&&
-	run_number>=badChamberRun[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0]&&
-	run_number<=badChamberRun[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]&&
-	(CSCTTsLc4>badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0]&&
-	 (CSCTTsLc4<badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]||badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]<0.00001))); 
+          run_number>=badChamberRun[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0]&&
+          run_number<=badChamberRun[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]&&
+          (CSCTTsLc4>badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0]&&
+           (CSCTTsLc4<badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]||badChamberLCS[0][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]<0.00001))); 
 
     // fiducial1 = true;
     // fiducial11 = true;
@@ -1570,17 +1845,17 @@ void CSCEffFast::Loop()
 
     // Found segments
     foundSeg1 = ((CSCDxyTTSeg1<cscDxyTTSeg || 
-		  CSCDxyTTSeg1/CSCDxyErrTTSeg1<sigmaCSCDxyTTSeg) &&
-		 CSCDxyTTSeg1>0.);
+          CSCDxyTTSeg1/CSCDxyErrTTSeg1<sigmaCSCDxyTTSeg) &&
+        CSCDxyTTSeg1>0.);
     foundSeg2 = ((CSCDxyTTSeg2<cscDxyTTSeg || 
-		  CSCDxyTTSeg2/CSCDxyErrTTSeg2<sigmaCSCDxyTTSeg) &&
-		 CSCDxyTTSeg2>0.);
+          CSCDxyTTSeg2/CSCDxyErrTTSeg2<sigmaCSCDxyTTSeg) &&
+        CSCDxyTTSeg2>0.);
     foundSeg3 = ((CSCDxyTTSeg3<cscDxyTTSeg || 
-		  CSCDxyTTSeg3/CSCDxyErrTTSeg3<sigmaCSCDxyTTSeg) &&
-		 CSCDxyTTSeg3>0.);
+          CSCDxyTTSeg3/CSCDxyErrTTSeg3<sigmaCSCDxyTTSeg) &&
+        CSCDxyTTSeg3>0.);
     foundSeg4 = ((CSCDxyTTSeg4<cscDxyTTSeg || 
-		  CSCDxyTTSeg4/CSCDxyErrTTSeg4<sigmaCSCDxyTTSeg) &&
-		 CSCDxyTTSeg4>0.);
+          CSCDxyTTSeg4/CSCDxyErrTTSeg4<sigmaCSCDxyTTSeg) &&
+        CSCDxyTTSeg4>0.);
 
     Int_t numberSegFound = 0;
     if (foundSeg1) numberSegFound++;
@@ -1692,39 +1967,39 @@ void CSCEffFast::Loop()
 
     // Found LCT
     foundLCT1 = ((CSCDxyTTLCT1<cscDxyTTLCT || 
-		  CSCDxyTTLCT1/CSCDxyErrTTLCT1<sigmaCSCDxyTTLCT) &&
-		 CSCDxyTTLCT1>0.);
+          CSCDxyTTLCT1/CSCDxyErrTTLCT1<sigmaCSCDxyTTLCT) &&
+        CSCDxyTTLCT1>0.);
     foundLCT2 = ((CSCDxyTTLCT2<cscDxyTTLCT || 
-		  CSCDxyTTLCT2/CSCDxyErrTTLCT2<sigmaCSCDxyTTLCT) &&
-		 CSCDxyTTLCT2>0.);
+          CSCDxyTTLCT2/CSCDxyErrTTLCT2<sigmaCSCDxyTTLCT) &&
+        CSCDxyTTLCT2>0.);
     foundLCT3 = ((CSCDxyTTLCT3<cscDxyTTLCT || 
-		  CSCDxyTTLCT3/CSCDxyErrTTLCT3<sigmaCSCDxyTTLCT) &&
-		 CSCDxyTTLCT3>0.);
+          CSCDxyTTLCT3/CSCDxyErrTTLCT3<sigmaCSCDxyTTLCT) &&
+        CSCDxyTTLCT3>0.);
     foundLCT4 = ((CSCDxyTTLCT4<cscDxyTTLCT || 
-		  CSCDxyTTLCT4/CSCDxyErrTTLCT4<sigmaCSCDxyTTLCT) &&
-		 CSCDxyTTLCT4>0.);
+          CSCDxyTTLCT4/CSCDxyErrTTLCT4<sigmaCSCDxyTTLCT) &&
+        CSCDxyTTLCT4>0.);
 
 
     // ZMass plots
 
     if ((tracks_e > tagE)&&(minDRHLTAllSingleMu < maxDRHLTAllSingleMu) &&
-	(dRTkMu1 > minDRTkMu1)&&(dRTkMu1<10.0)){
+        (dRTkMu1 > minDRTkMu1)&&(dRTkMu1<10.0)){
       //Good tag except for Z mass
       if ((fiducial1||fiducial11)&&invMass>60.0&&invMass<120.0) {
-	zMassAll->Fill(invMass);
-	if (foundSeg1) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
+        zMassAll->Fill(invMass);
+        if (foundSeg1) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
       }
       if (fiducial2) {
-	//zMassAll->Fill(invMass);
-	if (foundSeg2) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
+        //zMassAll->Fill(invMass);
+        if (foundSeg2) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
       }
       if (fiducial3) {
-	//zMassAll->Fill(invMass);
-	if (foundSeg3) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
+        //zMassAll->Fill(invMass);
+        if (foundSeg3) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
       }
       if (fiducial4) {
-	//zMassAll->Fill(invMass);
-	if (foundSeg4) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
+        //zMassAll->Fill(invMass);
+        if (foundSeg4) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
       }
 
 
@@ -1737,10 +2012,10 @@ void CSCEffFast::Loop()
     if (goodTag) {
 
       // Define histrogram bins	  
-	Int_t pTBin = -1;
+      Int_t pTBin = -1;
       if (tracks_pt>ptBins[numPtBins]) pTBin = numPtBins;
       for (Int_t iiPt=0; iiPt< numPtBins; iiPt++){
-	if (tracks_pt>ptBins[iiPt]&&tracks_pt<ptBins[iiPt+1]) pTBin = iiPt;
+        if (tracks_pt>ptBins[iiPt]&&tracks_pt<ptBins[iiPt+1]) pTBin = iiPt;
       }
       Int_t etaBin = -1;
       Int_t etaBin1 = -1;
@@ -1748,31 +2023,31 @@ void CSCEffFast::Loop()
       Int_t etaBin3 = -1;
       Int_t etaBin4 = -1;
       for (Int_t iiEta=0; iiEta< numEtaBins; iiEta++){
-	//if (fabs(tracks_eta)>etaBins[iiEta]&&fabs(tracks_eta)<etaBins[iiEta+1]) etaBin = iiEta;
-	//std::cout << "Eta " << tracks_eta << " " << CSCTTetaGc1 << std::endl;
-	if (fabs(CSCTTetaGc1)>etaBins[iiEta]&&fabs(CSCTTetaGc1)<etaBins[iiEta+1]) etaBin = iiEta;
-	if (fabs(CSCTTetaGc1)>etaBins[iiEta]&&fabs(CSCTTetaGc1)<etaBins[iiEta+1]) etaBin1 = iiEta;
-	if (fabs(CSCTTetaGc2)>etaBins[iiEta]&&fabs(CSCTTetaGc2)<etaBins[iiEta+1]) etaBin2 = iiEta;
-	if (fabs(CSCTTetaGc3)>etaBins[iiEta]&&fabs(CSCTTetaGc3)<etaBins[iiEta+1]) etaBin3 = iiEta;
-	if (fabs(CSCTTetaGc4)>etaBins[iiEta]&&fabs(CSCTTetaGc4)<etaBins[iiEta+1]) etaBin4 = iiEta;
+        //if (fabs(tracks_eta)>etaBins[iiEta]&&fabs(tracks_eta)<etaBins[iiEta+1]) etaBin = iiEta;
+        //std::cout << "Eta " << tracks_eta << " " << CSCTTetaGc1 << std::endl;
+        if (fabs(CSCTTetaGc1)>etaBins[iiEta]&&fabs(CSCTTetaGc1)<etaBins[iiEta+1]) etaBin = iiEta;
+        if (fabs(CSCTTetaGc1)>etaBins[iiEta]&&fabs(CSCTTetaGc1)<etaBins[iiEta+1]) etaBin1 = iiEta;
+        if (fabs(CSCTTetaGc2)>etaBins[iiEta]&&fabs(CSCTTetaGc2)<etaBins[iiEta+1]) etaBin2 = iiEta;
+        if (fabs(CSCTTetaGc3)>etaBins[iiEta]&&fabs(CSCTTetaGc3)<etaBins[iiEta+1]) etaBin3 = iiEta;
+        if (fabs(CSCTTetaGc4)>etaBins[iiEta]&&fabs(CSCTTetaGc4)<etaBins[iiEta+1]) etaBin4 = iiEta;
       }
       Int_t isoBin = -1;
       for (Int_t iiIso=0; iiIso< numIsoBins; iiIso++){
-	if (tracks_IsoR03Ratio>isoBins[iiIso]&&tracks_IsoR03Ratio<isoBins[iiIso+1]) isoBin = iiIso;
+        if (tracks_IsoR03Ratio>isoBins[iiIso]&&tracks_IsoR03Ratio<isoBins[iiIso+1]) isoBin = iiIso;
       }
       Int_t pvBin = -1;
       for (Int_t iiPV=0; iiPV< numPVBins; iiPV++){
-	if (numberOfPrimaryVertices>pvBins[iiPV]&&numberOfPrimaryVertices<pvBins[iiPV+1]) pvBin = iiPV;
+        if (numberOfPrimaryVertices>pvBins[iiPV]&&numberOfPrimaryVertices<pvBins[iiPV+1]) pvBin = iiPV;
       }
       Int_t ilBin = -1;
       for (Int_t iiIL=0; iiIL< numILBins; iiIL++){
-	if (LumiInst->front()>ilBins[iiIL]&&LumiInst->front()<ilBins[iiIL+1]) ilBin = iiIL;
+        if (LumiInst->front()>ilBins[iiIL]&&LumiInst->front()<ilBins[iiIL+1]) ilBin = iiIL;
       }
       //std::cout << "Lumi " << LumiInst->front() << " ilBin " << ilBin << " size " << LumiInst->size() << std::endl;
       Int_t runBin = -1;
       for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
-	if (run_number>runBins[iiRun]&&run_number<runBins[iiRun+1]) runBin = iiRun;
-	//if (runBin == numRunBins-1) std:: cout << "runBin calc, run:  " << run_number << std::endl;
+        if (run_number>runBins[iiRun]&&run_number<runBins[iiRun+1]) runBin = iiRun;
+        //if (runBin == numRunBins-1) std:: cout << "runBin calc, run:  " << run_number << std::endl;
       }
 
 
@@ -1787,14 +2062,14 @@ void CSCEffFast::Loop()
       Int_t lC3YBin3 = -1;
       Int_t lC3YBin4 = -1;
       for (Int_t iiLCY=0; iiLCY< numLCYBins; iiLCY++){
-	if (CSCTTyLc1>lCYBins[iiLCY]&&CSCTTyLc1<lCYBins[iiLCY+1]) lCYBin1 = iiLCY;
-	if (CSCTTyLc2>lCYBins[iiLCY]&&CSCTTyLc2<lCYBins[iiLCY+1]) lCYBin2 = iiLCY;
-	if (CSCTTyLc3>lCYBins[iiLCY]&&CSCTTyLc3<lCYBins[iiLCY+1]) lCYBin3 = iiLCY;
-	if (CSCTTyLc4>lCYBins[iiLCY]&&CSCTTyLc4<lCYBins[iiLCY+1]) lCYBin4 = iiLCY;
-	if (CSCTT3yLc1>lCYBins[iiLCY]&&CSCTT3yLc1<lCYBins[iiLCY+1]) lC3YBin1 = iiLCY;
-	if (CSCTT3yLc2>lCYBins[iiLCY]&&CSCTT3yLc2<lCYBins[iiLCY+1]) lC3YBin2 = iiLCY;
-	if (CSCTT3yLc3>lCYBins[iiLCY]&&CSCTT3yLc3<lCYBins[iiLCY+1]) lC3YBin3 = iiLCY;
-	if (CSCTT3yLc4>lCYBins[iiLCY]&&CSCTT3yLc4<lCYBins[iiLCY+1]) lC3YBin4 = iiLCY;
+        if (CSCTTyLc1>lCYBins[iiLCY]&&CSCTTyLc1<lCYBins[iiLCY+1]) lCYBin1 = iiLCY;
+        if (CSCTTyLc2>lCYBins[iiLCY]&&CSCTTyLc2<lCYBins[iiLCY+1]) lCYBin2 = iiLCY;
+        if (CSCTTyLc3>lCYBins[iiLCY]&&CSCTTyLc3<lCYBins[iiLCY+1]) lCYBin3 = iiLCY;
+        if (CSCTTyLc4>lCYBins[iiLCY]&&CSCTTyLc4<lCYBins[iiLCY+1]) lCYBin4 = iiLCY;
+        if (CSCTT3yLc1>lCYBins[iiLCY]&&CSCTT3yLc1<lCYBins[iiLCY+1]) lC3YBin1 = iiLCY;
+        if (CSCTT3yLc2>lCYBins[iiLCY]&&CSCTT3yLc2<lCYBins[iiLCY+1]) lC3YBin2 = iiLCY;
+        if (CSCTT3yLc3>lCYBins[iiLCY]&&CSCTT3yLc3<lCYBins[iiLCY+1]) lC3YBin3 = iiLCY;
+        if (CSCTT3yLc4>lCYBins[iiLCY]&&CSCTT3yLc4<lCYBins[iiLCY+1]) lC3YBin4 = iiLCY;
       }
 
 
@@ -1807,14 +2082,14 @@ void CSCEffFast::Loop()
       Int_t lC3WBin3 = -1;
       Int_t lC3WBin4 = -1;
       for (Int_t iiLCW=0; iiLCW< numLCWBins; iiLCW++){
-	if (CSCTTyLc1>lCWBins[iiLCW]&&CSCTTyLc1<lCWBins[iiLCW+1]) lCWBin1 = iiLCW;
-	if (CSCTTyLc2>lCWBins[iiLCW]&&CSCTTyLc2<lCWBins[iiLCW+1]) lCWBin2 = iiLCW;
-	if (CSCTTyLc3>lCWBins[iiLCW]&&CSCTTyLc3<lCWBins[iiLCW+1]) lCWBin3 = iiLCW;
-	if (CSCTTyLc4>lCWBins[iiLCW]&&CSCTTyLc4<lCWBins[iiLCW+1]) lCWBin4 = iiLCW;
-	if (CSCTT3yLc1>lCWBins[iiLCW]&&CSCTT3yLc1<lCWBins[iiLCW+1]) lC3WBin1 = iiLCW;
-	if (CSCTT3yLc2>lCWBins[iiLCW]&&CSCTT3yLc2<lCWBins[iiLCW+1]) lC3WBin2 = iiLCW;
-	if (CSCTT3yLc3>lCWBins[iiLCW]&&CSCTT3yLc3<lCWBins[iiLCW+1]) lC3WBin3 = iiLCW;
-	if (CSCTT3yLc4>lCWBins[iiLCW]&&CSCTT3yLc4<lCWBins[iiLCW+1]) lC3WBin4 = iiLCW;
+        if (CSCTTyLc1>lCWBins[iiLCW]&&CSCTTyLc1<lCWBins[iiLCW+1]) lCWBin1 = iiLCW;
+        if (CSCTTyLc2>lCWBins[iiLCW]&&CSCTTyLc2<lCWBins[iiLCW+1]) lCWBin2 = iiLCW;
+        if (CSCTTyLc3>lCWBins[iiLCW]&&CSCTTyLc3<lCWBins[iiLCW+1]) lCWBin3 = iiLCW;
+        if (CSCTTyLc4>lCWBins[iiLCW]&&CSCTTyLc4<lCWBins[iiLCW+1]) lCWBin4 = iiLCW;
+        if (CSCTT3yLc1>lCWBins[iiLCW]&&CSCTT3yLc1<lCWBins[iiLCW+1]) lC3WBin1 = iiLCW;
+        if (CSCTT3yLc2>lCWBins[iiLCW]&&CSCTT3yLc2<lCWBins[iiLCW+1]) lC3WBin2 = iiLCW;
+        if (CSCTT3yLc3>lCWBins[iiLCW]&&CSCTT3yLc3<lCWBins[iiLCW+1]) lC3WBin3 = iiLCW;
+        if (CSCTT3yLc4>lCWBins[iiLCW]&&CSCTT3yLc4<lCWBins[iiLCW+1]) lC3WBin4 = iiLCW;
       }
 
 
@@ -1827,14 +2102,14 @@ void CSCEffFast::Loop()
       Int_t lC3SBin3 = -1;
       Int_t lC3SBin4 = -1;
       for (Int_t iiLCS=0; iiLCS< numLCSBins; iiLCS++){
-	if (CSCTTsLc1>lCSBins[iiLCS]&&CSCTTsLc1<lCSBins[iiLCS+1]) lCSBin1 = iiLCS;
-	if (CSCTTsLc2>lCSBins[iiLCS]&&CSCTTsLc2<lCSBins[iiLCS+1]) lCSBin2 = iiLCS;
-	if (CSCTTsLc3>lCSBins[iiLCS]&&CSCTTsLc3<lCSBins[iiLCS+1]) lCSBin3 = iiLCS;
-	if (CSCTTsLc4>lCSBins[iiLCS]&&CSCTTsLc4<lCSBins[iiLCS+1]) lCSBin4 = iiLCS;
-	if (CSCTT3sLc1>lCSBins[iiLCS]&&CSCTT3sLc1<lCSBins[iiLCS+1]) lC3SBin1 = iiLCS;
-	if (CSCTT3sLc2>lCSBins[iiLCS]&&CSCTT3sLc2<lCSBins[iiLCS+1]) lC3SBin2 = iiLCS;
-	if (CSCTT3sLc3>lCSBins[iiLCS]&&CSCTT3sLc3<lCSBins[iiLCS+1]) lC3SBin3 = iiLCS;
-	if (CSCTT3sLc4>lCSBins[iiLCS]&&CSCTT3sLc4<lCSBins[iiLCS+1]) lC3SBin4 = iiLCS;
+        if (CSCTTsLc1>lCSBins[iiLCS]&&CSCTTsLc1<lCSBins[iiLCS+1]) lCSBin1 = iiLCS;
+        if (CSCTTsLc2>lCSBins[iiLCS]&&CSCTTsLc2<lCSBins[iiLCS+1]) lCSBin2 = iiLCS;
+        if (CSCTTsLc3>lCSBins[iiLCS]&&CSCTTsLc3<lCSBins[iiLCS+1]) lCSBin3 = iiLCS;
+        if (CSCTTsLc4>lCSBins[iiLCS]&&CSCTTsLc4<lCSBins[iiLCS+1]) lCSBin4 = iiLCS;
+        if (CSCTT3sLc1>lCSBins[iiLCS]&&CSCTT3sLc1<lCSBins[iiLCS+1]) lC3SBin1 = iiLCS;
+        if (CSCTT3sLc2>lCSBins[iiLCS]&&CSCTT3sLc2<lCSBins[iiLCS+1]) lC3SBin2 = iiLCS;
+        if (CSCTT3sLc3>lCSBins[iiLCS]&&CSCTT3sLc3<lCSBins[iiLCS+1]) lC3SBin3 = iiLCS;
+        if (CSCTT3sLc4>lCSBins[iiLCS]&&CSCTT3sLc4<lCSBins[iiLCS+1]) lC3SBin4 = iiLCS;
       }
 
       Int_t dCFEBBin1 = -1;
@@ -1846,14 +2121,14 @@ void CSCEffFast::Loop()
       Int_t dCFEB3Bin3 = -1;
       Int_t dCFEB3Bin4 = -1;
       for (Int_t iiDCFEB=0; iiDCFEB< numDCFEBBins; iiDCFEB++){
-	if (CSCTTsLc1>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc1<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin1 = iiDCFEB;
-	if (CSCTTsLc2>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc2<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin2 = iiDCFEB;
-	if (CSCTTsLc3>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc3<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin3 = iiDCFEB;
-	if (CSCTTsLc4>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc4<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin4 = iiDCFEB;
-	if (CSCTT3sLc1>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc1<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin1 = iiDCFEB;
-	if (CSCTT3sLc2>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc2<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin2 = iiDCFEB;
-	if (CSCTT3sLc3>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc3<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin3 = iiDCFEB;
-	if (CSCTT3sLc4>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc4<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin4 = iiDCFEB;
+        if (CSCTTsLc1>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc1<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin1 = iiDCFEB;
+        if (CSCTTsLc2>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc2<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin2 = iiDCFEB;
+        if (CSCTTsLc3>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc3<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin3 = iiDCFEB;
+        if (CSCTTsLc4>dCFEBLCSBins[iiDCFEB]&&CSCTTsLc4<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin4 = iiDCFEB;
+        if (CSCTT3sLc1>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc1<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin1 = iiDCFEB;
+        if (CSCTT3sLc2>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc2<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin2 = iiDCFEB;
+        if (CSCTT3sLc3>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc3<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin3 = iiDCFEB;
+        if (CSCTT3sLc4>dCFEBLCSBins[iiDCFEB]&&CSCTT3sLc4<dCFEBLCSBins[iiDCFEB+1]) dCFEB3Bin4 = iiDCFEB;
       }
 
       // Central region
@@ -2696,19 +2971,19 @@ void CSCEffFast::Loop()
 
       if (DoubleMuGun) totSBStationRing[iiStation][iiRing] = 1.0;
       if (LowStats) {
-	totSBStationRing[iiStation][iiRing] = 0.0000001;
-	passSBStationRingSeg[iiStation][iiRing] = 0.0000001;
-	passSBStationRingLCT[iiStation][iiRing] = 0.0000001;
+        totSBStationRing[iiStation][iiRing] = 0.0000001;
+        passSBStationRingSeg[iiStation][iiRing] = 0.0000001;
+        passSBStationRingLCT[iiStation][iiRing] = 0.0000001;
       }
 
 
       if ((totStationRing[iiStation][iiRing]>0.0000005)&&((totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing])>0.0000005)) {
-	effStationRingSeg[iiStation][iiRing] = (passStationRingSeg[iiStation][iiRing]-passSBStationRingSeg[iiStation][iiRing])/(totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing]);
-	effSigmaStationRingSeg[iiStation][iiRing] = sqrt(((passStationRingSeg[iiStation][iiRing]+passSBStationRingSeg[iiStation][iiRing])*(1.-effStationRingSeg[iiStation][iiRing])*(1.-effStationRingSeg[iiStation][iiRing]))+ ((totStationRing[iiStation][iiRing]-passStationRingSeg[iiStation][iiRing])+(totSBStationRing[iiStation][iiRing]-passSBStationRingSeg[iiStation][iiRing]))*effStationRingSeg[iiStation][iiRing]*effStationRingSeg[iiStation][iiRing])/(totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing]);
+        effStationRingSeg[iiStation][iiRing] = (passStationRingSeg[iiStation][iiRing]-passSBStationRingSeg[iiStation][iiRing])/(totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing]);
+        effSigmaStationRingSeg[iiStation][iiRing] = sqrt(((passStationRingSeg[iiStation][iiRing]+passSBStationRingSeg[iiStation][iiRing])*(1.-effStationRingSeg[iiStation][iiRing])*(1.-effStationRingSeg[iiStation][iiRing]))+ ((totStationRing[iiStation][iiRing]-passStationRingSeg[iiStation][iiRing])+(totSBStationRing[iiStation][iiRing]-passSBStationRingSeg[iiStation][iiRing]))*effStationRingSeg[iiStation][iiRing]*effStationRingSeg[iiStation][iiRing])/(totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing]);
 
 
-	effStationRingLCT[iiStation][iiRing] = (passStationRingLCT[iiStation][iiRing]-passSBStationRingLCT[iiStation][iiRing])/(totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing]);
-	effSigmaStationRingLCT[iiStation][iiRing] = sqrt(((passStationRingLCT[iiStation][iiRing]+passSBStationRingLCT[iiStation][iiRing])*(1.-effStationRingLCT[iiStation][iiRing])*(1.-effStationRingLCT[iiStation][iiRing]))+ ((totStationRing[iiStation][iiRing]-passStationRingLCT[iiStation][iiRing])+(totSBStationRing[iiStation][iiRing]-passSBStationRingLCT[iiStation][iiRing]))*effStationRingLCT[iiStation][iiRing]*effStationRingLCT[iiStation][iiRing])/(totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing]);
+        effStationRingLCT[iiStation][iiRing] = (passStationRingLCT[iiStation][iiRing]-passSBStationRingLCT[iiStation][iiRing])/(totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing]);
+        effSigmaStationRingLCT[iiStation][iiRing] = sqrt(((passStationRingLCT[iiStation][iiRing]+passSBStationRingLCT[iiStation][iiRing])*(1.-effStationRingLCT[iiStation][iiRing])*(1.-effStationRingLCT[iiStation][iiRing]))+ ((totStationRing[iiStation][iiRing]-passStationRingLCT[iiStation][iiRing])+(totSBStationRing[iiStation][iiRing]-passSBStationRingLCT[iiStation][iiRing]))*effStationRingLCT[iiStation][iiRing]*effStationRingLCT[iiStation][iiRing])/(totStationRing[iiStation][iiRing]-totSBStationRing[iiStation][iiRing]);
 
       }
 
@@ -2792,212 +3067,205 @@ void CSCEffFast::Loop()
 
 
       for (Int_t iiChamber=0; iiChamber< 37; iiChamber++){
-	if (DoubleMuGun) totSBStationRingChamber[iiStation][iiRing][iiChamber] = 1.0;
-	if (LowStats) {
-	  totSBStationRingChamber[iiStation][iiRing][iiChamber] = 0.0000001;
-	  passSBStationRingChamberSeg[iiStation][iiRing][iiChamber] = 0.0000001;
-	  passSBStationRingChamberLCT[iiStation][iiRing][iiChamber] = 0.0000001;
-	}
+        if (DoubleMuGun) totSBStationRingChamber[iiStation][iiRing][iiChamber] = 1.0;
+        if (LowStats) {
+          totSBStationRingChamber[iiStation][iiRing][iiChamber] = 0.0000001;
+          passSBStationRingChamberSeg[iiStation][iiRing][iiChamber] = 0.0000001;
+          passSBStationRingChamberLCT[iiStation][iiRing][iiChamber] = 0.0000001;
+        }
 
-	if ((totStationRingChamber[iiStation][iiRing][iiChamber]>0.0000005)&&((totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber])>0.0000005)) {
-	  effStationRingChamberSeg[iiStation][iiRing][iiChamber] = (passStationRingChamberSeg[iiStation][iiRing][iiChamber]-passSBStationRingChamberSeg[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
-	  effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber] = sqrt(((passStationRingChamberSeg[iiStation][iiRing][iiChamber]+passSBStationRingChamberSeg[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberSeg[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberSeg[iiStation][iiRing][iiChamber]))+ ((totStationRingChamber[iiStation][iiRing][iiChamber]-passStationRingChamberSeg[iiStation][iiRing][iiChamber])+(totSBStationRingChamber[iiStation][iiRing][iiChamber]-passSBStationRingChamberSeg[iiStation][iiRing][iiChamber]))*effStationRingChamberSeg[iiStation][iiRing][iiChamber]*effStationRingChamberSeg[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
+        if ((totStationRingChamber[iiStation][iiRing][iiChamber]>0.0000005)&&((totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber])>0.0000005)) {
+          effStationRingChamberSeg[iiStation][iiRing][iiChamber] = (passStationRingChamberSeg[iiStation][iiRing][iiChamber]-passSBStationRingChamberSeg[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
+          effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber] = sqrt(((passStationRingChamberSeg[iiStation][iiRing][iiChamber]+passSBStationRingChamberSeg[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberSeg[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberSeg[iiStation][iiRing][iiChamber]))+ ((totStationRingChamber[iiStation][iiRing][iiChamber]-passStationRingChamberSeg[iiStation][iiRing][iiChamber])+(totSBStationRingChamber[iiStation][iiRing][iiChamber]-passSBStationRingChamberSeg[iiStation][iiRing][iiChamber]))*effStationRingChamberSeg[iiStation][iiRing][iiChamber]*effStationRingChamberSeg[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
 
 
-	  effStationRingChamberLCT[iiStation][iiRing][iiChamber] = (passStationRingChamberLCT[iiStation][iiRing][iiChamber]-passSBStationRingChamberLCT[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
-	  effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber] = sqrt(((passStationRingChamberLCT[iiStation][iiRing][iiChamber]+passSBStationRingChamberLCT[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberLCT[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberLCT[iiStation][iiRing][iiChamber]))+ ((totStationRingChamber[iiStation][iiRing][iiChamber]-passStationRingChamberLCT[iiStation][iiRing][iiChamber])+(totSBStationRingChamber[iiStation][iiRing][iiChamber]-passSBStationRingChamberLCT[iiStation][iiRing][iiChamber]))*effStationRingChamberLCT[iiStation][iiRing][iiChamber]*effStationRingChamberLCT[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
+          effStationRingChamberLCT[iiStation][iiRing][iiChamber] = (passStationRingChamberLCT[iiStation][iiRing][iiChamber]-passSBStationRingChamberLCT[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
+          effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber] = sqrt(((passStationRingChamberLCT[iiStation][iiRing][iiChamber]+passSBStationRingChamberLCT[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberLCT[iiStation][iiRing][iiChamber])*(1.-effStationRingChamberLCT[iiStation][iiRing][iiChamber]))+ ((totStationRingChamber[iiStation][iiRing][iiChamber]-passStationRingChamberLCT[iiStation][iiRing][iiChamber])+(totSBStationRingChamber[iiStation][iiRing][iiChamber]-passSBStationRingChamberLCT[iiStation][iiRing][iiChamber]))*effStationRingChamberLCT[iiStation][iiRing][iiChamber]*effStationRingChamberLCT[iiStation][iiRing][iiChamber])/(totStationRingChamber[iiStation][iiRing][iiChamber]-totSBStationRingChamber[iiStation][iiRing][iiChamber]);
 
-	}
-	// Root histograms bin zero, underflow, 1 - nbins content, nbins+1 overflow
-	// segEffStationRingChamber[iiStation][iiRing]->SetBinContent(iiChamber,effStationRingChamberSeg[iiStation][iiRing][iiChamber]);
-	// segEffStationRingChamber[iiStation][iiRing]->SetBinError(iiChamber,effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber]);
+        }
+        // Root histograms bin zero, underflow, 1 - nbins content, nbins+1 overflow
+        // segEffStationRingChamber[iiStation][iiRing]->SetBinContent(iiChamber,effStationRingChamberSeg[iiStation][iiRing][iiChamber]);
+        // segEffStationRingChamber[iiStation][iiRing]->SetBinError(iiChamber,effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber]);
 
 
-	// LCTEffStationRingChamber[iiStation][iiRing]->SetBinContent(iiChamber,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
-	// LCTEffStationRingChamber[iiStation][iiRing]->SetBinError(iiChamber,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
+        // LCTEffStationRingChamber[iiStation][iiRing]->SetBinContent(iiChamber,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
+        // LCTEffStationRingChamber[iiStation][iiRing]->SetBinError(iiChamber,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
 
 
-	if (effStationRingChamberSeg[iiStation][iiRing][iiChamber] > 1.1 || fabs(effStationRingChamberSeg[iiStation][iiRing][iiChamber] - 1.0 )  < 0.001 ) {
-	  std::cout << "Eff > 0.99999: " << effStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " <<  effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " << totStationRingChamber[iiStation][iiRing][iiChamber] << " " << totSBStationRingChamber[iiStation][iiRing][iiChamber] << " " << passStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " << passSBStationRingChamberSeg[iiStation][iiRing][iiChamber] << std::endl;
-	}
+        if (effStationRingChamberSeg[iiStation][iiRing][iiChamber] > 1.1 || fabs(effStationRingChamberSeg[iiStation][iiRing][iiChamber] - 1.0 )  < 0.001 ) {
+          std::cout << "Eff > 0.99999: " << effStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " <<  effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " << totStationRingChamber[iiStation][iiRing][iiChamber] << " " << totSBStationRingChamber[iiStation][iiRing][iiChamber] << " " << passStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " << passSBStationRingChamberSeg[iiStation][iiRing][iiChamber] << std::endl;
+        }
 
 
-	ybin = 0;
-	if (iiStation == 0 && iiRing == 0) ybin = 10;
-	if (iiStation == 0 && iiRing == 1) ybin = 9;
-	if (iiStation == 0 && iiRing == 2) ybin = 8;
-	if (iiStation == 0 && iiRing == 3) ybin = 7;
-	if (iiStation == 1 && iiRing == 1) ybin = 6;
-	if (iiStation == 1 && iiRing == 2) ybin = 5;
-	if (iiStation == 2 && iiRing == 1) ybin = 4;
-	if (iiStation == 2 && iiRing == 2) ybin = 3;
-	if (iiStation == 3 && iiRing == 1) ybin = 2;
-	if (iiStation == 3 && iiRing == 2) ybin = 1;
+        ybin = 0;
+        if (iiStation == 0 && iiRing == 0) ybin = 10;
+        if (iiStation == 0 && iiRing == 1) ybin = 9;
+        if (iiStation == 0 && iiRing == 2) ybin = 8;
+        if (iiStation == 0 && iiRing == 3) ybin = 7;
+        if (iiStation == 1 && iiRing == 1) ybin = 6;
+        if (iiStation == 1 && iiRing == 2) ybin = 5;
+        if (iiStation == 2 && iiRing == 1) ybin = 4;
+        if (iiStation == 2 && iiRing == 2) ybin = 3;
+        if (iiStation == 3 && iiRing == 1) ybin = 2;
+        if (iiStation == 3 && iiRing == 2) ybin = 1;
 
-	if (iiStation == 4 && iiRing == 0) ybin = 11;
-	if (iiStation == 4 && iiRing == 1) ybin = 12;
-	if (iiStation == 4 && iiRing == 2) ybin = 13;
-	if (iiStation == 4 && iiRing == 3) ybin = 14;
-	if (iiStation == 5 && iiRing == 1) ybin = 15;
-	if (iiStation == 5 && iiRing == 2) ybin = 16;
-	if (iiStation == 6 && iiRing == 1) ybin = 17;
-	if (iiStation == 6 && iiRing == 2) ybin = 18;
-	if (iiStation == 7 && iiRing == 1) ybin = 19;
-	if (iiStation == 7 && iiRing == 2) ybin = 20;
+        if (iiStation == 4 && iiRing == 0) ybin = 11;
+        if (iiStation == 4 && iiRing == 1) ybin = 12;
+        if (iiStation == 4 && iiRing == 2) ybin = 13;
+        if (iiStation == 4 && iiRing == 3) ybin = 14;
+        if (iiStation == 5 && iiRing == 1) ybin = 15;
+        if (iiStation == 5 && iiRing == 2) ybin = 16;
+        if (iiStation == 6 && iiRing == 1) ybin = 17;
+        if (iiStation == 6 && iiRing == 2) ybin = 18;
+        if (iiStation == 7 && iiRing == 1) ybin = 19;
+        if (iiStation == 7 && iiRing == 2) ybin = 20;
 
-	segEff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberSeg[iiStation][iiRing][iiChamber]);
-	segEff2DStationRingChamber->SetBinError(iiChamber,ybin,effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber]);
-	LCTEff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
-	LCTEff2DStationRingChamber->SetBinError(iiChamber,ybin,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
+        segEff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberSeg[iiStation][iiRing][iiChamber]);
+        segEff2DStationRingChamber->SetBinError(iiChamber,ybin,effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber]);
+        LCTEff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
+        LCTEff2DStationRingChamber->SetBinError(iiChamber,ybin,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
 
 
-	segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(segNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
-	segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
-	segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(segNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
+        //segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
 
 
-	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
-	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
-	LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
+        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
+        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
+        //LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
-	for (Int_t ii=0; ii< lastRun-firstRun; ii++){
-	  if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0&&segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
-	    segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,-0.001);
-	  }
-	  if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)>0&&segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
-	    segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,0.001);
-	  }
+        for (Int_t ii=0; ii< lastRun-firstRun; ii++){
+          if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0&&segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
+            segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,-0.001);
+          }
+          if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)>0&&segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
+            segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,0.001);
+          }
 
-	  if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0&&LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
-	    LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,-0.001);
-	  }
-	  if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)>0&&LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
-	    LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,0.001);
-	  }
+          if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0&&LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
+            LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,-0.001);
+          }
+          if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)>0&&LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
+            LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,0.001);
+          }
 
 
-	}
+        }
 
 
 
 
 
-	// 	 // if (fitEff) {
-	// 	 //   fit->SetParameters(zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Integral()*0.8,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->GetMean(),zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->GetRMS(),5.0,-0.8,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Integral()*0.2,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->GetMean(),zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->GetRMS()*1.5);
-	// 	 //   fit->SetParLimits(3,0.0,20.0);
-	// 	 //   fit->SetParLimits(4,-2.0,0.0);
-	// 	 //   fit->SetParLimits(0,0.0,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Integral());
-	// 	 //   fit->SetParLimits(5,0.0,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Integral());
+        // 	 // if (fitEff) {
+        // 	 //   fit->SetParameters(zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Integral()*0.8,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->GetMean(),zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->GetRMS(),5.0,-0.8,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Integral()*0.2,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->GetMean(),zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->GetRMS()*1.5);
+        // 	 //   fit->SetParLimits(3,0.0,20.0);
+        // 	 //   fit->SetParLimits(4,-2.0,0.0);
+        // 	 //   fit->SetParLimits(0,0.0,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Integral());
+        // 	 //   fit->SetParLimits(5,0.0,zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Integral());
 
-	// 	 //   zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Fit("myfit");
-	// 	 //   Float_t denSum = fabs(fit->GetParameter(0))+fabs(fit->GetParameter(5));
+        // 	 //   zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Fit("myfit");
+        // 	 //   Float_t denSum = fabs(fit->GetParameter(0))+fabs(fit->GetParameter(5));
 
-	// 	 //   //fit->SetParameters(zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Integral()*0.8,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->GetMean(),zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->GetRMS(),20.0,-0.5,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Integral()*0.2,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->GetMean(),zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->GetRMS()*1.5);
-	// 	 //   fit->SetParLimits(3,0.0,100.0);
-	// 	 //   fit->SetParLimits(4,-2.0,0.0);
-	// 	 //   fit->SetParLimits(0,0.0,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Integral());
-	// 	 //   fit->SetParLimits(5,0.0,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Integral());
+        // 	 //   //fit->SetParameters(zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Integral()*0.8,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->GetMean(),zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->GetRMS(),20.0,-0.5,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Integral()*0.2,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->GetMean(),zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->GetRMS()*1.5);
+        // 	 //   fit->SetParLimits(3,0.0,100.0);
+        // 	 //   fit->SetParLimits(4,-2.0,0.0);
+        // 	 //   fit->SetParLimits(0,0.0,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Integral());
+        // 	 //   fit->SetParLimits(5,0.0,zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Integral());
 
-	// 	 //   zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Fit("myfit");
-	// 	 //   Float_t numSum = fabs(fit->GetParameter(0))+fabs(fit->GetParameter(5));
+        // 	 //   zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Fit("myfit");
+        // 	 //   Float_t numSum = fabs(fit->GetParameter(0))+fabs(fit->GetParameter(5));
 
-	// 	 //   segEffFit2DStationRingChamber->SetBinContent(iiChamber,ybin,numSum/denSum);
-	// 	 //   segEffFit2DStationRingChamber->SetBinError(iiChamber,ybin,0.0);
+        // 	 //   segEffFit2DStationRingChamber->SetBinContent(iiChamber,ybin,numSum/denSum);
+        // 	 //   segEffFit2DStationRingChamber->SetBinError(iiChamber,ybin,0.0);
 
-	// 	 //   segEffDiff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberSeg[iiStation][iiRing][iiChamber]-numSum/denSum);
-	// 	 //   segEffDiff2DStationRingChamber->SetBinError(iiChamber,ybin,0.0);
+        // 	 //   segEffDiff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberSeg[iiStation][iiRing][iiChamber]-numSum/denSum);
+        // 	 //   segEffDiff2DStationRingChamber->SetBinError(iiChamber,ybin,0.0);
 
-	// 	 //   if (effStationRingChamberSeg[iiStation][iiRing][iiChamber]>0.001) segEffDiff1D->Fill(effStationRingChamberSeg[iiStation][iiRing][iiChamber]-numSum/denSum);
-	// 	 // }
+        // 	 //   if (effStationRingChamberSeg[iiStation][iiRing][iiChamber]>0.001) segEffDiff1D->Fill(effStationRingChamberSeg[iiStation][iiRing][iiChamber]-numSum/denSum);
+        // 	 // }
 
 
 
-	zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Write();
-	zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Write();
-	resSegStationRingChamber[iiStation][iiRing][iiChamber]->Write();
-	resSigmaSegStationRingChamber[iiStation][iiRing][iiChamber]->Write();
+        //zMassSegDenStationRingChamber[iiStation][iiRing][iiChamber]->Write();
+        //zMassSegNumStationRingChamber[iiStation][iiRing][iiChamber]->Write();
+        //resSegStationRingChamber[iiStation][iiRing][iiChamber]->Write();
+        //resSigmaSegStationRingChamber[iiStation][iiRing][iiChamber]->Write();
 
 
 
-	for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
+        for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
 
-	  effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] = 0;
+          effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] = 0;
 
-	  if (iiRun == numRunBins-1) {
-	    //std::cout << "2D run hisot info: " << iiStation << " " << iiRing << " " << iiChamber << " passing probes: " << passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] << "/" << totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun] << std::endl;
-	  }
+          if (iiRun == numRunBins-1) {
+            //std::cout << "2D run hisot info: " << iiStation << " " << iiRing << " " << iiChamber << " passing probes: " << passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] << "/" << totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun] << std::endl;
+          }
 
-	  if ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]>0.5)&&((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun])>0.5)) {
-	    effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] = (passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
-	    effSigmaStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] = sqrt(((passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]+passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]))+ ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])+(totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]))*effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]*effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
-	    effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun] = (passStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
-	    effSigmaStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun] = sqrt(((passStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]+passSBStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]))+ ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])+(totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]))*effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]*effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
-	  }
+          if ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]>0.5)&&((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun])>0.5)) {
+            effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] = (passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
+            effSigmaStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun] = sqrt(((passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]+passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]))+ ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])+(totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]))*effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]*effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
+            effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun] = (passStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
+            effSigmaStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun] = sqrt(((passStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]+passSBStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])*(1.-effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]))+ ((totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])+(totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-passSBStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]))*effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]*effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun])/(totStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]-totSBStationRingChamberRun[iiStation][iiRing][iiChamber][iiRun]);
+          }
 
 
 
 
-	  segEff2DStationRingChamberRun[iiStation][iiRing]->SetBinContent(iiChamber,iiRun+1,effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]);
-	  segEff2DStationRingChamberRun[iiStation][iiRing]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]);
-	  LCTEff2DStationRingChamberRun[iiStation][iiRing]->SetBinContent(iiChamber,iiRun+1,effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]);
-	  LCTEff2DStationRingChamberRun[iiStation][iiRing]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]);
+          segEff2DStationRingChamberRun[iiStation][iiRing]->SetBinContent(iiChamber,iiRun+1,effStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]);
+          segEff2DStationRingChamberRun[iiStation][iiRing]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingChamberRunSeg[iiStation][iiRing][iiChamber][iiRun]);
+          LCTEff2DStationRingChamberRun[iiStation][iiRing]->SetBinContent(iiChamber,iiRun+1,effStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]);
+          LCTEff2DStationRingChamberRun[iiStation][iiRing]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingChamberRunLCT[iiStation][iiRing][iiChamber][iiRun]);
 
-	}
+        }
 
-	segEff2DStationRingChamberRun[iiStation][iiRing]->Write();
-	LCTEff2DStationRingChamberRun[iiStation][iiRing]->Write();
-	yySegStationRing[iiStation][iiRing]->Write();
 
+        for (Int_t iiLayer=0; iiLayer< numLayerBins; iiLayer++){
 
-	for (Int_t iiLayer=0; iiLayer< numLayerBins; iiLayer++){
+          if ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]>0.5)&&((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer])>0.5)) {
+            effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer] = (passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
+            effSigmaStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer] = sqrt(((passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]+passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]))+ ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])+(totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]))*effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]*effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
+            //effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer] = (passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
+            //effSigmaStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer] = sqrt(((passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]+passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]))+ ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])+(totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]))*effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]*effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
+          }
 
-	  if ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]>0.5)&&((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer])>0.5)) {
-	    effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer] = (passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
-	    effSigmaStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer] = sqrt(((passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]+passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]))+ ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])+(totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]))*effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]*effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
-	    //effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer] = (passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
-	    //effSigmaStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer] = sqrt(((passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]+passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])*(1.-effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]))+ ((totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])+(totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-passSBStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]))*effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]*effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer])/(totStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]-totSBStationRingChamberLayer[iiStation][iiRing][iiChamber][iiLayer]);
-	  }
 
 
 
+          segEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinContent(iiChamber,iiLayer+1,effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]);
+          segEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinError(iiChamber,iiLayer+1,effSigmaStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]);
+          //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinContent(iiChamber,iiLayer+1,effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]);
+          //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinError(iiChamber,iiLayer+1,effSigmaStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]);
 
-	  segEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinContent(iiChamber,iiLayer+1,effStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]);
-	  segEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinError(iiChamber,iiLayer+1,effSigmaStationRingChamberLayerSeg[iiStation][iiRing][iiChamber][iiLayer]);
-	  //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinContent(iiChamber,iiLayer+1,effStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]);
-	  //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->SetBinError(iiChamber,iiLayer+1,effSigmaStationRingChamberLayerLCT[iiStation][iiRing][iiChamber][iiLayer]);
+        }
 
-	}
 
-	segEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
-	LCTEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
 
 
 
 
+        for (Int_t iiDCFEB=0; iiDCFEB< numDCFEBBins; iiDCFEB++){
 
+          if ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]>0.5)&&((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB])>0.5)) {
+            effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB] = (passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
+            effSigmaStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB] = sqrt(((passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]+passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]))+ ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])+(totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]))*effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]*effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
+            effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB] = (passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
+            effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB] = sqrt(((passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]+passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]))+ ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])+(totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]))*effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]*effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
+          }
 
-	for (Int_t iiDCFEB=0; iiDCFEB< numDCFEBBins; iiDCFEB++){
 
-	  if ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]>0.5)&&((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB])>0.5)) {
-	    effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB] = (passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
-	    effSigmaStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB] = sqrt(((passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]+passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]))+ ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])+(totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]))*effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]*effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
-	    effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB] = (passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
-	    effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB] = sqrt(((passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]+passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])*(1.-effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]))+ ((totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])+(totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-passSBStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]))*effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]*effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB])/(totStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]-totSBStationRingChamberDCFEB[iiStation][iiRing][iiChamber][iiDCFEB]);
-	  }
 
 
+          segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]);
+          segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]);
+          LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
+          LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
 
+          for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
 
-	  segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]);
-	  segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]);
-	  LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
-	  LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
-
-         for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
-  
             effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = 0;
-  
+
             if (iiRun == numRunBins-1) {
               //std::cout << "2D run hisot info: " << iiStation << " " << iiRing << " " << iiChamber << " passing probes: " << passStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] << "/" << totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] << std::endl;
             }
@@ -3009,316 +3277,321 @@ void CSCEffFast::Loop()
               effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = (passStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passSBStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])/(totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
               effSigmaStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = sqrt(((passStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]+passSBStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])*(1.-effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])*(1.-effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]))+ ((totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])+(totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passSBStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]))*effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]*effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])/(totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
             }
-  
-  
-  
-  
+
+
+
+
             segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinContent(iiChamber,iiRun+1,effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
             segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
             LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinContent(iiChamber,iiRun+1,effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
             LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
-  
-	 }
-  
-	 if (iiChamber == 36) segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->Write();
-         if (iiChamber == 36) LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->Write();
-        }//
 
-	segEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
-	LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
+          }
 
+        }
       }
+      //segEff2DStationRingChamberRun[iiStation][iiRing]->Write();
+      //LCTEff2DStationRingChamberRun[iiStation][iiRing]->Write();
+      //yySegStationRing[iiStation][iiRing]->Write();
+	  
+      //segEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
+      //LCTEff2DStationRingChamberLayer[iiStation][iiRing]->Write();
+
+      //segEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
+      //LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->Write();
+      //for (Int_t iiDCFEB=0; iiDCFEB< numDCFEBBins; iiDCFEB++){
+      //    segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->Write();
+      //    LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->Write();
+	  //}
 
 
 
       for (Int_t iiPt=0; iiPt< numPtBins; iiPt++){
-	//if (totStationRingPt[iiStation][iiRing][iiPt]>0.5)  effStationRingPtSeg[iiStation][iiRing][iiPt] = passStationRingPtSeg[iiStation][iiRing][iiPt]/totStationRingPt[iiStation][iiRing][iiPt];
-	//if (totStationRingPt[iiStation][iiRing][iiPt]>0.5) effSigmaStationRingPtSeg[iiStation][iiRing][iiPt] = sqrt(effStationRingPtSeg[iiStation][iiRing][iiPt]*(1.0-effStationRingPtSeg[iiStation][iiRing][iiPt])/totStationRingPt[iiStation][iiRing][iiPt]);
-	//std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Pt Bin " << iiPt << std::endl;
-	//std::cout << "tot: " << totStationRingPt[iiStation][iiRing][iiPt] << std::endl;
-	//std::cout << "eff: " << effStationRingPtSeg[iiStation][iiRing][iiPt] << " +/- " << effSigmaStationRingPtSeg[iiStation][iiRing][iiPt] << std::endl;
+        //if (totStationRingPt[iiStation][iiRing][iiPt]>0.5)  effStationRingPtSeg[iiStation][iiRing][iiPt] = passStationRingPtSeg[iiStation][iiRing][iiPt]/totStationRingPt[iiStation][iiRing][iiPt];
+        //if (totStationRingPt[iiStation][iiRing][iiPt]>0.5) effSigmaStationRingPtSeg[iiStation][iiRing][iiPt] = sqrt(effStationRingPtSeg[iiStation][iiRing][iiPt]*(1.0-effStationRingPtSeg[iiStation][iiRing][iiPt])/totStationRingPt[iiStation][iiRing][iiPt]);
+        //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Pt Bin " << iiPt << std::endl;
+        //std::cout << "tot: " << totStationRingPt[iiStation][iiRing][iiPt] << std::endl;
+        //std::cout << "eff: " << effStationRingPtSeg[iiStation][iiRing][iiPt] << " +/- " << effSigmaStationRingPtSeg[iiStation][iiRing][iiPt] << std::endl;
 
-	if (DoubleMuGun) totSBStationRingPt[iiStation][iiRing][iiPt] = 1.0;
-	if (LowStats) totSBStationRingPt[iiStation][iiRing][iiPt] = 0.0000001;
-	if (LowStats) passSBStationRingPtSeg[iiStation][iiRing][iiPt] = 0.0000001;
-	if (LowStats) passSBStationRingPtLCT[iiStation][iiRing][iiPt] = 0.0000001;
-	if (iiStation<4&&LowStats) {
-	  totSBStationRingPt[iiStation+4][iiRing][iiPt] = 0.0000001;
-	  passSBStationRingPtSeg[iiStation+4][iiRing][iiPt] = 0.0000001;
-	  passSBStationRingPtLCT[iiStation+4][iiRing][iiPt] = 0.0000001;
-	}
+        if (DoubleMuGun) totSBStationRingPt[iiStation][iiRing][iiPt] = 1.0;
+        if (LowStats) totSBStationRingPt[iiStation][iiRing][iiPt] = 0.0000001;
+        if (LowStats) passSBStationRingPtSeg[iiStation][iiRing][iiPt] = 0.0000001;
+        if (LowStats) passSBStationRingPtLCT[iiStation][iiRing][iiPt] = 0.0000001;
+        if (iiStation<4&&LowStats) {
+          totSBStationRingPt[iiStation+4][iiRing][iiPt] = 0.0000001;
+          passSBStationRingPtSeg[iiStation+4][iiRing][iiPt] = 0.0000001;
+          passSBStationRingPtLCT[iiStation+4][iiRing][iiPt] = 0.0000001;
+        }
 
-	if ((totStationRingPt[iiStation][iiRing][iiPt]>0.0000005)&&((totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt])>0.0000005)) {
-	  effStationRingPtSeg[iiStation][iiRing][iiPt] = (passStationRingPtSeg[iiStation][iiRing][iiPt]-passSBStationRingPtSeg[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
-	  effSigmaStationRingPtSeg[iiStation][iiRing][iiPt] = sqrt(((passStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationRingPtSeg[iiStation][iiRing][iiPt]))+ ((totStationRingPt[iiStation][iiRing][iiPt]-passStationRingPtSeg[iiStation][iiRing][iiPt])+(totSBStationRingPt[iiStation][iiRing][iiPt]-passSBStationRingPtSeg[iiStation][iiRing][iiPt]))*effStationRingPtSeg[iiStation][iiRing][iiPt]*effStationRingPtSeg[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
+        if ((totStationRingPt[iiStation][iiRing][iiPt]>0.0000005)&&((totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt])>0.0000005)) {
+          effStationRingPtSeg[iiStation][iiRing][iiPt] = (passStationRingPtSeg[iiStation][iiRing][iiPt]-passSBStationRingPtSeg[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
+          effSigmaStationRingPtSeg[iiStation][iiRing][iiPt] = sqrt(((passStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationRingPtSeg[iiStation][iiRing][iiPt]))+ ((totStationRingPt[iiStation][iiRing][iiPt]-passStationRingPtSeg[iiStation][iiRing][iiPt])+(totSBStationRingPt[iiStation][iiRing][iiPt]-passSBStationRingPtSeg[iiStation][iiRing][iiPt]))*effStationRingPtSeg[iiStation][iiRing][iiPt]*effStationRingPtSeg[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
 
-	  effStationRingPtLCT[iiStation][iiRing][iiPt] = (passStationRingPtLCT[iiStation][iiRing][iiPt]-passSBStationRingPtLCT[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
-	  effSigmaStationRingPtLCT[iiStation][iiRing][iiPt] = sqrt(((passStationRingPtLCT[iiStation][iiRing][iiPt]+passSBStationRingPtLCT[iiStation][iiRing][iiPt])*(1.-effStationRingPtLCT[iiStation][iiRing][iiPt])*(1.-effStationRingPtLCT[iiStation][iiRing][iiPt]))+ ((totStationRingPt[iiStation][iiRing][iiPt]-passStationRingPtLCT[iiStation][iiRing][iiPt])+(totSBStationRingPt[iiStation][iiRing][iiPt]-passSBStationRingPtLCT[iiStation][iiRing][iiPt]))*effStationRingPtLCT[iiStation][iiRing][iiPt]*effStationRingPtLCT[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
+          effStationRingPtLCT[iiStation][iiRing][iiPt] = (passStationRingPtLCT[iiStation][iiRing][iiPt]-passSBStationRingPtLCT[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
+          effSigmaStationRingPtLCT[iiStation][iiRing][iiPt] = sqrt(((passStationRingPtLCT[iiStation][iiRing][iiPt]+passSBStationRingPtLCT[iiStation][iiRing][iiPt])*(1.-effStationRingPtLCT[iiStation][iiRing][iiPt])*(1.-effStationRingPtLCT[iiStation][iiRing][iiPt]))+ ((totStationRingPt[iiStation][iiRing][iiPt]-passStationRingPtLCT[iiStation][iiRing][iiPt])+(totSBStationRingPt[iiStation][iiRing][iiPt]-passSBStationRingPtLCT[iiStation][iiRing][iiPt]))*effStationRingPtLCT[iiStation][iiRing][iiPt]*effStationRingPtLCT[iiStation][iiRing][iiPt])/(totStationRingPt[iiStation][iiRing][iiPt]-totSBStationRingPt[iiStation][iiRing][iiPt]);
 
-	}
+        }
 
-	if ((iiStation<4)&&((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])>0.00000005)&&(((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]))>0.0000005)) {
-	  effStationCRingPtSeg[iiStation][iiRing][iiPt] = ((passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt])-(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt]))/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
-	  effSigmaStationCRingPtSeg[iiStation][iiRing][iiPt] = sqrt((((passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt])+(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt]))*(1.-effStationCRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationCRingPtSeg[iiStation][iiRing][iiPt]))+ (((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt]))+((totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt])-(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt])))*effStationCRingPtSeg[iiStation][iiRing][iiPt]*effStationCRingPtSeg[iiStation][iiRing][iiPt])/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
+        if ((iiStation<4)&&((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])>0.00000005)&&(((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]))>0.0000005)) {
+          effStationCRingPtSeg[iiStation][iiRing][iiPt] = ((passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt])-(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt]))/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
+          effSigmaStationCRingPtSeg[iiStation][iiRing][iiPt] = sqrt((((passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt])+(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt]))*(1.-effStationCRingPtSeg[iiStation][iiRing][iiPt])*(1.-effStationCRingPtSeg[iiStation][iiRing][iiPt]))+ (((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(passStationRingPtSeg[iiStation][iiRing][iiPt]+passStationRingPtSeg[iiStation+4][iiRing][iiPt]))+((totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt])-(passSBStationRingPtSeg[iiStation][iiRing][iiPt]+passSBStationRingPtSeg[iiStation+4][iiRing][iiPt])))*effStationCRingPtSeg[iiStation][iiRing][iiPt]*effStationCRingPtSeg[iiStation][iiRing][iiPt])/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
 
-	  effStationCRingPtLCT[iiStation][iiRing][iiPt] = ((passStationRingPtLCT[iiStation][iiRing][iiPt]+passStationRingPtLCT[iiStation+4][iiRing][iiPt])-(passSBStationRingPtLCT[iiStation][iiRing][iiPt]+passSBStationRingPtLCT[iiStation+4][iiRing][iiPt]))/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
-	  effSigmaStationCRingPtLCT[iiStation][iiRing][iiPt] = sqrt((((passStationRingPtLCT[iiStation][iiRing][iiPt]+passStationRingPtLCT[iiStation+4][iiRing][iiPt])+(passSBStationRingPtLCT[iiStation][iiRing][iiPt]+passSBStationRingPtLCT[iiStation+4][iiRing][iiPt]))*(1.-effStationCRingPtLCT[iiStation][iiRing][iiPt])*(1.-effStationCRingPtLCT[iiStation][iiRing][iiPt]))+ (((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(passStationRingPtLCT[iiStation][iiRing][iiPt]+passStationRingPtLCT[iiStation+4][iiRing][iiPt]))+((totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt])-(passSBStationRingPtLCT[iiStation][iiRing][iiPt]+passSBStationRingPtLCT[iiStation+4][iiRing][iiPt])))*effStationCRingPtLCT[iiStation][iiRing][iiPt]*effStationCRingPtLCT[iiStation][iiRing][iiPt])/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
-	}
+          effStationCRingPtLCT[iiStation][iiRing][iiPt] = ((passStationRingPtLCT[iiStation][iiRing][iiPt]+passStationRingPtLCT[iiStation+4][iiRing][iiPt])-(passSBStationRingPtLCT[iiStation][iiRing][iiPt]+passSBStationRingPtLCT[iiStation+4][iiRing][iiPt]))/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
+          effSigmaStationCRingPtLCT[iiStation][iiRing][iiPt] = sqrt((((passStationRingPtLCT[iiStation][iiRing][iiPt]+passStationRingPtLCT[iiStation+4][iiRing][iiPt])+(passSBStationRingPtLCT[iiStation][iiRing][iiPt]+passSBStationRingPtLCT[iiStation+4][iiRing][iiPt]))*(1.-effStationCRingPtLCT[iiStation][iiRing][iiPt])*(1.-effStationCRingPtLCT[iiStation][iiRing][iiPt]))+ (((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(passStationRingPtLCT[iiStation][iiRing][iiPt]+passStationRingPtLCT[iiStation+4][iiRing][iiPt]))+((totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt])-(passSBStationRingPtLCT[iiStation][iiRing][iiPt]+passSBStationRingPtLCT[iiStation+4][iiRing][iiPt])))*effStationCRingPtLCT[iiStation][iiRing][iiPt]*effStationCRingPtLCT[iiStation][iiRing][iiPt])/((totStationRingPt[iiStation][iiRing][iiPt]+totStationRingPt[iiStation+4][iiRing][iiPt])-(totSBStationRingPt[iiStation][iiRing][iiPt]+totSBStationRingPt[iiStation+4][iiRing][iiPt]));
+        }
 
-	segEffStationRingPT[iiStation][iiRing]->SetBinContent(iiPt+1,effStationRingPtSeg[iiStation][iiRing][iiPt]);
-	segEffStationRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationRingPtSeg[iiStation][iiRing][iiPt]);
-	LCTEffStationRingPT[iiStation][iiRing]->SetBinContent(iiPt+1,effStationRingPtLCT[iiStation][iiRing][iiPt]);
-	LCTEffStationRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationRingPtLCT[iiStation][iiRing][iiPt]);
-	if (iiStation<4){
-	  segEffStationCRingPT[iiStation][iiRing]->SetBinContent(iiPt+1,effStationCRingPtSeg[iiStation][iiRing][iiPt]);
-	  segEffStationCRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationCRingPtSeg[iiStation][iiRing][iiPt]);
-	  LCTEffStationCRingPT[iiStation][iiRing]->SetBinContent(iiPt+1,effStationCRingPtLCT[iiStation][iiRing][iiPt]);
-	  LCTEffStationCRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationCRingPtLCT[iiStation][iiRing][iiPt]);
-	}
+        segEffStationRingPT[iiStation][iiRing]->SetBinContent(iiPt+1,effStationRingPtSeg[iiStation][iiRing][iiPt]);
+        segEffStationRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationRingPtSeg[iiStation][iiRing][iiPt]);
+        LCTEffStationRingPT[iiStation][iiRing]->SetBinContent(iiPt+1,effStationRingPtLCT[iiStation][iiRing][iiPt]);
+        LCTEffStationRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationRingPtLCT[iiStation][iiRing][iiPt]);
+        if (iiStation<4){
+          segEffStationCRingPT[iiStation][iiRing]->SetBinContent(iiPt+1,effStationCRingPtSeg[iiStation][iiRing][iiPt]);
+          segEffStationCRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationCRingPtSeg[iiStation][iiRing][iiPt]);
+          LCTEffStationCRingPT[iiStation][iiRing]->SetBinContent(iiPt+1,effStationCRingPtLCT[iiStation][iiRing][iiPt]);
+          LCTEffStationCRingPT[iiStation][iiRing]->SetBinError(iiPt+1,effSigmaStationCRingPtLCT[iiStation][iiRing][iiPt]);
+        }
       }
-      segEffStationRingPT[iiStation][iiRing]->Write();
-      LCTEffStationRingPT[iiStation][iiRing]->Write();
-      if (iiStation<4){
-	segEffStationRingPT[iiStation][iiRing]->Write();
-	LCTEffStationRingPT[iiStation][iiRing]->Write();
-      }
+      //segEffStationRingPT[iiStation][iiRing]->Write();
+      //LCTEffStationRingPT[iiStation][iiRing]->Write();
+      //if (iiStation<4){
+      //  segEffStationRingPT[iiStation][iiRing]->Write();
+      //  LCTEffStationRingPT[iiStation][iiRing]->Write();
+      //}
 
 
       for (Int_t iiEta=0; iiEta< numEtaBins; iiEta++){
-	//if (totStationRingEta[iiStation][iiRing][iiEta]>0.5)  effStationRingEtaSeg[iiStation][iiRing][iiEta] = passStationRingEtaSeg[iiStation][iiRing][iiEta]/totStationRingEta[iiStation][iiRing][iiEta];
-	//if (totStationRingEta[iiStation][iiRing][iiEta]>0.5) effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta] = sqrt(effStationRingEtaSeg[iiStation][iiRing][iiEta]*(1.0-effStationRingEtaSeg[iiStation][iiRing][iiEta])/totStationRingEta[iiStation][iiRing][iiEta]);
-	//std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Eta Bin " << iiEta << std::endl;
-	//std::cout << "tot: " << totStationRingEta[iiStation][iiRing][iiEta] << std::endl;
-	//std::cout << "eff: " << effStationRingEtaSeg[iiStation][iiRing][iiEta] << " +/- " << effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta] << std::endl;
-	if (DoubleMuGun) totSBStationRingEta[iiStation][iiRing][iiEta] = 1.0;
-	if (LowStats) totSBStationRingEta[iiStation][iiRing][iiEta] = 0.0000001;
-	if (LowStats) passSBStationRingEtaSeg[iiStation][iiRing][iiEta] = 0.0000001;
-	if (LowStats) passSBStationRingEtaLCT[iiStation][iiRing][iiEta] = 0.0000001;
-	if (iiStation<4&&LowStats) {
-	  totSBStationRingEta[iiStation+4][iiRing][iiEta] = 0.0000001;
-	  passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta] = 0.0000001;
-	  passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta] = 0.0000001;
-	}
+        //if (totStationRingEta[iiStation][iiRing][iiEta]>0.5)  effStationRingEtaSeg[iiStation][iiRing][iiEta] = passStationRingEtaSeg[iiStation][iiRing][iiEta]/totStationRingEta[iiStation][iiRing][iiEta];
+        //if (totStationRingEta[iiStation][iiRing][iiEta]>0.5) effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta] = sqrt(effStationRingEtaSeg[iiStation][iiRing][iiEta]*(1.0-effStationRingEtaSeg[iiStation][iiRing][iiEta])/totStationRingEta[iiStation][iiRing][iiEta]);
+        //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Eta Bin " << iiEta << std::endl;
+        //std::cout << "tot: " << totStationRingEta[iiStation][iiRing][iiEta] << std::endl;
+        //std::cout << "eff: " << effStationRingEtaSeg[iiStation][iiRing][iiEta] << " +/- " << effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta] << std::endl;
+        if (DoubleMuGun) totSBStationRingEta[iiStation][iiRing][iiEta] = 1.0;
+        if (LowStats) totSBStationRingEta[iiStation][iiRing][iiEta] = 0.0000001;
+        if (LowStats) passSBStationRingEtaSeg[iiStation][iiRing][iiEta] = 0.0000001;
+        if (LowStats) passSBStationRingEtaLCT[iiStation][iiRing][iiEta] = 0.0000001;
+        if (iiStation<4&&LowStats) {
+          totSBStationRingEta[iiStation+4][iiRing][iiEta] = 0.0000001;
+          passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta] = 0.0000001;
+          passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta] = 0.0000001;
+        }
 
-	if ((totStationRingEta[iiStation][iiRing][iiEta]>0.0000005)&&((totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta])>0.0000005)) {
-	  effStationRingEtaSeg[iiStation][iiRing][iiEta] = (passStationRingEtaSeg[iiStation][iiRing][iiEta]-passSBStationRingEtaSeg[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
-	  effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta] = sqrt(((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationRingEtaSeg[iiStation][iiRing][iiEta]))+ ((totStationRingEta[iiStation][iiRing][iiEta]-passStationRingEtaSeg[iiStation][iiRing][iiEta])+(totSBStationRingEta[iiStation][iiRing][iiEta]-passSBStationRingEtaSeg[iiStation][iiRing][iiEta]))*effStationRingEtaSeg[iiStation][iiRing][iiEta]*effStationRingEtaSeg[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
-	  effStationRingEtaLCT[iiStation][iiRing][iiEta] = (passStationRingEtaLCT[iiStation][iiRing][iiEta]-passSBStationRingEtaLCT[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
-	  effSigmaStationRingEtaLCT[iiStation][iiRing][iiEta] = sqrt(((passStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation][iiRing][iiEta])*(1.-effStationRingEtaLCT[iiStation][iiRing][iiEta])*(1.-effStationRingEtaLCT[iiStation][iiRing][iiEta]))+ ((totStationRingEta[iiStation][iiRing][iiEta]-passStationRingEtaLCT[iiStation][iiRing][iiEta])+(totSBStationRingEta[iiStation][iiRing][iiEta]-passSBStationRingEtaLCT[iiStation][iiRing][iiEta]))*effStationRingEtaLCT[iiStation][iiRing][iiEta]*effStationRingEtaLCT[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
-	}
+        if ((totStationRingEta[iiStation][iiRing][iiEta]>0.0000005)&&((totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta])>0.0000005)) {
+          effStationRingEtaSeg[iiStation][iiRing][iiEta] = (passStationRingEtaSeg[iiStation][iiRing][iiEta]-passSBStationRingEtaSeg[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
+          effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta] = sqrt(((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationRingEtaSeg[iiStation][iiRing][iiEta]))+ ((totStationRingEta[iiStation][iiRing][iiEta]-passStationRingEtaSeg[iiStation][iiRing][iiEta])+(totSBStationRingEta[iiStation][iiRing][iiEta]-passSBStationRingEtaSeg[iiStation][iiRing][iiEta]))*effStationRingEtaSeg[iiStation][iiRing][iiEta]*effStationRingEtaSeg[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
+          effStationRingEtaLCT[iiStation][iiRing][iiEta] = (passStationRingEtaLCT[iiStation][iiRing][iiEta]-passSBStationRingEtaLCT[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
+          effSigmaStationRingEtaLCT[iiStation][iiRing][iiEta] = sqrt(((passStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation][iiRing][iiEta])*(1.-effStationRingEtaLCT[iiStation][iiRing][iiEta])*(1.-effStationRingEtaLCT[iiStation][iiRing][iiEta]))+ ((totStationRingEta[iiStation][iiRing][iiEta]-passStationRingEtaLCT[iiStation][iiRing][iiEta])+(totSBStationRingEta[iiStation][iiRing][iiEta]-passSBStationRingEtaLCT[iiStation][iiRing][iiEta]))*effStationRingEtaLCT[iiStation][iiRing][iiEta]*effStationRingEtaLCT[iiStation][iiRing][iiEta])/(totStationRingEta[iiStation][iiRing][iiEta]-totSBStationRingEta[iiStation][iiRing][iiEta]);
+        }
 
-	if ((iiStation<4)&&((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])>0.0000005)&&(((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]))>0000000.5)) {
-	  effStationCRingEtaSeg[iiStation][iiRing][iiEta] = ((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta]))/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
-	  effSigmaStationCRingEtaSeg[iiStation][iiRing][iiEta] = sqrt((((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta])+(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta]))*(1.-effStationCRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationCRingEtaSeg[iiStation][iiRing][iiEta]))+ (((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta]))+((totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta])))*effStationCRingEtaSeg[iiStation][iiRing][iiEta]*effStationCRingEtaSeg[iiStation][iiRing][iiEta])/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
+        if ((iiStation<4)&&((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])>0.0000005)&&(((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]))>0000000.5)) {
+          effStationCRingEtaSeg[iiStation][iiRing][iiEta] = ((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta]))/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
+          effSigmaStationCRingEtaSeg[iiStation][iiRing][iiEta] = sqrt((((passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta])+(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta]))*(1.-effStationCRingEtaSeg[iiStation][iiRing][iiEta])*(1.-effStationCRingEtaSeg[iiStation][iiRing][iiEta]))+ (((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(passStationRingEtaSeg[iiStation][iiRing][iiEta]+passStationRingEtaSeg[iiStation+4][iiRing][iiEta]))+((totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaSeg[iiStation][iiRing][iiEta]+passSBStationRingEtaSeg[iiStation+4][iiRing][iiEta])))*effStationCRingEtaSeg[iiStation][iiRing][iiEta]*effStationCRingEtaSeg[iiStation][iiRing][iiEta])/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
 
-	  effStationCRingEtaLCT[iiStation][iiRing][iiEta] = ((passStationRingEtaLCT[iiStation][iiRing][iiEta]+passStationRingEtaLCT[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta]))/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
-	  effSigmaStationCRingEtaLCT[iiStation][iiRing][iiEta] = sqrt((((passStationRingEtaLCT[iiStation][iiRing][iiEta]+passStationRingEtaLCT[iiStation+4][iiRing][iiEta])+(passSBStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta]))*(1.-effStationCRingEtaLCT[iiStation][iiRing][iiEta])*(1.-effStationCRingEtaLCT[iiStation][iiRing][iiEta]))+ (((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(passStationRingEtaLCT[iiStation][iiRing][iiEta]+passStationRingEtaLCT[iiStation+4][iiRing][iiEta]))+((totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta])))*effStationCRingEtaLCT[iiStation][iiRing][iiEta]*effStationCRingEtaLCT[iiStation][iiRing][iiEta])/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
-	}
+          effStationCRingEtaLCT[iiStation][iiRing][iiEta] = ((passStationRingEtaLCT[iiStation][iiRing][iiEta]+passStationRingEtaLCT[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta]))/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
+          effSigmaStationCRingEtaLCT[iiStation][iiRing][iiEta] = sqrt((((passStationRingEtaLCT[iiStation][iiRing][iiEta]+passStationRingEtaLCT[iiStation+4][iiRing][iiEta])+(passSBStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta]))*(1.-effStationCRingEtaLCT[iiStation][iiRing][iiEta])*(1.-effStationCRingEtaLCT[iiStation][iiRing][iiEta]))+ (((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(passStationRingEtaLCT[iiStation][iiRing][iiEta]+passStationRingEtaLCT[iiStation+4][iiRing][iiEta]))+((totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta])-(passSBStationRingEtaLCT[iiStation][iiRing][iiEta]+passSBStationRingEtaLCT[iiStation+4][iiRing][iiEta])))*effStationCRingEtaLCT[iiStation][iiRing][iiEta]*effStationCRingEtaLCT[iiStation][iiRing][iiEta])/((totStationRingEta[iiStation][iiRing][iiEta]+totStationRingEta[iiStation+4][iiRing][iiEta])-(totSBStationRingEta[iiStation][iiRing][iiEta]+totSBStationRingEta[iiStation+4][iiRing][iiEta]));
+        }
 
 
-	segEffStationRingEta[iiStation][iiRing]->SetBinContent(iiEta+1,effStationRingEtaSeg[iiStation][iiRing][iiEta]);
-	segEffStationRingEta[iiStation][iiRing]->SetBinError(iiEta+1,effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta]);
-	LCTEffStationRingEta[iiStation][iiRing]->SetBinContent(iiEta+1,effStationRingEtaLCT[iiStation][iiRing][iiEta]);
-	LCTEffStationRingEta[iiStation][iiRing]->SetBinError(iiEta+1,effSigmaStationRingEtaLCT[iiStation][iiRing][iiEta]);
+        segEffStationRingEta[iiStation][iiRing]->SetBinContent(iiEta+1,effStationRingEtaSeg[iiStation][iiRing][iiEta]);
+        segEffStationRingEta[iiStation][iiRing]->SetBinError(iiEta+1,effSigmaStationRingEtaSeg[iiStation][iiRing][iiEta]);
+        LCTEffStationRingEta[iiStation][iiRing]->SetBinContent(iiEta+1,effStationRingEtaLCT[iiStation][iiRing][iiEta]);
+        LCTEffStationRingEta[iiStation][iiRing]->SetBinError(iiEta+1,effSigmaStationRingEtaLCT[iiStation][iiRing][iiEta]);
 
-	if (iiStation < 4) {
-	  segEffStationCRingEta[iiStation][iiRing]->SetBinContent(iiEta+1,effStationCRingEtaSeg[iiStation][iiRing][iiEta]);
-	  segEffStationCRingEta[iiStation][iiRing]->SetBinError(iiEta+1,effSigmaStationCRingEtaSeg[iiStation][iiRing][iiEta]);
-	  LCTEffStationCRingEta[iiStation][iiRing]->SetBinContent(iiEta+1,effStationCRingEtaLCT[iiStation][iiRing][iiEta]);
-	  LCTEffStationCRingEta[iiStation][iiRing]->SetBinError(iiEta+1,effSigmaStationCRingEtaLCT[iiStation][iiRing][iiEta]);
-	}
+        if (iiStation < 4) {
+          segEffStationCRingEta[iiStation][iiRing]->SetBinContent(iiEta+1,effStationCRingEtaSeg[iiStation][iiRing][iiEta]);
+          segEffStationCRingEta[iiStation][iiRing]->SetBinError(iiEta+1,effSigmaStationCRingEtaSeg[iiStation][iiRing][iiEta]);
+          LCTEffStationCRingEta[iiStation][iiRing]->SetBinContent(iiEta+1,effStationCRingEtaLCT[iiStation][iiRing][iiEta]);
+          LCTEffStationCRingEta[iiStation][iiRing]->SetBinError(iiEta+1,effSigmaStationCRingEtaLCT[iiStation][iiRing][iiEta]);
+        }
 
 
       }
-      segEffStationRingEta[iiStation][iiRing]->Write();
-      LCTEffStationRingEta[iiStation][iiRing]->Write();
-
-      if (iiStation < 4) {
-	segEffStationCRingEta[iiStation][iiRing]->Write();
-	LCTEffStationCRingEta[iiStation][iiRing]->Write();
-      }
+      //segEffStationRingEta[iiStation][iiRing]->Write();
+      //LCTEffStationRingEta[iiStation][iiRing]->Write();
+      //if (iiStation < 4) {
+      //  segEffStationCRingEta[iiStation][iiRing]->Write();
+      //  LCTEffStationCRingEta[iiStation][iiRing]->Write();
+      //}
 
       if (!LowStats) {
 
-	for (Int_t iiIso=0; iiIso< numIsoBins; iiIso++){
-	  //if (totStationRingIso[iiStation][iiRing][iiIso]>0.5)  effStationRingIsoSeg[iiStation][iiRing][iiIso] = passStationRingIsoSeg[iiStation][iiRing][iiIso]/totStationRingIso[iiStation][iiRing][iiIso];
-	  //if (totStationRingIso[iiStation][iiRing][iiIso]>0.5) effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso] = sqrt(effStationRingIsoSeg[iiStation][iiRing][iiIso]*(1.0-effStationRingIsoSeg[iiStation][iiRing][iiIso])/totStationRingIso[iiStation][iiRing][iiIso]);
-	  //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Iso Bin " << iiIso << std::endl;
-	  //std::cout << "tot: " << totStationRingIso[iiStation][iiRing][iiIso] << std::endl;
-	  //std::cout << "eff: " << effStationRingIsoSeg[iiStation][iiRing][iiIso] << " +/- " << effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso] << std::endl;
+        for (Int_t iiIso=0; iiIso< numIsoBins; iiIso++){
+          //if (totStationRingIso[iiStation][iiRing][iiIso]>0.5)  effStationRingIsoSeg[iiStation][iiRing][iiIso] = passStationRingIsoSeg[iiStation][iiRing][iiIso]/totStationRingIso[iiStation][iiRing][iiIso];
+          //if (totStationRingIso[iiStation][iiRing][iiIso]>0.5) effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso] = sqrt(effStationRingIsoSeg[iiStation][iiRing][iiIso]*(1.0-effStationRingIsoSeg[iiStation][iiRing][iiIso])/totStationRingIso[iiStation][iiRing][iiIso]);
+          //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Iso Bin " << iiIso << std::endl;
+          //std::cout << "tot: " << totStationRingIso[iiStation][iiRing][iiIso] << std::endl;
+          //std::cout << "eff: " << effStationRingIsoSeg[iiStation][iiRing][iiIso] << " +/- " << effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso] << std::endl;
 
-	  if ((totStationRingIso[iiStation][iiRing][iiIso]>0.5)&&((totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso])>0.5)) {
-	    effStationRingIsoSeg[iiStation][iiRing][iiIso] = (passStationRingIsoSeg[iiStation][iiRing][iiIso]-passSBStationRingIsoSeg[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
-	    effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso] = sqrt(((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationRingIsoSeg[iiStation][iiRing][iiIso]))+ ((totStationRingIso[iiStation][iiRing][iiIso]-passStationRingIsoSeg[iiStation][iiRing][iiIso])+(totSBStationRingIso[iiStation][iiRing][iiIso]-passSBStationRingIsoSeg[iiStation][iiRing][iiIso]))*effStationRingIsoSeg[iiStation][iiRing][iiIso]*effStationRingIsoSeg[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
-	    effStationRingIsoLCT[iiStation][iiRing][iiIso] = (passStationRingIsoLCT[iiStation][iiRing][iiIso]-passSBStationRingIsoLCT[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
-	    effSigmaStationRingIsoLCT[iiStation][iiRing][iiIso] = sqrt(((passStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation][iiRing][iiIso])*(1.-effStationRingIsoLCT[iiStation][iiRing][iiIso])*(1.-effStationRingIsoLCT[iiStation][iiRing][iiIso]))+ ((totStationRingIso[iiStation][iiRing][iiIso]-passStationRingIsoLCT[iiStation][iiRing][iiIso])+(totSBStationRingIso[iiStation][iiRing][iiIso]-passSBStationRingIsoLCT[iiStation][iiRing][iiIso]))*effStationRingIsoLCT[iiStation][iiRing][iiIso]*effStationRingIsoLCT[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
-	  }
+          if ((totStationRingIso[iiStation][iiRing][iiIso]>0.5)&&((totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso])>0.5)) {
+            effStationRingIsoSeg[iiStation][iiRing][iiIso] = (passStationRingIsoSeg[iiStation][iiRing][iiIso]-passSBStationRingIsoSeg[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
+            effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso] = sqrt(((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationRingIsoSeg[iiStation][iiRing][iiIso]))+ ((totStationRingIso[iiStation][iiRing][iiIso]-passStationRingIsoSeg[iiStation][iiRing][iiIso])+(totSBStationRingIso[iiStation][iiRing][iiIso]-passSBStationRingIsoSeg[iiStation][iiRing][iiIso]))*effStationRingIsoSeg[iiStation][iiRing][iiIso]*effStationRingIsoSeg[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
+            effStationRingIsoLCT[iiStation][iiRing][iiIso] = (passStationRingIsoLCT[iiStation][iiRing][iiIso]-passSBStationRingIsoLCT[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
+            effSigmaStationRingIsoLCT[iiStation][iiRing][iiIso] = sqrt(((passStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation][iiRing][iiIso])*(1.-effStationRingIsoLCT[iiStation][iiRing][iiIso])*(1.-effStationRingIsoLCT[iiStation][iiRing][iiIso]))+ ((totStationRingIso[iiStation][iiRing][iiIso]-passStationRingIsoLCT[iiStation][iiRing][iiIso])+(totSBStationRingIso[iiStation][iiRing][iiIso]-passSBStationRingIsoLCT[iiStation][iiRing][iiIso]))*effStationRingIsoLCT[iiStation][iiRing][iiIso]*effStationRingIsoLCT[iiStation][iiRing][iiIso])/(totStationRingIso[iiStation][iiRing][iiIso]-totSBStationRingIso[iiStation][iiRing][iiIso]);
+          }
 
-	  if ((iiStation<4)&&((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])>0.5)&&(((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]))>0.5)) {
-	    effStationCRingIsoSeg[iiStation][iiRing][iiIso] = ((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso]))/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
-	    effSigmaStationCRingIsoSeg[iiStation][iiRing][iiIso] = sqrt((((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso])+(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso]))*(1.-effStationCRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationCRingIsoSeg[iiStation][iiRing][iiIso]))+ (((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso]))+((totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso])))*effStationCRingIsoSeg[iiStation][iiRing][iiIso]*effStationCRingIsoSeg[iiStation][iiRing][iiIso])/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
+          if ((iiStation<4)&&((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])>0.5)&&(((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]))>0.5)) {
+            effStationCRingIsoSeg[iiStation][iiRing][iiIso] = ((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso]))/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
+            effSigmaStationCRingIsoSeg[iiStation][iiRing][iiIso] = sqrt((((passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso])+(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso]))*(1.-effStationCRingIsoSeg[iiStation][iiRing][iiIso])*(1.-effStationCRingIsoSeg[iiStation][iiRing][iiIso]))+ (((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(passStationRingIsoSeg[iiStation][iiRing][iiIso]+passStationRingIsoSeg[iiStation+4][iiRing][iiIso]))+((totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoSeg[iiStation][iiRing][iiIso]+passSBStationRingIsoSeg[iiStation+4][iiRing][iiIso])))*effStationCRingIsoSeg[iiStation][iiRing][iiIso]*effStationCRingIsoSeg[iiStation][iiRing][iiIso])/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
 
-	    effStationCRingIsoLCT[iiStation][iiRing][iiIso] = ((passStationRingIsoLCT[iiStation][iiRing][iiIso]+passStationRingIsoLCT[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation+4][iiRing][iiIso]))/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
-	    effSigmaStationCRingIsoLCT[iiStation][iiRing][iiIso] = sqrt((((passStationRingIsoLCT[iiStation][iiRing][iiIso]+passStationRingIsoLCT[iiStation+4][iiRing][iiIso])+(passSBStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation+4][iiRing][iiIso]))*(1.-effStationCRingIsoLCT[iiStation][iiRing][iiIso])*(1.-effStationCRingIsoLCT[iiStation][iiRing][iiIso]))+ (((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(passStationRingIsoLCT[iiStation][iiRing][iiIso]+passStationRingIsoLCT[iiStation+4][iiRing][iiIso]))+((totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation+4][iiRing][iiIso])))*effStationCRingIsoLCT[iiStation][iiRing][iiIso]*effStationCRingIsoLCT[iiStation][iiRing][iiIso])/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
-	  }
+            effStationCRingIsoLCT[iiStation][iiRing][iiIso] = ((passStationRingIsoLCT[iiStation][iiRing][iiIso]+passStationRingIsoLCT[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation+4][iiRing][iiIso]))/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
+            effSigmaStationCRingIsoLCT[iiStation][iiRing][iiIso] = sqrt((((passStationRingIsoLCT[iiStation][iiRing][iiIso]+passStationRingIsoLCT[iiStation+4][iiRing][iiIso])+(passSBStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation+4][iiRing][iiIso]))*(1.-effStationCRingIsoLCT[iiStation][iiRing][iiIso])*(1.-effStationCRingIsoLCT[iiStation][iiRing][iiIso]))+ (((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(passStationRingIsoLCT[iiStation][iiRing][iiIso]+passStationRingIsoLCT[iiStation+4][iiRing][iiIso]))+((totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso])-(passSBStationRingIsoLCT[iiStation][iiRing][iiIso]+passSBStationRingIsoLCT[iiStation+4][iiRing][iiIso])))*effStationCRingIsoLCT[iiStation][iiRing][iiIso]*effStationCRingIsoLCT[iiStation][iiRing][iiIso])/((totStationRingIso[iiStation][iiRing][iiIso]+totStationRingIso[iiStation+4][iiRing][iiIso])-(totSBStationRingIso[iiStation][iiRing][iiIso]+totSBStationRingIso[iiStation+4][iiRing][iiIso]));
+          }
 
-	  segEffStationRingIso[iiStation][iiRing]->SetBinContent(iiIso+1,effStationRingIsoSeg[iiStation][iiRing][iiIso]);
-	  segEffStationRingIso[iiStation][iiRing]->SetBinError(iiIso+1,effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso]);
-	  LCTEffStationRingIso[iiStation][iiRing]->SetBinContent(iiIso+1,effStationRingIsoLCT[iiStation][iiRing][iiIso]);
-	  LCTEffStationRingIso[iiStation][iiRing]->SetBinError(iiIso+1,effSigmaStationRingIsoLCT[iiStation][iiRing][iiIso]);
-	  if (iiStation < 4){
-	    segEffStationCRingIso[iiStation][iiRing]->SetBinContent(iiIso+1,effStationCRingIsoSeg[iiStation][iiRing][iiIso]);
-	    segEffStationCRingIso[iiStation][iiRing]->SetBinError(iiIso+1,effSigmaStationCRingIsoSeg[iiStation][iiRing][iiIso]);
-	    LCTEffStationCRingIso[iiStation][iiRing]->SetBinContent(iiIso+1,effStationCRingIsoLCT[iiStation][iiRing][iiIso]);
-	    LCTEffStationCRingIso[iiStation][iiRing]->SetBinError(iiIso+1,effSigmaStationCRingIsoLCT[iiStation][iiRing][iiIso]);
-	  }
+          segEffStationRingIso[iiStation][iiRing]->SetBinContent(iiIso+1,effStationRingIsoSeg[iiStation][iiRing][iiIso]);
+          segEffStationRingIso[iiStation][iiRing]->SetBinError(iiIso+1,effSigmaStationRingIsoSeg[iiStation][iiRing][iiIso]);
+          LCTEffStationRingIso[iiStation][iiRing]->SetBinContent(iiIso+1,effStationRingIsoLCT[iiStation][iiRing][iiIso]);
+          LCTEffStationRingIso[iiStation][iiRing]->SetBinError(iiIso+1,effSigmaStationRingIsoLCT[iiStation][iiRing][iiIso]);
+          if (iiStation < 4){
+            segEffStationCRingIso[iiStation][iiRing]->SetBinContent(iiIso+1,effStationCRingIsoSeg[iiStation][iiRing][iiIso]);
+            segEffStationCRingIso[iiStation][iiRing]->SetBinError(iiIso+1,effSigmaStationCRingIsoSeg[iiStation][iiRing][iiIso]);
+            LCTEffStationCRingIso[iiStation][iiRing]->SetBinContent(iiIso+1,effStationCRingIsoLCT[iiStation][iiRing][iiIso]);
+            LCTEffStationCRingIso[iiStation][iiRing]->SetBinError(iiIso+1,effSigmaStationCRingIsoLCT[iiStation][iiRing][iiIso]);
+          }
 
 
 
-	}
-	segEffStationRingIso[iiStation][iiRing]->Write();
-	LCTEffStationRingIso[iiStation][iiRing]->Write();
-
-	if (iiStation<4){
-	  segEffStationCRingIso[iiStation][iiRing]->Write();
-	  LCTEffStationCRingIso[iiStation][iiRing]->Write();
-	}
+        }
+        //segEffStationRingIso[iiStation][iiRing]->Write();
+        //LCTEffStationRingIso[iiStation][iiRing]->Write();
+        //if (iiStation<4){
+        //  segEffStationCRingIso[iiStation][iiRing]->Write();
+        //  LCTEffStationCRingIso[iiStation][iiRing]->Write();
+        //}
 
       }     
 
       if (LowStats){
 
-	for (Int_t iiPV=0; iiPV< numPVBins; iiPV++){
-	  //if (totStationRingPV[iiStation][iiRing][iiPV]>0.5)  effStationRingPVSeg[iiStation][iiRing][iiPV] = passStationRingPVSeg[iiStation][iiRing][iiPV]/totStationRingPV[iiStation][iiRing][iiPV];
-	  //if (totStationRingPV[iiStation][iiRing][iiPV]>0.5) effSigmaStationRingPVSeg[iiStation][iiRing][iiPV] = sqrt(effStationRingPVSeg[iiStation][iiRing][iiPV]*(1.0-effStationRingPVSeg[iiStation][iiRing][iiPV])/totStationRingPV[iiStation][iiRing][iiPV]);
-	  //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " PV Bin " << iiPV << std::endl;
-	  //std::cout << "tot: " << totStationRingPV[iiStation][iiRing][iiPV] << std::endl;
-	  //std::cout << "eff: " << effStationRingPVSeg[iiStation][iiRing][iiPV] << " +/- " << effSigmaStationRingPVSeg[iiStation][iiRing][iiPV] << std::endl;
+        for (Int_t iiPV=0; iiPV< numPVBins; iiPV++){
+          //if (totStationRingPV[iiStation][iiRing][iiPV]>0.5)  effStationRingPVSeg[iiStation][iiRing][iiPV] = passStationRingPVSeg[iiStation][iiRing][iiPV]/totStationRingPV[iiStation][iiRing][iiPV];
+          //if (totStationRingPV[iiStation][iiRing][iiPV]>0.5) effSigmaStationRingPVSeg[iiStation][iiRing][iiPV] = sqrt(effStationRingPVSeg[iiStation][iiRing][iiPV]*(1.0-effStationRingPVSeg[iiStation][iiRing][iiPV])/totStationRingPV[iiStation][iiRing][iiPV]);
+          //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " PV Bin " << iiPV << std::endl;
+          //std::cout << "tot: " << totStationRingPV[iiStation][iiRing][iiPV] << std::endl;
+          //std::cout << "eff: " << effStationRingPVSeg[iiStation][iiRing][iiPV] << " +/- " << effSigmaStationRingPVSeg[iiStation][iiRing][iiPV] << std::endl;
 
 
-	  if (LowStats) totSBStationRingPV[iiStation][iiRing][iiPV] = 0.0000001;
-	  if (LowStats) passSBStationRingPVSeg[iiStation][iiRing][iiPV] = 0.0000001;
-	  if (LowStats) passSBStationRingPVLCT[iiStation][iiRing][iiPV] = 0.0000001;
-	  if (iiStation<4&&LowStats) {
-	    totSBStationRingPV[iiStation+4][iiRing][iiPV] = 0.0000001;
-	    passSBStationRingPVSeg[iiStation+4][iiRing][iiPV] = 0.0000001;
-	    passSBStationRingPVLCT[iiStation+4][iiRing][iiPV] = 0.0000001;
-	  }
+          if (LowStats) totSBStationRingPV[iiStation][iiRing][iiPV] = 0.0000001;
+          if (LowStats) passSBStationRingPVSeg[iiStation][iiRing][iiPV] = 0.0000001;
+          if (LowStats) passSBStationRingPVLCT[iiStation][iiRing][iiPV] = 0.0000001;
+          if (iiStation<4&&LowStats) {
+            totSBStationRingPV[iiStation+4][iiRing][iiPV] = 0.0000001;
+            passSBStationRingPVSeg[iiStation+4][iiRing][iiPV] = 0.0000001;
+            passSBStationRingPVLCT[iiStation+4][iiRing][iiPV] = 0.0000001;
+          }
 
 
-	  if ((totStationRingPV[iiStation][iiRing][iiPV]>0.5)&&((totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV])>0.5)) {
-	    effStationRingPVSeg[iiStation][iiRing][iiPV] = (passStationRingPVSeg[iiStation][iiRing][iiPV]-passSBStationRingPVSeg[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
-	    effSigmaStationRingPVSeg[iiStation][iiRing][iiPV] = sqrt(((passStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationRingPVSeg[iiStation][iiRing][iiPV]))+ ((totStationRingPV[iiStation][iiRing][iiPV]-passStationRingPVSeg[iiStation][iiRing][iiPV])+(totSBStationRingPV[iiStation][iiRing][iiPV]-passSBStationRingPVSeg[iiStation][iiRing][iiPV]))*effStationRingPVSeg[iiStation][iiRing][iiPV]*effStationRingPVSeg[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
-	    effStationRingPVLCT[iiStation][iiRing][iiPV] = (passStationRingPVLCT[iiStation][iiRing][iiPV]-passSBStationRingPVLCT[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
-	    effSigmaStationRingPVLCT[iiStation][iiRing][iiPV] = sqrt(((passStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation][iiRing][iiPV])*(1.-effStationRingPVLCT[iiStation][iiRing][iiPV])*(1.-effStationRingPVLCT[iiStation][iiRing][iiPV]))+ ((totStationRingPV[iiStation][iiRing][iiPV]-passStationRingPVLCT[iiStation][iiRing][iiPV])+(totSBStationRingPV[iiStation][iiRing][iiPV]-passSBStationRingPVLCT[iiStation][iiRing][iiPV]))*effStationRingPVLCT[iiStation][iiRing][iiPV]*effStationRingPVLCT[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
-	  }
+          if ((totStationRingPV[iiStation][iiRing][iiPV]>0.5)&&((totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV])>0.5)) {
+            effStationRingPVSeg[iiStation][iiRing][iiPV] = (passStationRingPVSeg[iiStation][iiRing][iiPV]-passSBStationRingPVSeg[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
+            effSigmaStationRingPVSeg[iiStation][iiRing][iiPV] = sqrt(((passStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationRingPVSeg[iiStation][iiRing][iiPV]))+ ((totStationRingPV[iiStation][iiRing][iiPV]-passStationRingPVSeg[iiStation][iiRing][iiPV])+(totSBStationRingPV[iiStation][iiRing][iiPV]-passSBStationRingPVSeg[iiStation][iiRing][iiPV]))*effStationRingPVSeg[iiStation][iiRing][iiPV]*effStationRingPVSeg[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
+            effStationRingPVLCT[iiStation][iiRing][iiPV] = (passStationRingPVLCT[iiStation][iiRing][iiPV]-passSBStationRingPVLCT[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
+            effSigmaStationRingPVLCT[iiStation][iiRing][iiPV] = sqrt(((passStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation][iiRing][iiPV])*(1.-effStationRingPVLCT[iiStation][iiRing][iiPV])*(1.-effStationRingPVLCT[iiStation][iiRing][iiPV]))+ ((totStationRingPV[iiStation][iiRing][iiPV]-passStationRingPVLCT[iiStation][iiRing][iiPV])+(totSBStationRingPV[iiStation][iiRing][iiPV]-passSBStationRingPVLCT[iiStation][iiRing][iiPV]))*effStationRingPVLCT[iiStation][iiRing][iiPV]*effStationRingPVLCT[iiStation][iiRing][iiPV])/(totStationRingPV[iiStation][iiRing][iiPV]-totSBStationRingPV[iiStation][iiRing][iiPV]);
+          }
 
-	  if ((iiStation<4)&&((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])>0.5)&&(((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]))>0.5)) {
-	    effStationCRingPVSeg[iiStation][iiRing][iiPV] = ((passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV])-(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV]))/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
-	    effSigmaStationCRingPVSeg[iiStation][iiRing][iiPV] = sqrt((((passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV])+(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV]))*(1.-effStationCRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationCRingPVSeg[iiStation][iiRing][iiPV]))+ (((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV]))+((totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV])-(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV])))*effStationCRingPVSeg[iiStation][iiRing][iiPV]*effStationCRingPVSeg[iiStation][iiRing][iiPV])/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
+          if ((iiStation<4)&&((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])>0.5)&&(((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]))>0.5)) {
+            effStationCRingPVSeg[iiStation][iiRing][iiPV] = ((passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV])-(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV]))/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
+            effSigmaStationCRingPVSeg[iiStation][iiRing][iiPV] = sqrt((((passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV])+(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV]))*(1.-effStationCRingPVSeg[iiStation][iiRing][iiPV])*(1.-effStationCRingPVSeg[iiStation][iiRing][iiPV]))+ (((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(passStationRingPVSeg[iiStation][iiRing][iiPV]+passStationRingPVSeg[iiStation+4][iiRing][iiPV]))+((totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV])-(passSBStationRingPVSeg[iiStation][iiRing][iiPV]+passSBStationRingPVSeg[iiStation+4][iiRing][iiPV])))*effStationCRingPVSeg[iiStation][iiRing][iiPV]*effStationCRingPVSeg[iiStation][iiRing][iiPV])/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
 
-	    effStationCRingPVLCT[iiStation][iiRing][iiPV] = ((passStationRingPVLCT[iiStation][iiRing][iiPV]+passStationRingPVLCT[iiStation+4][iiRing][iiPV])-(passSBStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation+4][iiRing][iiPV]))/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
-	    effSigmaStationCRingPVLCT[iiStation][iiRing][iiPV] = sqrt((((passStationRingPVLCT[iiStation][iiRing][iiPV]+passStationRingPVLCT[iiStation+4][iiRing][iiPV])+(passSBStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation+4][iiRing][iiPV]))*(1.-effStationCRingPVLCT[iiStation][iiRing][iiPV])*(1.-effStationCRingPVLCT[iiStation][iiRing][iiPV]))+ (((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(passStationRingPVLCT[iiStation][iiRing][iiPV]+passStationRingPVLCT[iiStation+4][iiRing][iiPV]))+((totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV])-(passSBStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation+4][iiRing][iiPV])))*effStationCRingPVLCT[iiStation][iiRing][iiPV]*effStationCRingPVLCT[iiStation][iiRing][iiPV])/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
-	  }
+            effStationCRingPVLCT[iiStation][iiRing][iiPV] = ((passStationRingPVLCT[iiStation][iiRing][iiPV]+passStationRingPVLCT[iiStation+4][iiRing][iiPV])-(passSBStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation+4][iiRing][iiPV]))/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
+            effSigmaStationCRingPVLCT[iiStation][iiRing][iiPV] = sqrt((((passStationRingPVLCT[iiStation][iiRing][iiPV]+passStationRingPVLCT[iiStation+4][iiRing][iiPV])+(passSBStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation+4][iiRing][iiPV]))*(1.-effStationCRingPVLCT[iiStation][iiRing][iiPV])*(1.-effStationCRingPVLCT[iiStation][iiRing][iiPV]))+ (((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(passStationRingPVLCT[iiStation][iiRing][iiPV]+passStationRingPVLCT[iiStation+4][iiRing][iiPV]))+((totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV])-(passSBStationRingPVLCT[iiStation][iiRing][iiPV]+passSBStationRingPVLCT[iiStation+4][iiRing][iiPV])))*effStationCRingPVLCT[iiStation][iiRing][iiPV]*effStationCRingPVLCT[iiStation][iiRing][iiPV])/((totStationRingPV[iiStation][iiRing][iiPV]+totStationRingPV[iiStation+4][iiRing][iiPV])-(totSBStationRingPV[iiStation][iiRing][iiPV]+totSBStationRingPV[iiStation+4][iiRing][iiPV]));
+          }
 
-	  segEffStationRingPV[iiStation][iiRing]->SetBinContent(iiPV+1,effStationRingPVSeg[iiStation][iiRing][iiPV]);
-	  segEffStationRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationRingPVSeg[iiStation][iiRing][iiPV]);
-	  LCTEffStationRingPV[iiStation][iiRing]->SetBinContent(iiPV+1,effStationRingPVLCT[iiStation][iiRing][iiPV]);
-	  LCTEffStationRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationRingPVLCT[iiStation][iiRing][iiPV]);
-	  if (iiStation < 4){
-	    segEffStationCRingPV[iiStation][iiRing]->SetBinContent(iiPV+1,effStationCRingPVSeg[iiStation][iiRing][iiPV]);
-	    segEffStationCRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationCRingPVSeg[iiStation][iiRing][iiPV]);
-	    LCTEffStationCRingPV[iiStation][iiRing]->SetBinContent(iiPV+1,effStationCRingPVLCT[iiStation][iiRing][iiPV]);
-	    LCTEffStationCRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationCRingPVLCT[iiStation][iiRing][iiPV]);
-	  }
+          segEffStationRingPV[iiStation][iiRing]->SetBinContent(iiPV+1,effStationRingPVSeg[iiStation][iiRing][iiPV]);
+          segEffStationRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationRingPVSeg[iiStation][iiRing][iiPV]);
+          LCTEffStationRingPV[iiStation][iiRing]->SetBinContent(iiPV+1,effStationRingPVLCT[iiStation][iiRing][iiPV]);
+          LCTEffStationRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationRingPVLCT[iiStation][iiRing][iiPV]);
+          if (iiStation < 4){
+            segEffStationCRingPV[iiStation][iiRing]->SetBinContent(iiPV+1,effStationCRingPVSeg[iiStation][iiRing][iiPV]);
+            segEffStationCRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationCRingPVSeg[iiStation][iiRing][iiPV]);
+            LCTEffStationCRingPV[iiStation][iiRing]->SetBinContent(iiPV+1,effStationCRingPVLCT[iiStation][iiRing][iiPV]);
+            LCTEffStationCRingPV[iiStation][iiRing]->SetBinError(iiPV+1,effSigmaStationCRingPVLCT[iiStation][iiRing][iiPV]);
+          }
 
-	  //zMassSegDenStationRingPV[iiStation][iiRing][iiPV]->Write();
-	  //zMassSegNumStationRingPV[iiStation][iiRing][iiPV]->Write();
-	  //zMassLCTNumStationRingPV[iiStation][iiRing][iiPV]->Write();
+          //zMassSegDenStationRingPV[iiStation][iiRing][iiPV]->Write();
+          //zMassSegNumStationRingPV[iiStation][iiRing][iiPV]->Write();
+          //zMassLCTNumStationRingPV[iiStation][iiRing][iiPV]->Write();
 
 
-	}
-	segEffStationRingPV[iiStation][iiRing]->Write();
-	LCTEffStationRingPV[iiStation][iiRing]->Write();
-	if (iiStation<4){
-	  segEffStationCRingPV[iiStation][iiRing]->Write();
-	  LCTEffStationCRingPV[iiStation][iiRing]->Write();
-	}
+        }
+        //segEffStationRingPV[iiStation][iiRing]->Write();
+        //LCTEffStationRingPV[iiStation][iiRing]->Write();
+        //if (iiStation<4){
+        //  segEffStationCRingPV[iiStation][iiRing]->Write();
+        //  LCTEffStationCRingPV[iiStation][iiRing]->Write();
+        //}
 
 
       }
 
       if (!LowStats) {
-	for (Int_t iiIL=0; iiIL< numILBins; iiIL++){
-	  //if (totStationRingIL[iiStation][iiRing][iiIL]>0.5)  effStationRingILSeg[iiStation][iiRing][iiIL] = passStationRingILSeg[iiStation][iiRing][iiIL]/totStationRingIL[iiStation][iiRing][iiIL];
-	  //if (totStationRingIL[iiStation][iiRing][iiIL]>0.5) effSigmaStationRingILSeg[iiStation][iiRing][iiIL] = sqrt(effStationRingILSeg[iiStation][iiRing][iiIL]*(1.0-effStationRingILSeg[iiStation][iiRing][iiIL])/totStationRingIL[iiStation][iiRing][iiIL]);
-	  //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " IL Bin " << iiIL << std::endl;
-	  //std::cout << "tot: " << totStationRingIL[iiStation][iiRing][iiIL] << std::endl;
-	  //std::cout << "eff: " << effStationRingILSeg[iiStation][iiRing][iiIL] << " +/- " << effSigmaStationRingILSeg[iiStation][iiRing][iiIL] << std::endl;
+        for (Int_t iiIL=0; iiIL< numILBins; iiIL++){
+          //if (totStationRingIL[iiStation][iiRing][iiIL]>0.5)  effStationRingILSeg[iiStation][iiRing][iiIL] = passStationRingILSeg[iiStation][iiRing][iiIL]/totStationRingIL[iiStation][iiRing][iiIL];
+          //if (totStationRingIL[iiStation][iiRing][iiIL]>0.5) effSigmaStationRingILSeg[iiStation][iiRing][iiIL] = sqrt(effStationRingILSeg[iiStation][iiRing][iiIL]*(1.0-effStationRingILSeg[iiStation][iiRing][iiIL])/totStationRingIL[iiStation][iiRing][iiIL]);
+          //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " IL Bin " << iiIL << std::endl;
+          //std::cout << "tot: " << totStationRingIL[iiStation][iiRing][iiIL] << std::endl;
+          //std::cout << "eff: " << effStationRingILSeg[iiStation][iiRing][iiIL] << " +/- " << effSigmaStationRingILSeg[iiStation][iiRing][iiIL] << std::endl;
 
-	  if ((totStationRingIL[iiStation][iiRing][iiIL]>0.5)&&((totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL])>0.5)) {
-	    effStationRingILSeg[iiStation][iiRing][iiIL] = (passStationRingILSeg[iiStation][iiRing][iiIL]-passSBStationRingILSeg[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
-	    effSigmaStationRingILSeg[iiStation][iiRing][iiIL] = sqrt(((passStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationRingILSeg[iiStation][iiRing][iiIL]))+ ((totStationRingIL[iiStation][iiRing][iiIL]-passStationRingILSeg[iiStation][iiRing][iiIL])+(totSBStationRingIL[iiStation][iiRing][iiIL]-passSBStationRingILSeg[iiStation][iiRing][iiIL]))*effStationRingILSeg[iiStation][iiRing][iiIL]*effStationRingILSeg[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
-	    effStationRingILLCT[iiStation][iiRing][iiIL] = (passStationRingILLCT[iiStation][iiRing][iiIL]-passSBStationRingILLCT[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
-	    effSigmaStationRingILLCT[iiStation][iiRing][iiIL] = sqrt(((passStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation][iiRing][iiIL])*(1.-effStationRingILLCT[iiStation][iiRing][iiIL])*(1.-effStationRingILLCT[iiStation][iiRing][iiIL]))+ ((totStationRingIL[iiStation][iiRing][iiIL]-passStationRingILLCT[iiStation][iiRing][iiIL])+(totSBStationRingIL[iiStation][iiRing][iiIL]-passSBStationRingILLCT[iiStation][iiRing][iiIL]))*effStationRingILLCT[iiStation][iiRing][iiIL]*effStationRingILLCT[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
-	  }
+          if ((totStationRingIL[iiStation][iiRing][iiIL]>0.5)&&((totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL])>0.5)) {
+            effStationRingILSeg[iiStation][iiRing][iiIL] = (passStationRingILSeg[iiStation][iiRing][iiIL]-passSBStationRingILSeg[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
+            effSigmaStationRingILSeg[iiStation][iiRing][iiIL] = sqrt(((passStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationRingILSeg[iiStation][iiRing][iiIL]))+ ((totStationRingIL[iiStation][iiRing][iiIL]-passStationRingILSeg[iiStation][iiRing][iiIL])+(totSBStationRingIL[iiStation][iiRing][iiIL]-passSBStationRingILSeg[iiStation][iiRing][iiIL]))*effStationRingILSeg[iiStation][iiRing][iiIL]*effStationRingILSeg[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
+            effStationRingILLCT[iiStation][iiRing][iiIL] = (passStationRingILLCT[iiStation][iiRing][iiIL]-passSBStationRingILLCT[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
+            effSigmaStationRingILLCT[iiStation][iiRing][iiIL] = sqrt(((passStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation][iiRing][iiIL])*(1.-effStationRingILLCT[iiStation][iiRing][iiIL])*(1.-effStationRingILLCT[iiStation][iiRing][iiIL]))+ ((totStationRingIL[iiStation][iiRing][iiIL]-passStationRingILLCT[iiStation][iiRing][iiIL])+(totSBStationRingIL[iiStation][iiRing][iiIL]-passSBStationRingILLCT[iiStation][iiRing][iiIL]))*effStationRingILLCT[iiStation][iiRing][iiIL]*effStationRingILLCT[iiStation][iiRing][iiIL])/(totStationRingIL[iiStation][iiRing][iiIL]-totSBStationRingIL[iiStation][iiRing][iiIL]);
+          }
 
-	  if ((iiStation<4)&&((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])>0.5)&&(((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]))>0.5)) {
-	    effStationCRingILSeg[iiStation][iiRing][iiIL] = ((passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL])-(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL]))/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
-	    effSigmaStationCRingILSeg[iiStation][iiRing][iiIL] = sqrt((((passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL])+(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL]))*(1.-effStationCRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationCRingILSeg[iiStation][iiRing][iiIL]))+ (((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL]))+((totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL])-(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL])))*effStationCRingILSeg[iiStation][iiRing][iiIL]*effStationCRingILSeg[iiStation][iiRing][iiIL])/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
+          if ((iiStation<4)&&((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])>0.5)&&(((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]))>0.5)) {
+            effStationCRingILSeg[iiStation][iiRing][iiIL] = ((passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL])-(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL]))/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
+            effSigmaStationCRingILSeg[iiStation][iiRing][iiIL] = sqrt((((passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL])+(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL]))*(1.-effStationCRingILSeg[iiStation][iiRing][iiIL])*(1.-effStationCRingILSeg[iiStation][iiRing][iiIL]))+ (((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(passStationRingILSeg[iiStation][iiRing][iiIL]+passStationRingILSeg[iiStation+4][iiRing][iiIL]))+((totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL])-(passSBStationRingILSeg[iiStation][iiRing][iiIL]+passSBStationRingILSeg[iiStation+4][iiRing][iiIL])))*effStationCRingILSeg[iiStation][iiRing][iiIL]*effStationCRingILSeg[iiStation][iiRing][iiIL])/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
 
-	    effStationCRingILLCT[iiStation][iiRing][iiIL] = ((passStationRingILLCT[iiStation][iiRing][iiIL]+passStationRingILLCT[iiStation+4][iiRing][iiIL])-(passSBStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation+4][iiRing][iiIL]))/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
-	    effSigmaStationCRingILLCT[iiStation][iiRing][iiIL] = sqrt((((passStationRingILLCT[iiStation][iiRing][iiIL]+passStationRingILLCT[iiStation+4][iiRing][iiIL])+(passSBStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation+4][iiRing][iiIL]))*(1.-effStationCRingILLCT[iiStation][iiRing][iiIL])*(1.-effStationCRingILLCT[iiStation][iiRing][iiIL]))+ (((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(passStationRingILLCT[iiStation][iiRing][iiIL]+passStationRingILLCT[iiStation+4][iiRing][iiIL]))+((totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL])-(passSBStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation+4][iiRing][iiIL])))*effStationCRingILLCT[iiStation][iiRing][iiIL]*effStationCRingILLCT[iiStation][iiRing][iiIL])/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
-	  }
+            effStationCRingILLCT[iiStation][iiRing][iiIL] = ((passStationRingILLCT[iiStation][iiRing][iiIL]+passStationRingILLCT[iiStation+4][iiRing][iiIL])-(passSBStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation+4][iiRing][iiIL]))/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
+            effSigmaStationCRingILLCT[iiStation][iiRing][iiIL] = sqrt((((passStationRingILLCT[iiStation][iiRing][iiIL]+passStationRingILLCT[iiStation+4][iiRing][iiIL])+(passSBStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation+4][iiRing][iiIL]))*(1.-effStationCRingILLCT[iiStation][iiRing][iiIL])*(1.-effStationCRingILLCT[iiStation][iiRing][iiIL]))+ (((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(passStationRingILLCT[iiStation][iiRing][iiIL]+passStationRingILLCT[iiStation+4][iiRing][iiIL]))+((totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL])-(passSBStationRingILLCT[iiStation][iiRing][iiIL]+passSBStationRingILLCT[iiStation+4][iiRing][iiIL])))*effStationCRingILLCT[iiStation][iiRing][iiIL]*effStationCRingILLCT[iiStation][iiRing][iiIL])/((totStationRingIL[iiStation][iiRing][iiIL]+totStationRingIL[iiStation+4][iiRing][iiIL])-(totSBStationRingIL[iiStation][iiRing][iiIL]+totSBStationRingIL[iiStation+4][iiRing][iiIL]));
+          }
 
-	  segEffStationRingIL[iiStation][iiRing]->SetBinContent(iiIL+1,effStationRingILSeg[iiStation][iiRing][iiIL]);
-	  segEffStationRingIL[iiStation][iiRing]->SetBinError(iiIL+1,effSigmaStationRingILSeg[iiStation][iiRing][iiIL]);
-	  LCTEffStationRingIL[iiStation][iiRing]->SetBinContent(iiIL+1,effStationRingILLCT[iiStation][iiRing][iiIL]);
-	  LCTEffStationRingIL[iiStation][iiRing]->SetBinError(iiIL+1,effSigmaStationRingILLCT[iiStation][iiRing][iiIL]);
-	  if (iiStation < 4){
-	    segEffStationCRingIL[iiStation][iiRing]->SetBinContent(iiIL+1,effStationCRingILSeg[iiStation][iiRing][iiIL]);
-	    segEffStationCRingIL[iiStation][iiRing]->SetBinError(iiIL+1,effSigmaStationCRingILSeg[iiStation][iiRing][iiIL]);
-	    LCTEffStationCRingIL[iiStation][iiRing]->SetBinContent(iiIL+1,effStationCRingILLCT[iiStation][iiRing][iiIL]);
-	    LCTEffStationCRingIL[iiStation][iiRing]->SetBinError(iiIL+1,effSigmaStationCRingILLCT[iiStation][iiRing][iiIL]);
-	  }
+          segEffStationRingIL[iiStation][iiRing]->SetBinContent(iiIL+1,effStationRingILSeg[iiStation][iiRing][iiIL]);
+          segEffStationRingIL[iiStation][iiRing]->SetBinError(iiIL+1,effSigmaStationRingILSeg[iiStation][iiRing][iiIL]);
+          LCTEffStationRingIL[iiStation][iiRing]->SetBinContent(iiIL+1,effStationRingILLCT[iiStation][iiRing][iiIL]);
+          LCTEffStationRingIL[iiStation][iiRing]->SetBinError(iiIL+1,effSigmaStationRingILLCT[iiStation][iiRing][iiIL]);
+          if (iiStation < 4){
+            segEffStationCRingIL[iiStation][iiRing]->SetBinContent(iiIL+1,effStationCRingILSeg[iiStation][iiRing][iiIL]);
+            segEffStationCRingIL[iiStation][iiRing]->SetBinError(iiIL+1,effSigmaStationCRingILSeg[iiStation][iiRing][iiIL]);
+            LCTEffStationCRingIL[iiStation][iiRing]->SetBinContent(iiIL+1,effStationCRingILLCT[iiStation][iiRing][iiIL]);
+            LCTEffStationCRingIL[iiStation][iiRing]->SetBinError(iiIL+1,effSigmaStationCRingILLCT[iiStation][iiRing][iiIL]);
+          }
 
 
 
-	}
-	segEffStationRingIL[iiStation][iiRing]->Write();
-	LCTEffStationRingIL[iiStation][iiRing]->Write();
-	if (iiStation<4){
-	  segEffStationCRingIL[iiStation][iiRing]->Write();
-	  LCTEffStationCRingIL[iiStation][iiRing]->Write();
-	}
+        }
+        //segEffStationRingIL[iiStation][iiRing]->Write();
+        //LCTEffStationRingIL[iiStation][iiRing]->Write();
+        //if (iiStation<4){
+        //  segEffStationCRingIL[iiStation][iiRing]->Write();
+        //  LCTEffStationCRingIL[iiStation][iiRing]->Write();
+        //}
 
 
 
       }       
 
       for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
-	//if (totStationRingRun[iiStation][iiRing][iiRun]>0.5)  effStationRingRunSeg[iiStation][iiRing][iiRun] = passStationRingRunSeg[iiStation][iiRing][iiRun]/totStationRingRun[iiStation][iiRing][iiRun];
-	//if (totStationRingRun[iiStation][iiRing][iiRun]>0.5) effSigmaStationRingRunSeg[iiStation][iiRing][iiRun] = sqrt(effStationRingRunSeg[iiStation][iiRing][iiRun]*(1.0-effStationRingRunSeg[iiStation][iiRing][iiRun])/totStationRingRun[iiStation][iiRing][iiRun]);
-	//std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Run Bin " << iiRun << std::endl;
-	//std::cout << "tot: " << totStationRingRun[iiStation][iiRing][iiRun] << std::endl;
-	//std::cout << "eff: " << effStationRingRunSeg[iiStation][iiRing][iiRun] << " +/- " << effSigmaStationRingRunSeg[iiStation][iiRing][iiRun] << std::endl;
+        //if (totStationRingRun[iiStation][iiRing][iiRun]>0.5)  effStationRingRunSeg[iiStation][iiRing][iiRun] = passStationRingRunSeg[iiStation][iiRing][iiRun]/totStationRingRun[iiStation][iiRing][iiRun];
+        //if (totStationRingRun[iiStation][iiRing][iiRun]>0.5) effSigmaStationRingRunSeg[iiStation][iiRing][iiRun] = sqrt(effStationRingRunSeg[iiStation][iiRing][iiRun]*(1.0-effStationRingRunSeg[iiStation][iiRing][iiRun])/totStationRingRun[iiStation][iiRing][iiRun]);
+        //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " Run Bin " << iiRun << std::endl;
+        //std::cout << "tot: " << totStationRingRun[iiStation][iiRing][iiRun] << std::endl;
+        //std::cout << "eff: " << effStationRingRunSeg[iiStation][iiRing][iiRun] << " +/- " << effSigmaStationRingRunSeg[iiStation][iiRing][iiRun] << std::endl;
 
-	if ((totStationRingRun[iiStation][iiRing][iiRun]>0.5)&&((totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun])>0.5)) {
-	  effStationRingRunSeg[iiStation][iiRing][iiRun] = (passStationRingRunSeg[iiStation][iiRing][iiRun]-passSBStationRingRunSeg[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
-	  effSigmaStationRingRunSeg[iiStation][iiRing][iiRun] = sqrt(((passStationRingRunSeg[iiStation][iiRing][iiRun]+passSBStationRingRunSeg[iiStation][iiRing][iiRun])*(1.-effStationRingRunSeg[iiStation][iiRing][iiRun])*(1.-effStationRingRunSeg[iiStation][iiRing][iiRun]))+ ((totStationRingRun[iiStation][iiRing][iiRun]-passStationRingRunSeg[iiStation][iiRing][iiRun])+(totSBStationRingRun[iiStation][iiRing][iiRun]-passSBStationRingRunSeg[iiStation][iiRing][iiRun]))*effStationRingRunSeg[iiStation][iiRing][iiRun]*effStationRingRunSeg[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
-	  effStationRingRunLCT[iiStation][iiRing][iiRun] = (passStationRingRunLCT[iiStation][iiRing][iiRun]-passSBStationRingRunLCT[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
-	  effSigmaStationRingRunLCT[iiStation][iiRing][iiRun] = sqrt(((passStationRingRunLCT[iiStation][iiRing][iiRun]+passSBStationRingRunLCT[iiStation][iiRing][iiRun])*(1.-effStationRingRunLCT[iiStation][iiRing][iiRun])*(1.-effStationRingRunLCT[iiStation][iiRing][iiRun]))+ ((totStationRingRun[iiStation][iiRing][iiRun]-passStationRingRunLCT[iiStation][iiRing][iiRun])+(totSBStationRingRun[iiStation][iiRing][iiRun]-passSBStationRingRunLCT[iiStation][iiRing][iiRun]))*effStationRingRunLCT[iiStation][iiRing][iiRun]*effStationRingRunLCT[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
-	}
+        if ((totStationRingRun[iiStation][iiRing][iiRun]>0.5)&&((totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun])>0.5)) {
+          effStationRingRunSeg[iiStation][iiRing][iiRun] = (passStationRingRunSeg[iiStation][iiRing][iiRun]-passSBStationRingRunSeg[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
+          effSigmaStationRingRunSeg[iiStation][iiRing][iiRun] = sqrt(((passStationRingRunSeg[iiStation][iiRing][iiRun]+passSBStationRingRunSeg[iiStation][iiRing][iiRun])*(1.-effStationRingRunSeg[iiStation][iiRing][iiRun])*(1.-effStationRingRunSeg[iiStation][iiRing][iiRun]))+ ((totStationRingRun[iiStation][iiRing][iiRun]-passStationRingRunSeg[iiStation][iiRing][iiRun])+(totSBStationRingRun[iiStation][iiRing][iiRun]-passSBStationRingRunSeg[iiStation][iiRing][iiRun]))*effStationRingRunSeg[iiStation][iiRing][iiRun]*effStationRingRunSeg[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
+          effStationRingRunLCT[iiStation][iiRing][iiRun] = (passStationRingRunLCT[iiStation][iiRing][iiRun]-passSBStationRingRunLCT[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
+          effSigmaStationRingRunLCT[iiStation][iiRing][iiRun] = sqrt(((passStationRingRunLCT[iiStation][iiRing][iiRun]+passSBStationRingRunLCT[iiStation][iiRing][iiRun])*(1.-effStationRingRunLCT[iiStation][iiRing][iiRun])*(1.-effStationRingRunLCT[iiStation][iiRing][iiRun]))+ ((totStationRingRun[iiStation][iiRing][iiRun]-passStationRingRunLCT[iiStation][iiRing][iiRun])+(totSBStationRingRun[iiStation][iiRing][iiRun]-passSBStationRingRunLCT[iiStation][iiRing][iiRun]))*effStationRingRunLCT[iiStation][iiRing][iiRun]*effStationRingRunLCT[iiStation][iiRing][iiRun])/(totStationRingRun[iiStation][iiRing][iiRun]-totSBStationRingRun[iiStation][iiRing][iiRun]);
+        }
 
-	segEffStationRingRun[iiStation][iiRing]->SetBinContent(iiRun+1,effStationRingRunSeg[iiStation][iiRing][iiRun]);
-	segEffStationRingRun[iiStation][iiRing]->SetBinError(iiRun+1,effSigmaStationRingRunSeg[iiStation][iiRing][iiRun]);
-	LCTEffStationRingRun[iiStation][iiRing]->SetBinContent(iiRun+1,effStationRingRunLCT[iiStation][iiRing][iiRun]);
-	LCTEffStationRingRun[iiStation][iiRing]->SetBinError(iiRun+1,effSigmaStationRingRunLCT[iiStation][iiRing][iiRun]);
+        segEffStationRingRun[iiStation][iiRing]->SetBinContent(iiRun+1,effStationRingRunSeg[iiStation][iiRing][iiRun]);
+        segEffStationRingRun[iiStation][iiRing]->SetBinError(iiRun+1,effSigmaStationRingRunSeg[iiStation][iiRing][iiRun]);
+        LCTEffStationRingRun[iiStation][iiRing]->SetBinContent(iiRun+1,effStationRingRunLCT[iiStation][iiRing][iiRun]);
+        LCTEffStationRingRun[iiStation][iiRing]->SetBinError(iiRun+1,effSigmaStationRingRunLCT[iiStation][iiRing][iiRun]);
 
 
       }
-      segEffStationRingRun[iiStation][iiRing]->Write();
-      LCTEffStationRingRun[iiStation][iiRing]->Write();
+      //segEffStationRingRun[iiStation][iiRing]->Write();
+      //LCTEffStationRingRun[iiStation][iiRing]->Write();
 
 
 
@@ -3390,141 +3663,141 @@ void CSCEffFast::Loop()
       //     }       
 
       for (Int_t iiLCY=0; iiLCY< numLCYBins; iiLCY++){
-	// 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)  effStationRingLCYSeg[iiStation][iiRing][iiLCY] = passStationRingLCYSeg[iiStation][iiRing][iiLCY]/totStationRingLCY[iiStation][iiRing][iiLCY];
-	// 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5) effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(effStationRingLCYSeg[iiStation][iiRing][iiLCY]*(1.0-effStationRingLCYSeg[iiStation][iiRing][iiLCY])/totStationRingLCY[iiStation][iiRing][iiLCY]);
-	// 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCY Bin " << iiLCY << std::endl;
-	// 	 //std::cout << "tot: " << totStationRingLCY[iiStation][iiRing][iiLCY] << std::endl;
-	// 	 //std::cout << "eff: " << effStationRingLCYSeg[iiStation][iiRing][iiLCY] << " +/- " << effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] << std::endl;
+        // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)  effStationRingLCYSeg[iiStation][iiRing][iiLCY] = passStationRingLCYSeg[iiStation][iiRing][iiLCY]/totStationRingLCY[iiStation][iiRing][iiLCY];
+        // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5) effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(effStationRingLCYSeg[iiStation][iiRing][iiLCY]*(1.0-effStationRingLCYSeg[iiStation][iiRing][iiLCY])/totStationRingLCY[iiStation][iiRing][iiLCY]);
+        // 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCY Bin " << iiLCY << std::endl;
+        // 	 //std::cout << "tot: " << totStationRingLCY[iiStation][iiRing][iiLCY] << std::endl;
+        // 	 //std::cout << "eff: " << effStationRingLCYSeg[iiStation][iiRing][iiLCY] << " +/- " << effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] << std::endl;
 
-	// if ((totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY])>0.5)) {
-	// 	 effStationRingLCYSeg[iiStation][iiRing][iiLCY] = (passStationRingLCYSeg[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
-	// 	 effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY]))+ ((totStationRingLCY[iiStation][iiRing][iiLCY]-passStationRingLCYSeg[iiStation][iiRing][iiLCY])+(totSBStationRingLCY[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]))*effStationRingLCYSeg[iiStation][iiRing][iiLCY]*effStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
-	// }
-	// if ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY])>0.5)) {
-	// 	 effStationRingLCYLCT[iiStation][iiRing][iiLCY] = (passStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-	// 	 effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY]))+ ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-passStationRingLCYLCT[iiStation][iiRing][iiLCY])+(totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]))*effStationRingLCYLCT[iiStation][iiRing][iiLCY]*effStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-	// }
+        // if ((totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY])>0.5)) {
+        // 	 effStationRingLCYSeg[iiStation][iiRing][iiLCY] = (passStationRingLCYSeg[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
+        // 	 effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYSeg[iiStation][iiRing][iiLCY]))+ ((totStationRingLCY[iiStation][iiRing][iiLCY]-passStationRingLCYSeg[iiStation][iiRing][iiLCY])+(totSBStationRingLCY[iiStation][iiRing][iiLCY]-passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]))*effStationRingLCYSeg[iiStation][iiRing][iiLCY]*effStationRingLCYSeg[iiStation][iiRing][iiLCY])/(totStationRingLCY[iiStation][iiRing][iiLCY]-totSBStationRingLCY[iiStation][iiRing][iiLCY]);
+        // }
+        // if ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]>0.5)&&((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY])>0.5)) {
+        // 	 effStationRingLCYLCT[iiStation][iiRing][iiLCY] = (passStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+        // 	 effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt(((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationRingLCYLCT[iiStation][iiRing][iiLCY]))+ ((totStationRingLCYLCT[iiStation][iiRing][iiLCY]-passStationRingLCYLCT[iiStation][iiRing][iiLCY])+(totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]-passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]))*effStationRingLCYLCT[iiStation][iiRing][iiLCY]*effStationRingLCYLCT[iiStation][iiRing][iiLCY])/(totStationRingLCYLCT[iiStation][iiRing][iiLCY]-totSBStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+        // }
 
-	// 	 if ((iiStation<4)&&((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])>0.5)&&(((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]))>0.5)) {
-	// 	   effStationCRingLCYSeg[iiStation][iiRing][iiLCY] = ((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-	// 	   effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYSeg[iiStation][iiRing][iiLCY]*effStationCRingLCYSeg[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+        // 	 if ((iiStation<4)&&((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])>0.5)&&(((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]))>0.5)) {
+        // 	   effStationCRingLCYSeg[iiStation][iiRing][iiLCY] = ((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+        // 	   effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYSeg[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYSeg[iiStation][iiRing][iiLCY]+passStationRingLCYSeg[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYSeg[iiStation][iiRing][iiLCY]+passSBStationRingLCYSeg[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYSeg[iiStation][iiRing][iiLCY]*effStationCRingLCYSeg[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
 
-	// 	   effStationCRingLCYLCT[iiStation][iiRing][iiLCY] = ((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-	// 	   effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYLCT[iiStation][iiRing][iiLCY]*effStationCRingLCYLCT[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
-	// 	 }
+        // 	   effStationCRingLCYLCT[iiStation][iiRing][iiLCY] = ((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+        // 	   effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY] = sqrt((((passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY])+(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY])*(1.-effStationCRingLCYLCT[iiStation][iiRing][iiLCY]))+ (((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(passStationRingLCYLCT[iiStation][iiRing][iiLCY]+passStationRingLCYLCT[iiStation+4][iiRing][iiLCY]))+((totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY])-(passSBStationRingLCYLCT[iiStation][iiRing][iiLCY]+passSBStationRingLCYLCT[iiStation+4][iiRing][iiLCY])))*effStationCRingLCYLCT[iiStation][iiRing][iiLCY]*effStationCRingLCYLCT[iiStation][iiRing][iiLCY])/((totStationRingLCY[iiStation][iiRing][iiLCY]+totStationRingLCY[iiStation+4][iiRing][iiLCY])-(totSBStationRingLCY[iiStation][iiRing][iiLCY]+totSBStationRingLCY[iiStation+4][iiRing][iiLCY]));
+        // 	 }
 
 
-	// segEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYSeg[iiStation][iiRing][iiLCY]);
-	// segEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY]);
-	// LCTEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-	// LCTEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY]);
-	// if (iiStation<4){
-	// segEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
-	// segEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
-	// LCTEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
-	// LCTEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
-	// }
+        // segEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYSeg[iiStation][iiRing][iiLCY]);
+        // segEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYSeg[iiStation][iiRing][iiLCY]);
+        // LCTEffStationRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+        // LCTEffStationRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationRingLCYLCT[iiStation][iiRing][iiLCY]);
+        // if (iiStation<4){
+        // segEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
+        // segEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYSeg[iiStation][iiRing][iiLCY]);
+        // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinContent(iiLCY+1,effStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
+        // LCTEffStationCRingLCY[iiStation][iiRing]->SetBinError(iiLCY+1,effSigmaStationCRingLCYLCT[iiStation][iiRing][iiLCY]);
+        // }
 
-	for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+        for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
 
-	  if ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]>0.5)&&((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY])>0.5)) {
-	    effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-	    effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+          if ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]>0.5)&&((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY])>0.5)) {
+            effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+            effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
 
-	    effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-	    effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-	  }	 
+            effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+            effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
+          }	 
 
-	  segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
-	  segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
-	  LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
-	  LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
+          segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
+          segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
+          LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
+          LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]);
 
-	}
+        }
 
 
       } //end loog over LCY bins
-      // segEffStationRingLCY[iiStation][iiRing]->Write();
-      // LCTEffStationRingLCY[iiStation][iiRing]->Write();
-      // if (iiStation<4){
-      // segEffStationCRingLCY[iiStation][iiRing]->Write();
-      // LCTEffStationCRingLCY[iiStation][iiRing]->Write();
-      // }
-      for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-	segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-	LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-      }      
+        // segEffStationRingLCY[iiStation][iiRing]->Write();
+        // LCTEffStationRingLCY[iiStation][iiRing]->Write();
+        // if (iiStation<4){
+        // segEffStationCRingLCY[iiStation][iiRing]->Write();
+        // LCTEffStationCRingLCY[iiStation][iiRing]->Write();
+        // }
+      //for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+      //  segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
+      //  LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
+      //}      
 
       for (Int_t iiLCS=0; iiLCS< numLCSBins; iiLCS++){
-	// 	 //if (totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)  effStationRingLCSSeg[iiStation][iiRing][iiLCS] = passStationRingLCSSeg[iiStation][iiRing][iiLCS]/totStationRingLCS[iiStation][iiRing][iiLCS];
-	// 	 //if (totStationRingLCS[iiStation][iiRing][iiLCS]>0.5) effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS] = sqrt(effStationRingLCSSeg[iiStation][iiRing][iiLCS]*(1.0-effStationRingLCSSeg[iiStation][iiRing][iiLCS])/totStationRingLCS[iiStation][iiRing][iiLCS]);
-	// 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCS Bin " << iiLCS << std::endl;
-	// 	 //std::cout << "tot: " << totStationRingLCS[iiStation][iiRing][iiLCS] << std::endl;
-	// 	 //std::cout << "eff: " << effStationRingLCSSeg[iiStation][iiRing][iiLCS] << " +/- " << effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS] << std::endl;
+        // 	 //if (totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)  effStationRingLCSSeg[iiStation][iiRing][iiLCS] = passStationRingLCSSeg[iiStation][iiRing][iiLCS]/totStationRingLCS[iiStation][iiRing][iiLCS];
+        // 	 //if (totStationRingLCS[iiStation][iiRing][iiLCS]>0.5) effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS] = sqrt(effStationRingLCSSeg[iiStation][iiRing][iiLCS]*(1.0-effStationRingLCSSeg[iiStation][iiRing][iiLCS])/totStationRingLCS[iiStation][iiRing][iiLCS]);
+        // 	 //std::cout << "Ring efficiency: Station " << iiStation << " Ring " << iiRing << " LCS Bin " << iiLCS << std::endl;
+        // 	 //std::cout << "tot: " << totStationRingLCS[iiStation][iiRing][iiLCS] << std::endl;
+        // 	 //std::cout << "eff: " << effStationRingLCSSeg[iiStation][iiRing][iiLCS] << " +/- " << effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS] << std::endl;
 
-	// if ((totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)&&((totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS])>0.5)) {
-	// 	 effStationRingLCSSeg[iiStation][iiRing][iiLCS] = (passStationRingLCSSeg[iiStation][iiRing][iiLCS]-passSBStationRingLCSSeg[iiStation][iiRing][iiLCS])/(totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS]);
-	// 	 effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS] = sqrt(((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSSeg[iiStation][iiRing][iiLCS]))+ ((totStationRingLCS[iiStation][iiRing][iiLCS]-passStationRingLCSSeg[iiStation][iiRing][iiLCS])+(totSBStationRingLCS[iiStation][iiRing][iiLCS]-passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]))*effStationRingLCSSeg[iiStation][iiRing][iiLCS]*effStationRingLCSSeg[iiStation][iiRing][iiLCS])/(totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS]);
-	// }
-	// if ((totStationRingLCSLCT[iiStation][iiRing][iiLCS]>0.5)&&((totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS])>0.5)) {
-	// 	 effStationRingLCSLCT[iiStation][iiRing][iiLCS] = (passStationRingLCSLCT[iiStation][iiRing][iiLCS]-passSBStationRingLCSLCT[iiStation][iiRing][iiLCS])/(totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]);
-	// 	 effSigmaStationRingLCSLCT[iiStation][iiRing][iiLCS] = sqrt(((passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSLCT[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSLCT[iiStation][iiRing][iiLCS]))+ ((totStationRingLCSLCT[iiStation][iiRing][iiLCS]-passStationRingLCSLCT[iiStation][iiRing][iiLCS])+(totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]-passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]))*effStationRingLCSLCT[iiStation][iiRing][iiLCS]*effStationRingLCSLCT[iiStation][iiRing][iiLCS])/(totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]);
-	// }
+        // if ((totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)&&((totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS])>0.5)) {
+        // 	 effStationRingLCSSeg[iiStation][iiRing][iiLCS] = (passStationRingLCSSeg[iiStation][iiRing][iiLCS]-passSBStationRingLCSSeg[iiStation][iiRing][iiLCS])/(totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS]);
+        // 	 effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS] = sqrt(((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSSeg[iiStation][iiRing][iiLCS]))+ ((totStationRingLCS[iiStation][iiRing][iiLCS]-passStationRingLCSSeg[iiStation][iiRing][iiLCS])+(totSBStationRingLCS[iiStation][iiRing][iiLCS]-passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]))*effStationRingLCSSeg[iiStation][iiRing][iiLCS]*effStationRingLCSSeg[iiStation][iiRing][iiLCS])/(totStationRingLCS[iiStation][iiRing][iiLCS]-totSBStationRingLCS[iiStation][iiRing][iiLCS]);
+        // }
+        // if ((totStationRingLCSLCT[iiStation][iiRing][iiLCS]>0.5)&&((totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS])>0.5)) {
+        // 	 effStationRingLCSLCT[iiStation][iiRing][iiLCS] = (passStationRingLCSLCT[iiStation][iiRing][iiLCS]-passSBStationRingLCSLCT[iiStation][iiRing][iiLCS])/(totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]);
+        // 	 effSigmaStationRingLCSLCT[iiStation][iiRing][iiLCS] = sqrt(((passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSLCT[iiStation][iiRing][iiLCS])*(1.-effStationRingLCSLCT[iiStation][iiRing][iiLCS]))+ ((totStationRingLCSLCT[iiStation][iiRing][iiLCS]-passStationRingLCSLCT[iiStation][iiRing][iiLCS])+(totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]-passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]))*effStationRingLCSLCT[iiStation][iiRing][iiLCS]*effStationRingLCSLCT[iiStation][iiRing][iiLCS])/(totStationRingLCSLCT[iiStation][iiRing][iiLCS]-totSBStationRingLCSLCT[iiStation][iiRing][iiLCS]);
+        // }
 
-	// 	 if ((iiStation<4)&&((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])>0.5)&&(((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]))>0.5)) {
-	// 	   effStationCRingLCSSeg[iiStation][iiRing][iiLCS] = ((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
-	// 	   effSigmaStationCRingLCSSeg[iiStation][iiRing][iiLCS] = sqrt((((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS])+(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))*(1.-effStationCRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationCRingLCSSeg[iiStation][iiRing][iiLCS]))+ (((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))+((totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS])))*effStationCRingLCSSeg[iiStation][iiRing][iiLCS]*effStationCRingLCSSeg[iiStation][iiRing][iiLCS])/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
+        // 	 if ((iiStation<4)&&((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])>0.5)&&(((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]))>0.5)) {
+        // 	   effStationCRingLCSSeg[iiStation][iiRing][iiLCS] = ((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
+        // 	   effSigmaStationCRingLCSSeg[iiStation][iiRing][iiLCS] = sqrt((((passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS])+(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))*(1.-effStationCRingLCSSeg[iiStation][iiRing][iiLCS])*(1.-effStationCRingLCSSeg[iiStation][iiRing][iiLCS]))+ (((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(passStationRingLCSSeg[iiStation][iiRing][iiLCS]+passStationRingLCSSeg[iiStation+4][iiRing][iiLCS]))+((totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSSeg[iiStation][iiRing][iiLCS]+passSBStationRingLCSSeg[iiStation+4][iiRing][iiLCS])))*effStationCRingLCSSeg[iiStation][iiRing][iiLCS]*effStationCRingLCSSeg[iiStation][iiRing][iiLCS])/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
 
-	// 	   effStationCRingLCSLCT[iiStation][iiRing][iiLCS] = ((passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passStationRingLCSLCT[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation+4][iiRing][iiLCS]))/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
-	// 	   effSigmaStationCRingLCSLCT[iiStation][iiRing][iiLCS] = sqrt((((passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passStationRingLCSLCT[iiStation+4][iiRing][iiLCS])+(passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation+4][iiRing][iiLCS]))*(1.-effStationCRingLCSLCT[iiStation][iiRing][iiLCS])*(1.-effStationCRingLCSLCT[iiStation][iiRing][iiLCS]))+ (((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passStationRingLCSLCT[iiStation+4][iiRing][iiLCS]))+((totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation+4][iiRing][iiLCS])))*effStationCRingLCSLCT[iiStation][iiRing][iiLCS]*effStationCRingLCSLCT[iiStation][iiRing][iiLCS])/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
-	// 	 }
+        // 	   effStationCRingLCSLCT[iiStation][iiRing][iiLCS] = ((passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passStationRingLCSLCT[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation+4][iiRing][iiLCS]))/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
+        // 	   effSigmaStationCRingLCSLCT[iiStation][iiRing][iiLCS] = sqrt((((passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passStationRingLCSLCT[iiStation+4][iiRing][iiLCS])+(passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation+4][iiRing][iiLCS]))*(1.-effStationCRingLCSLCT[iiStation][iiRing][iiLCS])*(1.-effStationCRingLCSLCT[iiStation][iiRing][iiLCS]))+ (((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(passStationRingLCSLCT[iiStation][iiRing][iiLCS]+passStationRingLCSLCT[iiStation+4][iiRing][iiLCS]))+((totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS])-(passSBStationRingLCSLCT[iiStation][iiRing][iiLCS]+passSBStationRingLCSLCT[iiStation+4][iiRing][iiLCS])))*effStationCRingLCSLCT[iiStation][iiRing][iiLCS]*effStationCRingLCSLCT[iiStation][iiRing][iiLCS])/((totStationRingLCS[iiStation][iiRing][iiLCS]+totStationRingLCS[iiStation+4][iiRing][iiLCS])-(totSBStationRingLCS[iiStation][iiRing][iiLCS]+totSBStationRingLCS[iiStation+4][iiRing][iiLCS]));
+        // 	 }
 
 
-	// segEffStationRingLCS[iiStation][iiRing]->SetBinContent(iiLCS+1,effStationRingLCSSeg[iiStation][iiRing][iiLCS]);
-	// segEffStationRingLCS[iiStation][iiRing]->SetBinError(iiLCS+1,effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS]);
-	// LCTEffStationRingLCS[iiStation][iiRing]->SetBinContent(iiLCS+1,effStationRingLCSLCT[iiStation][iiRing][iiLCS]);
-	// LCTEffStationRingLCS[iiStation][iiRing]->SetBinError(iiLCS+1,effSigmaStationRingLCSLCT[iiStation][iiRing][iiLCS]);
-	// if (iiStation<4){
-	// segEffStationCRingLCS[iiStation][iiRing]->SetBinContent(iiLCS+1,effStationCRingLCSSeg[iiStation][iiRing][iiLCS]);
-	// segEffStationCRingLCS[iiStation][iiRing]->SetBinError(iiLCS+1,effSigmaStationCRingLCSSeg[iiStation][iiRing][iiLCS]);
-	// LCTEffStationCRingLCS[iiStation][iiRing]->SetBinContent(iiLCS+1,effStationCRingLCSLCT[iiStation][iiRing][iiLCS]);
-	// LCTEffStationCRingLCS[iiStation][iiRing]->SetBinError(iiLCS+1,effSigmaStationCRingLCSLCT[iiStation][iiRing][iiLCS]);
-	// }
+        // segEffStationRingLCS[iiStation][iiRing]->SetBinContent(iiLCS+1,effStationRingLCSSeg[iiStation][iiRing][iiLCS]);
+        // segEffStationRingLCS[iiStation][iiRing]->SetBinError(iiLCS+1,effSigmaStationRingLCSSeg[iiStation][iiRing][iiLCS]);
+        // LCTEffStationRingLCS[iiStation][iiRing]->SetBinContent(iiLCS+1,effStationRingLCSLCT[iiStation][iiRing][iiLCS]);
+        // LCTEffStationRingLCS[iiStation][iiRing]->SetBinError(iiLCS+1,effSigmaStationRingLCSLCT[iiStation][iiRing][iiLCS]);
+        // if (iiStation<4){
+        // segEffStationCRingLCS[iiStation][iiRing]->SetBinContent(iiLCS+1,effStationCRingLCSSeg[iiStation][iiRing][iiLCS]);
+        // segEffStationCRingLCS[iiStation][iiRing]->SetBinError(iiLCS+1,effSigmaStationCRingLCSSeg[iiStation][iiRing][iiLCS]);
+        // LCTEffStationCRingLCS[iiStation][iiRing]->SetBinContent(iiLCS+1,effStationCRingLCSLCT[iiStation][iiRing][iiLCS]);
+        // LCTEffStationCRingLCS[iiStation][iiRing]->SetBinError(iiLCS+1,effSigmaStationCRingLCSLCT[iiStation][iiRing][iiLCS]);
+        // }
 
-	for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+        for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
 
-	  if ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]>0.5)&&((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS])>0.5)) {
-	    effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
-	    effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
+          if ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]>0.5)&&((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS])>0.5)) {
+            effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
+            effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
 
-	    effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
-	    effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
-	  }	 
+            effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
+            effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
+          }	 
 
-	  segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
-	  segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
-	  LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]);
-	  LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]);
+          segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
+          segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
+          LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]);
+          LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]);
 
-	}
+        }
 
 
       } //end loog over LCS bins
-      // segEffStationRingLCS[iiStation][iiRing]->Write();
-      // LCTEffStationRingLCS[iiStation][iiRing]->Write();
-      // if (iiStation<4){
-      // segEffStationCRingLCS[iiStation][iiRing]->Write();
-      // LCTEffStationCRingLCS[iiStation][iiRing]->Write();
-      // }
-      for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
-	segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
-	LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
-      }      
+        // segEffStationRingLCS[iiStation][iiRing]->Write();
+        // LCTEffStationRingLCS[iiStation][iiRing]->Write();
+        // if (iiStation<4){
+        // segEffStationCRingLCS[iiStation][iiRing]->Write();
+        // LCTEffStationCRingLCS[iiStation][iiRing]->Write();
+        // }
+      //for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
+      //  segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
+      //  LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
+      //}      
 
 
 
     } // end loop over rings 
-	   } // end loop over stations
+  } // end loop over stations
 
   // segEff2DStationRingChamber->Write();
   // LCTEff2DStationRingChamber->Write();
@@ -3557,7 +3830,7 @@ void CSCEffFast::Loop()
   // std::cout << "Failed dxy       " << nFailDxy << std::endl;
 
 
-
+  /*
   zMassAll->Write();
   zMassGood->Write();
   zMassBad->Write();
@@ -3586,7 +3859,7 @@ void CSCEffFast::Loop()
 
   segmentsFid1HighpT->Write();
   segmentsFid2HighpT->Write();
-
+  */
 
 
   std::cout << "Total, pass, fail " << totalFiducial << " " << totalPass << " " << totalFail << std::endl;
@@ -3607,7 +3880,7 @@ void CSCEffFast::Loop()
 // }
 
 /*
-  .L CSCEffFast.C+
-  CSCEffFast* cscEffFast = new CSCEffFast()
-  cscEffFast->Loop()
-*/
+   .L CSCEffFast.C+
+   CSCEffFast* cscEffFast = new CSCEffFast()
+   cscEffFast->Loop()
+   */
