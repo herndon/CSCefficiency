@@ -25,7 +25,7 @@ string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
 
 void PlotCSCEffFast(){
   // Initializing
-  char file[50];
+  char file[70];
   char name[50];
   char stationRing[10];
   char title[100];
@@ -36,20 +36,20 @@ void PlotCSCEffFast(){
   bool chamberPlots = false; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
   bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on
   bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
-  bool DCFEBAnalysis = true;
+  bool DCFEBAnalysis = true; // Run DCFEB analysis for specific run ranges
 
   // Constants
-  float deadDCFEBThreshold = 0.25; // Efficiency threshold for dead (D)CFEBs.
+  float deadDCFEBThreshold = 0.80; // Efficiency threshold for dead (D)CFEBs.
   float effThreshold = 0.80; // Efficiency threshold for file readouts.
-  float maxRemovalThreshold = 0.50; // Efficiency threshold for maximal removal of low efficiency DCFEBs
+  float maxRemovalThreshold = 0.80; // Efficiency threshold for maximal removal of low efficiency DCFEBs
   float DCFEBRanges[5][2] = { {-2.0,18.0}, {14.0,34.0}, {30.0,50.0}, {46.0,66.0},{62.0,82.0}};
   double lowEff = 0.6;
   double highEff = 1.02;
 
   // int firstRun = 355000;
   // int lastRun = 362800;
-  int firstRun = 366400;
-  int lastRun = 367400;
+  int firstRun = 367100;
+  int lastRun = 367800;
 
   // Efficiency Check text files
   if (!verbose) gErrorIgnoreLevel = kWarning;
@@ -2520,6 +2520,7 @@ void PlotCSCEffFast(){
   if (chamberPlots){
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
+        if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
         // Check for chamber plot directory
         {
           DIR *chdir = opendir(("plots/" + GetMELabel(iiStation, iiRing)).c_str());
@@ -2528,7 +2529,6 @@ void PlotCSCEffFast(){
         }
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
-          if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
 
           // Drawing CSC Segment Efficiency vs. Strip LC
           sprintf(name,"segEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
@@ -2795,37 +2795,42 @@ void PlotCSCEffFast(){
         }
       }
     }
+    cscRunEffData.close();
   }
 
   // Efficiency Checking
-  int numMaxRemoval, numIneffDCFEBs;
-  float segEff, LCTEff;
-  bool bPrintedHeader, bDeadChamber;
-  stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssLowEffChambers;
-  stringstream ssAutoHeader;
-  ssDeadDCFEBsWithEff << fixed << setprecision(2);
-  ssDeadDCFEBsWithEff << fixed << setprecision(2);
-  ssAutoHeader << fixed << setprecision(2);
   if (effCheck){
+    int numMaxRemoval, numIneffDCFEBs;
+    float segEff, LCTEff;
+    bool bPrintedHeader, bDeadChamber, bDeadDCFEB;
+    stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssLowEffChambers;
+    stringstream ssAutoHeader;
+    ssDeadDCFEBsWithEff << fixed << setprecision(2);
+    ssDeadDCFEBsWithEff << fixed << setprecision(2);
+    ssAutoHeader << fixed << setprecision(2);
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
-
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
           numMaxRemoval=0;
           numIneffDCFEBs=0;
           bPrintedHeader = false;
-          string indexstr = (string)"[0][" + (iiStation<4? "0":"1") + "][" + to_string(iiStation+1) + "-1][" 
-            + to_string(iiRing) + "][" + to_string(iiChamber+1) + "-1]";
+
+          string indexstr = "[0][";
+          if (iiStation < 4) indexstr += "0][" + to_string(iiStation+1);
+          else indexstr += "1][" + to_string(iiStation+1-4);
+          indexstr += "-1][" + to_string(iiRing) + "][" + to_string(iiChamber) + "-1]";
 
           // Identifying Dead DCFEBs and Chambers
           bDeadChamber = false;
           for (Int_t iiDCFEB = 1; iiDCFEB < 6; iiDCFEB++){
+            bDeadDCFEB = false;
             segEff = ((TH2F*)file0->Get(("segEff2DStation" + to_string(iiStation+1) + "Ring" + to_string(iiRing) + "ChamberDCFEB").c_str()))
               ->GetBinContent(iiChamber,iiDCFEB);
             LCTEff = ((TH2F*)file0->Get(("LCTEff2DStation" + to_string(iiStation+1) + "Ring" + to_string(iiRing) + "ChamberDCFEB").c_str()))
               ->GetBinContent(iiChamber,iiDCFEB);
+
             // Check for dead chamber
             if (segEff == 0.00){
               if (!bDeadChamber && iiDCFEB == 1) bDeadChamber = true;
@@ -2854,6 +2859,7 @@ void PlotCSCEffFast(){
                 ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
                 bPrintedHeader = true;
               }
+              bDeadDCFEB = true;
               ssAutoHeader << "    // Dead DCFEB " << iiDCFEB;
 
               if (LCTEff < deadDCFEBThreshold){
@@ -2884,6 +2890,8 @@ void PlotCSCEffFast(){
                 ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
                 bPrintedHeader = true;
               }
+              bDeadDCFEB = true;
+
               ssAutoHeader << "    //  Dead DCFEB " << iiDCFEB;
               ssAutoHeader << " LCT " << (LCTEff*100) << "\% all runs" << std::endl;
               ssAutoHeader << "    badChamber" << indexstr << " = true;  ";
@@ -2939,8 +2947,7 @@ void PlotCSCEffFast(){
               ssAutoHeader << std::endl << std::endl;
             }
 
-            // Low efficiency TODO
-            // - Mark chambers with ALL DCFEBs below 90% (or some other threshold)
+            // Low efficiency flag 
             if (segEff > maxRemovalThreshold && segEff < 0.90){
               numIneffDCFEBs++;
               if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
@@ -2953,37 +2960,92 @@ void PlotCSCEffFast(){
               if (numIneffDCFEBs == 5) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " **" << std::endl;
             }
 
+            // Check for Dead DCFEBs over specific run ranges
+            if (!bDeadDCFEB){
+              int numRunBins = ((TH2F*)file0->Get("segEff2DStation1Ring1ChamberRun"))->GetNbinsY();
+            }
           }
-          if (numMaxRemoval != 0) cout << GetMELabel(iiStation, iiRing) << ": " << numMaxRemoval << std::endl;
+          //if (numMaxRemoval != 0) cout << GetMELabel(iiStation, iiRing) << ": " << numMaxRemoval << std::endl;
         }
       }
     }
+    //Print Low Efficiency Chambers to File
+    cscEffCheck << "Low Efficiency Chambers" << std::endl << "-----------------------" << std::endl;
+    cscEffCheck << ssLowEffChambers.str() << std::endl;
+    cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+    //Print Dead Chambers to File
+    cscEffCheck << std::endl;
+    cscEffCheck << "Dead Chambers" << std::endl << "-------------" << std::endl;
+    cscEffCheck << ssDeadChambers.str() << std::endl;
+    //Print Dead DCFEBs to File (without efficiency)
+    cscEffCheck << std::endl;
+    cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
+    cscEffCheck << ssDeadDCFEBs.str() << std::endl;
+    cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+    //Print Dead DCFEBs to File (with efficiency)
+    cscEffCheck << std::endl;
+    cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
+    cscEffCheck << ssDeadDCFEBsWithEff.str() << std::endl;
+    cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+    //Print auto-generated removal statements
+    cscEffCheck << std::endl;
+    cscEffCheck << std::endl << "Auto Header" << std::endl << "-----------" << std::endl;
+    cscEffCheck << ssAutoHeader.str() << std::endl;
+    // Closing Text Files and Exiting
+    cscEffCheck.close();
   }
-  //Print Low Efficiency Chambers to File
-  cscEffCheck << "Low Efficiency Chambers" << std::endl << "-----------------------" << std::endl;
-  cscEffCheck << ssLowEffChambers.str() << std::endl;
-  cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
-  //Print Dead Chambers to File
-  cscEffCheck << std::endl;
-  cscEffCheck << "Dead Chambers" << std::endl << "-------------" << std::endl;
-  cscEffCheck << ssDeadChambers.str() << std::endl;
-  //Print Dead DCFEBs to File (without efficiency)
-  cscEffCheck << std::endl;
-  cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
-  cscEffCheck << ssDeadDCFEBs.str() << std::endl;
-  cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
-  //Print Dead DCFEBs to File (with efficiency)
-  cscEffCheck << std::endl;
-  cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
-  cscEffCheck << ssDeadDCFEBsWithEff.str() << std::endl;
-  cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
-  //Print auto-generated removal statements
-  cscEffCheck << std::endl;
-  cscEffCheck << std::endl << "Auto Header" << std::endl << "-----------" << std::endl;
-  cscEffCheck << ssAutoHeader.str() << std::endl;
-  // Closing Text Files and Exiting
-  cscRunEffData.close();
-  cscEffCheck.close();
+
+  if (DCFEBAnalysis){
+    // Check for plots/ directory
+    {
+      DIR *plotdir = opendir("plots/DCFEBAnalysis");
+      if (!plotdir) mkdir("plots/DCFEBAnalysis", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      else closedir(plotdir);
+    }
+
+    gStyle->SetOptStat(0);
+    int numRunBins = ((TH2F*)file0->Get("segEff2DStation1Ring1ChamberRun"))->GetNbinsY();
+    for (Int_t iiStation = 0; iiStation < 8; iiStation++){
+      for (Int_t iiRing = 0; iiRing < 4; iiRing++){
+        if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
+        sprintf(name, "segEff2DStation%dRing%dDCFEBChamberRunCompact", iiStation+1, iiRing);
+        sprintf(file, "plots/DCFEBAnalysis/CSCSegEffRun3Data2DChamberRunCompact%s.png", GetMELabel(iiStation,iiRing).c_str());
+        sprintf(title, "DCFEB Analysis %s", GetMELabel(iiStation, iiRing).c_str());
+        TH2F * hcompact = new TH2F(name, title, 36, 0.5, 36.5, numRunBins*5, 0, numRunBins*5);
+
+        for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){ 
+          hcompact->GetXaxis()->SetBinLabel(iiChamber, to_string(iiChamber).c_str());
+          if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
+          for (Int_t iiRunBin=0; iiRunBin < numRunBins; iiRunBin++){
+            for (Int_t iiDCFEB=1; iiDCFEB < 6; iiDCFEB++){
+              Int_t runBin = firstRun + iiRunBin*(lastRun-firstRun)/numRunBins;
+              sprintf(name, "segEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
+              Float_t content = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin+1);
+
+              hcompact->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, content);
+              if (iiDCFEB == 3)
+                hcompact->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, (to_string(runBin) + " #" + to_string(iiDCFEB)).c_str());
+              else
+                hcompact->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
+            }
+          }
+        }
+        hcompact->SetMarkerSize(0.6);
+        hcompact->GetXaxis()->SetLabelSize(0.035);
+        hcompact->GetYaxis()->SetLabelSize(0.028);
+        hcompact->GetXaxis()->SetTickLength(0.02);
+        hcompact->GetYaxis()->SetTickLength(0.01);
+        hcompact->Draw("COLZ TEXT");
+        for (Int_t iiRunBin=0; iiRunBin < numRunBins; iiRunBin++){
+          TLine *line = new TLine(-3.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+          line->Draw();
+        }
+        c1.Print(file);
+      }
+    }
+  }
+
+  c1.Close();
 }
 
 // Helper functions
