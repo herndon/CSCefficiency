@@ -33,7 +33,7 @@ void CSCEffFast::Loop()
   // Define Efficiency Histogram parameters
 
   bool DoubleMuGun = false;
-  bool LowStats = true;
+  bool LowStats = false;
   bool noTrig = true; //false 2022, true when necessary 2023
   bool badRunRangesTrack = false; // Min removal for 2022ABCDEFG
   bool badRunRangesTrack2 = false; // Max removal for 2022ABCDEFG
@@ -41,7 +41,7 @@ void CSCEffFast::Loop()
   bool oldBadChambersTrack = false; // Removal for Run2
 
   bool badRunRanges2023Track = false; // Min removal for 2023C, none yet
-  bool badChambers2023Track = true; // Chamber and DCFEB Removal for 2023C
+  bool badChambers2023Track = false; // Chamber and DCFEB Removal for 2023C
   bool badChambers2023Track2 = false; // Max Chamber and DCFEB Removal for 2023C
 
   
@@ -77,7 +77,7 @@ void CSCEffFast::Loop()
   Float_t isoBins[(numIsoBins+1)] = {0.0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.24,0.28,0.34,0.40};
 
   const Int_t numPVBins=12;       //number of primary vertex bins eff plots 17, 9
-  Float_t pvBins[(numPVBins+1)] = {-0.5,0.5,4.5,8.5,16.5,24.5,32.5,40.5,48.5,56.5,66.5,72.5,80.5};
+  Float_t pvBins[(numPVBins+1)] = {-0.5,0.5,4.5,8.5,16.5,24.5,32.5,40.5,48.5,56.5,64.5,72.5,80.5};
   //Float_t pvBins[(numPVBins+1)] = {0.0,0.5,4.5,8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5,60.5,70.5};
 
   const Int_t numILBins=25;       //number instantatanious lumi bins in eff plots
@@ -91,10 +91,11 @@ void CSCEffFast::Loop()
   //Float_t runBins[(numRunBins+1)] = {315200.0,315400.0,315600.0,315800.0,316000.0,316200.0,316400.0,316600.0,316800.0,317000.0,317200.0,317400.0,317600.0,317800.0,318000.0,318200.0,318400.0,318600.0,318800.0,319100.0,319200.0,319400.0,319600.0,319800.0,320000.0,320200.0,320400.0,320600.0,320800.0,321000.0,321200.0,321400.0,321600.0,321800.0,322000.0,322200.0,322400.0,322600.0,322800.0,323000.0,323200.0,323400.0,323600.0,323800.0,324000.0,324200.0,324400.0,324600.0,324800.0,325000.0,325200.0};
 
 #if newData
+  // Need to make sure the run ranges are inclusive of the edges.  i.e. like 99.9 to 200.1
   // Run 3 2023 B,C
   //runBins = new Float_t[(numRunBins+1)]{366400.1,366500.1,366600.1,366700.1,366800.1,366900.1,367000.1,367100.1,367200.1,367300.1,367400.1,367500.1,367600.1,367700.1,367800.1};
   // Run 3 2023 C only
-  runBins = new Float_t[(numRunBins+1)]{367100.1,367200.1,367300.1,367400.1,367500.1,367600.1,367700.1,367800.1};
+  runBins = new Float_t[(numRunBins+1)]{367099.9,367200.1,367300.1,367400.1,367500.1,367600.1,367700.1,367800.1};
 #else
   // Run 3 2022 A-G
   runBins = new Float_t[(numRunBins+1)]{355000.1,355200.1,355400.1,355600.1,355800.1,356000.1,356200.1,356400.1,356600.1,356800.1,357000.1,357200.1,357400.1,357600.1,357800.1,358000.1,359000.1,359200.1,359400.1,359600.1,359800.1,360000.1,360200.1,360400.1,360600.1,360800.1,361000.1,361200.1,361400.1,361600.1,361800.1,362000.1,362200.1,362400.1,362600.1,362800.1};
@@ -3459,7 +3460,7 @@ void CSCEffFast::Loop()
 
       }     
 
-      if (LowStats){
+      if (!LowStats){
 
         for (Int_t iiPV=0; iiPV< numPVBins; iiPV++){
           //if (totStationRingPV[iiStation][iiRing][iiPV]>0.5)  effStationRingPVSeg[iiStation][iiRing][iiPV] = passStationRingPVSeg[iiStation][iiRing][iiPV]/totStationRingPV[iiStation][iiRing][iiPV];

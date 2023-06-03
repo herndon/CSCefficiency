@@ -491,7 +491,7 @@ void PlotCSCEffFast(){
 
     segEffPVStation1CRing0->SetTitle("     CSC Segment Efficiency vs PV         Run 3 Data");
     segEffPVStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,56.0);
+    segEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,66.0);
     segEffPVStation1CRing0->SetLineColor(kRed);
     segEffPVStation1CRing0->SetMarkerColor(kRed);
     segEffPVStation1CRing0->SetMarkerStyle(8);
@@ -532,7 +532,7 @@ void PlotCSCEffFast(){
 
     segEffPVStation2CRing1->SetTitle("     CSC Segment Efficiency vs PV         Run 3 Data");
     segEffPVStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,56.0);
+    segEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,66.0);
     segEffPVStation2CRing1->SetLineColor(kRed);
     segEffPVStation2CRing1->SetMarkerColor(kRed);
     segEffPVStation2CRing1->SetMarkerStyle(8);
@@ -895,7 +895,7 @@ void PlotCSCEffFast(){
 
     LCTEffPVStation1CRing0->SetTitle("     CSC LCT Efficiency vs PV         Run 3 Data");
     LCTEffPVStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,56.0);
+    LCTEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,66.0);
     LCTEffPVStation1CRing0->SetLineColor(kRed);
     LCTEffPVStation1CRing0->SetMarkerColor(kRed);
     LCTEffPVStation1CRing0->SetMarkerStyle(8);
@@ -936,7 +936,7 @@ void PlotCSCEffFast(){
 
     LCTEffPVStation2CRing1->SetTitle("     CSC LCT Efficiency vs PV         Run 3 Data");
     LCTEffPVStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,56.0);
+    LCTEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,66.0);
     LCTEffPVStation2CRing1->SetLineColor(kRed);
     LCTEffPVStation2CRing1->SetMarkerColor(kRed);
     LCTEffPVStation2CRing1->SetMarkerStyle(8);
