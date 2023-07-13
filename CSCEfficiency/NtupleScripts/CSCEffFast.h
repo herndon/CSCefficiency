@@ -734,42 +734,84 @@ CSCEffFast::CSCEffFast() : fChain(0)
     //   }
     // }
 
-    // 2023 C new v1 and v2
 
-    // v1
-    for (int fileNum=0;fileNum < 460;fileNum++) {
-      if ((!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_3/230522_230520/0000/CSCeff_Muon_2023C0v2_%d.root",fileNum)))&&fileNum!=88) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_3/230522_230520/0000/CSCeff_Muon_2023C0v2_%d.root",fileNum));
-	numberFiles++;
+    // 2023D
+    
+    for (int fileNum=0; fileNum<30; fileNum++){//Muon0
+      if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023D0_2023_0712_1/230713_023111/0000/CSCeff_Muon_2023D0v1_%d.root",fileNum))){
+        chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023D0_2023_0712_1/230713_023111/0000/CSCeff_Muon_2023D0v1_\%d.root",fileNum));
+        numberFiles++;
       }
     }
-
-	
-    for (int fileNum=0;fileNum < 460;fileNum++) {
-      if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_3/230522_232605/0000/CSCeff_Muon_2023C1v2_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_3/230522_232605/0000/CSCeff_Muon_2023C1v2_%d.root",fileNum));
-	numberFiles++;
+    for (int fileNum=0; fileNum<700; fileNum++){//Muon1
+      if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023D1_2023_0712_1/230713_021426/0000/CSCeff_Muon_2023D1v1_%d.root",fileNum))){
+        chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023D1_2023_0712_1/230713_021426/0000/CSCeff_Muon_2023D1v1_%d.root",fileNum));
+        numberFiles++;
       }
     }
 
     
-    // v2
-    for (int fileNum=0;fileNum < 725;fileNum++) {
-      if ((!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_2/230522_170454/0000/CSCeff_Muon_2023C0_%d.root",fileNum)))&&fileNum!=88) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_2/230522_170454/0000/CSCeff_Muon_2023C0_%d.root",fileNum));
-	numberFiles++;
-      }
-    }
 
-	
-    for (int fileNum=0;fileNum < 725;fileNum++) {
-      if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_2/230522_170711/0000/CSCeff_Muon_2023C1_%d.root",fileNum))) {
-	chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_2/230522_170711/0000/CSCeff_Muon_2023C1_%d.root",fileNum));
-	numberFiles++;
-      }
-    }
+    // // 2023C v4
+    // for (int fileNum=0; fileNum<999; fileNum++){//Muon0
+    //   if (!gSystem->AccessPathName(Form("/hdfs/store/user/marquez/Muon0/CSCEff2023C0_2023_0628_1/230629_135549/0000/CSCeff_Muon_2023C0v4_%d.root",fileNum))){
+    //     chain->Add(Form("/hdfs/store/user/marquez/Muon0/CSCEff2023C0_2023_0628_1/230629_135549/0000/CSCeff_Muon_2023C0v4_%d.root",fileNum));
+    //     numberFiles++;
+    //   }
+    // }
+    // for (int fileNum=1000; fileNum<1936; fileNum++){//Muon0
+    //   if (!gSystem->AccessPathName(Form("/hdfs/store/user/marquez/Muon0/CSCEff2023C0_2023_0628_1/230629_135549/0001/CSCeff_Muon_2023C0v4_%d.root",fileNum))){
+    //     chain->Add(Form("/hdfs/store/user/marquez/Muon0/CSCEff2023C0_2023_0628_1/230629_135549/0001/CSCeff_Muon_2023C0v4_%d.root",fileNum));
+    //     numberFiles++;
+    //   }
+    // }
+    // for (int fileNum=0; fileNum<955; fileNum++){//Muon1
+    //   if (!gSystem->AccessPathName(Form("/hdfs/store/user/marquez/Muon1/CSCEff2023C1_2023_0628_1/230629_140919/0000/CSCeff_Muon_2023C1v4_%d.root",fileNum))){
+    //     chain->Add(Form("/hdfs/store/user/marquez/Muon1/CSCEff2023C1_2023_0628_1/230629_140919/0000/CSCeff_Muon_2023C1v4_%d.root",fileNum));
+    //     numberFiles++;
+    //   }
+    // }
+    // for (int fileNum=1000; fileNum<1939; fileNum++){//Muon1
+    //   if (!gSystem->AccessPathName(Form("/hdfs/store/user/marquez/Muon1/CSCEff2023C1_2023_0628_1/230629_140919/0001/CSCeff_Muon_2023C1v4_%d.root",fileNum))){
+    //     chain->Add(Form("/hdfs/store/user/marquez/Muon1/CSCEff2023C1_2023_0628_1/230629_140919/0001/CSCeff_Muon_2023C1v4_%d.root",fileNum));
+    //     numberFiles++;
+    //   }
+    // }
 
-    
+    // // 2023 C new v1 and v2
+    // // v1
+    // for (int fileNum=0;fileNum < 460;fileNum++) {
+    //   if ((!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_3/230522_230520/0000/CSCeff_Muon_2023C0v2_%d.root",fileNum)))&&fileNum!=88) {
+    //     chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_3/230522_230520/0000/CSCeff_Muon_2023C0v2_%d.root",fileNum));
+    //     numberFiles++;
+    //   }
+    // }
+
+    // for (int fileNum=0;fileNum < 460;fileNum++) {
+    //   if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_3/230522_232605/0000/CSCeff_Muon_2023C1v2_%d.root",fileNum))) {
+    //     chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_3/230522_232605/0000/CSCeff_Muon_2023C1v2_%d.root",fileNum));
+    //     numberFiles++;
+    //   }
+    // }
+
+
+    // // v2
+    // for (int fileNum=0;fileNum < 725;fileNum++) {
+    //   if ((!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_2/230522_170454/0000/CSCeff_Muon_2023C0_%d.root",fileNum)))&&fileNum!=88) {
+    //     chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2023C0_2023_0512_2/230522_170454/0000/CSCeff_Muon_2023C0_%d.root",fileNum));
+    //     numberFiles++;
+    //   }
+    // }
+
+
+    // for (int fileNum=0;fileNum < 725;fileNum++) {
+    //   if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_2/230522_170711/0000/CSCeff_Muon_2023C1_%d.root",fileNum))) {
+    //     chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2023C1_2023_0512_2/230522_170711/0000/CSCeff_Muon_2023C1_%d.root",fileNum));
+    //     numberFiles++;
+    //   }
+    // }
+
+
   } else { 
 
     // 2022 g
