@@ -6,7 +6,12 @@
 #include <TF1.h>
 #include <TStyle.h>
 #include <TCanvas.h>
-#include "BadChambers.h"
+
+#define autoRemoval false
+#if autoRemoval
+ #include "BadChambers.h"
+#endif
+
 void CSCEffFast::Loop()
 {
   //   In a ROOT session, you can do:
@@ -20,6 +25,7 @@ void CSCEffFast::Loop()
 
 
   std::cout << "Start CSCEffFast" << std::endl;
+  if (autoRemoval) std::cout << "Using auto-removal code in BadChambers.h" << std::endl;
   std::cout.flush();
 
   TFile cscEffHistoFile("cscEffHistoFile.root","Recreate");
@@ -45,28 +51,33 @@ void CSCEffFast::Loop()
   bool badChambers2023Track = false; // Chamber and DCFEB Removal for 2023C
   bool badChambers2023Track2 = false; // Max Chamber and DCFEB Removal for 2023C
 
-  bool badChambers2023TrackAuto = true; // Chamber and DCFEB Removal for 2023C
+  //bool badChambers2023TrackAuto = true; // Chamber and DCFEB Removal for 2023C
 
-  
+
   bool ME21EvenOdd = true;
   bool ME31EvenOdd = false;
   bool ME41EvenOdd = false;
 
-  Int_t firstRun, lastRun;
-  if (newData){
-    //firstRun = 367100; //2023 excluding B and first few runs of C where MEx1 was bad
-    //lastRun = 367700; //2023Cv1-2
-    //lastRun = 369700; //2023Cv4
-    firstRun = 369800; //2023D
-    lastRun = 370400; //2023D
-    
-  }
-  else{
-    firstRun = 355000; //2022
-    lastRun = 362800; //2022
-  }
+  // Setting run ranges
+  //  NOTE: When setting the lastRun variable, set it to the upper edge. i.e. the maximum value that won't be exceeded
+  //  This will allow the run bins to be generated properly.
+#if newData
+  //const Int_t firstRun = 367100; //2023 excluding B and first few runs of C where MEx1 was bad
+  //const Int_t firstRun = 369800; //2023D
+  //const Int_t firstRun = 370600;
 
+  //const Int_t lastRun = 367700; //2023Cv1-2
+  //const Int_t lastRun = 369700; //2023Cv4
+  //const Int_t lastRun = 370400; //2023Dv1
+  //const Int_t lastRun = 370800; //2023Dv2
 
+  //const Int_t firstRun = d2023Dv2.firstRun;
+  //const Int_t lastRun = d2023Dv2.lastRun;
+#else
+  //const Int_t firstRun = 355000; //2022
+  //const Int_t lastRun = 362800; //2022
+#endif
+  
   // Pt, Eta, phi (chamber) parameters and histograms
 
   const Int_t numPtBins=9;       //number of pt bins in eff plots
@@ -94,8 +105,15 @@ void CSCEffFast::Loop()
   const Int_t numILBins=26;       //number instantatanious lumi bins in eff plots
   Float_t ilBins[(numILBins+1)] = {-100.0,0.0,1000.0,2000.0,3000.0,4000.0,5000.0,6000.0,7000.0,8000.0,9000.0,10000.0,11000.0,12000.0,13000.0,14000.0,15000.0,16000.0,17000.0,18000.0,19000.0,20000.0,21000.0,22000.0,23000.0,24000.0,25000.0};
 
-  const Int_t numRunBins = newData? 5:35;
-  // 33:35 if all Run 3 data
+  /* Old Run Bin Assignment
+   *
+  //const Int_t numRunBins = 35; //all 2022
+  //const Int_t numRunBins = 7; //2023Cv1-2
+  //const Int_t numRunBins = 20; //2023Cv4
+  //const Int_t numRunBins = 26; //2023Cv1-2,4
+  //const Int_t numRunBins = 5; //2023Dv1
+  //const Int_t numRunBins = 9; //2023Dv1-2
+  const Int_t numRunBins = 37; //all 2023 (2023Cv1-2,4 and 2023Dv1-2)
   Double_t *runBins;
 
   // 2018D
@@ -110,12 +128,26 @@ void CSCEffFast::Loop()
   //runBins = new Double_t[(numRunBins+1)]{367100,367200,367300,367400,367500,367600,367700,367800}; //v1-2
   //runBins = new Double_t[(numRunBins+1)]{367770, 367870, 367970, 368070, 368170, 368270, 368370, 368470, 368570, 368670, 368770, 368870, 368970, 369070, 369170, 369270, 369370, 369470, 369570, 369670, 369770}; //v4 only
 
-  //runBins = new Double_t[(numRunBins+1)]{367100,367200,367300,367400,367500,367600,367700,367800,367900,368000,368100,368200,368300,368400,368500,368600,368700,368800,368900,369000,369100,369200,369300,369400,369500,369600,369700 ,369800,369900, 370000,370100,370200,370300,370400}; //2023Cv1-2,4,2023D
-   runBins = new Double_t[(numRunBins+1)]{369800,370000,370100,370200,370300,370400}; //2023D
+  //runBins = new Double_t[(numRunBins+1)]{367100,367200,367300,367400,367500,367600,367700,367800,367900,368000,368100,368200,368300,368400,368500,368600,368700,368800,368900,369000,369100,369200,369300,369400,369500,369600,369700}; //2023Cv1-2,4
+  runBins = new Double_t[(numRunBins+1)]{367100,367200,367300,367400,367500,367600,367700,367800,367900,368000,368100,368200,368300,368400,368500,368600,368700,368800,368900,369000,369100,369200,369300,369400,369500,369600,369700,369800,369900,370000,370100,370200,370300,370400,370500,370600,370700,370800}; //2023Cv1-2,4 and 2023D
+  //runBins = new Double_t[(numRunBins+1)]{369800,370000,370100,370200,370300,370400,370500,370600,370700,370800}; //2023Dv1-2
+  
 #else
   // Run 3 2022 A-G
   runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
 #endif
+  *
+  */
+#if newData
+  // auto-generate equally-spaced run bins (100 runs each)
+  const Int_t numRunBins = (lastRun-firstRun)/100 + 1;
+  Double_t *runBins = new Double_t[(numRunBins+1)]{0};
+  for (int i=0; i<numRunBins+1; i++) runBins[i] = firstRun + i*100;
+#else
+  // Run 3 2022 A-G
+  runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
+#endif
+
 
   // layers bins, hits by layer
   const Int_t numLayerBins=6;       //number of layers
@@ -745,7 +777,7 @@ void CSCEffFast::Loop()
   // Efficiencies based on counting with sideband subtraction
   // Fit code exists for cross check and systematic uncerainty
 
-  // Global effiency couters
+  // Global effiency counters
 
   Float_t totGlobal=0,passGlobalSeg=0,passGlobalLCT=0,totSBGlobal=0,passSBGlobalSeg=0,passSBGlobalLCT=0,effGlobalSeg = 0,effSigmaGlobalSeg = 0,effGlobalLCT = 0,effSigmaGlobalLCT = 0;
 
@@ -972,8 +1004,10 @@ void CSCEffFast::Loop()
   // move start from period D, 320394to period B, 318800
 
   // New data chamberes Run 3 auto generated
-  if (badChambers2023TrackAuto) SetBadChambers(badChamber, badChamberRun, badChamberLCS);
-  if (badChambers2023Track) {
+#if autoRemoval
+  SetBadChambers(badChamber, badChamberRun, badChamberLCS);
+#endif
+  if (badChambers2023Track && !autoRemoval) {
 
 
     if (badChambers2023Track2) {
@@ -1399,7 +1433,7 @@ void CSCEffFast::Loop()
 
 
   // ????? exclude 357734?  seen in multiple rings
-  if (badChambersTrack) {
+  if (badChambersTrack && !autoRemoval) {
 
     //?????? need to test if any of these are back  
 
@@ -2450,10 +2484,12 @@ void CSCEffFast::Loop()
             totGlobal++;
             if (CSCRg4==1) {totStationRing[3][1]++;totStationRingChamber[3][1][CSCCh4]++;totStationRingPt[3][1][pTBin]++;totStationRingEta[3][1][etaBin4]++;totStationRingIso[3][1][isoBin]++;totStationRingPV[3][1][pvBin]++;totStationRingIL[3][1][ilBin]++;totStationRingRun[3][1][runBin]++;totStationRingChamberRun[3][1][CSCCh4][runBin]++;totStationRingLCY[3][1][lCYBin4]++;totStationRingLCYLCT[3][1][lC3YBin4]++;totStationRingLCS[3][1][lCSBin4]++;totStationRingLCSLCT[3][1][lC3SBin4]++;totStationRingChamberLCY[3][1][CSCCh4][lCYBin4]++;totStationRingChamberLCS[3][1][CSCCh4][lCSBin4]++;totStationRingChamberLCW[3][1][CSCCh4][lCWBin4]++;totStationRingChamberDCFEB[3][1][CSCCh4][dCFEBBin4]++;totStationRingChamberDCFEBLCT[3][1][CSCCh4][dCFEB3Bin4]++; totStationRingDCFEBChamberRun[3][1][dCFEBBin4][CSCCh4][runBin]++;
 
-	      if (ME41EvenOdd) {if ((CSCCh4%2 == 0)) {totStationRing[3][0]++;totStationRingChamber[3][0][CSCCh4]++;totStationRingPt[3][0][pTBin]++;totStationRingEta[3][0][etaBin]++;totStationRingIso[3][0][isoBin]++;totStationRingPV[3][0][pvBin]++;totStationRingIL[3][0][ilBin]++;totStationRingRun[3][0][runBin]++;totStationRingChamberRun[3][0][CSCCh4][runBin]++;totStationRingLCY[3][0][lCYBin4]++;totStationRingLCYLCT[3][0][lC3YBin4]++;totStationRingLCS[3][0][lCSBin4]++;totStationRingLCSLCT[3][0][lC3SBin4]++;yySegStationRing[3][0]->Fill(CSCSegyLc3,CSCTTyLc3); totStationRingDCFEBChamberRun[3][0][dCFEBBin4][CSCCh4][runBin]++;}
-              else {totStationRing[3][3]++;totStationRingChamber[3][3][CSCCh4]++;totStationRingPt[3][3][pTBin]++;totStationRingEta[3][3][etaBin]++;totStationRingIso[3][3][isoBin]++;totStationRingPV[3][3][pvBin]++;totStationRingIL[3][3][ilBin]++;totStationRingRun[3][3][runBin]++;totStationRingChamberRun[3][3][CSCCh4][runBin]++;totStationRingLCY[3][3][lCYBin4]++;totStationRingLCYLCT[3][3][lC3YBin4]++;totStationRingLCS[3][3][lCSBin4]++;totStationRingLCSLCT[3][3][lC3SBin4]++;yySegStationRing[3][3]->Fill(CSCSegyLc4,CSCTTyLc4); totStationRingDCFEBChamberRun[3][3][dCFEBBin4][CSCCh4][runBin]++;}} 
+              if (ME41EvenOdd) {
+                if ((CSCCh4%2 == 0)) {totStationRing[3][0]++;totStationRingChamber[3][0][CSCCh4]++;totStationRingPt[3][0][pTBin]++;totStationRingEta[3][0][etaBin]++;totStationRingIso[3][0][isoBin]++;totStationRingPV[3][0][pvBin]++;totStationRingIL[3][0][ilBin]++;totStationRingRun[3][0][runBin]++;totStationRingChamberRun[3][0][CSCCh4][runBin]++;totStationRingLCY[3][0][lCYBin4]++;totStationRingLCYLCT[3][0][lC3YBin4]++;totStationRingLCS[3][0][lCSBin4]++;totStationRingLCSLCT[3][0][lC3SBin4]++;yySegStationRing[3][0]->Fill(CSCSegyLc3,CSCTTyLc3); totStationRingDCFEBChamberRun[3][0][dCFEBBin4][CSCCh4][runBin]++;}
+                else {totStationRing[3][3]++;totStationRingChamber[3][3][CSCCh4]++;totStationRingPt[3][3][pTBin]++;totStationRingEta[3][3][etaBin]++;totStationRingIso[3][3][isoBin]++;totStationRingPV[3][3][pvBin]++;totStationRingIL[3][3][ilBin]++;totStationRingRun[3][3][runBin]++;totStationRingChamberRun[3][3][CSCCh4][runBin]++;totStationRingLCY[3][3][lCYBin4]++;totStationRingLCYLCT[3][3][lC3YBin4]++;totStationRingLCS[3][3][lCSBin4]++;totStationRingLCSLCT[3][3][lC3SBin4]++;yySegStationRing[3][3]->Fill(CSCSegyLc4,CSCTTyLc4); totStationRingDCFEBChamberRun[3][3][dCFEBBin4][CSCCh4][runBin]++;}
+              }
 
-	      
+
               if (inZMass) segDenStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
               zMassSegDenStationRingChamber[3][1][CSCCh4]->Fill(invMass);
               if (inZMass) {resSegStationRingChamber[3][1][CSCCh4]->Fill(CSCDxyTTSeg4);resSigmaSegStationRingChamber[3][1][CSCCh4]->Fill(CSCDxyTTSeg4/CSCDxyErrTTSeg4);}
@@ -2476,10 +2512,12 @@ void CSCEffFast::Loop()
               passGlobalSeg++;
               if (CSCRg4==1) {passStationRingSeg[3][1]++;passStationRingChamberSeg[3][1][CSCCh4]++;passStationRingPtSeg[3][1][pTBin]++;passStationRingEtaSeg[3][1][etaBin4]++;passStationRingIsoSeg[3][1][isoBin]++;passStationRingPVSeg[3][1][pvBin]++;passStationRingILSeg[3][1][ilBin]++;passStationRingRunSeg[3][1][runBin]++;passStationRingChamberRunSeg[3][1][CSCCh4][runBin]++;passStationRingLCYSeg[3][1][lCYBin4]++;passStationRingLCSSeg[3][1][lCSBin4]++;passStationRingChamberLCYSeg[3][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[3][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[3][1][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBSeg[3][1][CSCCh4][dCFEBBin4]++;passStationRingDCFEBChamberRunSeg[3][1][dCFEBBin4][CSCCh4][runBin]++;
 
-		if (ME41EvenOdd) {if ((CSCCh4%2 == 0)) {passStationRingSeg[3][0]++;passStationRingChamberSeg[3][0][CSCCh4]++;passStationRingPtSeg[3][0][pTBin]++;passStationRingEtaSeg[3][0][etaBin]++;passStationRingIsoSeg[3][0][isoBin]++;passStationRingPVSeg[3][0][pvBin]++;passStationRingILSeg[3][0][ilBin]++;passStationRingRunSeg[3][0][runBin]++;passStationRingChamberRunSeg[3][0][CSCCh4][runBin]++;passStationRingLCYSeg[3][0][lCYBin4]++;;passStationRingLCSSeg[3][0][lCSBin4]++;passStationRingDCFEBChamberRunSeg[3][0][dCFEBBin4][CSCCh4][runBin]++;}
-		  else {passStationRingSeg[3][3]++;passStationRingChamberSeg[3][3][CSCCh4]++;passStationRingPtSeg[3][3][pTBin]++;passStationRingEtaSeg[3][3][etaBin]++;passStationRingIsoSeg[3][3][isoBin]++;passStationRingPVSeg[3][3][pvBin]++;passStationRingILSeg[3][3][ilBin]++;passStationRingRunSeg[3][3][runBin]++;passStationRingChamberRunSeg[3][3][CSCCh4][runBin]++;passStationRingLCYSeg[3][3][lCYBin4]++;passStationRingLCSSeg[3][3][lCSBin4]++;passStationRingDCFEBChamberRunSeg[3][3][dCFEBBin4][CSCCh4][runBin]++;}}
+                if (ME41EvenOdd) {
+                  if ((CSCCh4%2 == 0)) {passStationRingSeg[3][0]++;passStationRingChamberSeg[3][0][CSCCh4]++;passStationRingPtSeg[3][0][pTBin]++;passStationRingEtaSeg[3][0][etaBin]++;passStationRingIsoSeg[3][0][isoBin]++;passStationRingPVSeg[3][0][pvBin]++;passStationRingILSeg[3][0][ilBin]++;passStationRingRunSeg[3][0][runBin]++;passStationRingChamberRunSeg[3][0][CSCCh4][runBin]++;passStationRingLCYSeg[3][0][lCYBin4]++;;passStationRingLCSSeg[3][0][lCSBin4]++;passStationRingDCFEBChamberRunSeg[3][0][dCFEBBin4][CSCCh4][runBin]++;}
+                  else {passStationRingSeg[3][3]++;passStationRingChamberSeg[3][3][CSCCh4]++;passStationRingPtSeg[3][3][pTBin]++;passStationRingEtaSeg[3][3][etaBin]++;passStationRingIsoSeg[3][3][isoBin]++;passStationRingPVSeg[3][3][pvBin]++;passStationRingILSeg[3][3][ilBin]++;passStationRingRunSeg[3][3][runBin]++;passStationRingChamberRunSeg[3][3][CSCCh4][runBin]++;passStationRingLCYSeg[3][3][lCYBin4]++;passStationRingLCSSeg[3][3][lCSBin4]++;passStationRingDCFEBChamberRunSeg[3][3][dCFEBBin4][CSCCh4][runBin]++;}
+                }
 
-		
+
                 if (inZMass) segNumStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
                 zMassSegNumStationRingChamber[3][1][CSCCh4]->Fill(invMass);
               }
@@ -2692,10 +2730,12 @@ void CSCEffFast::Loop()
             totGlobal++;
             if (CSCRg4==1) {totStationRing[7][1]++;totStationRingChamber[7][1][CSCCh4]++;totStationRingPt[7][1][pTBin]++;totStationRingEta[7][1][etaBin4]++;totStationRingIso[7][1][isoBin]++;totStationRingPV[7][1][pvBin]++;totStationRingIL[7][1][ilBin]++;totStationRingRun[7][1][runBin]++;totStationRingChamberRun[7][1][CSCCh4][runBin]++;totStationRingLCY[7][1][lCYBin4]++;totStationRingLCYLCT[7][1][lC3YBin4]++;totStationRingLCS[7][1][lCSBin4]++;totStationRingLCSLCT[7][1][lC3SBin4]++;totStationRingChamberLCY[7][1][CSCCh4][lCYBin4]++;totStationRingChamberLCS[7][1][CSCCh4][lCSBin4]++;totStationRingChamberLCW[7][1][CSCCh4][lCWBin4]++;totStationRingChamberDCFEB[7][1][CSCCh4][dCFEBBin4]++;totStationRingChamberDCFEBLCT[7][1][CSCCh4][dCFEB3Bin4]++; totStationRingDCFEBChamberRun[7][1][dCFEBBin4][CSCCh4][runBin]++;
 
-              if (ME41EvenOdd) {if ((CSCCh4%2 == 0)) {totStationRing[7][0]++;totStationRingChamber[7][0][CSCCh4]++;totStationRingPt[7][0][pTBin]++;totStationRingEta[7][0][etaBin]++;totStationRingIso[7][0][isoBin]++;totStationRingPV[7][0][pvBin]++;totStationRingIL[7][0][ilBin]++;totStationRingRun[7][0][runBin]++;totStationRingChamberRun[7][0][CSCCh4][runBin]++;totStationRingLCY[7][0][lCYBin4]++;totStationRingLCYLCT[7][0][lC3YBin4]++;totStationRingLCS[7][0][lCSBin4]++;totStationRingLCSLCT[7][0][lC3SBin4]++; totStationRingDCFEBChamberRun[7][0][dCFEBBin4][CSCCh4][runBin]++;}
-		else {totStationRing[7][3]++;totStationRingChamber[7][3][CSCCh4]++;totStationRingPt[7][3][pTBin]++;totStationRingEta[7][3][etaBin]++;totStationRingIso[7][3][isoBin]++;totStationRingPV[7][3][pvBin]++;totStationRingIL[7][3][ilBin]++;totStationRingRun[7][3][runBin]++;totStationRingChamberRun[7][3][CSCCh4][runBin]++;totStationRingLCY[7][3][lCYBin4]++;totStationRingLCYLCT[7][3][lC3YBin4]++;totStationRingLCS[7][3][lCSBin4]++;totStationRingLCSLCT[7][3][lC3SBin4]++; totStationRingDCFEBChamberRun[7][3][dCFEBBin4][CSCCh4][runBin]++;}}
+              if (ME41EvenOdd) {
+                if ((CSCCh4%2 == 0)) {totStationRing[7][0]++;totStationRingChamber[7][0][CSCCh4]++;totStationRingPt[7][0][pTBin]++;totStationRingEta[7][0][etaBin]++;totStationRingIso[7][0][isoBin]++;totStationRingPV[7][0][pvBin]++;totStationRingIL[7][0][ilBin]++;totStationRingRun[7][0][runBin]++;totStationRingChamberRun[7][0][CSCCh4][runBin]++;totStationRingLCY[7][0][lCYBin4]++;totStationRingLCYLCT[7][0][lC3YBin4]++;totStationRingLCS[7][0][lCSBin4]++;totStationRingLCSLCT[7][0][lC3SBin4]++; totStationRingDCFEBChamberRun[7][0][dCFEBBin4][CSCCh4][runBin]++;}
+                else {totStationRing[7][3]++;totStationRingChamber[7][3][CSCCh4]++;totStationRingPt[7][3][pTBin]++;totStationRingEta[7][3][etaBin]++;totStationRingIso[7][3][isoBin]++;totStationRingPV[7][3][pvBin]++;totStationRingIL[7][3][ilBin]++;totStationRingRun[7][3][runBin]++;totStationRingChamberRun[7][3][CSCCh4][runBin]++;totStationRingLCY[7][3][lCYBin4]++;totStationRingLCYLCT[7][3][lC3YBin4]++;totStationRingLCS[7][3][lCSBin4]++;totStationRingLCSLCT[7][3][lC3SBin4]++; totStationRingDCFEBChamberRun[7][3][dCFEBBin4][CSCCh4][runBin]++;}
+              }
 
-	      
+
               if (inZMass) segDenStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
               zMassSegDenStationRingChamber[7][1][CSCCh4]->Fill(invMass);
               if (inZMass) {resSegStationRingChamber[7][1][CSCCh4]->Fill(CSCDxyTTSeg4);resSigmaSegStationRingChamber[7][1][CSCCh4]->Fill(CSCDxyTTSeg4/CSCDxyErrTTSeg4);}
@@ -2717,11 +2757,13 @@ void CSCEffFast::Loop()
               passGlobalSeg++;
               if (CSCRg4==1) {passStationRingSeg[7][1]++;passStationRingChamberSeg[7][1][CSCCh4]++;passStationRingPtSeg[7][1][pTBin]++;passStationRingEtaSeg[7][1][etaBin4]++;passStationRingIsoSeg[7][1][isoBin]++;passStationRingPVSeg[7][1][pvBin]++;passStationRingILSeg[7][1][ilBin]++;passStationRingRunSeg[7][1][runBin]++;passStationRingChamberRunSeg[7][1][CSCCh4][runBin]++;passStationRingLCYSeg[7][1][lCYBin4]++;passStationRingLCSSeg[7][1][lCSBin4]++;passStationRingChamberLCYSeg[7][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[7][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[7][1][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBSeg[7][1][CSCCh4][dCFEBBin4]++;passStationRingDCFEBChamberRunSeg[7][1][dCFEBBin4][CSCCh4][runBin]++;
 
-		if (ME41EvenOdd) {if ((CSCCh4%2 == 0)) {passStationRingSeg[7][0]++;passStationRingChamberSeg[7][0][CSCCh4]++;passStationRingPtSeg[7][0][pTBin]++;passStationRingEtaSeg[7][0][etaBin]++;passStationRingIsoSeg[7][0][isoBin]++;passStationRingPVSeg[7][0][pvBin]++;passStationRingILSeg[7][0][ilBin]++;passStationRingRunSeg[7][0][runBin]++;passStationRingChamberRunSeg[7][0][CSCCh4][runBin]++;passStationRingLCYSeg[7][0][lCYBin4]++;passStationRingLCSSeg[7][0][lCSBin4]++;passStationRingDCFEBChamberRunSeg[7][0][dCFEBBin4][CSCCh4][runBin]++;}
-		  else {passStationRingSeg[7][3]++;passStationRingChamberSeg[7][3][CSCCh4]++;passStationRingPtSeg[7][3][pTBin]++;passStationRingEtaSeg[7][3][etaBin]++;passStationRingIsoSeg[7][3][isoBin]++;passStationRingPVSeg[7][3][pvBin]++;passStationRingILSeg[7][3][ilBin]++;passStationRingRunSeg[7][3][runBin]++;passStationRingChamberRunSeg[7][3][CSCCh4][runBin]++;passStationRingLCYSeg[7][3][lCYBin4]++;passStationRingLCSSeg[7][3][lCSBin4]++;passStationRingDCFEBChamberRunSeg[7][3][dCFEBBin4][CSCCh4][runBin]++;}}
+                if (ME41EvenOdd) {
+                  if ((CSCCh4%2 == 0)) {passStationRingSeg[7][0]++;passStationRingChamberSeg[7][0][CSCCh4]++;passStationRingPtSeg[7][0][pTBin]++;passStationRingEtaSeg[7][0][etaBin]++;passStationRingIsoSeg[7][0][isoBin]++;passStationRingPVSeg[7][0][pvBin]++;passStationRingILSeg[7][0][ilBin]++;passStationRingRunSeg[7][0][runBin]++;passStationRingChamberRunSeg[7][0][CSCCh4][runBin]++;passStationRingLCYSeg[7][0][lCYBin4]++;passStationRingLCSSeg[7][0][lCSBin4]++;passStationRingDCFEBChamberRunSeg[7][0][dCFEBBin4][CSCCh4][runBin]++;}
+                  else {passStationRingSeg[7][3]++;passStationRingChamberSeg[7][3][CSCCh4]++;passStationRingPtSeg[7][3][pTBin]++;passStationRingEtaSeg[7][3][etaBin]++;passStationRingIsoSeg[7][3][isoBin]++;passStationRingPVSeg[7][3][pvBin]++;passStationRingILSeg[7][3][ilBin]++;passStationRingRunSeg[7][3][runBin]++;passStationRingChamberRunSeg[7][3][CSCCh4][runBin]++;passStationRingLCYSeg[7][3][lCYBin4]++;passStationRingLCSSeg[7][3][lCSBin4]++;passStationRingDCFEBChamberRunSeg[7][3][dCFEBBin4][CSCCh4][runBin]++;}
+                }
 
 
-		
+
                 if (inZMass) segNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
                 zMassSegNumStationRingChamber[7][1][CSCCh4]->Fill(invMass);
               }
@@ -2930,8 +2972,12 @@ void CSCEffFast::Loop()
             totSBGlobal++;
             if (CSCRg4==1) {totSBStationRing[3][1]++;totSBStationRingChamber[3][1][CSCCh4]++;totSBStationRingPt[3][1][pTBin]++;totSBStationRingEta[3][1][etaBin4]++;totSBStationRingIso[3][1][isoBin]++;totSBStationRingPV[3][1][pvBin]++;totSBStationRingIL[3][1][ilBin]++;totSBStationRingRun[3][1][runBin]++;totSBStationRingChamberRun[3][1][CSCCh4][runBin]++;totSBStationRingLCY[3][1][lCYBin4]++;totSBStationRingLCYLCT[3][1][lC3YBin4]++;totSBStationRingLCS[3][1][lCSBin4]++;totSBStationRingLCSLCT[3][1][lC3SBin4]++;totSBStationRingChamberLCY[3][1][CSCCh4][lCYBin4]++;totSBStationRingChamberLCS[3][1][CSCCh4][lCSBin4]++;totSBStationRingChamberLCW[3][1][CSCCh4][lCWBin4]++;
 
-	      if (ME41EvenOdd) {if ((CSCCh4%2 == 0)) {totSBStationRing[3][0]++;totSBStationRingChamber[3][0][CSCCh4]++;totSBStationRingPt[3][0][pTBin]++;totSBStationRingEta[3][0][etaBin]++;totSBStationRingIso[3][0][isoBin]++;totSBStationRingPV[3][0][pvBin]++;totSBStationRingIL[3][0][ilBin]++;totSBStationRingRun[3][0][runBin]++;totSBStationRingChamberRun[3][0][CSCCh4][runBin]++;totSBStationRingLCY[3][0][lCYBin4]++;totSBStationRingLCYLCT[3][0][lC3YBin4]++;totSBStationRingLCS[3][0][lCSBin4]++;totSBStationRingLCSLCT[3][0][lC3SBin4]++;yySegStationRing[3][0]->Fill(CSCSegyLc4,CSCTTyLc4);}
-		else {totSBStationRing[3][3]++;totSBStationRingChamber[3][3][CSCCh4]++;totSBStationRingPt[3][3][pTBin]++;totSBStationRingEta[3][3][etaBin]++;totSBStationRingIso[3][3][isoBin]++;totSBStationRingPV[3][3][pvBin]++;totSBStationRingIL[3][3][ilBin]++;totSBStationRingRun[3][3][runBin]++;totSBStationRingChamberRun[3][3][CSCCh4][runBin]++;totSBStationRingLCY[3][3][lCYBin4]++;totSBStationRingLCYLCT[3][3][lC3YBin4]++;totSBStationRingLCS[3][3][lCSBin4]++;totSBStationRingLCSLCT[3][3][lC3SBin4]++;yySegStationRing[3][3]->Fill(CSCSegyLc4,CSCTTyLc4);}}	      
+              if (ME41EvenOdd) {
+                if ((CSCCh4%2 == 0)) {totSBStationRing[3][0]++;totSBStationRingChamber[3][0][CSCCh4]++;totSBStationRingPt[3][0][pTBin]++;totSBStationRingEta[3][0][etaBin]++;totSBStationRingIso[3][0][isoBin]++;totSBStationRingPV[3][0][pvBin]++;totSBStationRingIL[3][0][ilBin]++;totSBStationRingRun[3][0][runBin]++;totSBStationRingChamberRun[3][0][CSCCh4][runBin]++;totSBStationRingLCY[3][0][lCYBin4]++;totSBStationRingLCYLCT[3][0][lC3YBin4]++;totSBStationRingLCS[3][0][lCSBin4]++;totSBStationRingLCSLCT[3][0][lC3SBin4]++;yySegStationRing[3][0]->Fill(CSCSegyLc4,CSCTTyLc4);}
+                else {totSBStationRing[3][3]++;totSBStationRingChamber[3][3][CSCCh4]++;totSBStationRingPt[3][3][pTBin]++;totSBStationRingEta[3][3][etaBin]++;totSBStationRingIso[3][3][isoBin]++;totSBStationRingPV[3][3][pvBin]++;totSBStationRingIL[3][3][ilBin]++;totSBStationRingRun[3][3][runBin]++;totSBStationRingChamberRun[3][3][CSCCh4][runBin]++;totSBStationRingLCY[3][3][lCYBin4]++;totSBStationRingLCYLCT[3][3][lC3YBin4]++;totSBStationRingLCS[3][3][lCSBin4]++;totSBStationRingLCSLCT[3][3][lC3SBin4]++;yySegStationRing[3][3]->Fill(CSCSegyLc4,CSCTTyLc4);}
+              }
+
+
               if (inZMass) segDenStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
               zMassSegDenStationRingChamber[3][1][CSCCh4]->Fill(invMass);
               if (inZMass) {resSegStationRingChamber[3][1][CSCCh4]->Fill(CSCDxyTTSeg4);resSigmaSegStationRingChamber[3][1][CSCCh4]->Fill(CSCDxyTTSeg4/CSCDxyErrTTSeg4);}
@@ -2945,10 +2991,13 @@ void CSCEffFast::Loop()
               passSBGlobalSeg++;
               if (CSCRg4==1) {passSBStationRingSeg[3][1]++;passSBStationRingChamberSeg[3][1][CSCCh4]++;passSBStationRingPtSeg[3][1][pTBin]++;passSBStationRingEtaSeg[3][1][etaBin4]++;passSBStationRingIsoSeg[3][1][isoBin]++;passSBStationRingPVSeg[3][1][pvBin]++;passSBStationRingILSeg[3][1][ilBin]++;passSBStationRingRunSeg[3][1][runBin]++;passSBStationRingChamberRunSeg[3][1][CSCCh4][runBin]++;passSBStationRingLCYSeg[3][1][lCYBin4]++;passSBStationRingLCSSeg[3][1][lCSBin4]++;passSBStationRingChamberLCYSeg[3][1][CSCCh4][lCYBin4]++;passSBStationRingChamberLCSSeg[3][1][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWSeg[3][1][CSCCh4][lCWBin4]++;passSBStationRingDCFEBChamberRunSeg[3][1][dCFEBBin4][CSCCh4][runBin]++;
 
-                if (ME41EvenOdd) {if ((CSCCh4%2 == 0)) {passSBStationRingSeg[3][0]++;passSBStationRingChamberSeg[3][0][CSCCh4]++;passSBStationRingPtSeg[3][0][pTBin]++;passSBStationRingEtaSeg[3][0][etaBin]++;passSBStationRingIsoSeg[3][0][isoBin]++;passSBStationRingPVSeg[3][0][pvBin]++;passSBStationRingILSeg[3][0][ilBin]++;passSBStationRingRunSeg[3][0][runBin]++;passSBStationRingChamberRunSeg[3][0][CSCCh4][runBin]++;passSBStationRingLCYSeg[3][0][lCYBin4]++;;passSBStationRingLCSSeg[3][0][lCSBin4]++;passSBStationRingDCFEBChamberRunSeg[3][0][dCFEBBin4][CSCCh4][runBin]++;}
-		  else {passSBStationRingSeg[3][3]++;passSBStationRingChamberSeg[3][3][CSCCh4]++;passSBStationRingPtSeg[3][3][pTBin]++;passSBStationRingEtaSeg[3][3][etaBin]++;passSBStationRingIsoSeg[3][3][isoBin]++;passSBStationRingPVSeg[3][3][pvBin]++;passSBStationRingILSeg[3][3][ilBin]++;passSBStationRingRunSeg[3][3][runBin]++;passSBStationRingChamberRunSeg[3][3][CSCCh4][runBin]++;passSBStationRingLCYSeg[3][3][lCYBin4]++;passSBStationRingLCSSeg[3][3][lCSBin4]++;passSBStationRingDCFEBChamberRunSeg[3][3][dCFEBBin4][CSCCh4][runBin]++;}}
+                if (ME41EvenOdd) {
+                  if ((CSCCh4%2 == 0)) {passSBStationRingSeg[3][0]++;passSBStationRingChamberSeg[3][0][CSCCh4]++;passSBStationRingPtSeg[3][0][pTBin]++;passSBStationRingEtaSeg[3][0][etaBin]++;passSBStationRingIsoSeg[3][0][isoBin]++;passSBStationRingPVSeg[3][0][pvBin]++;passSBStationRingILSeg[3][0][ilBin]++;passSBStationRingRunSeg[3][0][runBin]++;passSBStationRingChamberRunSeg[3][0][CSCCh4][runBin]++;passSBStationRingLCYSeg[3][0][lCYBin4]++;;passSBStationRingLCSSeg[3][0][lCSBin4]++;passSBStationRingDCFEBChamberRunSeg[3][0][dCFEBBin4][CSCCh4][runBin]++;}
+                  else {passSBStationRingSeg[3][3]++;passSBStationRingChamberSeg[3][3][CSCCh4]++;passSBStationRingPtSeg[3][3][pTBin]++;passSBStationRingEtaSeg[3][3][etaBin]++;passSBStationRingIsoSeg[3][3][isoBin]++;passSBStationRingPVSeg[3][3][pvBin]++;passSBStationRingILSeg[3][3][ilBin]++;passSBStationRingRunSeg[3][3][runBin]++;passSBStationRingChamberRunSeg[3][3][CSCCh4][runBin]++;passSBStationRingLCYSeg[3][3][lCYBin4]++;passSBStationRingLCSSeg[3][3][lCSBin4]++;passSBStationRingDCFEBChamberRunSeg[3][3][dCFEBBin4][CSCCh4][runBin]++;}
+                }
 
-		if (inZMass) segNumStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
+
+                if (inZMass) segNumStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
                 zMassSegNumStationRingChamber[3][1][CSCCh4]->Fill(invMass);
               }
               if (CSCRg4==2) {passSBStationRingSeg[3][2]++;passSBStationRingChamberSeg[3][2][CSCCh4]++;passSBStationRingPtSeg[3][2][pTBin]++;passSBStationRingEtaSeg[3][2][etaBin4]++;passSBStationRingIsoSeg[3][2][isoBin]++;passSBStationRingPVSeg[3][2][pvBin]++;passSBStationRingILSeg[3][2][ilBin]++;passSBStationRingRunSeg[3][2][runBin]++;passSBStationRingChamberRunSeg[3][2][CSCCh4][runBin]++;passSBStationRingLCYSeg[3][2][lCYBin4]++;passSBStationRingLCSSeg[3][2][lCSBin4]++;passSBStationRingChamberLCYSeg[3][2][CSCCh4][lCYBin4]++;passSBStationRingChamberLCSSeg[3][2][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWSeg[3][2][CSCCh4][lCWBin4]++;passSBStationRingDCFEBChamberRunSeg[3][2][dCFEBBin4][CSCCh4][runBin]++;
@@ -3108,9 +3157,12 @@ void CSCEffFast::Loop()
             totSBGlobal++;
             if (CSCRg4==1) {totSBStationRing[7][1]++;totSBStationRingChamber[7][1][CSCCh4]++;totSBStationRingPt[7][1][pTBin]++;totSBStationRingEta[7][1][etaBin4]++;totSBStationRingIso[7][1][isoBin]++;totSBStationRingPV[7][1][pvBin]++;totSBStationRingIL[7][1][ilBin]++;totSBStationRingRun[7][1][runBin]++;totSBStationRingChamberRun[7][1][CSCCh4][runBin]++;totSBStationRingLCY[7][1][lCYBin4]++;totSBStationRingLCYLCT[7][1][lC3YBin4]++;totSBStationRingLCS[7][1][lCSBin4]++;totSBStationRingLCSLCT[7][1][lC3SBin4]++;totSBStationRingChamberLCY[7][1][CSCCh4][lCYBin4]++;totSBStationRingChamberLCS[7][1][CSCCh4][lCSBin4]++;totSBStationRingChamberLCW[7][1][CSCCh4][lCWBin4]++;
 
-              if (ME41EvenOdd) {if ((CSCCh4%2 == 0)) {totSBStationRing[7][0]++;totSBStationRingChamber[7][0][CSCCh4]++;totSBStationRingPt[7][0][pTBin]++;totSBStationRingEta[7][0][etaBin]++;totSBStationRingIso[7][0][isoBin]++;totSBStationRingPV[7][0][pvBin]++;totSBStationRingIL[7][0][ilBin]++;totSBStationRingRun[7][0][runBin]++;totSBStationRingChamberRun[7][0][CSCCh4][runBin]++;totSBStationRingLCY[7][0][lCYBin4]++;totSBStationRingLCYLCT[7][0][lC3YBin4]++;totSBStationRingLCS[7][0][lCSBin4]++;totSBStationRingLCSLCT[7][0][lC3SBin4]++;}
-		else {totSBStationRing[7][3]++;totSBStationRingChamber[7][3][CSCCh4]++;totSBStationRingPt[7][3][pTBin]++;totSBStationRingEta[7][3][etaBin]++;totSBStationRingIso[7][3][isoBin]++;totSBStationRingPV[7][3][pvBin]++;totSBStationRingIL[7][3][ilBin]++;totSBStationRingRun[7][3][runBin]++;totSBStationRingChamberRun[7][3][CSCCh4][runBin]++;totSBStationRingLCY[7][3][lCYBin4]++;totSBStationRingLCYLCT[7][3][lC3SBin4]++;}}
-	      
+              if (ME41EvenOdd) {
+                if ((CSCCh4%2 == 0)) {totSBStationRing[7][0]++;totSBStationRingChamber[7][0][CSCCh4]++;totSBStationRingPt[7][0][pTBin]++;totSBStationRingEta[7][0][etaBin]++;totSBStationRingIso[7][0][isoBin]++;totSBStationRingPV[7][0][pvBin]++;totSBStationRingIL[7][0][ilBin]++;totSBStationRingRun[7][0][runBin]++;totSBStationRingChamberRun[7][0][CSCCh4][runBin]++;totSBStationRingLCY[7][0][lCYBin4]++;totSBStationRingLCYLCT[7][0][lC3YBin4]++;totSBStationRingLCS[7][0][lCSBin4]++;totSBStationRingLCSLCT[7][0][lC3SBin4]++;}
+                else {totSBStationRing[7][3]++;totSBStationRingChamber[7][3][CSCCh4]++;totSBStationRingPt[7][3][pTBin]++;totSBStationRingEta[7][3][etaBin]++;totSBStationRingIso[7][3][isoBin]++;totSBStationRingPV[7][3][pvBin]++;totSBStationRingIL[7][3][ilBin]++;totSBStationRingRun[7][3][runBin]++;totSBStationRingChamberRun[7][3][CSCCh4][runBin]++;totSBStationRingLCY[7][3][lCYBin4]++;totSBStationRingLCYLCT[7][3][lC3SBin4]++;}
+              }
+
+
               if (inZMass) segDenStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
               zMassSegDenStationRingChamber[7][1][CSCCh4]->Fill(invMass);
               if (inZMass) {resSegStationRingChamber[7][1][CSCCh4]->Fill(CSCDxyTTSeg4);resSigmaSegStationRingChamber[7][1][CSCCh4]->Fill(CSCDxyTTSeg4/CSCDxyErrTTSeg4);}
@@ -3124,11 +3176,13 @@ void CSCEffFast::Loop()
               passSBGlobalSeg++;
               if (CSCRg4==1) {passSBStationRingSeg[7][1]++;passSBStationRingChamberSeg[7][1][CSCCh4]++;passSBStationRingPtSeg[7][1][pTBin]++;passSBStationRingEtaSeg[7][1][etaBin4]++;passSBStationRingIsoSeg[7][1][isoBin]++;passSBStationRingPVSeg[7][1][pvBin]++;passSBStationRingILSeg[7][1][ilBin]++;passSBStationRingRunSeg[7][1][runBin]++;passSBStationRingChamberRunSeg[7][1][CSCCh4][runBin]++;passSBStationRingLCYSeg[7][1][lCYBin4]++;passSBStationRingLCSSeg[7][1][lCSBin4]++;passSBStationRingChamberLCYSeg[7][1][CSCCh4][lCYBin4]++;passSBStationRingChamberLCSSeg[7][1][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWSeg[7][1][CSCCh4][lCWBin4]++;passSBStationRingDCFEBChamberRunSeg[7][1][dCFEBBin4][CSCCh4][runBin]++;
 
-                if (ME41EvenOdd) {if ((CSCCh4%2 == 0)) {passSBStationRingSeg[7][0]++;passSBStationRingChamberSeg[7][0][CSCCh4]++;passSBStationRingPtSeg[7][0][pTBin]++;passSBStationRingEtaSeg[7][0][etaBin]++;passSBStationRingIsoSeg[7][0][isoBin]++;passSBStationRingPVSeg[7][0][pvBin]++;passSBStationRingILSeg[7][0][ilBin]++;passSBStationRingRunSeg[7][0][runBin]++;passSBStationRingChamberRunSeg[7][0][CSCCh4][runBin]++;passSBStationRingLCYSeg[7][0][lCYBin4]++;;passSBStationRingLCSSeg[7][0][lCSBin4]++;passSBStationRingDCFEBChamberRunSeg[7][0][dCFEBBin4][CSCCh4][runBin]++;}
-		  else {passSBStationRingSeg[7][3]++;passSBStationRingChamberSeg[7][3][CSCCh4]++;passSBStationRingPtSeg[7][3][pTBin]++;passSBStationRingEtaSeg[7][3][etaBin]++;passSBStationRingIsoSeg[7][3][isoBin]++;passSBStationRingPVSeg[7][3][pvBin]++;passSBStationRingILSeg[7][3][ilBin]++;passSBStationRingRunSeg[7][3][runBin]++;passSBStationRingChamberRunSeg[7][3][CSCCh4][runBin]++;passSBStationRingLCYSeg[7][3][lCYBin4]++;passSBStationRingLCSSeg[7][3][lCSBin4]++;passSBStationRingDCFEBChamberRunSeg[7][0][dCFEBBin4][CSCCh4][runBin]++;}}
+                if (ME41EvenOdd) {
+                  if ((CSCCh4%2 == 0)) {passSBStationRingSeg[7][0]++;passSBStationRingChamberSeg[7][0][CSCCh4]++;passSBStationRingPtSeg[7][0][pTBin]++;passSBStationRingEtaSeg[7][0][etaBin]++;passSBStationRingIsoSeg[7][0][isoBin]++;passSBStationRingPVSeg[7][0][pvBin]++;passSBStationRingILSeg[7][0][ilBin]++;passSBStationRingRunSeg[7][0][runBin]++;passSBStationRingChamberRunSeg[7][0][CSCCh4][runBin]++;passSBStationRingLCYSeg[7][0][lCYBin4]++;;passSBStationRingLCSSeg[7][0][lCSBin4]++;passSBStationRingDCFEBChamberRunSeg[7][0][dCFEBBin4][CSCCh4][runBin]++;}
+                  else {passSBStationRingSeg[7][3]++;passSBStationRingChamberSeg[7][3][CSCCh4]++;passSBStationRingPtSeg[7][3][pTBin]++;passSBStationRingEtaSeg[7][3][etaBin]++;passSBStationRingIsoSeg[7][3][isoBin]++;passSBStationRingPVSeg[7][3][pvBin]++;passSBStationRingILSeg[7][3][ilBin]++;passSBStationRingRunSeg[7][3][runBin]++;passSBStationRingChamberRunSeg[7][3][CSCCh4][runBin]++;passSBStationRingLCYSeg[7][3][lCYBin4]++;passSBStationRingLCSSeg[7][3][lCSBin4]++;passSBStationRingDCFEBChamberRunSeg[7][0][dCFEBBin4][CSCCh4][runBin]++;}
+                }
 
 
-		if (inZMass) segNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
+                if (inZMass) segNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
                 zMassSegNumStationRingChamber[7][1][CSCCh4]->Fill(invMass);
               }
               if (CSCRg4==2) {passSBStationRingSeg[7][2]++;passSBStationRingChamberSeg[7][2][CSCCh4]++;passSBStationRingPtSeg[7][2][pTBin]++;passSBStationRingEtaSeg[7][2][etaBin4]++;passSBStationRingIsoSeg[7][2][isoBin]++;passSBStationRingPVSeg[7][2][pvBin]++;passSBStationRingILSeg[7][2][ilBin]++;passSBStationRingRunSeg[7][2][runBin]++;passSBStationRingChamberRunSeg[7][2][CSCCh4][runBin]++;passSBStationRingLCYSeg[7][2][lCYBin4]++;passSBStationRingLCSSeg[7][2][lCSBin4]++;passSBStationRingChamberLCYSeg[7][2][CSCCh1][lCYBin1]++;passSBStationRingChamberLCSSeg[7][2][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWSeg[7][2][CSCCh4][lCWBin4]++;passSBStationRingDCFEBChamberRunSeg[7][2][dCFEBBin4][CSCCh4][runBin]++;
@@ -3496,15 +3550,17 @@ void CSCEffFast::Loop()
               effSigmaStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = sqrt(((passStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]+passSBStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])*(1.-effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])*(1.-effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]))+ ((totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])+(totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passSBStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]))*effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]*effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])/(totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
               effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = (passStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passSBStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])/(totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
               effSigmaStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = sqrt(((passStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]+passSBStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])*(1.-effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])*(1.-effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]))+ ((totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])+(totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passSBStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]))*effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]*effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])/(totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
+
+
+              segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinContent(iiChamber,iiRun+1,effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
+              segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
+              LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinContent(iiChamber,iiRun+1,effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
+              LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
             }
-
-
-
-
-            segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinContent(iiChamber,iiRun+1,effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
-            segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
-            LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinContent(iiChamber,iiRun+1,effStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
-            LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinError(iiChamber,iiRun+1,effSigmaStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
+            else{
+              segEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinContent(iiChamber,iiRun+1,-1);
+              LCTEff2DStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB]->SetBinContent(iiChamber,iiRun+1,-1);
+            }
 
           }
 
@@ -4094,16 +4150,16 @@ void CSCEffFast::Loop()
     for (int j=0; j<4; j++){
       for (int k=0; k<5; k++){
         for (int l=0; l<37; l++){
-          delete totStationRingDCFEBChamberRun[i][j][k][l];
-          delete passStationRingDCFEBChamberRunSeg[i][j][k][l];
-          delete passStationRingDCFEBChamberRunLCT[i][j][k][l];
-          delete totSBStationRingDCFEBChamberRun[i][j][k][l];
-          delete passSBStationRingDCFEBChamberRunSeg[i][j][k][l];
-          delete passSBStationRingDCFEBChamberRunLCT[i][j][k][l];
-          delete effStationRingDCFEBChamberRunSeg[i][j][k][l];
-          delete effSigmaStationRingDCFEBChamberRunSeg[i][j][k][l];
-          delete effStationRingDCFEBChamberRunLCT[i][j][k][l];
-          delete effSigmaStationRingDCFEBChamberRunLCT[i][j][k][l];
+          delete[] totStationRingDCFEBChamberRun[i][j][k][l];
+          delete[] passStationRingDCFEBChamberRunSeg[i][j][k][l];
+          delete[] passStationRingDCFEBChamberRunLCT[i][j][k][l];
+          delete[] totSBStationRingDCFEBChamberRun[i][j][k][l];
+          delete[] passSBStationRingDCFEBChamberRunSeg[i][j][k][l];
+          delete[] passSBStationRingDCFEBChamberRunLCT[i][j][k][l];
+          delete[] effStationRingDCFEBChamberRunSeg[i][j][k][l];
+          delete[] effSigmaStationRingDCFEBChamberRunSeg[i][j][k][l];
+          delete[] effStationRingDCFEBChamberRunLCT[i][j][k][l];
+          delete[] effSigmaStationRingDCFEBChamberRunLCT[i][j][k][l];
         }
         delete[] totStationRingDCFEBChamberRun[i][j][k];
         delete[] passStationRingDCFEBChamberRunSeg[i][j][k];

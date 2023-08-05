@@ -32,15 +32,15 @@ void PlotCSCEffFast(){
   char name[50];
   char stationRing[10];
   char title[100];
+  char label[10];
 
   // Flags
-  bool verbose = false;
-  bool newData = true;
-  bool summaryPlots = true; // Efficiency plot per ring or for the full system
+  int verbose = 1; // 0: None. 1: Simple printouts. 2: Simple printouts and ROOT drawing statements
+  bool summaryPlots = false; // Efficiency plot per ring or for the full system
   bool chamberPlots = false; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
-  bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on
+  //bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on (old run analysis printout)
   bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
-  bool DCFEBAnalysis = true; // Run DCFEB analysis for specific run ranges
+  bool DCFEBAnalysis = false; // Run DCFEB analysis for specific run ranges
 
   // Constants
   float deadDCFEBThreshold = 0.25; // Efficiency threshold for dead (D)CFEBs.
@@ -48,38 +48,27 @@ void PlotCSCEffFast(){
   float maxRemovalThreshold = 0.50; // Efficiency threshold for maximal removal of low efficiency DCFEBs
   float runDepEffThreshold = 0.80; // Efficiency threshold for run-dependent chamber failures
   float DCFEBRanges[5][2] = { {-2.0,18.0}, {14.0,34.0}, {30.0,50.0}, {46.0,66.0},{62.0,82.0}};
-  double lowEff = 0.8;
+  double lowEff = 0.9;
   double highEff = 1.02;
 
-  int firstRun, lastRun;
-  if (!newData){
-    firstRun = 355000;
-    lastRun = 362800;
+  Int_t numRunBins, firstRun, lastRun;
+  {
+    TH2F *htemp = (TH2F*)file0->Get("segEff2DStation1Ring1ChamberRun");
+    numRunBins = htemp->GetNbinsY();
+    firstRun = htemp->GetYaxis()->GetBinLowEdge(1);
+    lastRun = htemp->GetYaxis()->GetBinUpEdge(numRunBins);
+    std::cout << "Processing data for runs " << firstRun << "-" << lastRun << std::endl;
   }
-  else{
-    firstRun = 367100;
-    //lastRun = 367800; //2023Cv1-2
-    firstRun = 369800; // 2023D
-    lastRun = 370400; //2023D
-  }
-  Int_t numRunBins = ((TH2F*)file0->Get("segEff2DStation1Ring1ChamberRun"))->GetNbinsY();
 
   // Efficiency Check text files
-  if (!verbose) gErrorIgnoreLevel = kWarning;
+  if (verbose < 2) gErrorIgnoreLevel = kWarning;
   ofstream cscRunEffData; 
-  if (runAnalysis) cscRunEffData.open("cscRunEffData.txt");
-  ofstream cscEffCheck, badChambersHeader;
+  //if (runAnalysis) cscRunEffData.open("cscRunEffData.txt");
+  ofstream cscEffCheck, cscEffCheckSimple, badChambersHeader;
   if (effCheck){
     cscEffCheck.open("cscEffCheck.txt");
-    /*{
-      ifstream oldBadChambersHeader; oldBadChambersHeader.open("BadChambers.h");
-      if (oldBadChambersHeader.is_open()){
-        ofstream temp; temp.open("BadChambers_old.h");
-        temp << oldBadChambersHeader.rdbuf();
-        temp.close();
-        oldBadChambersHeader.close();
-      }
-    }*/
+    cscEffCheckSimple.open("cscEffCheckSimple.txt");
+
     badChambersHeader.open("BadChambers_auto.h");
     badChambersHeader << "#ifndef BadChambers_h" << std::endl;
     badChambersHeader << "#define BadChambers_h" << std::endl << std::endl;
@@ -106,7 +95,6 @@ void PlotCSCEffFast(){
   TCanvas c1("c1","<Title>",0,0,1600,1200);
   gStyle->SetTitleX(0.2);
   gStyle->SetOptStat(1);
-
 
   if (summaryPlots) {
     // Check for plots/ directory
@@ -1134,7 +1122,6 @@ void PlotCSCEffFast(){
     for (Int_t iiStation=0; iiStation<8; iiStation++){
       for (Int_t iiRing=0; iiRing<4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
-        char label[10];
         sprintf(label, "%s", GetMELabel(iiStation, iiRing).c_str());
 
         // Drawing 2D CSC Segment Efficiency and Run
@@ -1233,34 +1220,15 @@ void PlotCSCEffFast(){
           if (!chdir) mkdir(("plots/" + GetMELabel(iiStation, iiRing)).c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
           else closedir(chdir);
         }
+
+        sprintf(label, "%s", GetMELabel(iiStation, iiRing).c_str());
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
 
           // Drawing CSC Segment Efficiency vs. Strip LC
           sprintf(name,"segEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          if (iiStation<4) {
-            if (iiRing == 0) {
-              sprintf(title,"Segment Efficiency vs Strip LC for ME-%d%dA/%d",iiStation+1,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME-%d%dA/cscSegEffRun3DataME-%d%dA-%dLCS.png",iiStation+1,iiRing+1,iiStation+1,iiRing+1,iiChamber);
-            } else if (iiStation==0&&iiRing == 1) {
-              sprintf(title,"Segment Efficiency vs Strip LC for ME-%d%dB/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%dB/cscSegEffRun3DataME-%d%dB-%dLCS.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            } else {
-              sprintf(title,"Segment Efficiency vs Strip LC for ME-%d%d/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%d/cscSegEffRun3DataME-%d%d-%dLCS.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            }
-          } else {
-            if (iiRing == 0) {
-              sprintf(title,"Segment Efficiency vs Strip LC for ME+%d%dA/%d",iiStation+1-4,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME+%d%dA/cscSegEffRun3DataME+%d%dA-%dLCS.png",iiStation+1-4,iiRing+1,iiStation+1-4,iiRing+1,iiChamber);
-            } else if (iiStation==4&&iiRing == 1) {
-              sprintf(title,"Segment Efficiency vs Strip LC for ME+%d%dB/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%dB/cscSegEffRun3DataME+%d%dB-%dLCS.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            } else {
-              sprintf(title,"Segment Efficiency vs Strip LC for ME+%d%d/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%d/cscSegEffRun3DataME+%d%d-%dLCS.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            }
-          }
+          sprintf(title, "Segment Efficiency vs Strip LC for %s/%d",label,iiChamber);
+          sprintf(file, "plots/%s/cscSegEffRun3Data%s-%dLCS.png",label,label,iiChamber);
 
           TH1F * segEffChamberLCS = (TH1F*)file0->Get(name);
           segEffChamberLCS->SetTitle(title);
@@ -1280,29 +1248,8 @@ void PlotCSCEffFast(){
 
           // Drawing CSC Segment Efficiency vs. Y LC
           sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          if (iiStation<4) {
-            if (iiRing == 0) {
-              sprintf(title,"Segment Efficiency vs Y LC for ME-%d%dA/%d",iiStation+1,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME-%d%dA/cscSegEffRun3DataME-%d%dA-%dLCY.png",iiStation+1,iiRing+1,iiStation+1,iiRing+1,iiChamber);
-            } else if (iiStation==0&&iiRing == 1) {
-              sprintf(title,"Segment Efficiency vs Y LC for ME-%d%dB/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%dB/cscSegEffRun3DataME-%d%dB-%dLCY.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            } else {
-              sprintf(title,"Segment Efficiency vs Y LC for ME-%d%d/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%d/cscSegEffRun3DataME-%d%d-%dLCY.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            }
-          } else {
-            if (iiRing == 0) {
-              sprintf(title,"Segment Efficiency vs Y LC for ME+%d%dA/%d",iiStation+1-4,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME+%d%dA/cscSegEffRun3DataME+%d%dA-%dLCY.png",iiStation+1-4,iiRing+1,iiStation+1-4,iiRing+1,iiChamber);
-            } else if (iiStation==4&&iiRing == 1) {
-              sprintf(title,"Segment Efficiency vs Y LC for ME+%d%dB/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%dB/cscSegEffRun3DataME+%d%dB-%dLCY.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            } else {
-              sprintf(title,"Segment Efficiency vs Y LC for ME+%d%d/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%d/cscSegEffRun3DataME+%d%d-%dLCY.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            }
-          }
+          sprintf(title,"Segment Efficiency vs Y LC for %s/%d",label,iiChamber);
+          sprintf(file,"plots/%s/cscSegEffRun3Data%s-%dLCY.png",label,label,iiChamber);
 
           TH1F * segEffChamberLCY = (TH1F*)file0->Get(name);
           segEffChamberLCY->SetTitle(title);
@@ -1322,29 +1269,8 @@ void PlotCSCEffFast(){
 
           // Drawing CSC Segment Efficiency vs. Run
           sprintf(name,"segEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-          if (iiStation<4) {
-            if (iiRing == 0) {
-              sprintf(title,"Segment Efficiency vs Run for ME-%d%dA/%d",iiStation+1,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME-%d%dA/cscSegEffRun3DataME-%d%dA-%dRun.png",iiStation+1,iiRing+1,iiStation+1,iiRing+1,iiChamber);
-            } else if (iiStation==0&&iiRing == 1) {
-              sprintf(title,"Segment Efficiency vs Run for ME-%d%dB/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%dB/cscSegEffRun3DataME-%d%dB-%dRun.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            } else {
-              sprintf(title,"Segment Efficiency vs Run for ME-%d%d/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%d/cscSegEffRun3DataME-%d%d-%dRun.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            }
-          } else {
-            if (iiRing == 0) {
-              sprintf(title,"Segment Efficiency vs Run for ME+%d%dA/%d",iiStation+1-4,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME+%d%dA/cscSegEffRun3DataME+%d%dA-%dRun.png",iiStation+1-4,iiRing+1,iiStation+1-4,iiRing+1,iiChamber);
-            } else if (iiStation==4&&iiRing == 1) {
-              sprintf(title,"Segment Efficiency vs Run for ME+%d%dB/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%dB/cscSegEffRun3DataME+%d%dB-%dRun.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            } else {
-              sprintf(title,"Segment Efficiency vs Run for ME+%d%d/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%d/cscSegEffRun3DataME+%d%d-%dRun.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            }
-          }
+          sprintf(title,"Segment Efficiency vs Run for %s/%d",label,iiChamber);
+          sprintf(file,"plots/%s/cscSegEffRun3Data%s-%dRun.png",label,label,iiChamber);
 
           TH1F * segEffChamberRun = (TH1F*)file0->Get(name);
           segEffChamberRun->SetTitle(title);
@@ -1362,8 +1288,9 @@ void PlotCSCEffFast(){
           segEffChamberRun->Draw("HIST P");
           c1.Print(file);
 
-          // Printing to Text File
+          // Old Printing to Text File
           // first run 355100
+          /*
           if (runAnalysis) {
             cscRunEffData << file << std::endl;
             for (Int_t ii=0; ii< lastRun-firstRun; ii++){
@@ -1372,32 +1299,12 @@ void PlotCSCEffFast(){
               }
             }
           }
+          */
 
           // Drawing LCT Efficiency vs. Strip LC
           sprintf(name,"LCTEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          if (iiStation<4) {
-            if (iiRing == 0) {
-              sprintf(title,"LCT Efficiency vs Strip LC for ME-%d%dA/%d",iiStation+1,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME-%d%dA/cscLCTEffRun3DataME-%d%dA-%dLCS.png",iiStation+1,iiRing+1,iiStation+1,iiRing+1,iiChamber);
-            } else if (iiStation==0&&iiRing == 1) {
-              sprintf(title,"LCT Efficiency vs Strip LC for ME-%d%dB/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%dB/cscLCTEffRun3DataME-%d%dB-%dLCS.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            } else {
-              sprintf(title,"LCT Efficiency vs Strip LC for ME-%d%d/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%d/cscLCTEffRun3DataME-%d%d-%dLCS.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            }
-          } else {
-            if (iiRing == 0) {
-              sprintf(title,"LCT Efficiency vs Strip LC for ME+%d%dA/%d",iiStation+1-4,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME+%d%dA/cscLCTEffRun3DataME+%d%dA-%dLCS.png",iiStation+1-4,iiRing+1,iiStation+1-4,iiRing+1,iiChamber);
-            } else if (iiStation==4&&iiRing == 1) {
-              sprintf(title,"LCT Efficiency vs Strip LC for ME+%d%dB/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%dB/cscLCTEffRun3DataME+%d%dB-%dLCS.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            } else {
-              sprintf(title,"LCT Efficiency vs Strip LC for ME+%d%d/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%d/cscLCTEffRun3DataME+%d%d-%dLCS.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            }
-          }
+          sprintf(title,"LCT Efficiency vs Strip LC for %s/%d",label,iiChamber);
+          sprintf(file,"plots/%s/cscLCTEffRun3Data%s-%dLCS.png",label,label,iiChamber);
 
           TH1F * LCTEffChamberLCS = (TH1F*)file0->Get(name);
           LCTEffChamberLCS->SetTitle(title);
@@ -1417,29 +1324,8 @@ void PlotCSCEffFast(){
 
           // Drawing LCT Efficiency vs. Y LC
           sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          if (iiStation<4) {
-            if (iiRing == 0) {
-              sprintf(title,"LCT Efficiency vs Y LC for ME-%d%dA/%d",iiStation+1,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME-%d%dA/cscLCTEffRun3DataME-%d%dA-%dLCY.png",iiStation+1,iiRing+1,iiStation+1,iiRing+1,iiChamber);
-            } else if (iiStation==0&&iiRing == 1) {
-              sprintf(title,"LCT Efficiency vs Y LC for ME-%d%dB/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%dB/cscLCTEffRun3DataME-%d%dB-%dLCY.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            } else {
-              sprintf(title,"LCT Efficiency vs Y LC for ME-%d%d/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%d/cscLCTEffRun3DataME-%d%d-%dLCY.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            }
-          } else {
-            if (iiRing == 0) {
-              sprintf(title,"LCT Efficiency vs Y LC for ME+%d%dA/%d",iiStation+1-4,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME+%d%dA/cscLCTEffRun3DataME+%d%dA-%dLCY.png",iiStation+1-4,iiRing+1,iiStation+1-4,iiRing+1,iiChamber);
-            } else if (iiStation==4&&iiRing == 1) {
-              sprintf(title,"LCT Efficiency vs Y LC for ME+%d%dB/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%dB/cscLCTEffRun3DataME+%d%dB-%dLCY.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            } else {
-              sprintf(title,"LCT Efficiency vs Y LC for ME+%d%d/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%d/cscLCTEffRun3DataME+%d%d-%dLCY.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            }
-          }
+          sprintf(title,"LCT Efficiency vs Y LC for %s/%d",label,iiChamber);
+          sprintf(file,"plots/%s/cscLCTEffRun3Data%s-%dLCY.png",label,label,iiChamber);
 
           TH1F * LCTEffChamberLCY = (TH1F*)file0->Get(name);
           LCTEffChamberLCY->SetTitle(title);
@@ -1459,29 +1345,8 @@ void PlotCSCEffFast(){
 
           // Drawing LCT Efficiency vs. Run
           sprintf(name,"LCTEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-          if (iiStation<4) {
-            if (iiRing == 0) {
-              sprintf(title,"LCT Efficiency vs Run for ME-%d%dA/%d",iiStation+1,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME-%d%dA/cscLCTEffRun3DataME-%d%dA-%dRun.png",iiStation+1,iiRing+1,iiStation+1,iiRing+1,iiChamber);
-            } else if (iiStation==0&&iiRing == 1) {
-              sprintf(title,"LCT Efficiency vs Run for ME-%d%dB/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%dB/cscLCTEffRun3DataME-%d%dB-%dRun.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            } else {
-              sprintf(title,"LCT Efficiency vs Run for ME-%d%d/%d",iiStation+1,iiRing,iiChamber);
-              sprintf(file,"plots/ME-%d%d/cscLCTEffRun3DataME-%d%d-%dRun.png",iiStation+1,iiRing,iiStation+1,iiRing,iiChamber);
-            }
-          } else {
-            if (iiRing == 0) {
-              sprintf(title,"LCT Efficiency vs Run for ME+%d%dA/%d",iiStation+1-4,iiRing+1,iiChamber);
-              sprintf(file,"plots/ME+%d%dA/cscLCTEffRun3DataME+%d%dA-%dRun.png",iiStation+1-4,iiRing+1,iiStation+1-4,iiRing+1,iiChamber);
-            } else if (iiStation==4&&iiRing == 1) {
-              sprintf(title,"LCT Efficiency vs Run for ME+%d%dB/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%dB/cscLCTEffRun3DataME+%d%dB-%dRun.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            } else {
-              sprintf(title,"LCT Efficiency vs Run for ME+%d%d/%d",iiStation+1-4,iiRing,iiChamber);
-              sprintf(file,"plots/ME+%d%d/cscLCTEffRun3DataME+%d%d-%dRun.png",iiStation+1-4,iiRing,iiStation+1-4,iiRing,iiChamber);
-            }
-          }
+          sprintf(title,"LCT Efficiency vs Run for %s/%d",label,iiChamber);
+          sprintf(file,"plots/%s/cscLCTEffRun3Data%s-%dRun.png",label,label,iiChamber);
 
           TH1F * LCTEffChamberRun = (TH1F*)file0->Get(name);
           LCTEffChamberRun->SetTitle(title);
@@ -1506,11 +1371,12 @@ void PlotCSCEffFast(){
 
   // Efficiency Checking
   if (effCheck){
-    bool bDeadDCFEBs[8][4][36][5] = {0};
+    bool bBadDCFEBs[8][4][36][5] = {0};
     string sAutoHeaderChambers[8][4][36]; 
     bool runDepAnalysis = ((TH2F*)file0->Get("segEff2DStation1Ring1DCFEB1ChamberRun") != NULL);
     stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssLowEffChambers;
-    stringstream ssRunDepChamber, ssRunDepDCFEB;
+    stringstream ssRunDepChamberSeg, ssRunDepChamberLCT;
+    stringstream ssRunDepDCFEBSeg, ssRunDepDCFEBSegDead, ssRunDepDCFEBLCT, ssRunDepDCFEBLCTDead;
     ssDeadDCFEBsWithEff << fixed << setprecision(2);
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
@@ -1544,7 +1410,7 @@ void PlotCSCEffFast(){
             // Check for dead chamber
             if (segEff == 0.00){
               if (!bDeadChamber && iiDCFEB == 1) bDeadChamber = true;
-              else if (bDeadChamber && iiDCFEB == 5){
+              else if (bDeadChamber && iiDCFEB == totDCFEBs){
                 // List dead chamber
                 ssDeadChambers << GetMELabel(iiStation, iiRing, iiChamber) << std::endl;
 
@@ -1558,6 +1424,8 @@ void PlotCSCEffFast(){
                   ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = lastRun;  " << std::endl << std::endl;
                 }
                 else if (verbose) cout << "Dead Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " all runs" << endl;
+                for (Int_t iiDCFEB=0; iiDCFEB<5; iiDCFEB++)
+                  bBadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB] = true;
               }
               continue;
             }
@@ -1566,7 +1434,7 @@ void PlotCSCEffFast(){
             // Check for dead DCFEB
             if (segEff < deadDCFEBThreshold){
               bDeadDCFEB = true;
-              bDeadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] = true;
+              bBadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] = true;
               if (LCTEff < deadDCFEBThreshold){
                 // List dead DCFEB (Seg and LCT)
                 ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << std::endl;
@@ -1603,7 +1471,7 @@ void PlotCSCEffFast(){
                 if (ssAutoHeader.str() == "")
                   ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
                 bDeadDCFEB = true;
-                bDeadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] = true;
+                bBadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] = true;
 
                 ssAutoHeader << "    //  Dead DCFEB " << iiDCFEB;
                 ssAutoHeader << " LCT " << (LCTEff*100) << "\% all runs" << std::endl;
@@ -1625,6 +1493,7 @@ void PlotCSCEffFast(){
             // Maximal Removal for low efficiency DCFEBs
             if (segEff > deadDCFEBThreshold && segEff < maxRemovalThreshold){
               numMaxRemoval++;
+              bBadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] = true;
               // Generate automatic array values for removal in CSCEffFast.C
               if (rangeIndex < NUM_BAD_RANGES){
                 if (ssAutoHeader.str() == "")
@@ -1646,6 +1515,7 @@ void PlotCSCEffFast(){
             }
             else if (LCTEff > deadDCFEBThreshold && LCTEff < maxRemovalThreshold){
               numMaxRemoval++;
+              bBadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] = true;
               // Generate automatic array values for removal in CSCEffFast.C
               if (rangeIndex < NUM_BAD_RANGES){
                 if (ssAutoHeader.str() == "")
@@ -1676,20 +1546,22 @@ void PlotCSCEffFast(){
             }
           }
 
-          // Run-Dependent Chamber Analysis TODO: Add LCT analysis and auto-header additions
+          // Run-Dependent Chamber Analysis
           // NOTE: Average of 1D histogram is h->Integral()/h->GetNbinsX();
           // -> May want to eventually change runDepEffThreshold to ~10% below average of ring.
           if (!runDepAnalysis) continue;
           const int badChamberRunRangesMax = 5;
-          int badChamberRunRangesIndex = 0;
-          bool badChamberRunRanges[badChamberRunRangesMax][2] = {0};
+          int badChamberRunRangesIndexSeg = 0, badChamberRunRangesIndexLCT = 0;
+          Int_t badChamberRunRangesSeg[badChamberRunRangesMax][2] = {0}, badChamberRunRangesLCT[badChamberRunRangesMax][2] = {0};
 
-          bool bPrintedRunDepChamber=false, bNewRunDepChamberRange=false;
-          Int_t badChamberFirstRun=0, badChamberLastRun=0;
+          bool bPrintedRunDepChamberSeg=false, bNewRunDepChamberRangeSeg=false;
+          Int_t badChamberFirstRunSeg=0, badChamberLastRunSeg=0;
+          bool bPrintedRunDepChamberLCT=false, bNewRunDepChamberRangeLCT=false;
+          Int_t badChamberFirstRunLCT=0, badChamberLastRunLCT=0;
           for (Int_t iiRunBin=1; iiRunBin<=numRunBins; iiRunBin++){
             //Int_t iiRun = firstRun + (iiRunBin-1)*(lastRun-firstRun)/numRunBins;
-  
-            Int_t numDCFEBs=0;
+
+            Int_t numDCFEBsSeg=0, numDCFEBsLCT=0;
             for (Int_t iiDCFEB = 1; iiDCFEB<6; iiDCFEB++){
               if (iiDCFEB > totDCFEBs) break;
               sprintf(name, "segEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
@@ -1697,101 +1569,190 @@ void PlotCSCEffFast(){
               sprintf(name, "LCTEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
               Float_t LCTEff = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin);
               Int_t iiRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin);
-  
-              if (segEff < runDepEffThreshold){
-                numDCFEBs++;
-                if (numDCFEBs == totDCFEBs){
+
+              // Seg Analysis
+              if (segEff < runDepEffThreshold && segEff != -1){
+                numDCFEBsSeg++;
+                if (numDCFEBsSeg == totDCFEBs){
                   // Check if chamber name was printed and, if not, print it.
-                  if (!bPrintedRunDepChamber){
-                    ssRunDepChamber << endl << GetMELabel(iiStation, iiRing, iiChamber) << " ";
-                    badChamberFirstRun = iiRun;
-                    bPrintedRunDepChamber = true;
+                  if (!bPrintedRunDepChamberSeg){
+                    ssRunDepChamberSeg << endl << GetMELabel(iiStation, iiRing, iiChamber) << " ";
+                    badChamberFirstRunSeg = iiRun;
+                    bPrintedRunDepChamberSeg = true;
                   }
                   // Check if there are multiple ranges being printed for a chamber
-                  if (bNewRunDepChamberRange){
-                    ssRunDepChamber << ", ";
-                    badChamberFirstRun = iiRun;
-                    bNewRunDepChamberRange = false;
+                  if (bNewRunDepChamberRangeSeg){
+                    ssRunDepChamberSeg << ", ";
+                    badChamberFirstRunSeg = iiRun;
+                    bNewRunDepChamberRangeSeg = false;
                   }
-                  //badChamberLastRun = iiRun+100;
-                  if (iiRunBin<numRunBins) badChamberLastRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
-                  else badChamberLastRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
+                  //badChamberLastRunSeg = iiRun+100;
+                  if (iiRunBin<numRunBins) badChamberLastRunSeg = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
+                  else badChamberLastRunSeg = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
                 }
               }
-              else if (badChamberLastRun != 0){
+              else if (badChamberLastRunSeg != 0){
                 // Generate automatic array values for removal in CSCEffFast.C
-                // For now, this will add all ranges and overwrite earlier run ranges to the last one inputted.
-                // TODO: Find a way to incorporate multiple ranges into CSCEffFast.C
                 if (rangeIndex < NUM_BAD_RANGES){
                   if (ssAutoHeader.str() == "")
                     ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
                   ssAutoHeader << "    //  Run-Dependent Low Efficiency Chamber";
-                  ssAutoHeader << " " << badChamberFirstRun << "-" << badChamberLastRun << std::endl;
+                  ssAutoHeader << " " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << std::endl;
                   ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
-                  ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRun << ";  ";
-                  ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRun << ";  ";
+                  ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRunSeg << ";  ";
+                  ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunSeg << ";  ";
                   ssAutoHeader << std::endl << std::endl;
                 }
                 else if (verbose) 
-                  cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRun << "-" << badChamberLastRun << endl;
+                  cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
 
                 // Save the run range for the chambers
-                ssRunDepChamber << badChamberFirstRun << "-" << badChamberLastRun;
-                if (badChamberRunRangesIndex < badChamberRunRangesMax){
-                  badChamberRunRanges[badChamberRunRangesIndex][0] = badChamberFirstRun;
-                  badChamberRunRanges[badChamberRunRangesIndex++][0] = badChamberLastRun;
+                ssRunDepChamberSeg << badChamberFirstRunSeg << "-" << badChamberLastRunSeg;
+                if (badChamberRunRangesIndexSeg < badChamberRunRangesMax){
+                  badChamberRunRangesSeg[badChamberRunRangesIndexSeg][0] = badChamberFirstRunSeg;
+                  badChamberRunRangesSeg[badChamberRunRangesIndexSeg++][1] = badChamberLastRunSeg;
                 }
-                else if (verbose) cout << "Ommitted range " << badChamberFirstRun << "-" << badChamberLastRun << endl;
+                else if (verbose) cout << "Ommitted range " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
 
-                badChamberFirstRun = badChamberLastRun = 0;
-                bNewRunDepChamberRange = true;
+                badChamberFirstRunSeg = badChamberLastRunSeg = 0;
+                bNewRunDepChamberRangeSeg = true;
+
+              }
+
+
+              // LCT Analysis
+              if (LCTEff < runDepEffThreshold && LCTEff != -1){
+                numDCFEBsLCT++;
+                if (numDCFEBsLCT == totDCFEBs){
+                  // Check if chamber name was printed and, if not, print it.
+                  if (!bPrintedRunDepChamberLCT){
+                    ssRunDepChamberLCT << endl << GetMELabel(iiStation, iiRing, iiChamber) << " ";
+                    badChamberFirstRunLCT = iiRun;
+                    bPrintedRunDepChamberLCT = true;
+                  }
+                  // Check if there are multiple ranges being printed for a chamber
+                  if (bNewRunDepChamberRangeLCT){
+                    ssRunDepChamberLCT << ", ";
+                    badChamberFirstRunLCT = iiRun;
+                    bNewRunDepChamberRangeLCT = false;
+                  }
+                  //badChamberLastRunLCT = iiRun+100;
+                  if (iiRunBin<numRunBins) badChamberLastRunLCT = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
+                  else badChamberLastRunLCT = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
+                }
+              }
+              else if (badChamberLastRunLCT != 0){
+                // Generate automatic array values for removal in CSCEffFast.C (Suppressed for LCT)
+                /*if (rangeIndex < NUM_BAD_RANGES){
+                  if (ssAutoHeader.str() == "")
+                    ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  ssAutoHeader << "    //  Run-Dependent Low Efficiency Chamber";
+                  ssAutoHeader << " " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << std::endl;
+                  ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
+                  ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRunLCT << ";  ";
+                  ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunLCT << ";  ";
+                  ssAutoHeader << std::endl << std::endl;
+                }
+                else if (verbose) 
+                  cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
+                */
+
+                // Save the run range for the chambers
+                ssRunDepChamberLCT << badChamberFirstRunLCT << "-" << badChamberLastRunLCT;
+                if (badChamberRunRangesIndexLCT < badChamberRunRangesMax){
+                  badChamberRunRangesLCT[badChamberRunRangesIndexLCT][0] = badChamberFirstRunLCT;
+                  badChamberRunRangesLCT[badChamberRunRangesIndexLCT++][1] = badChamberLastRunLCT;
+                }
+                else if (verbose) cout << "Ommitted range " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
+
+                badChamberFirstRunLCT = badChamberLastRunLCT = 0;
+                bNewRunDepChamberRangeLCT = true;
 
               }
             }
           }
-          if (badChamberLastRun != 0){
+          // Segment Analysis (Post-loop)
+          if (badChamberLastRunSeg != 0){
             // Generate automatic array values for removal in CSCEffFast.C
-            // For now, this will add all ranges and overwrite earlier run ranges to the last one inputted.
-            // TODO: Find a way to incorporate multiple ranges into CSCEffFast.C
             if (rangeIndex < NUM_BAD_RANGES){
               if (ssAutoHeader.str() == "")
                 ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
               ssAutoHeader << "    //  Run-Dependent Low Efficiency Chamber";
-              ssAutoHeader << " " << badChamberFirstRun << "-" << badChamberLastRun << std::endl;
+              ssAutoHeader << " " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << std::endl;
               ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
-              ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRun << ";  ";
-              ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRun << ";  ";
+              ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRunSeg << ";  ";
+              ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunSeg << ";  ";
               ssAutoHeader << std::endl << std::endl;
             }
             else if (verbose) 
-              cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRun << "-" << badChamberLastRun << endl;
+              cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
 
             // Save the run range for the chambers
-            if (badChamberFirstRun == firstRun && badChamberLastRun == lastRun) ssRunDepChamber << "all runs";
-            else ssRunDepChamber << badChamberFirstRun << "-" << badChamberLastRun;
-            if (badChamberRunRangesIndex < badChamberRunRangesMax){
-              badChamberRunRanges[badChamberRunRangesIndex][0] = badChamberFirstRun;
-              badChamberRunRanges[badChamberRunRangesIndex++][0] = badChamberLastRun;
+            if (badChamberFirstRunSeg == firstRun && badChamberLastRunSeg == lastRun) ssRunDepChamberSeg << "all runs";
+            else ssRunDepChamberSeg << badChamberFirstRunSeg << "-" << badChamberLastRunSeg;
+            if (badChamberRunRangesIndexSeg < badChamberRunRangesMax){
+              badChamberRunRangesSeg[badChamberRunRangesIndexSeg][0] = badChamberFirstRunSeg;
+              badChamberRunRangesSeg[badChamberRunRangesIndexSeg++][1] = badChamberLastRunSeg;
             }
-            else if (verbose) cout << "Ommitted range " << badChamberFirstRun << "-" << badChamberLastRun << endl;
+            else if (verbose) cout << "Ommitted range " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
+          }
+          // LCT Analysis (Post-loop)
+          if (badChamberLastRunLCT != 0){
+            // Generate automatic array values for removal in CSCEffFast.C (Suppressed for LCT)
+            /*
+            if (rangeIndex < NUM_BAD_RANGES){
+              if (ssAutoHeader.str() == "")
+                ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+              ssAutoHeader << "    //  Run-Dependent Low Efficiency Chamber";
+              ssAutoHeader << " " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << std::endl;
+              ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
+              ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRunLCT << ";  ";
+              ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunLCT << ";  ";
+              ssAutoHeader << std::endl << std::endl;
+            }
+            else if (verbose) 
+              cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
+            */
+
+            // Save the run range for the chambers
+            if (badChamberFirstRunLCT == firstRun && badChamberLastRunLCT == lastRun) ssRunDepChamberLCT << "all runs";
+            else ssRunDepChamberLCT << badChamberFirstRunLCT << "-" << badChamberLastRunLCT;
+            if (badChamberRunRangesIndexLCT < badChamberRunRangesMax){
+              badChamberRunRangesLCT[badChamberRunRangesIndexLCT][0] = badChamberFirstRunLCT;
+              badChamberRunRangesLCT[badChamberRunRangesIndexLCT++][1] = badChamberLastRunLCT;
+            }
+            else if (verbose) cout << "Ommitted range " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
           }
 
 
 
           // Run-dependent DCFEB analysis
-          bool bPrintedRunDepDCFEB=false, bNewRunDepDCFEBRange=false;
-          Int_t badDCFEBFirstRun=0, badDCFEBLastRun=0, numBadDCFEBBins=0;
-          int numDCFEBs=0;
-          Float_t sumDCFEBEff;
-          
-          string tempRunDepDCFEB="";
+          bool bPrintedRunDepDCFEBSeg=false, bNewRunDepDCFEBRangeSeg=false;
+          Int_t badDCFEBFirstRunSeg=0, badDCFEBLastRunSeg=0;
+          bool bPrintedRunDepDCFEBSegDead=false, bNewRunDepDCFEBRangeSegDead=false;
+          Int_t badDCFEBFirstRunSegDead=0, badDCFEBLastRunSegDead=0;
+          Int_t numBadDCFEBBinsSeg;
+          Float_t sumDCFEBEffSeg;
+          bool bPrintedRunDepDCFEBLCT=false, bNewRunDepDCFEBRangeLCT=false;
+          Int_t badDCFEBFirstRunLCT=0, badDCFEBLastRunLCT=0;
+          bool bPrintedRunDepDCFEBLCTDead=false, bNewRunDepDCFEBRangeLCTDead=false;
+          Int_t badDCFEBFirstRunLCTDead=0, badDCFEBLastRunLCTDead=0;
+          Int_t numBadDCFEBBinsLCT;
+          Float_t sumDCFEBEffLCT;
+
+          string tempRunDepDCFEBSeg="", tempRunDepDCFEBSegDead="";
+          string tempRunDepDCFEBLCT="", tempRunDepDCFEBLCTDead="";
           stringstream ssTempAutoHeader;
           ssTempAutoHeader << fixed << setprecision(2);
           for (Int_t iiDCFEB=1; iiDCFEB<6; iiDCFEB++){
             if (iiDCFEB > totDCFEBs) break;
-            if (bDeadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] == true) continue;
-            bPrintedRunDepDCFEB = false, bNewRunDepDCFEBRange = false;
-            sumDCFEBEff = 0;
+            if (bBadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] == true) continue;
+            bPrintedRunDepDCFEBSeg = bNewRunDepDCFEBRangeSeg = false;
+            bPrintedRunDepDCFEBSegDead = bNewRunDepDCFEBRangeSegDead = false;
+            bPrintedRunDepDCFEBLCT = bNewRunDepDCFEBRangeLCT = false;
+            bPrintedRunDepDCFEBLCTDead = bNewRunDepDCFEBRangeLCTDead = false;
+            sumDCFEBEffSeg = sumDCFEBEffLCT = 0;
+            numBadDCFEBBinsSeg = numBadDCFEBBinsLCT = 0;
 
             for (Int_t iiRunBin=1; iiRunBin<=numRunBins; iiRunBin++){
               //Int_t iiRun = firstRun + (iiRunBin-1)*(lastRun-firstRun)/numRunBins;
@@ -1800,97 +1761,241 @@ void PlotCSCEffFast(){
               sprintf(name, "LCTEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
               Float_t LCTEff = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin);
               Int_t iiRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin);
-              
-              bool considered = false;
-              for (int i=0; i<10; i++){
-                if (badChamberRunRanges[i][0] == 0) break;
-                considered = considered || (iiRun >= badChamberRunRanges[i][0] && iiRun < badChamberRunRanges[i][1]);
+
+              bool consideredSeg = false, consideredLCT = false;
+              for (int i=0; i<badChamberRunRangesMax; i++){
+                if (badChamberRunRangesSeg[i][0] == 0 && badChamberRunRangesLCT[i][0] == 0) break;
+                consideredSeg = consideredSeg || (iiRun >= badChamberRunRangesSeg[i][0] && iiRun < badChamberRunRangesSeg[i][1]);
+                consideredLCT = consideredLCT || (iiRun >= badChamberRunRangesLCT[i][0] && iiRun < badChamberRunRangesLCT[i][1]);
               }
 
-              if (segEff < runDepEffThreshold && !considered){
-                sumDCFEBEff += segEff;
-                if (!bPrintedRunDepDCFEB){
+              // Segment Analysis
+              if (segEff < runDepEffThreshold && segEff != -1 && !consideredSeg){
+                sumDCFEBEffSeg += segEff;
+
+                // Run-specific Dead DCFEBs
+                if (segEff < deadDCFEBThreshold){
                   // Check if chamber/DCFEB name was printed and, if not, print it.
-                  tempRunDepDCFEB += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
-                  badDCFEBFirstRun = iiRun;
-                  bPrintedRunDepDCFEB = true;
-                }
+                  if (!bPrintedRunDepDCFEBSegDead){
+                    tempRunDepDCFEBSegDead += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
+                    badDCFEBFirstRunSegDead = iiRun;
+                    bPrintedRunDepDCFEBSegDead = true;
+                  }
                   // Check if there are multiple ranges being printed for a DCFEB
-                if (bNewRunDepDCFEBRange){
-                  tempRunDepDCFEB += ", ";
-                  badDCFEBFirstRun = iiRun;
-                  bNewRunDepDCFEBRange = false;
+                  if (bNewRunDepDCFEBRangeSegDead){
+                    tempRunDepDCFEBSegDead += ", ";
+                    badDCFEBFirstRunSegDead = iiRun;
+                    bNewRunDepDCFEBRangeSegDead = false;
+                  }
+                  if (iiRunBin<numRunBins) badDCFEBLastRunSegDead = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
+                  else badDCFEBLastRunSegDead = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
                 }
-                //badDCFEBLastRun = iiRun+100;
-                if (iiRunBin<numRunBins) badDCFEBLastRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
-                else badDCFEBLastRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
-                numBadDCFEBBins++;
+                else if (badDCFEBLastRunSegDead != 0){
+                  // Save the run range for the DCFEBs
+                  tempRunDepDCFEBSegDead += to_string(badDCFEBFirstRunSegDead) + "-" + to_string(badDCFEBLastRunSegDead);
+                  badDCFEBFirstRunSegDead = badDCFEBLastRunSegDead = 0;
+                  bNewRunDepDCFEBRangeSegDead = true;
+                }
+
+                // Check if chamber/DCFEB name was printed and, if not, print it.
+                if (!bPrintedRunDepDCFEBSeg){
+                  tempRunDepDCFEBSeg += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
+                  badDCFEBFirstRunSeg = iiRun;
+                  bPrintedRunDepDCFEBSeg = true;
+                }
+                // Check if there are multiple ranges being printed for a DCFEB
+                if (bNewRunDepDCFEBRangeSeg){
+                  tempRunDepDCFEBSeg += ", ";
+                  badDCFEBFirstRunSeg = iiRun;
+                  bNewRunDepDCFEBRangeSeg = false;
+                }
+                //badDCFEBLastRunSeg = iiRun+100;
+                if (iiRunBin<numRunBins) badDCFEBLastRunSeg = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
+                else badDCFEBLastRunSeg = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
+                numBadDCFEBBinsSeg++;
               }
-              else if (badDCFEBLastRun != 0){
-                //Float_t avg = sumDCFEBEff * (lastRun - firstRun) / ( (badDCFEBLastRun - badDCFEBFirstRun) * numRunBins);
-                Float_t avg = sumDCFEBEff / numBadDCFEBBins;
+              else if (badDCFEBLastRunSeg != 0){
+                //Float_t avg = sumDCFEBEffSeg * (lastRun - firstRun) / ( (badDCFEBLastRunSeg - badDCFEBFirstRunSeg) * numRunBins);
+                Float_t avg = sumDCFEBEffSeg / numBadDCFEBBinsSeg;
                 stringstream ssAvg; ssAvg << fixed << setprecision(2) << (avg*100);
 
                 // Generate automatic array values for removal in CSCEffFast.C
                 if (rangeIndex < NUM_BAD_RANGES){
-                  if (ssAutoHeader.str() == "")
+                  if (ssAutoHeader.str() == "" && ssTempAutoHeader.str() == "")
                     ssTempAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
                   ssTempAutoHeader << "    //  Run-Dependent Low Efficiency DCFEB " << iiDCFEB;
-                  ssTempAutoHeader << " seg " << (avg*100) << "\% " << badDCFEBFirstRun << "-" << badDCFEBLastRun << std::endl;
+                  ssTempAutoHeader << " seg " << (avg*100) << "\% " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << std::endl;
                   ssTempAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
-                  ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRun << ";  ";
-                  ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRun << ";  ";
+                  ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRunSeg << ";  ";
+                  ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRunSeg << ";  ";
                   ssTempAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                   ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
                   ssTempAutoHeader << std::endl << std::endl;
                 }
                 else if (verbose) 
-                  cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRun << "-" << badDCFEBLastRun << endl;
+                  cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << endl;
 
                 // Save the run range for the DCFEBs
-                tempRunDepDCFEB += to_string(badDCFEBFirstRun) + "-" + to_string(badDCFEBLastRun);
-                tempRunDepDCFEB += " (" + ssAvg.str() + ")";
-                badDCFEBFirstRun = badDCFEBLastRun = 0;
-                sumDCFEBEff = numBadDCFEBBins = 0;
-                bNewRunDepDCFEBRange = true;
+                tempRunDepDCFEBSeg += to_string(badDCFEBFirstRunSeg) + "-" + to_string(badDCFEBLastRunSeg);
+                tempRunDepDCFEBSeg += " (" + ssAvg.str() + ")";
+                badDCFEBFirstRunSeg = badDCFEBLastRunSeg = 0;
+                sumDCFEBEffSeg = numBadDCFEBBinsSeg = 0;
+                bNewRunDepDCFEBRangeSeg = true;
+              }
+
+              // LCT Analysis
+              if (LCTEff < runDepEffThreshold && LCTEff != -1 && !consideredLCT){
+                sumDCFEBEffLCT += LCTEff;
+
+                // Run-specific Dead DCFEBs
+                if (LCTEff < deadDCFEBThreshold){
+                  // Check if chamber/DCFEB name was printed and, if not, print it.
+                  if (!bPrintedRunDepDCFEBLCTDead){
+                    tempRunDepDCFEBLCTDead += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
+                    badDCFEBFirstRunLCTDead = iiRun;
+                    bPrintedRunDepDCFEBLCTDead = true;
+                  }
+                  // Check if there are multiple ranges being printed for a DCFEB
+                  if (bNewRunDepDCFEBRangeLCTDead){
+                    tempRunDepDCFEBLCTDead += ", ";
+                    badDCFEBFirstRunLCTDead = iiRun;
+                    bNewRunDepDCFEBRangeLCTDead = false;
+                  }
+                  if (iiRunBin<numRunBins) badDCFEBLastRunLCTDead = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
+                  else badDCFEBLastRunLCTDead = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
+                }
+                else if (badDCFEBLastRunLCTDead != 0){
+                  // Save the run range for the DCFEBs
+                  tempRunDepDCFEBLCTDead += to_string(badDCFEBFirstRunLCTDead) + "-" + to_string(badDCFEBLastRunLCTDead);
+                  badDCFEBFirstRunLCTDead = badDCFEBLastRunLCTDead = 0;
+                  bNewRunDepDCFEBRangeLCTDead = true;
+                }
+
+                if (!bPrintedRunDepDCFEBLCT){
+                  // Check if chamber/DCFEB name was printed and, if not, print it.
+                  tempRunDepDCFEBLCT += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
+                  badDCFEBFirstRunLCT = iiRun;
+                  bPrintedRunDepDCFEBLCT = true;
+                }
+                // Check if there are multiple ranges being printed for a DCFEB
+                if (bNewRunDepDCFEBRangeLCT){
+                  tempRunDepDCFEBLCT += ", ";
+                  badDCFEBFirstRunLCT = iiRun;
+                  bNewRunDepDCFEBRangeLCT = false;
+                }
+                //badDCFEBLastRunLCT = iiRun+100;
+                if (iiRunBin<numRunBins) badDCFEBLastRunLCT = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
+                else badDCFEBLastRunLCT = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
+                numBadDCFEBBinsLCT++;
+              }
+              else if (badDCFEBLastRunLCT != 0){
+                //Float_t avg = sumDCFEBEffLCT * (lastRun - firstRun) / ( (badDCFEBLastRunLCT - badDCFEBFirstRunLCT) * numRunBins);
+                Float_t avg = sumDCFEBEffLCT / numBadDCFEBBinsLCT;
+                stringstream ssAvg; ssAvg << fixed << setprecision(2) << (avg*100);
+
+                // Generate automatic array values for removal in CSCEffFast.C (Suppressed for LCT)
+                /*
+                if (rangeIndex < NUM_BAD_RANGES){
+                  if (ssAutoHeader.str() == "" && ssTempAutoHeader.str() == "")
+                    ssTempAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  ssTempAutoHeader << "    //  Run-Dependent Low Efficiency DCFEB " << iiDCFEB;
+                  ssTempAutoHeader << " LCT " << (avg*100) << "\% " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << std::endl;
+                  ssTempAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
+                  ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRunLCT << ";  ";
+                  ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRunLCT << ";  ";
+                  ssTempAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
+                  ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
+                  ssTempAutoHeader << std::endl << std::endl;
+                }
+                else if (verbose) 
+                  cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << endl;
+                */
+
+                // Save the run range for the DCFEBs
+                tempRunDepDCFEBLCT += to_string(badDCFEBFirstRunLCT) + "-" + to_string(badDCFEBLastRunLCT);
+                tempRunDepDCFEBLCT += " (" + ssAvg.str() + ")";
+                badDCFEBFirstRunLCT = badDCFEBLastRunLCT = 0;
+                sumDCFEBEffLCT = numBadDCFEBBinsLCT = 0;
+                bNewRunDepDCFEBRangeLCT = true;
               }
             }
-            if (bPrintedRunDepDCFEB) numDCFEBs++;
-            if (badDCFEBLastRun != 0){
-              //Float_t avg = sumDCFEBEff * (lastRun - firstRun) / ( (badDCFEBLastRun - badDCFEBFirstRun) * numRunBins);
-              Float_t avg = sumDCFEBEff / numBadDCFEBBins;
+            // Segment Analysis (Post-loop)
+            if (bPrintedRunDepDCFEBSeg) numBadDCFEBBinsSeg++;
+            if (badDCFEBLastRunSeg != 0){
+              //Float_t avg = sumDCFEBEffSeg * (lastRun - firstRun) / ( (badDCFEBLastRunSeg - badDCFEBFirstRunSeg) * numRunBins);
+              Float_t avg = sumDCFEBEffSeg / numBadDCFEBBinsSeg;
               stringstream ssAvg; ssAvg << fixed << setprecision(2) << (avg*100);
 
               // Generate automatic array values for removal in CSCEffFast.C
               if (rangeIndex < NUM_BAD_RANGES){
-                if (ssAutoHeader.str() == "")
+                if (ssAutoHeader.str() == "" && ssTempAutoHeader.str() == "")
                   ssTempAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
                 ssTempAutoHeader << "    //  Run-Dependent Low Efficiency DCFEB " << iiDCFEB;
-                ssTempAutoHeader << " seg " << (avg*100) << "\% " << badDCFEBFirstRun << "-" << badDCFEBLastRun << std::endl;
+                ssTempAutoHeader << " seg " << (avg*100) << "\% " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << std::endl;
                 ssTempAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
-                ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRun << ";  ";
-                ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRun << ";  ";
+                ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRunSeg << ";  ";
+                ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRunSeg << ";  ";
                 ssTempAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                 ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
                 ssTempAutoHeader << std::endl << std::endl;
               }
               else if (verbose) 
-                cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRun << "-" << badDCFEBLastRun << endl;
+                cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << endl;
 
               // Save the run range for the DCFEBs
-              if (badDCFEBFirstRun == firstRun && badDCFEBLastRun == lastRun) tempRunDepDCFEB += "all runs";
-              else tempRunDepDCFEB += to_string(badDCFEBFirstRun) + "-" + to_string(badDCFEBLastRun);
-              tempRunDepDCFEB += " (" + ssAvg.str() + ")";
-              badDCFEBFirstRun = badDCFEBLastRun = 0;
+              if (badDCFEBFirstRunSeg == firstRun && badDCFEBLastRunSeg == lastRun) tempRunDepDCFEBSeg += "all runs";
+              else tempRunDepDCFEBSeg += to_string(badDCFEBFirstRunSeg) + "-" + to_string(badDCFEBLastRunSeg);
+              tempRunDepDCFEBSeg += " (" + ssAvg.str() + ")";
+              badDCFEBFirstRunSeg = badDCFEBLastRunSeg = 0;
             }
-            
-            /*if (numDCFEBs == totDCFEBs){
-              tempRunDepDCFEB = "";
-              ssTempAutoHeader.str("");
-              break;
-            }*/
+            if (badDCFEBLastRunSegDead != 0){
+              // Save the run range for the DCFEBs
+              if (badDCFEBFirstRunSegDead == firstRun && badDCFEBLastRunSegDead == lastRun) tempRunDepDCFEBSegDead += "all runs";
+              else tempRunDepDCFEBSegDead += to_string(badDCFEBFirstRunSegDead) + "-" + to_string(badDCFEBLastRunSegDead);
+              badDCFEBFirstRunSegDead = badDCFEBLastRunSegDead = 0;
+            }
+            // LCT Analysis (Post-loop)
+            if (bPrintedRunDepDCFEBLCT) numBadDCFEBBinsLCT++;
+            if (badDCFEBLastRunLCT != 0){
+              //Float_t avg = sumDCFEBEffLCT * (lastRun - firstRun) / ( (badDCFEBLastRunLCT - badDCFEBFirstRunLCT) * numRunBins);
+              Float_t avg = sumDCFEBEffLCT / numBadDCFEBBinsLCT;
+              stringstream ssAvg; ssAvg << fixed << setprecision(2) << (avg*100);
+
+              // Generate automatic array values for removal in CSCEffFast.C (Suppressed for LCT)
+              /*
+              if (rangeIndex < NUM_BAD_RANGES){
+                if (ssAutoHeader.str() == "" && ssTempAutoHeader.str() == "")
+                  ssTempAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                ssTempAutoHeader << "    //  Run-Dependent Low Efficiency DCFEB " << iiDCFEB;
+                ssTempAutoHeader << " LCT " << (avg*100) << "\% " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << std::endl;
+                ssTempAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
+                ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRunLCT << ";  ";
+                ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRunLCT << ";  ";
+                ssTempAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
+                ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
+                ssTempAutoHeader << std::endl << std::endl;
+              }
+              else if (verbose) 
+                cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << endl;
+              */
+
+              // Save the run range for the DCFEBs
+              if (badDCFEBFirstRunLCT == firstRun && badDCFEBLastRunLCT == lastRun) tempRunDepDCFEBLCT += "all runs";
+              else tempRunDepDCFEBLCT += to_string(badDCFEBFirstRunLCT) + "-" + to_string(badDCFEBLastRunLCT);
+              tempRunDepDCFEBLCT += " (" + ssAvg.str() + ")";
+              badDCFEBFirstRunLCT = badDCFEBLastRunLCT = 0;
+            }
+            if (badDCFEBLastRunLCTDead != 0){
+              // Save the run range for the DCFEBs
+              if (badDCFEBFirstRunLCTDead == firstRun && badDCFEBLastRunLCTDead == lastRun) tempRunDepDCFEBLCTDead += "all runs";
+              else tempRunDepDCFEBLCTDead += to_string(badDCFEBFirstRunLCTDead) + "-" + to_string(badDCFEBLastRunLCTDead);
+              badDCFEBFirstRunLCTDead = badDCFEBLastRunLCTDead = 0;
+            }
           }
-          ssRunDepDCFEB << tempRunDepDCFEB;
+          ssRunDepDCFEBSeg << tempRunDepDCFEBSeg;
+          ssRunDepDCFEBSegDead << tempRunDepDCFEBSegDead;
+          ssRunDepDCFEBLCT << tempRunDepDCFEBLCT;
+          ssRunDepDCFEBLCTDead << tempRunDepDCFEBLCTDead;
           ssAutoHeader << ssTempAutoHeader.str();
 
           sAutoHeaderChambers[iiStation][iiRing][iiChamber] += ssAutoHeader.str();
@@ -1906,24 +2011,37 @@ void PlotCSCEffFast(){
     cscEffCheck << "Dead Chambers" << std::endl << "-------------" << std::endl;
     cscEffCheck << ssDeadChambers.str() << std::endl;
     //Print Dead DCFEBs to File (without efficiency)
-    cscEffCheck << std::endl;
-    cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
-    cscEffCheck << ssDeadDCFEBs.str() << std::endl;
-    cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+    cscEffCheckSimple << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
+    cscEffCheckSimple << ssDeadDCFEBs.str() << std::endl;
+    cscEffCheckSimple << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
     //Print Dead DCFEBs to File (with efficiency)
     cscEffCheck << std::endl;
     cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
     cscEffCheck << ssDeadDCFEBsWithEff.str() << std::endl;
     cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
     if (runDepAnalysis){
-      //Print run-dependent chamber failures
+      //Print run-dependent chamber failures (segment)
       cscEffCheck << std::endl;
-      cscEffCheck << std::endl << "Run-Dependent Chamber Issues" << std::endl << "----------------------------";
-      cscEffCheck << ssRunDepChamber.str() << std::endl;
-      //Print run-dependent DCFEB failures
+      cscEffCheck << std::endl << "Run-Dependent Chamber Issues (Segment)" << std::endl << "--------------------------------------";
+      cscEffCheck << ssRunDepChamberSeg.str() << std::endl;
+      //Print run-dependent chamber failures (LCT)
       cscEffCheck << std::endl;
-      cscEffCheck << std::endl << "Run-Dependent DCFEB Issues" << std::endl << "--------------------------";
-      cscEffCheck << ssRunDepDCFEB.str() << std::endl;
+      cscEffCheck << std::endl << "Run-Dependent Chamber Issues (LCT)" << std::endl << "----------------------------------";
+      cscEffCheck << ssRunDepChamberLCT.str() << std::endl;
+      //Print run-dependent DCFEB failures (segment)
+      cscEffCheck << std::endl;
+      cscEffCheck << std::endl << "Run-Dependent DCFEB Issues (Segment)" << std::endl << "------------------------------------";
+      cscEffCheck << ssRunDepDCFEBSeg.str() << std::endl;
+      //Print run-dependent DCFEB failures (segment - simple)
+      cscEffCheckSimple << std::endl << "Run-Dependent Dead DCFEBs (Segment)" << std::endl << "------------------------------------";
+      cscEffCheckSimple << std::endl << ssRunDepDCFEBSegDead.str() << std::endl;
+      //Print run-dependent DCFEB failures (LCT)
+      cscEffCheck << std::endl;
+      cscEffCheck << std::endl << "Run-Dependent DCFEB Issues (LCT)" << std::endl << "--------------------------------";
+      cscEffCheck << ssRunDepDCFEBLCT.str() << std::endl;
+      //Print run-dependent DCFEB failures (LCT - simple)
+      cscEffCheckSimple << std::endl << "Run-Dependent Dead DCFEBs (LCT)" << std::endl << "--------------------------------";
+      cscEffCheckSimple << std::endl << ssRunDepDCFEBLCTDead.str() << std::endl;
     }
     //Print auto-generated removal statements
     //cscEffCheck << std::endl;
@@ -1938,6 +2056,7 @@ void PlotCSCEffFast(){
     badChambersHeader << "#endif//BadChambers_h" << std::endl;
     // Closing Text Files and Exiting
     cscEffCheck.close();
+    cscEffCheckSimple.close();
     badChambersHeader.close();
   }
 
@@ -1977,7 +2096,7 @@ void PlotCSCEffFast(){
                 Float_t segEff = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin+1+iiPage*10);
                 Int_t iiRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1+iiPage*10);
 
-                hcompactSeg->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, segEff);
+                if (segEff != -1) hcompactSeg->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, segEff);
                 if (iiDCFEB == 3)
                   hcompactSeg->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
                 else
@@ -1993,7 +2112,7 @@ void PlotCSCEffFast(){
           hcompactSeg->GetZaxis()->SetRangeUser(0,1.0);
           hcompactSeg->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-3.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
             line->Draw();
           }
           c1.Print(file);
@@ -2017,7 +2136,7 @@ void PlotCSCEffFast(){
                 Float_t LCTEff = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin+1+iiPage*10);
                 Int_t iiRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1+iiPage*10);
 
-                hcompactLCT->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, LCTEff);
+                if (LCTEff != -1) hcompactLCT->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, LCTEff);
                 if (iiDCFEB == 3)
                   hcompactLCT->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
                 else
@@ -2033,7 +2152,7 @@ void PlotCSCEffFast(){
           hcompactLCT->GetZaxis()->SetRangeUser(0,1.0);
           hcompactLCT->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-3.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
             line->Draw();
           }
           c1.Print(file);
@@ -2049,10 +2168,14 @@ void PlotCSCEffFast(){
 // Helper functions
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   string result = "";
-  if ((station==1||station==2||station==3||station==5||station==6||station==7)&&(ring==0||ring==3))
+  if ((station==1||station==2||station==3||station==5||station==6||station==7)&&(ring==0||ring==3)){
+    std::cout << "Unexpected station/ring. Given " << station << "/" << ring << std::endl;
     return result;
-  if ((station==1||station==2||station==3||station==5||station==6||station==7)&&ring==1&&chamber>18&&chamber!=-1)
+  }
+  if (chamber!=-1&&(station==1||station==2||station==3||station==5||station==6||station==7)&&ring==1&&chamber>18){
+    std::cout << "Unexpected station/ring/chamber. Given " << station << "/" << ring << "/" << chamber << std::endl;
     return result;
+  }
   string symb = (station < 4)? "-" : "+";
   if (station >= 4) station -= 4;
 
