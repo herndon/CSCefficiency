@@ -36,17 +36,17 @@ void PlotCSCEffFast(){
 
   // Flags
   int verbose = 1; // 0: None. 1: Simple printouts. 2: Simple printouts and ROOT drawing statements
-  bool summaryPlots = false; // Efficiency plot per ring or for the full system
+  bool summaryPlots = true; // Efficiency plot per ring or for the full system
   bool chamberPlots = false; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
   //bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on (old run analysis printout)
   bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
-  bool DCFEBAnalysis = false; // Run DCFEB analysis for specific run ranges
+  bool DCFEBAnalysis = true; // Run DCFEB analysis for specific run ranges
 
   // Constants
-  float deadDCFEBThreshold = 0.25; // Efficiency threshold for dead (D)CFEBs.
-  float effThreshold = 0.80; // Efficiency threshold for file readouts.
-  float maxRemovalThreshold = 0.50; // Efficiency threshold for maximal removal of low efficiency DCFEBs
-  float runDepEffThreshold = 0.80; // Efficiency threshold for run-dependent chamber failures
+  float deadDCFEBThreshold = 0.10; // Efficiency threshold for dead (D)CFEBs.
+  float effThreshold = 0.50; // Efficiency threshold for file readouts.
+  float maxRemovalThreshold = 0.20; // Efficiency threshold for maximal removal of low efficiency DCFEBs
+  float runDepEffThreshold = 0.20; // Efficiency threshold for run-dependent chamber failures
   float DCFEBRanges[5][2] = { {-2.0,18.0}, {14.0,34.0}, {30.0,50.0}, {46.0,66.0},{62.0,82.0}};
   double lowEff = 0.9;
   double highEff = 1.02;
@@ -707,12 +707,15 @@ void PlotCSCEffFast(){
     // Drawing 2D CSC Segment Efficiency
     TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
 
-    segEff2DStationRingChamber->SetTitle("CSC Segment Efficiency 2D by Chamber & Ring        Run 3 Data");
+    segEff2DStationRingChamber->SetTitle("CSC Seg. Eff. 2D: Chamber & Ring  Run 3 (Period 2024C, 7.5 fb^{-1})");
     segEff2DStationRingChamber->SetMarkerSize(0.75);
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     segEff2DStationRingChamber->Draw("COLZ TEXT");
+    TLatex text2(-4.0,21.8,"CMS Preliminary");
+    text2.DrawClone();
     c1.Print("plots/CSCSegEffRun3Data2DRingChamber.png");
+    c1.Print("plots/CSCSegEffRun3Data2DRingChamber.pdf");
 
 
 
@@ -1111,12 +1114,15 @@ void PlotCSCEffFast(){
     // Drawing 2D CSC LCT Efficiency
     TH2F * LCTEff2DStationRingChamber = (TH2F*)file0->Get("LCTEff2DStationRingChamber");
 
-    LCTEff2DStationRingChamber->SetTitle("CSC LCT Efficiency 2D by Chamber & Ring        Run 3 Data");
+    LCTEff2DStationRingChamber->SetTitle("CSC LCT Eff. 2D: Chamber & Ring  Run 3 (Period 2024C, 7.5 fb^{-1})");
     LCTEff2DStationRingChamber->SetMarkerSize(0.75);
     LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     LCTEff2DStationRingChamber->Draw("COLZ TEXT");
+    TLatex text(-4.0,21.8,"CMS Preliminary");
+    text.DrawClone();
     c1.Print("plots/CSCLCTEffRun3Data2DRingChamber.png");
+    c1.Print("plots/CSCLCTEffRun3Data2DRingChamber.pdf");
 
     // Drawing 2D CSC Efficiency Plots
     for (Int_t iiStation=0; iiStation<8; iiStation++){

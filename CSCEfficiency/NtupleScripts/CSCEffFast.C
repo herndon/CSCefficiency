@@ -138,6 +138,7 @@ void CSCEffFast::Loop()
 #endif
   *
   */
+
 #if newData
   // auto-generate equally-spaced run bins (100 runs each)
   const Int_t numRunBins = (lastRun-firstRun)/100 + 1;
@@ -1864,6 +1865,10 @@ void CSCEffFast::Loop()
     // badRun=(badRun||(run_number<358500)||(run_number>359690)); //low lumi area
     // badRun=(badRun||(run_number<359690)||(run_number>360000)); // adjacent to low lumi area
 
+    // Use badRun to select run range
+    //badRun = badRun||(run_number < 379728);
+    badRun = badRun||(run_number < 379380);
+    
     inZMass = (invMass>zMassMin)&&(invMass<zMassMax);
     inZMassLowSideBand = (invMass>zMassLowSideBandMin)&&(invMass<zMassLowSideBandMax);
     inZMassHighSideBand = (invMass>zMassHighSideBandMin)&&(invMass<zMassHighSideBandMax);
@@ -4145,65 +4150,65 @@ void CSCEffFast::Loop()
   cscEffHistoFile.Write();
   cscEffHistoFile.Close();
 
-  delete[] runBins;
-  for (int i=0; i<8; i++){
-    for (int j=0; j<4; j++){
-      for (int k=0; k<5; k++){
-        for (int l=0; l<37; l++){
-          delete[] totStationRingDCFEBChamberRun[i][j][k][l];
-          delete[] passStationRingDCFEBChamberRunSeg[i][j][k][l];
-          delete[] passStationRingDCFEBChamberRunLCT[i][j][k][l];
-          delete[] totSBStationRingDCFEBChamberRun[i][j][k][l];
-          delete[] passSBStationRingDCFEBChamberRunSeg[i][j][k][l];
-          delete[] passSBStationRingDCFEBChamberRunLCT[i][j][k][l];
-          delete[] effStationRingDCFEBChamberRunSeg[i][j][k][l];
-          delete[] effSigmaStationRingDCFEBChamberRunSeg[i][j][k][l];
-          delete[] effStationRingDCFEBChamberRunLCT[i][j][k][l];
-          delete[] effSigmaStationRingDCFEBChamberRunLCT[i][j][k][l];
-        }
-        delete[] totStationRingDCFEBChamberRun[i][j][k];
-        delete[] passStationRingDCFEBChamberRunSeg[i][j][k];
-        delete[] passStationRingDCFEBChamberRunLCT[i][j][k];
-        delete[] totSBStationRingDCFEBChamberRun[i][j][k];
-        delete[] passSBStationRingDCFEBChamberRunSeg[i][j][k];
-        delete[] passSBStationRingDCFEBChamberRunLCT[i][j][k];
-        delete[] effStationRingDCFEBChamberRunSeg[i][j][k];
-        delete[] effSigmaStationRingDCFEBChamberRunSeg[i][j][k];
-        delete[] effStationRingDCFEBChamberRunLCT[i][j][k];
-        delete[] effSigmaStationRingDCFEBChamberRunLCT[i][j][k];
-      }
-      delete[] totStationRingDCFEBChamberRun[i][j];
-      delete[] passStationRingDCFEBChamberRunSeg[i][j];
-      delete[] passStationRingDCFEBChamberRunLCT[i][j];
-      delete[] totSBStationRingDCFEBChamberRun[i][j];
-      delete[] passSBStationRingDCFEBChamberRunSeg[i][j];
-      delete[] passSBStationRingDCFEBChamberRunLCT[i][j];
-      delete[] effStationRingDCFEBChamberRunSeg[i][j];
-      delete[] effSigmaStationRingDCFEBChamberRunSeg[i][j];
-      delete[] effStationRingDCFEBChamberRunLCT[i][j];
-      delete[] effSigmaStationRingDCFEBChamberRunLCT[i][j];
-    }
-    delete[] totStationRingDCFEBChamberRun[i];
-    delete[] passStationRingDCFEBChamberRunSeg[i];
-    delete[] passStationRingDCFEBChamberRunLCT[i];
-    delete[] totSBStationRingDCFEBChamberRun[i];
-    delete[] passSBStationRingDCFEBChamberRunSeg[i];
-    delete[] passSBStationRingDCFEBChamberRunLCT[i];
-    delete[] effStationRingDCFEBChamberRunSeg[i];
-    delete[] effSigmaStationRingDCFEBChamberRunSeg[i];
-    delete[] effStationRingDCFEBChamberRunLCT[i];
-    delete[] effSigmaStationRingDCFEBChamberRunLCT[i];
-  }
-  delete[] totStationRingDCFEBChamberRun;
-  delete[] passStationRingDCFEBChamberRunSeg;
-  delete[] passStationRingDCFEBChamberRunLCT;
-  delete[] totSBStationRingDCFEBChamberRun;
-  delete[] passSBStationRingDCFEBChamberRunSeg;
-  delete[] passSBStationRingDCFEBChamberRunLCT;
-  delete[] effStationRingDCFEBChamberRunSeg;
-  delete[] effSigmaStationRingDCFEBChamberRunSeg;
-  delete[] effStationRingDCFEBChamberRunLCT;
-  delete[] effSigmaStationRingDCFEBChamberRunLCT;
+  /* delete[] runBins; */
+  /* for (int i=0; i<8; i++){ */
+  /*   for (int j=0; j<4; j++){ */
+  /*     for (int k=0; k<5; k++){ */
+  /*       for (int l=0; l<37; l++){ */
+  /*         delete[] totStationRingDCFEBChamberRun[i][j][k][l]; */
+  /*         delete[] passStationRingDCFEBChamberRunSeg[i][j][k][l]; */
+  /*         delete[] passStationRingDCFEBChamberRunLCT[i][j][k][l]; */
+  /*         delete[] totSBStationRingDCFEBChamberRun[i][j][k][l]; */
+  /*         delete[] passSBStationRingDCFEBChamberRunSeg[i][j][k][l]; */
+  /*         delete[] passSBStationRingDCFEBChamberRunLCT[i][j][k][l]; */
+  /*         delete[] effStationRingDCFEBChamberRunSeg[i][j][k][l]; */
+  /*         delete[] effSigmaStationRingDCFEBChamberRunSeg[i][j][k][l]; */
+  /*         delete[] effStationRingDCFEBChamberRunLCT[i][j][k][l]; */
+  /*         delete[] effSigmaStationRingDCFEBChamberRunLCT[i][j][k][l]; */
+  /*       } */
+  /*       delete[] totStationRingDCFEBChamberRun[i][j][k]; */
+  /*       delete[] passStationRingDCFEBChamberRunSeg[i][j][k]; */
+  /*       delete[] passStationRingDCFEBChamberRunLCT[i][j][k]; */
+  /*       delete[] totSBStationRingDCFEBChamberRun[i][j][k]; */
+  /*       delete[] passSBStationRingDCFEBChamberRunSeg[i][j][k]; */
+  /*       delete[] passSBStationRingDCFEBChamberRunLCT[i][j][k]; */
+  /*       delete[] effStationRingDCFEBChamberRunSeg[i][j][k]; */
+  /*       delete[] effSigmaStationRingDCFEBChamberRunSeg[i][j][k]; */
+  /*       delete[] effStationRingDCFEBChamberRunLCT[i][j][k]; */
+  /*       delete[] effSigmaStationRingDCFEBChamberRunLCT[i][j][k]; */
+  /*     } */
+  /*     delete[] totStationRingDCFEBChamberRun[i][j]; */
+  /*     delete[] passStationRingDCFEBChamberRunSeg[i][j]; */
+  /*     delete[] passStationRingDCFEBChamberRunLCT[i][j]; */
+  /*     delete[] totSBStationRingDCFEBChamberRun[i][j]; */
+  /*     delete[] passSBStationRingDCFEBChamberRunSeg[i][j]; */
+  /*     delete[] passSBStationRingDCFEBChamberRunLCT[i][j]; */
+  /*     delete[] effStationRingDCFEBChamberRunSeg[i][j]; */
+  /*     delete[] effSigmaStationRingDCFEBChamberRunSeg[i][j]; */
+  /*     delete[] effStationRingDCFEBChamberRunLCT[i][j]; */
+  /*     delete[] effSigmaStationRingDCFEBChamberRunLCT[i][j]; */
+  /*   } */
+  /*   delete[] totStationRingDCFEBChamberRun[i]; */
+  /*   delete[] passStationRingDCFEBChamberRunSeg[i]; */
+  /*   delete[] passStationRingDCFEBChamberRunLCT[i]; */
+  /*   delete[] totSBStationRingDCFEBChamberRun[i]; */
+  /*   delete[] passSBStationRingDCFEBChamberRunSeg[i]; */
+  /*   delete[] passSBStationRingDCFEBChamberRunLCT[i]; */
+  /*   delete[] effStationRingDCFEBChamberRunSeg[i]; */
+  /*   delete[] effSigmaStationRingDCFEBChamberRunSeg[i]; */
+  /*   delete[] effStationRingDCFEBChamberRunLCT[i]; */
+  /*   delete[] effSigmaStationRingDCFEBChamberRunLCT[i]; */
+  /* } */
+  /* delete[] totStationRingDCFEBChamberRun; */
+  /* delete[] passStationRingDCFEBChamberRunSeg; */
+  /* delete[] passStationRingDCFEBChamberRunLCT; */
+  /* delete[] totSBStationRingDCFEBChamberRun; */
+  /* delete[] passSBStationRingDCFEBChamberRunSeg; */
+  /* delete[] passSBStationRingDCFEBChamberRunLCT; */
+  /* delete[] effStationRingDCFEBChamberRunSeg; */
+  /* delete[] effSigmaStationRingDCFEBChamberRunSeg; */
+  /* delete[] effStationRingDCFEBChamberRunLCT; */
+  /* delete[] effSigmaStationRingDCFEBChamberRunLCT; */
 }
 
 

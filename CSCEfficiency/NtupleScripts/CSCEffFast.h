@@ -32,14 +32,23 @@ class CSCEffFast {
     } dataset;
     static constexpr dataset d2022all = {355000, 362760};
     static constexpr dataset d2023all = {367100, 370790};
+
     static constexpr dataset d2023Cv1 = {367100, 367515};
     static constexpr dataset d2023Cv2 = {367500, 367758};
     static constexpr dataset d2023Cv4 = {367700, 369694};
     static constexpr dataset d2023Dv1 = {369800, 370580};
     static constexpr dataset d2023Dv2 = {370600, 370790};
+
+    static constexpr dataset d2024Bv1 = {378900, 379400};// this data is pretty much all bad
+    static constexpr dataset d2024Cv1 = {379300, 380300};
+    static constexpr dataset d2024Dv1 = {380200, 381000};
+    static constexpr dataset d2024Ev1 = {380900, 381200};
+    static constexpr dataset d2024all = {379300, 381200};
 #if newData
-    static const Int_t firstRun = d2023all.firstRun;
-    static const Int_t lastRun  = d2023all.lastRun;
+  //    static const Int_t firstRun = d2024all.firstRun;
+  //    static const Int_t lastRun  = d2024all.lastRun;
+    static const Int_t firstRun = d2024Ev1.firstRun;
+    static const Int_t lastRun  = d2024Ev1.lastRun;
 #else
     static const Int_t firstRun = 355000;
     static const Int_t lastRun  = 362800;
@@ -705,7 +714,7 @@ CSCEffFast::CSCEffFast() : fChain(0)
   Int_t numberFiles = 0;
   TChain *chain = new TChain("aodDump/Fraction");
 
-  std::cout << "Analyzing " << (newData? "2023" : "2022") << " data." << std::endl;
+  std::cout << "Analyzing " << (newData? "2023 or 2024" : "2022") << " data." << std::endl;
 
   if (newData){
 
@@ -756,6 +765,147 @@ CSCEffFast::CSCEffFast() : fChain(0)
     // 	numberFiles++;
     //   }
     // }
+
+    // 2024 B, this data is pretty much all bad
+    // if (firstRun <= d2024Bv1.firstRun && lastRun >= d2024Bv1.lastRun){
+    //   for (int fileNum=0; fileNum<140; fileNum++){//Muon0
+    //     if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024B0_1_240417_8/240417_104015/0000/CSCeff_Muon_2024B_1_%d.root",fileNum))){
+    //       chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024B0_1_240417_8/240417_104015/0000/CSCeff_Muon_2024B_1_%d.root",fileNum));
+    //       numberFiles++;
+    //     }
+    //   }
+    //   for (int fileNum=0; fileNum<140; fileNum++){//Muon1
+    //     if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024B1_1_240415_8/240417_104156/0000/CSCeff_Muon_2024B_1_%d.root",fileNum))){
+    //       chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024B1_1_240415_8/240417_104156/0000/CSCeff_Muon_2024B_1_%d.root",fileNum));
+    //       numberFiles++;
+    //     }
+    //   }
+    // }
+
+
+    if (firstRun <= d2024Cv1.firstRun && lastRun >= d2024Cv1.lastRun){
+
+
+     for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024C0_1_240430_11/240430_151603/0000/CSCeff_Muon_2024C_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024C0_1_240430_11/240430_151603/0000/CSCeff_Muon_2024C_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024C1_1_240430_11/240430_151643/0000/CSCeff_Muon_2024C_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024C1_1_240430_11/240430_151643/0000/CSCeff_Muon_2024C_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+
+     for (int fileNum=1000; fileNum<2000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024C0_1_240430_11/240430_151603/0001/CSCeff_Muon_2024C_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024C0_1_240430_11/240430_151603/0001/CSCeff_Muon_2024C_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=1000; fileNum<2000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024C1_1_240430_11/240430_151643/0001/CSCeff_Muon_2024C_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024C1_1_240430_11/240430_151643/0001/CSCeff_Muon_2024C_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     
+
+     for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024C0_1_240430_12/240516_010259/0000/CSCeff_Muon_2024C_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024C0_1_240430_12/240516_010259/0000/CSCeff_Muon_2024C_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024C1_1_240430_12/240516_010858/0000/CSCeff_Muon_2024C_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024C1_1_240430_12/240516_010858/0000/CSCeff_Muon_2024C_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+
+
+     
+    
+      
+    } 
+
+
+    if (firstRun <= d2024Dv1.firstRun && lastRun >= d2024Dv1.lastRun){
+
+     for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024D0_1_240517_2/240518_021852/0000/CSCeff_Muon_2024D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024D0_1_240517_2/240518_021852/0000/CSCeff_Muon_2024D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=1000; fileNum<2000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024D0_1_240517_2/240518_021852/0001/CSCeff_Muon_2024D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024D0_1_240517_2/240518_021852/0001/CSCeff_Muon_2024D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=2000; fileNum<3000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024D0_1_240517_2/240518_021852/0002/CSCeff_Muon_2024D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024D0_1_240517_2/240518_021852/0002/CSCeff_Muon_2024D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024D1_1_240517_2/240518_021945/0000/CSCeff_Muon_2024D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024D1_1_240517_2/240518_021945/0000/CSCeff_Muon_2024D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=1000; fileNum<2000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024D1_1_240517_2/240518_021945/0001/CSCeff_Muon_2024D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024D1_1_240517_2/240518_021945/0001/CSCeff_Muon_2024D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=2000; fileNum<3000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024D1_1_240517_2/240518_021945/0002/CSCeff_Muon_2024D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024D1_1_240517_2/240518_021945/0002/CSCeff_Muon_2024D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+
+     for (int fileNum=0; fileNum<200; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024D0_1_240517_3/240525_190406/0000/CSCeff_Muon_2024D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024D0_1_240517_3/240525_190406/0000/CSCeff_Muon_2024D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=0; fileNum<200; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024D1_1_240517_3/240525_190504/0000/CSCeff_Muon_2024D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024D1_1_240517_3/240525_190504/0000/CSCeff_Muon_2024D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+
+
+    }
+
+
+    if (firstRun <= d2024Ev1.firstRun && lastRun >= d2024Ev1.lastRun){
+
+     for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024E0_1_240525_1/240528_222128/0000/CSCeff_Muon_2024E_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024E0_1_240525_1/240528_222128/0000/CSCeff_Muon_2024E_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+     for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024E1_1_240525_1/240528_222352/0000/CSCeff_Muon_2024E_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024E1_1_240525_1/240528_222352/0000/CSCeff_Muon_2024E_1_%d.root",fileNum));
+          numberFiles++;
+        }
+     }
+
+     
+    } 
 
     // 2023D v2
     if (firstRun <= d2023Dv2.firstRun && lastRun >= d2023Dv2.lastRun){
