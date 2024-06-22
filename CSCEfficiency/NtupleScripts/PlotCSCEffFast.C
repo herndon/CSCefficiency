@@ -19,16 +19,45 @@
 #include "TLine.h"
 #include "TBox.h"
 
+#include "TLegend.h"
+#include "TROOT.h"
+#include "TFile.h"
+#include "TError.h"
+
 using namespace std;
 
 const int NUM_BAD_RANGES=50;
 
+string Printout(const string& title, const string& info);
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
 
-void PlotCSCEffFast(){
+void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   // Initializing
-  TFile * file0 = TFile::Open("cscEffHistoFile.root");
-  char file[70];
+  TFile * file0 = TFile::Open(filename.c_str());
+  if (!file0 || file0->IsZombie()) return;
+
+  string dataset = "";
+  string lumi = "";
+  string dataInfo = "";
+  {
+    TNamed *setName = (TNamed*)file0->Get("setName");
+    if (setName != nullptr) dataset = setName->GetTitle();
+    
+    TNamed *lumiInfo = (TNamed*)file0->Get("lumi");
+    stringstream ssLumi;
+    if (lumiInfo == nullptr) cout << "Luminosity not stored in file." << endl;
+    else{
+      ssLumi << lumiInfo->GetTitle();
+      float tempLumi; ssLumi >> tempLumi;
+      ssLumi.str(""); ssLumi.clear();
+      ssLumi << fixed << setprecision(1) << tempLumi;
+      lumi = ssLumi.str();
+    }
+    if (dataset != "") dataInfo += ", " + dataset;
+    if (lumi != "") dataInfo += ", " + lumi + "fb^{-1}";
+  }
+
+  char file[100];
   char name[50];
   char stationRing[10];
   char title[100];
@@ -41,6 +70,7 @@ void PlotCSCEffFast(){
   //bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on (old run analysis printout)
   bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
   bool DCFEBAnalysis = true; // Run DCFEB analysis for specific run ranges
+  bool segmentAnalysis = false; // Segment plots for debugging
 
   // Constants
   float deadDCFEBThreshold = 0.10; // Efficiency threshold for dead (D)CFEBs.
@@ -57,7 +87,24 @@ void PlotCSCEffFast(){
     numRunBins = htemp->GetNbinsY();
     firstRun = htemp->GetYaxis()->GetBinLowEdge(1);
     lastRun = htemp->GetYaxis()->GetBinUpEdge(numRunBins);
-    std::cout << "Processing data for runs " << firstRun << "-" << lastRun << std::endl;
+    cout << "Processing data for ";
+    if (dataset != "") cout << dataset << " (";
+    cout << "runs " << firstRun << "-" << lastRun;
+    if (dataset != "") cout << ")";
+    cout << endl;
+  }
+
+  string plotdir = "plots/";
+  plotdir += (dataset != ""? dataset : "dataset") + "/";
+  if (summaryPlots || chamberPlots || DCFEBAnalysis){
+    DIR *tempdir = opendir("plots");
+    if (!tempdir) mkdir("plots", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    else closedir(tempdir);
+    if (dataset != ""){
+      tempdir = opendir(plotdir.c_str());
+      if (!tempdir) mkdir(plotdir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      else closedir(tempdir);
+    }
   }
 
   // Efficiency Check text files
@@ -68,13 +115,30 @@ void PlotCSCEffFast(){
   if (effCheck){
     cscEffCheck.open("cscEffCheck.txt");
     cscEffCheckSimple.open("cscEffCheckSimple.txt");
+    
+    stringstream ssEffSummary;
+    if (dataset != "") ssEffSummary << dataset << ": ";
+    ssEffSummary << firstRun << "-" << lastRun << endl;
+    ssEffSummary << "Thresholds" << endl << "----------" << endl;
+    ssEffSummary << "Dead DCFEB: " << int(deadDCFEBThreshold*100) << "%" << endl;
+    ssEffSummary << "Efficiency Threshold: " << int(maxRemovalThreshold*100) << "%" << endl;
+    if (runDepEffThreshold != maxRemovalThreshold)
+      ssEffSummary << " Run-Dependent Efficiency Threshold: " << int(runDepEffThreshold*100) << "%" << endl;
+    ssEffSummary << endl;
+    cscEffCheck << ssEffSummary.str();
+    cscEffCheckSimple << ssEffSummary.str();
 
     badChambersHeader.open("BadChambers_auto.h");
-    badChambersHeader << "#ifndef BadChambers_h" << std::endl;
-    badChambersHeader << "#define BadChambers_h" << std::endl << std::endl;
-    badChambersHeader << "void SetBadChambers(Bool_t badChamber[" << NUM_BAD_RANGES << "][2][4][4][36], Int_t badChamberRun[" << NUM_BAD_RANGES << "][2][4][4][36][2], Float_t badChamberLCS[" << NUM_BAD_RANGES << "][2][4][4][36][2]){" << std::endl;
-    badChambersHeader << "    // endcap 0- 1+, station 0-3 = 1-4, ring 0-3 0 is me11a, chamber 0-35 = 1-36" << std::endl;
-    badChambersHeader << "    int firstRun = " << firstRun << ", lastRun = " << lastRun << ";" << std::endl << std::endl;
+    badChambersHeader << "#ifndef BadChambers_h" << endl;
+    badChambersHeader << "#define BadChambers_h" << endl << endl;
+    if (dataset != "") badChambersHeader << "// " << dataset << endl;
+    badChambersHeader << "void SetBadChambers(Bool_t badChamber[" << NUM_BAD_RANGES 
+      << "][2][4][4][36], Int_t badChamberRun[" << NUM_BAD_RANGES 
+      << "][2][4][4][36][2], Float_t badChamberLCS[" << NUM_BAD_RANGES 
+      << "][2][4][4][36][2]){" << endl;
+    badChambersHeader << "    // endcap 0- 1+, station 0-3 = 1-4, ring 0-3 0 is me11a, chamber 0-35 = 1-36" << endl;
+    if (dataset != "") badChambersHeader << "    // " << dataset << endl;
+    badChambersHeader << "    int firstRun = " << firstRun << ", lastRun = " << lastRun << ";" << endl << endl;
   }
 
   // Setting Plotting Styles
@@ -97,216 +161,224 @@ void PlotCSCEffFast(){
   gStyle->SetOptStat(1);
 
   if (summaryPlots) {
-    // Check for plots/ directory
     {
-      DIR *plotdir = opendir("plots");
-      if (!plotdir) mkdir("plots", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-      else closedir(plotdir);
+      DIR *tempdir = opendir((plotdir + "DCFEB").c_str());
+      if (!tempdir) mkdir((plotdir + "DCFEB").c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      else closedir(tempdir);
+      tempdir = opendir((plotdir + "Layer").c_str());
+      if (!tempdir) mkdir((plotdir + "Layer").c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      else closedir(tempdir);
+      tempdir = opendir((plotdir + "Run").c_str());
+      if (!tempdir) mkdir((plotdir + "Run").c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      else closedir(tempdir);
     }
+    
+    if (verbose) cout << "Drawing summary plots..." << endl;
 
     // Z Mass
     TH1F * zMassAll = (TH1F*)file0->Get("zMassAll");
     zMassAll->GetXaxis()->SetRangeUser(75.0,105.0);
     zMassAll->Draw();
-    c1.Print("plots/zMassRun3.png");
+    c1.Print((plotdir + "zMassRun3.png").c_str());
 
 
 
-    // Drawing Muon Segments
-    TH1F * muonSegmentsFidAll = (TH1F*)file0->Get("muonSegmentsFidAll");
-    muonSegmentsFidAll->GetXaxis()->SetRangeUser(-0.5,5.5);
-    muonSegmentsFidAll->Draw();
-    c1.Print("plots/muonSegmentsFidAll.png");
+    if (segmentAnalysis){
+      // Drawing Muon Segments
+      TH1F * muonSegmentsFidAll = (TH1F*)file0->Get("muonSegmentsFidAll");
+      muonSegmentsFidAll->GetXaxis()->SetRangeUser(-0.5,5.5);
+      muonSegmentsFidAll->Draw();
+      c1.Print((plotdir + "muonSegmentsFidAll.png").c_str());
 
-    TH1F * muonSegmentsFid1 = (TH1F*)file0->Get("muonSegmentsFid1");
-    muonSegmentsFid1->GetXaxis()->SetRangeUser(-0.5,5.5);
-    muonSegmentsFid1->Draw();
-    c1.Print("plots/muonSegmentsFid1.png");
+      TH1F * muonSegmentsFid1 = (TH1F*)file0->Get("muonSegmentsFid1");
+      muonSegmentsFid1->GetXaxis()->SetRangeUser(-0.5,5.5);
+      muonSegmentsFid1->Draw();
+      c1.Print((plotdir + "muonSegmentsFid1.png").c_str());
 
-    TH1F * muonSegmentsFid2 = (TH1F*)file0->Get("muonSegmentsFid2");
-    muonSegmentsFid2->GetXaxis()->SetRangeUser(-0.5,5.5);
-    muonSegmentsFid2->Draw();
-    c1.Print("plots/muonSegmentsFid2.png");
+      TH1F * muonSegmentsFid2 = (TH1F*)file0->Get("muonSegmentsFid2");
+      muonSegmentsFid2->GetXaxis()->SetRangeUser(-0.5,5.5);
+      muonSegmentsFid2->Draw();
+      c1.Print((plotdir + "muonSegmentsFid2.png").c_str());
 
-    Double_t factor = 1.;
-    muonSegmentsFidAll->Scale(factor/muonSegmentsFidAll->GetEntries());
-    muonSegmentsFid1->Scale(factor/muonSegmentsFid1->GetEntries());
-    muonSegmentsFid2->Scale(factor/muonSegmentsFid2->GetEntries());
-    muonSegmentsFidAll->Draw();
-    muonSegmentsFid2->SetLineColor(kBlue);
-    muonSegmentsFid2->SetTitle("Number of Muon Segments Fiducial ring 1 vs 2");
-    muonSegmentsFid2->Draw();
-    muonSegmentsFid1->SetLineColor(kRed);
-    muonSegmentsFid1->Draw("SAME");
-    c1.Print("plots/muonSegmentsFid1vsFid2.png");
+      Double_t factor = 1.;
+      muonSegmentsFidAll->Scale(factor/muonSegmentsFidAll->GetEntries());
+      muonSegmentsFid1->Scale(factor/muonSegmentsFid1->GetEntries());
+      muonSegmentsFid2->Scale(factor/muonSegmentsFid2->GetEntries());
+      muonSegmentsFidAll->Draw();
+      muonSegmentsFid2->SetLineColor(kBlue);
+      muonSegmentsFid2->SetTitle("Number of Muon Segments Fiducial ring 1 vs 2");
+      muonSegmentsFid2->Draw();
+      muonSegmentsFid1->SetLineColor(kRed);
+      muonSegmentsFid1->Draw("SAME");
+      c1.Print((plotdir + "muonSegmentsFid1vsFid2.png").c_str());
 
-    TH1F * muonSegmentsWithME21 = (TH1F*)file0->Get("muonSegmentsWithME21");
-    muonSegmentsWithME21->GetXaxis()->SetRangeUser(-0.5,5.5);
-    muonSegmentsWithME21->Draw();
-    c1.Print("plots/muonSegmentsWithME21.png");
+      TH1F * muonSegmentsWithME21 = (TH1F*)file0->Get("muonSegmentsWithME21");
+      muonSegmentsWithME21->GetXaxis()->SetRangeUser(-0.5,5.5);
+      muonSegmentsWithME21->Draw();
+      c1.Print((plotdir + "muonSegmentsWithME21.png").c_str());
 
-    TH1F * muonSegmentsNoME21 = (TH1F*)file0->Get("muonSegmentsNoME21");
-    muonSegmentsNoME21->GetXaxis()->SetRangeUser(-0.5,5.5);
-    muonSegmentsNoME21->Draw();
-    c1.Print("plots/muonSegmentsNoME21.png");
-
-
-
-    // Drawing CSC Segments
-    TH1F * segmentsFidAll = (TH1F*)file0->Get("segmentsFidAll");
-    segmentsFidAll->GetXaxis()->SetRangeUser(-0.5,5.5);
-    segmentsFidAll->Draw();
-    c1.Print("plots/segmentsFidAll.png");
-
-    TH1F * segmentsFid1 = (TH1F*)file0->Get("segmentsFid1");
-    segmentsFid1->GetXaxis()->SetRangeUser(-0.5,5.5);
-    segmentsFid1->Draw();
-    c1.Print("plots/segmentsFid1.png");
-
-    TH1F * segmentsFid2 = (TH1F*)file0->Get("segmentsFid2");
-    segmentsFid2->GetXaxis()->SetRangeUser(-0.5,5.5);
-    segmentsFid2->Draw();
-    c1.Print("plots/segmentsFid2.png");
-
-    segmentsFidAll->Scale(factor/segmentsFidAll->GetEntries());
-    segmentsFid1->Scale(factor/segmentsFid1->GetEntries());
-    segmentsFid2->Scale(factor/segmentsFid2->GetEntries());
-    segmentsFidAll->Draw();
-    segmentsFid2->SetLineColor(kBlue);
-    segmentsFid2->SetTitle("Number of CSC Segments Fiducial ring 1 vs 2");
-    segmentsFid2->Draw();
-    segmentsFid1->SetLineColor(kRed);
-    segmentsFid1->Draw("SAME");
-    c1.Print("plots/segmentsFid1vsFid2.png");
+      TH1F * muonSegmentsNoME21 = (TH1F*)file0->Get("muonSegmentsNoME21");
+      muonSegmentsNoME21->GetXaxis()->SetRangeUser(-0.5,5.5);
+      muonSegmentsNoME21->Draw();
+      c1.Print((plotdir + "muonSegmentsNoME21.png").c_str());
 
 
 
-    // Drawing CSC Segments with Low/High PV
-    TH1F * segmentsFid1HighPV = (TH1F*)file0->Get("segmentsFid1HighPV");
-    segmentsFid1HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
-    TH1F * segmentsFid2HighPV = (TH1F*)file0->Get("segmentsFid2HighPV");
-    segmentsFid2HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
+      // Drawing CSC Segments
+      TH1F * segmentsFidAll = (TH1F*)file0->Get("segmentsFidAll");
+      segmentsFidAll->GetXaxis()->SetRangeUser(-0.5,5.5);
+      segmentsFidAll->Draw();
+      c1.Print((plotdir + "segmentsFidAll.png").c_str());
 
-    segmentsFid1HighPV->Scale(factor/segmentsFid1HighPV->GetEntries());
-    segmentsFid2HighPV->Scale(factor/segmentsFid2HighPV->GetEntries());
-    segmentsFid2HighPV->SetLineColor(kBlue);
-    segmentsFid2HighPV->SetTitle("Number of CSC Segments ring 1 vs 2 PV>=45");
-    segmentsFid2HighPV->Draw();
-    segmentsFid1HighPV->SetLineColor(kRed);
-    segmentsFid1HighPV->Draw("SAME");
-    c1.Print("plots/segmentsFid1vsFid2HighPV.png");
+      TH1F * segmentsFid1 = (TH1F*)file0->Get("segmentsFid1");
+      segmentsFid1->GetXaxis()->SetRangeUser(-0.5,5.5);
+      segmentsFid1->Draw();
+      c1.Print((plotdir + "segmentsFid1.png").c_str());
 
-    TH1F * segmentsFid1LowPV = (TH1F*)file0->Get("segmentsFid1LowPV");
-    segmentsFid1LowPV->GetXaxis()->SetRangeUser(-0.5,5.5);
-    TH1F * segmentsFid2LowPV = (TH1F*)file0->Get("segmentsFid2LowPV");
-    segmentsFid2LowPV->GetXaxis()->SetRangeUser(-0.5,5.5);
+      TH1F * segmentsFid2 = (TH1F*)file0->Get("segmentsFid2");
+      segmentsFid2->GetXaxis()->SetRangeUser(-0.5,5.5);
+      segmentsFid2->Draw();
+      c1.Print((plotdir + "segmentsFid2.png").c_str());
 
-    segmentsFid1LowPV->Scale(factor/segmentsFid1LowPV->GetEntries());
-    segmentsFid2LowPV->Scale(factor/segmentsFid2LowPV->GetEntries());
-    segmentsFid2LowPV->SetLineColor(kBlue);
-    segmentsFid2LowPV->SetTitle("Number of CSC Segments ring 1 vs 2 PV<=15");
-    segmentsFid2LowPV->Draw();
-    segmentsFid1LowPV->SetLineColor(kRed);
-    segmentsFid1LowPV->Draw("SAME");
-    c1.Print("plots/segmentsFid1vsFid2LowPV.png");
-
-    segmentsFid1LowPV->SetTitle("Number of CSC Segments ring 1 PV<=15 vs >=45");
-    segmentsFid1LowPV->SetLineColor(kBlue);
-    segmentsFid1LowPV->Draw();
-    segmentsFid1HighPV->SetLineColor(kRed);
-    segmentsFid1HighPV->Draw("SAME");
-    c1.Print("plots/segmentsinME21LowVsHighPV.png");
-
-    segmentsFid2LowPV->SetTitle("Number of CSC Segments ring 2 PV<=15 vs >=45");
-    segmentsFid2LowPV->SetLineColor(kBlue);
-    segmentsFid2LowPV->Draw();
-    segmentsFid2HighPV->SetLineColor(kRed);
-    segmentsFid2HighPV->Draw("SAME");
-    c1.Print("plots/segmentsinME22LowVsHighPV.png");
+      segmentsFidAll->Scale(factor/segmentsFidAll->GetEntries());
+      segmentsFid1->Scale(factor/segmentsFid1->GetEntries());
+      segmentsFid2->Scale(factor/segmentsFid2->GetEntries());
+      segmentsFidAll->Draw();
+      segmentsFid2->SetLineColor(kBlue);
+      segmentsFid2->SetTitle("Number of CSC Segments Fiducial ring 1 vs 2");
+      segmentsFid2->Draw();
+      segmentsFid1->SetLineColor(kRed);
+      segmentsFid1->Draw("SAME");
+      c1.Print((plotdir + "segmentsFid1vsFid2.png").c_str());
 
 
 
-    // Drawing Muon Segments with Low/High PV
-    TH1F * muonSegmentsFid1HighPV = (TH1F*)file0->Get("muonSegmentsFid1HighPV");
-    muonSegmentsFid1HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
-    TH1F * muonSegmentsFid2HighPV = (TH1F*)file0->Get("muonSegmentsFid2HighPV");
-    muonSegmentsFid2HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
+      // Drawing CSC Segments with Low/High PV
+      TH1F * segmentsFid1HighPV = (TH1F*)file0->Get("segmentsFid1HighPV");
+      segmentsFid1HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
+      TH1F * segmentsFid2HighPV = (TH1F*)file0->Get("segmentsFid2HighPV");
+      segmentsFid2HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
 
-    muonSegmentsFid1HighPV->Scale(factor/muonSegmentsFid1HighPV->GetEntries());
-    muonSegmentsFid2HighPV->Scale(factor/muonSegmentsFid2HighPV->GetEntries());
-    muonSegmentsFid2HighPV->SetLineColor(kBlue);
-    muonSegmentsFid2HighPV->SetTitle("Number of CSC Segments ring 1 vs 2 PV>=45");
-    muonSegmentsFid2HighPV->Draw();
-    muonSegmentsFid1HighPV->SetLineColor(kRed);
-    muonSegmentsFid1HighPV->Draw("SAME");
-    c1.Print("plots/muonSegmentsFid1vsFid2HighPV.png");
+      segmentsFid1HighPV->Scale(factor/segmentsFid1HighPV->GetEntries());
+      segmentsFid2HighPV->Scale(factor/segmentsFid2HighPV->GetEntries());
+      segmentsFid2HighPV->SetLineColor(kBlue);
+      segmentsFid2HighPV->SetTitle("Number of CSC Segments ring 1 vs 2 PV>=45");
+      segmentsFid2HighPV->Draw();
+      segmentsFid1HighPV->SetLineColor(kRed);
+      segmentsFid1HighPV->Draw("SAME");
+      c1.Print((plotdir + "segmentsFid1vsFid2HighPV.png").c_str());
 
-    TH1F * muonSegmentsFid1LowPV = (TH1F*)file0->Get("muonSegmentsFid1LowPV");
-    muonSegmentsFid1LowPV->GetXaxis()->SetRangeUser(-0.5,5.5);
-    TH1F * muonSegmentsFid2LowPV = (TH1F*)file0->Get("muonSegmentsFid2LowPV");
-    muonSegmentsFid2LowPV->GetXaxis()->SetRangeUser(-0.5,5.5);
+      TH1F * segmentsFid1LowPV = (TH1F*)file0->Get("segmentsFid1LowPV");
+      segmentsFid1LowPV->GetXaxis()->SetRangeUser(-0.5,5.5);
+      TH1F * segmentsFid2LowPV = (TH1F*)file0->Get("segmentsFid2LowPV");
+      segmentsFid2LowPV->GetXaxis()->SetRangeUser(-0.5,5.5);
 
-    muonSegmentsFid1LowPV->Scale(factor/muonSegmentsFid1LowPV->GetEntries());
-    muonSegmentsFid2LowPV->Scale(factor/muonSegmentsFid2LowPV->GetEntries());
-    muonSegmentsFid2LowPV->SetLineColor(kBlue);
-    muonSegmentsFid2LowPV->SetTitle("Number of CSC Segments ring 1 vs 2 PV<=15");
-    muonSegmentsFid2LowPV->Draw();
-    muonSegmentsFid1LowPV->SetLineColor(kRed);
-    muonSegmentsFid1LowPV->Draw("SAME");
-    c1.Print("plots/muonSegmentsFid1vsFid2LowPV.png");
+      segmentsFid1LowPV->Scale(factor/segmentsFid1LowPV->GetEntries());
+      segmentsFid2LowPV->Scale(factor/segmentsFid2LowPV->GetEntries());
+      segmentsFid2LowPV->SetLineColor(kBlue);
+      segmentsFid2LowPV->SetTitle("Number of CSC Segments ring 1 vs 2 PV<=15");
+      segmentsFid2LowPV->Draw();
+      segmentsFid1LowPV->SetLineColor(kRed);
+      segmentsFid1LowPV->Draw("SAME");
+      c1.Print((plotdir + "segmentsFid1vsFid2LowPV.png").c_str());
 
-    muonSegmentsFid1LowPV->SetTitle("Number of CSC Segments ring 1 PV<=15 vs >=45");
-    muonSegmentsFid1LowPV->SetLineColor(kBlue);
-    muonSegmentsFid1LowPV->Draw();
-    muonSegmentsFid1HighPV->SetLineColor(kRed);
-    muonSegmentsFid1HighPV->Draw("SAME");
-    c1.Print("plots/muonSegmentsinME21LowVsHighPV.png");
+      segmentsFid1LowPV->SetTitle("Number of CSC Segments ring 1 PV<=15 vs >=45");
+      segmentsFid1LowPV->SetLineColor(kBlue);
+      segmentsFid1LowPV->Draw();
+      segmentsFid1HighPV->SetLineColor(kRed);
+      segmentsFid1HighPV->Draw("SAME");
+      c1.Print((plotdir + "segmentsinME21LowVsHighPV.png").c_str());
 
-    muonSegmentsFid2LowPV->SetTitle("Number of CSC Segments ring 2 PV<=15 vs >=45");
-    muonSegmentsFid2LowPV->SetLineColor(kBlue);
-    muonSegmentsFid2LowPV->Draw();
-    muonSegmentsFid2HighPV->SetLineColor(kRed);
-    muonSegmentsFid2HighPV->Draw("SAME");
-    c1.Print("plots/muonSegmentsinME22LowVsHighPV.png");
-
-
-
-    // Drawing CSC Segments with High pT
-    TH1F * segmentsFid1HighpT = (TH1F*)file0->Get("segmentsFid1HighpT");
-    segmentsFid1HighpT->GetXaxis()->SetRangeUser(-0.5,5.5);
-    TH1F * segmentsFid2HighpT = (TH1F*)file0->Get("segmentsFid2HighpT");
-    segmentsFid2HighpT->GetXaxis()->SetRangeUser(-0.5,5.5);
-
-    segmentsFid1HighpT->Scale(factor/segmentsFid1HighpT->GetEntries());
-    segmentsFid2HighpT->Scale(factor/segmentsFid2HighpT->GetEntries());
-    segmentsFid2HighpT->SetLineColor(kBlue);
-    segmentsFid2HighpT->SetTitle("Number of CSC Segments Fiducial ring 1 vs 2 pT>200.");
-    segmentsFid2HighpT->Draw();
-    segmentsFid1HighpT->SetLineColor(kRed);
-    segmentsFid1HighpT->Draw("SAME");
-    c1.Print("plots/segmentsFid1vsFid2HighpT.png");
+      segmentsFid2LowPV->SetTitle("Number of CSC Segments ring 2 PV<=15 vs >=45");
+      segmentsFid2LowPV->SetLineColor(kBlue);
+      segmentsFid2LowPV->Draw();
+      segmentsFid2HighPV->SetLineColor(kRed);
+      segmentsFid2HighPV->Draw("SAME");
+      c1.Print((plotdir + "segmentsinME22LowVsHighPV.png").c_str());
 
 
 
-    // Drawing CSC Segments with and without ME21
-    TH1F * segmentsWithME21 = (TH1F*)file0->Get("segmentsWithME21");
-    segmentsWithME21->GetXaxis()->SetRangeUser(-0.5,5.5);
-    segmentsWithME21->Draw();
-    c1.Print("plots/segmentsWithME21.png");
+      // Drawing Muon Segments with Low/High PV
+      TH1F * muonSegmentsFid1HighPV = (TH1F*)file0->Get("muonSegmentsFid1HighPV");
+      muonSegmentsFid1HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
+      TH1F * muonSegmentsFid2HighPV = (TH1F*)file0->Get("muonSegmentsFid2HighPV");
+      muonSegmentsFid2HighPV->GetXaxis()->SetRangeUser(-0.5,5.5);
 
-    TH1F * segmentsNoME21 = (TH1F*)file0->Get("segmentsNoME21");
-    segmentsNoME21->GetXaxis()->SetRangeUser(-0.5,5.5);
-    segmentsNoME21->Draw();
-    c1.Print("plots/segmentsNoME21.png");
+      muonSegmentsFid1HighPV->Scale(factor/muonSegmentsFid1HighPV->GetEntries());
+      muonSegmentsFid2HighPV->Scale(factor/muonSegmentsFid2HighPV->GetEntries());
+      muonSegmentsFid2HighPV->SetLineColor(kBlue);
+      muonSegmentsFid2HighPV->SetTitle("Number of CSC Segments ring 1 vs 2 PV>=45");
+      muonSegmentsFid2HighPV->Draw();
+      muonSegmentsFid1HighPV->SetLineColor(kRed);
+      muonSegmentsFid1HighPV->Draw("SAME");
+      c1.Print((plotdir + "muonSegmentsFid1vsFid2HighPV.png").c_str());
 
-    segmentsWithME21->Scale(factor/segmentsWithME21->GetEntries());
-    segmentsNoME21->Scale(factor/segmentsNoME21->GetEntries());
-    segmentsWithME21->SetTitle("Number of CSC Segments w vs w/0 ME21 cases");
-    segmentsWithME21->Draw();
-    segmentsNoME21->SetLineColor(kRed);
-    segmentsNoME21->Draw("SAME");
-    c1.Print("plots/segmentsWvsW)ME21.png");
+      TH1F * muonSegmentsFid1LowPV = (TH1F*)file0->Get("muonSegmentsFid1LowPV");
+      muonSegmentsFid1LowPV->GetXaxis()->SetRangeUser(-0.5,5.5);
+      TH1F * muonSegmentsFid2LowPV = (TH1F*)file0->Get("muonSegmentsFid2LowPV");
+      muonSegmentsFid2LowPV->GetXaxis()->SetRangeUser(-0.5,5.5);
 
+      muonSegmentsFid1LowPV->Scale(factor/muonSegmentsFid1LowPV->GetEntries());
+      muonSegmentsFid2LowPV->Scale(factor/muonSegmentsFid2LowPV->GetEntries());
+      muonSegmentsFid2LowPV->SetLineColor(kBlue);
+      muonSegmentsFid2LowPV->SetTitle("Number of CSC Segments ring 1 vs 2 PV<=15");
+      muonSegmentsFid2LowPV->Draw();
+      muonSegmentsFid1LowPV->SetLineColor(kRed);
+      muonSegmentsFid1LowPV->Draw("SAME");
+      c1.Print((plotdir + "muonSegmentsFid1vsFid2LowPV.png").c_str());
+
+      muonSegmentsFid1LowPV->SetTitle("Number of CSC Segments ring 1 PV<=15 vs >=45");
+      muonSegmentsFid1LowPV->SetLineColor(kBlue);
+      muonSegmentsFid1LowPV->Draw();
+      muonSegmentsFid1HighPV->SetLineColor(kRed);
+      muonSegmentsFid1HighPV->Draw("SAME");
+      c1.Print((plotdir + "muonSegmentsinME21LowVsHighPV.png").c_str());
+
+      muonSegmentsFid2LowPV->SetTitle("Number of CSC Segments ring 2 PV<=15 vs >=45");
+      muonSegmentsFid2LowPV->SetLineColor(kBlue);
+      muonSegmentsFid2LowPV->Draw();
+      muonSegmentsFid2HighPV->SetLineColor(kRed);
+      muonSegmentsFid2HighPV->Draw("SAME");
+      c1.Print((plotdir + "muonSegmentsinME22LowVsHighPV.png").c_str());
+
+
+
+      // Drawing CSC Segments with High pT
+      TH1F * segmentsFid1HighpT = (TH1F*)file0->Get("segmentsFid1HighpT");
+      segmentsFid1HighpT->GetXaxis()->SetRangeUser(-0.5,5.5);
+      TH1F * segmentsFid2HighpT = (TH1F*)file0->Get("segmentsFid2HighpT");
+      segmentsFid2HighpT->GetXaxis()->SetRangeUser(-0.5,5.5);
+
+      segmentsFid1HighpT->Scale(factor/segmentsFid1HighpT->GetEntries());
+      segmentsFid2HighpT->Scale(factor/segmentsFid2HighpT->GetEntries());
+      segmentsFid2HighpT->SetLineColor(kBlue);
+      segmentsFid2HighpT->SetTitle("Number of CSC Segments Fiducial ring 1 vs 2 pT>200.");
+      segmentsFid2HighpT->Draw();
+      segmentsFid1HighpT->SetLineColor(kRed);
+      segmentsFid1HighpT->Draw("SAME");
+      c1.Print((plotdir + "segmentsFid1vsFid2HighpT.png").c_str());
+
+
+
+      // Drawing CSC Segments with and without ME21
+      TH1F * segmentsWithME21 = (TH1F*)file0->Get("segmentsWithME21");
+      segmentsWithME21->GetXaxis()->SetRangeUser(-0.5,5.5);
+      segmentsWithME21->Draw();
+      c1.Print((plotdir + "segmentsWithME21.png").c_str());
+
+      TH1F * segmentsNoME21 = (TH1F*)file0->Get("segmentsNoME21");
+      segmentsNoME21->GetXaxis()->SetRangeUser(-0.5,5.5);
+      segmentsNoME21->Draw();
+      c1.Print((plotdir + "segmentsNoME21.png").c_str());
+
+      segmentsWithME21->Scale(factor/segmentsWithME21->GetEntries());
+      segmentsNoME21->Scale(factor/segmentsNoME21->GetEntries());
+      segmentsWithME21->SetTitle("Number of CSC Segments w vs w/0 ME21 cases");
+      segmentsWithME21->Draw();
+      segmentsNoME21->SetLineColor(kRed);
+      segmentsNoME21->Draw("SAME");
+      c1.Print((plotdir + "segmentsWvsWoME21.png").c_str());
+    }
 
 
     // Setting New Stat Block
@@ -347,7 +419,7 @@ void PlotCSCEffFast(){
     legendSegPT->AddEntry(segEffPTStation1CRing3,"ME13");
     legendSegPT->Draw();
 
-    c1.Print("plots/CSCSegEffRun3DataME1vsPt.png");  
+    c1.Print((plotdir + "CSCSegEffRun3DataME1vsPt.png").c_str());  
 
 
 
@@ -402,7 +474,7 @@ void PlotCSCEffFast(){
     legendSegPT2->AddEntry(segEffPTStation4CRing2,"ME42");
     legendSegPT2->Draw();
 
-    c1.Print("plots/CSCSegEffRun3DataME234vsPt.png");
+    c1.Print((plotdir + "CSCSegEffRun3DataME234vsPt.png").c_str());
 
 
 
@@ -441,7 +513,7 @@ void PlotCSCEffFast(){
     legendSegEta->AddEntry(segEffEtaStation1CRing3,"ME13");
     legendSegEta->Draw();
 
-    c1.Print("plots/CSCSegEffRun3DataME1vsEta.png");  
+    c1.Print((plotdir + "CSCSegEffRun3DataME1vsEta.png").c_str());  
 
 
 
@@ -496,7 +568,7 @@ void PlotCSCEffFast(){
     legendSegEta2->AddEntry(segEffEtaStation4CRing2,"ME42");
     legendSegEta2->Draw();
 
-    c1.Print("plots/CSCSegEffRun3DataME234vsEta.png");
+    c1.Print((plotdir + "CSCSegEffRun3DataME234vsEta.png").c_str());
 
 
 
@@ -535,7 +607,7 @@ void PlotCSCEffFast(){
     legendSegPV->AddEntry(segEffPVStation1CRing3,"ME13");
     legendSegPV->Draw();
 
-    c1.Print("plots/CSCSegEffRun3DataME1vsPV.png");  
+    c1.Print((plotdir + "CSCSegEffRun3DataME1vsPV.png").c_str());  
 
 
 
@@ -590,7 +662,7 @@ void PlotCSCEffFast(){
     legendSegPV2->AddEntry(segEffPVStation4CRing2,"ME42");
     legendSegPV2->Draw();
 
-    c1.Print("plots/CSCSegEffRun3DataME234vsPV.png");
+    c1.Print((plotdir + "CSCSegEffRun3DataME234vsPV.png").c_str());
 
 
 
@@ -645,7 +717,7 @@ void PlotCSCEffFast(){
     legendSegPV3->AddEntry(segEffPVStation4Ring2,"ME-42");
     legendSegPV3->Draw();
 
-    c1.Print("plots/CSCSegEffRun3DataME-234vsPV.png");
+    c1.Print((plotdir + "CSCSegEffRun3DataME-234vsPV.png").c_str());
 
 
 
@@ -700,22 +772,24 @@ void PlotCSCEffFast(){
     legendSegPV4->AddEntry(segEffPVStation8Ring2,"ME+42");
     legendSegPV4->Draw();
 
-    c1.Print("plots/CSCSegEffRun3DataME+234vsPV.png");
+    c1.Print((plotdir + "CSCSegEffRun3DataME+234vsPV.png").c_str());
 
 
 
     // Drawing 2D CSC Segment Efficiency
     TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
 
-    segEff2DStationRingChamber->SetTitle("CSC Seg. Eff. 2D: Chamber & Ring  Run 3 (Period 2024C, 7.5 fb^{-1})");
+    sprintf(title, "CSC Seg. Eff.     Run 3%s", dataInfo.c_str());
+    segEff2DStationRingChamber->SetTitle(title);
     segEff2DStationRingChamber->SetMarkerSize(0.75);
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     segEff2DStationRingChamber->Draw("COLZ TEXT");
-    TLatex text2(-4.0,21.8,"CMS Preliminary");
+    TLatex text2(-3.0,20.8,"CMS Preliminary");
+    text2.SetTextSize(0.03);
     text2.DrawClone();
-    c1.Print("plots/CSCSegEffRun3Data2DRingChamber.png");
-    c1.Print("plots/CSCSegEffRun3Data2DRingChamber.pdf");
+    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.png").c_str());
+    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.pdf").c_str());
 
 
 
@@ -754,7 +828,7 @@ void PlotCSCEffFast(){
     legendLCTPT->AddEntry(LCTEffPTStation1CRing3,"ME13");
     legendLCTPT->Draw();
 
-    c1.Print("plots/CSCLCTEffRun3DataME1vsPt.png");  
+    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPt.png").c_str());  
 
 
 
@@ -809,7 +883,7 @@ void PlotCSCEffFast(){
     legendLCTPT2->AddEntry(LCTEffPTStation4CRing2,"ME42");
     legendLCTPT2->Draw();
 
-    c1.Print("plots/CSCLCTEffRun3DataME234vsPt.png");
+    c1.Print((plotdir + "CSCLCTEffRun3DataME234vsPt.png").c_str());
 
 
 
@@ -848,7 +922,7 @@ void PlotCSCEffFast(){
     legendLCTEta->AddEntry(LCTEffEtaStation1CRing3,"ME13");
     legendLCTEta->Draw();
 
-    c1.Print("plots/CSCLCTEffRun3DataME1vsEta.png");  
+    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsEta.png").c_str());  
 
 
 
@@ -903,7 +977,7 @@ void PlotCSCEffFast(){
     legendLCTEta2->AddEntry(LCTEffEtaStation4CRing2,"ME42");
     legendLCTEta2->Draw();
 
-    c1.Print("plots/CSCLCTEffRun3DataME234vsEta.png");
+    c1.Print((plotdir + "CSCLCTEffRun3DataME234vsEta.png").c_str());
 
 
 
@@ -942,7 +1016,7 @@ void PlotCSCEffFast(){
     legendLCTPV->AddEntry(LCTEffPVStation1CRing3,"ME13");
     legendLCTPV->Draw();
 
-    c1.Print("plots/CSCLCTEffRun3DataME1vsPV.png");  
+    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPV.png").c_str());  
 
 
 
@@ -997,7 +1071,7 @@ void PlotCSCEffFast(){
     legendLCTPV2->AddEntry(LCTEffPVStation4CRing2,"ME42");
     legendLCTPV2->Draw();
 
-    c1.Print("plots/CSCLCTEffRun3DataME234vsPV.png");
+    c1.Print((plotdir + "CSCLCTEffRun3DataME234vsPV.png").c_str());
 
 
 
@@ -1052,7 +1126,7 @@ void PlotCSCEffFast(){
     legendLCTPV3->AddEntry(LCTEffPVStation4Ring2,"ME-42");
     legendLCTPV3->Draw();
 
-    c1.Print("plots/CSCLCTEffRun3DataME-234vsPV.png");
+    c1.Print((plotdir + "CSCLCTEffRun3DataME-234vsPV.png").c_str());
 
 
 
@@ -1107,22 +1181,24 @@ void PlotCSCEffFast(){
     legendLCTPV4->AddEntry(LCTEffPVStation8Ring2,"ME+42");
     legendLCTPV4->Draw();
 
-    c1.Print("plots/CSCLCTEffRun3DataME+234vsPV.png");
+    c1.Print((plotdir + "CSCLCTEffRun3DataME+234vsPV.png").c_str());
 
 
 
     // Drawing 2D CSC LCT Efficiency
     TH2F * LCTEff2DStationRingChamber = (TH2F*)file0->Get("LCTEff2DStationRingChamber");
 
-    LCTEff2DStationRingChamber->SetTitle("CSC LCT Eff. 2D: Chamber & Ring  Run 3 (Period 2024C, 7.5 fb^{-1})");
+    sprintf(title, "CSC LCT Eff.     Run 3%s", dataInfo.c_str());
+    LCTEff2DStationRingChamber->SetTitle(title);
     LCTEff2DStationRingChamber->SetMarkerSize(0.75);
     LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     LCTEff2DStationRingChamber->Draw("COLZ TEXT");
-    TLatex text(-4.0,21.8,"CMS Preliminary");
+    TLatex text(-3.0,20.8,"CMS Preliminary");
+    text.SetTextSize(0.03);
     text.DrawClone();
-    c1.Print("plots/CSCLCTEffRun3Data2DRingChamber.png");
-    c1.Print("plots/CSCLCTEffRun3Data2DRingChamber.pdf");
+    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.png").c_str());
+    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.pdf").c_str());
 
     // Drawing 2D CSC Efficiency Plots
     for (Int_t iiStation=0; iiStation<8; iiStation++){
@@ -1133,7 +1209,7 @@ void PlotCSCEffFast(){
         // Drawing 2D CSC Segment Efficiency and Run
         sprintf(name, "segEff2DStation%dRing%dChamberRun", iiStation+1, iiRing);
         sprintf(title, "CSC Segment Efficiency vs Chamber and Run %s", label);
-        sprintf(file, "plots/CSCSegEffRun3Data2DChamberRun%s.png", label);
+        sprintf(file, (plotdir + "Run/CSCSegEffRun3Data2DChamberRun%s.png").c_str(), label);
         TH2F * segEff2DStationRingChamberRun = (TH2F*)file0->Get(name);
         segEff2DStationRingChamberRun->SetTitle(title);
         segEff2DStationRingChamberRun->GetXaxis()->SetTitle("Chamber #");
@@ -1149,7 +1225,7 @@ void PlotCSCEffFast(){
         // Drawing 2D CSC Segment Efficiency and Layer
         sprintf(name, "segEff2DStation%dRing%dChamberLayer", iiStation+1, iiRing);
         sprintf(title, "CSC Segment Efficiency vs Chamber and Layer %s", label);
-        sprintf(file, "plots/CSCSegEffRun3Data2DChamberLayer%s.png", label);
+        sprintf(file, (plotdir + "Layer/CSCSegEffRun3Data2DChamberLayer%s.png").c_str(), label);
         TH2F * segEff2DStationRingChamberLayer = (TH2F*)file0->Get(name);
         segEff2DStationRingChamberLayer->SetTitle(title);
         segEff2DStationRingChamberLayer->GetXaxis()->SetTitle("Chamber #");
@@ -1165,7 +1241,7 @@ void PlotCSCEffFast(){
         // Drawing 2D CSC Segment Efficiency and DCFEB
         sprintf(name, "segEff2DStation%dRing%dChamberDCFEB", iiStation+1, iiRing);
         sprintf(title, "CSC Segment Efficiency vs Chamber and DCFEB %s", label);
-        sprintf(file, "plots/CSCSegEffRun3Data2DChamberDCFEB%s.png", GetMELabel(iiStation, iiRing).c_str());
+        sprintf(file, (plotdir + "DCFEB/CSCSegEffRun3Data2DChamberDCFEB%s.png").c_str(), GetMELabel(iiStation, iiRing).c_str());
         TH2F * segEff2DStationRingChamberDCFEB = (TH2F*)file0->Get(name);
         segEff2DStationRingChamberDCFEB->SetTitle(title);
         segEff2DStationRingChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
@@ -1181,7 +1257,7 @@ void PlotCSCEffFast(){
         // Drawing 2D CSC LCT Efficiency and Run
         sprintf(name, "LCTEff2DStation%dRing%dChamberRun", iiStation+1, iiRing);
         sprintf(title, "CSC LCT Efficiency vs Chamber and Run %s", label);
-        sprintf(file, "plots/CSCLCTEffRun3Data2DChamberRun%s.png", label);
+        sprintf(file, (plotdir + "Run/CSCLCTEffRun3Data2DChamberRun%s.png").c_str(), label);
         TH2F * LCTEff2DStationRingChamberRun = (TH2F*)file0->Get(name);
         LCTEff2DStationRingChamberRun->SetTitle(title);
         LCTEff2DStationRingChamberRun->GetXaxis()->SetTitle("Chamber #");
@@ -1197,7 +1273,7 @@ void PlotCSCEffFast(){
         // Drawing 2D CSC LCT Efficiency and DCFEB
         sprintf(name, "LCTEff2DStation%dRing%dChamberDCFEB", iiStation+1, iiRing);
         sprintf(title, "CSC LCT Efficiency vs Chamber and DCFEB %s", label);
-        sprintf(file, "plots/CSCLCTEffRun3Data2DChamberDCFEB%s.png", GetMELabel(iiStation, iiRing).c_str());
+        sprintf(file, (plotdir + "DCFEB/CSCLCTEffRun3Data2DChamberDCFEB%s.png").c_str(), GetMELabel(iiStation, iiRing).c_str());
         TH2F * LCTEff2DStationRingChamberDCFEB = (TH2F*)file0->Get(name);
         LCTEff2DStationRingChamberDCFEB->SetTitle(title);
         LCTEff2DStationRingChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
@@ -1217,13 +1293,19 @@ void PlotCSCEffFast(){
 
   // Begin Chamber Plots
   if (chamberPlots){
+    {
+      DIR *tempdir = opendir((plotdir + "ChamberPlots").c_str());
+      if (!tempdir) mkdir((plotdir + "ChamberPlots").c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      else closedir(tempdir);
+    }
+    if (verbose) cout << "Drawing chamber plots..." << endl;
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
         // Check for chamber plot directory
         {
-          DIR *chdir = opendir(("plots/" + GetMELabel(iiStation, iiRing)).c_str());
-          if (!chdir) mkdir(("plots/" + GetMELabel(iiStation, iiRing)).c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+          DIR *chdir = opendir((plotdir + GetMELabel(iiStation, iiRing)).c_str());
+          if (!chdir) mkdir((plotdir + GetMELabel(iiStation, iiRing)).c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
           else closedir(chdir);
         }
 
@@ -1234,7 +1316,7 @@ void PlotCSCEffFast(){
           // Drawing CSC Segment Efficiency vs. Strip LC
           sprintf(name,"segEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
           sprintf(title, "Segment Efficiency vs Strip LC for %s/%d",label,iiChamber);
-          sprintf(file, "plots/%s/cscSegEffRun3Data%s-%dLCS.png",label,label,iiChamber);
+          sprintf(file, (plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dLCS.png").c_str(),label,label,iiChamber);
 
           TH1F * segEffChamberLCS = (TH1F*)file0->Get(name);
           segEffChamberLCS->SetTitle(title);
@@ -1255,7 +1337,7 @@ void PlotCSCEffFast(){
           // Drawing CSC Segment Efficiency vs. Y LC
           sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
           sprintf(title,"Segment Efficiency vs Y LC for %s/%d",label,iiChamber);
-          sprintf(file,"plots/%s/cscSegEffRun3Data%s-%dLCY.png",label,label,iiChamber);
+          sprintf(file,(plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
 
           TH1F * segEffChamberLCY = (TH1F*)file0->Get(name);
           segEffChamberLCY->SetTitle(title);
@@ -1276,7 +1358,7 @@ void PlotCSCEffFast(){
           // Drawing CSC Segment Efficiency vs. Run
           sprintf(name,"segEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
           sprintf(title,"Segment Efficiency vs Run for %s/%d",label,iiChamber);
-          sprintf(file,"plots/%s/cscSegEffRun3Data%s-%dRun.png",label,label,iiChamber);
+          sprintf(file,(plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dRun.png").c_str(),label,label,iiChamber);
 
           TH1F * segEffChamberRun = (TH1F*)file0->Get(name);
           segEffChamberRun->SetTitle(title);
@@ -1298,10 +1380,10 @@ void PlotCSCEffFast(){
           // first run 355100
           /*
           if (runAnalysis) {
-            cscRunEffData << file << std::endl;
+            cscRunEffData << file << endl;
             for (Int_t ii=0; ii< lastRun-firstRun; ii++){
               if (segEffChamberRun->GetBinContent(ii)>0.0&&segEffChamberRun->GetBinContent(ii) < effThreshold){
-                cscRunEffData << segEffChamberRun->GetXaxis()->GetBinCenter(ii) << " " << segEffChamberRun->GetBinContent(ii) << std::endl;
+                cscRunEffData << segEffChamberRun->GetXaxis()->GetBinCenter(ii) << " " << segEffChamberRun->GetBinContent(ii) << endl;
               }
             }
           }
@@ -1310,7 +1392,7 @@ void PlotCSCEffFast(){
           // Drawing LCT Efficiency vs. Strip LC
           sprintf(name,"LCTEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
           sprintf(title,"LCT Efficiency vs Strip LC for %s/%d",label,iiChamber);
-          sprintf(file,"plots/%s/cscLCTEffRun3Data%s-%dLCS.png",label,label,iiChamber);
+          sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dLCS.png").c_str(),label,label,iiChamber);
 
           TH1F * LCTEffChamberLCS = (TH1F*)file0->Get(name);
           LCTEffChamberLCS->SetTitle(title);
@@ -1331,7 +1413,7 @@ void PlotCSCEffFast(){
           // Drawing LCT Efficiency vs. Y LC
           sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
           sprintf(title,"LCT Efficiency vs Y LC for %s/%d",label,iiChamber);
-          sprintf(file,"plots/%s/cscLCTEffRun3Data%s-%dLCY.png",label,label,iiChamber);
+          sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
 
           TH1F * LCTEffChamberLCY = (TH1F*)file0->Get(name);
           LCTEffChamberLCY->SetTitle(title);
@@ -1352,7 +1434,7 @@ void PlotCSCEffFast(){
           // Drawing LCT Efficiency vs. Run
           sprintf(name,"LCTEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
           sprintf(title,"LCT Efficiency vs Run for %s/%d",label,iiChamber);
-          sprintf(file,"plots/%s/cscLCTEffRun3Data%s-%dRun.png",label,label,iiChamber);
+          sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dRun.png").c_str(),label,label,iiChamber);
 
           TH1F * LCTEffChamberRun = (TH1F*)file0->Get(name);
           LCTEffChamberRun->SetTitle(title);
@@ -1377,6 +1459,7 @@ void PlotCSCEffFast(){
 
   // Efficiency Checking
   if (effCheck){
+    if (verbose) cout << "Checking efficiencies..." << endl;
     bool bBadDCFEBs[8][4][36][5] = {0};
     string sAutoHeaderChambers[8][4][36]; 
     bool runDepAnalysis = ((TH2F*)file0->Get("segEff2DStation1Ring1DCFEB1ChamberRun") != NULL);
@@ -1418,16 +1501,16 @@ void PlotCSCEffFast(){
               if (!bDeadChamber && iiDCFEB == 1) bDeadChamber = true;
               else if (bDeadChamber && iiDCFEB == totDCFEBs){
                 // List dead chamber
-                ssDeadChambers << GetMELabel(iiStation, iiRing, iiChamber) << std::endl;
+                ssDeadChambers << GetMELabel(iiStation, iiRing, iiChamber) << endl;
 
                 // Generate automatic array values for removal in CSCEffFast.C
                 if (rangeIndex < NUM_BAD_RANGES){
                   if (ssAutoHeader.str() == "")
-                    ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
-                  ssAutoHeader << "    // Dead Chamber" << std::endl;
+                    ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
+                  ssAutoHeader << "    // Dead Chamber" << endl;
                   ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                   ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = firstRun;  ";
-                  ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = lastRun;  " << std::endl << std::endl;
+                  ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = lastRun;  " << endl << endl;
                 }
                 else if (verbose) cout << "Dead Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " all runs" << endl;
                 for (Int_t iiDCFEB=0; iiDCFEB<5; iiDCFEB++)
@@ -1443,31 +1526,31 @@ void PlotCSCEffFast(){
               bBadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] = true;
               if (LCTEff < deadDCFEBThreshold){
                 // List dead DCFEB (Seg and LCT)
-                ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << std::endl;
+                ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << endl;
                 ssDeadDCFEBsWithEff << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB;
-                ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%)" << std::endl;
+                ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%)" << endl;
               }
               else{
                 // List dead DCFEB (Seg only)
-                ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << " *" << std::endl;
+                ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << " *" << endl;
                 ssDeadDCFEBsWithEff << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB;
-                ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%) *" << std::endl;
+                ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%) *" << endl;
               }
 
               // Generate automatic array values for removal in CSCEffFast.C
               if (rangeIndex < NUM_BAD_RANGES){
                 if (ssAutoHeader.str() == "")
-                  ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                 ssAutoHeader << "    // Dead DCFEB " << iiDCFEB;
                 if (LCTEff < deadDCFEBThreshold) ssAutoHeader << " seg " << (segEff*100) << "\% LCT " << (LCTEff*100) << "\%";
                 else ssAutoHeader << " seg " << (segEff*100) << "\%";
-                ssAutoHeader << " all runs" << std::endl;
+                ssAutoHeader << " all runs" << endl;
                 ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                 ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = firstRun;  ";
                 ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = lastRun;  ";
                 ssAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                 ssAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
-                ssAutoHeader << std::endl << std::endl;
+                ssAutoHeader << endl << endl;
               }
               else if (verbose) cout << "Dead DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " all runs" << endl;
             }
@@ -1475,25 +1558,25 @@ void PlotCSCEffFast(){
               // Generate automatic array values for removal in CSCEffFast.C
               if (rangeIndex < NUM_BAD_RANGES){
                 if (ssAutoHeader.str() == "")
-                  ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                 bDeadDCFEB = true;
                 bBadDCFEBs[iiStation][iiRing][iiChamber-1][iiDCFEB-1] = true;
 
                 ssAutoHeader << "    //  Dead DCFEB " << iiDCFEB;
-                ssAutoHeader << " LCT " << (LCTEff*100) << "\% all runs" << std::endl;
+                ssAutoHeader << " LCT " << (LCTEff*100) << "\% all runs" << endl;
                 ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                 ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = firstRun;  ";
                 ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = lastRun;  ";
                 ssAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                 ssAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
-                ssAutoHeader << std::endl << std::endl;
+                ssAutoHeader << endl << endl;
               }
               else if (verbose) cout << "Dead DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " all runs" << endl;
 
               // List dead DCFEB (LCT only)
-              ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << " **" << std::endl;
+              ssDeadDCFEBs << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB << " **" << endl;
               ssDeadDCFEBsWithEff << GetMELabel(iiStation, iiRing, iiChamber) << " DCFEB " << iiDCFEB;
-              ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%) **" << std::endl;
+              ssDeadDCFEBsWithEff << ": (" << (segEff*100) << "%) **" << endl;
             }
 
             // Maximal Removal for low efficiency DCFEBs
@@ -1503,19 +1586,19 @@ void PlotCSCEffFast(){
               // Generate automatic array values for removal in CSCEffFast.C
               if (rangeIndex < NUM_BAD_RANGES){
                 if (ssAutoHeader.str() == "")
-                  ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                 ssAutoHeader << "    // Low Efficiency DCFEB " << iiDCFEB;
                 if (LCTEff > deadDCFEBThreshold && LCTEff < maxRemovalThreshold)
                   ssAutoHeader << " seg " << (segEff*100) << "\% LCT " << (LCTEff*100) << "\%";
                 else
                   ssAutoHeader << " seg " << (segEff*100) << "\%";
-                ssAutoHeader << " all runs" << std::endl;
+                ssAutoHeader << " all runs" << endl;
                 ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                 ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = firstRun;  ";
                 ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = lastRun;  ";
                 ssAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                 ssAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
-                ssAutoHeader << std::endl << std::endl;
+                ssAutoHeader << endl << endl;
               }
               else if (verbose) cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " all runs" << endl;
             }
@@ -1525,15 +1608,15 @@ void PlotCSCEffFast(){
               // Generate automatic array values for removal in CSCEffFast.C
               if (rangeIndex < NUM_BAD_RANGES){
                 if (ssAutoHeader.str() == "")
-                  ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                 ssAutoHeader << "    //  Low Efficiency DCFEB " << iiDCFEB;
-                ssAutoHeader << " LCT " << (LCTEff*100) << "\% all runs" << std::endl;
+                ssAutoHeader << " LCT " << (LCTEff*100) << "\% all runs" << endl;
                 ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                 ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = firstRun;  ";
                 ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = lastRun;  ";
                 ssAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                 ssAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
-                ssAutoHeader << std::endl << std::endl;
+                ssAutoHeader << endl << endl;
               }
               else if (verbose) cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " all runs" << endl;
             }
@@ -1542,13 +1625,13 @@ void PlotCSCEffFast(){
             if (segEff > maxRemovalThreshold && segEff < 0.90){
               numIneffDCFEBs++;
               if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
-                if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << std::endl;
+                if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << endl;
               }
-              else if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " *" << std::endl;
+              else if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " *" << endl;
             }
             else if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
               numIneffDCFEBs++;
-              if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " **" << std::endl;
+              if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " **" << endl;
             }
           }
 
@@ -1601,13 +1684,13 @@ void PlotCSCEffFast(){
                 // Generate automatic array values for removal in CSCEffFast.C
                 if (rangeIndex < NUM_BAD_RANGES){
                   if (ssAutoHeader.str() == "")
-                    ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                    ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                   ssAutoHeader << "    //  Run-Dependent Low Efficiency Chamber";
-                  ssAutoHeader << " " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << std::endl;
+                  ssAutoHeader << " " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
                   ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                   ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRunSeg << ";  ";
                   ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunSeg << ";  ";
-                  ssAutoHeader << std::endl << std::endl;
+                  ssAutoHeader << endl << endl;
                 }
                 else if (verbose) 
                   cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
@@ -1651,13 +1734,13 @@ void PlotCSCEffFast(){
                 // Generate automatic array values for removal in CSCEffFast.C (Suppressed for LCT)
                 /*if (rangeIndex < NUM_BAD_RANGES){
                   if (ssAutoHeader.str() == "")
-                    ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                    ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                   ssAutoHeader << "    //  Run-Dependent Low Efficiency Chamber";
-                  ssAutoHeader << " " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << std::endl;
+                  ssAutoHeader << " " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
                   ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                   ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRunLCT << ";  ";
                   ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunLCT << ";  ";
-                  ssAutoHeader << std::endl << std::endl;
+                  ssAutoHeader << endl << endl;
                 }
                 else if (verbose) 
                   cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
@@ -1682,13 +1765,13 @@ void PlotCSCEffFast(){
             // Generate automatic array values for removal in CSCEffFast.C
             if (rangeIndex < NUM_BAD_RANGES){
               if (ssAutoHeader.str() == "")
-                ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
               ssAutoHeader << "    //  Run-Dependent Low Efficiency Chamber";
-              ssAutoHeader << " " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << std::endl;
+              ssAutoHeader << " " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
               ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
               ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRunSeg << ";  ";
               ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunSeg << ";  ";
-              ssAutoHeader << std::endl << std::endl;
+              ssAutoHeader << endl << endl;
             }
             else if (verbose) 
               cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
@@ -1708,13 +1791,13 @@ void PlotCSCEffFast(){
             /*
             if (rangeIndex < NUM_BAD_RANGES){
               if (ssAutoHeader.str() == "")
-                ssAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                ssAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
               ssAutoHeader << "    //  Run-Dependent Low Efficiency Chamber";
-              ssAutoHeader << " " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << std::endl;
+              ssAutoHeader << " " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
               ssAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
               ssAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badChamberFirstRunLCT << ";  ";
               ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunLCT << ";  ";
-              ssAutoHeader << std::endl << std::endl;
+              ssAutoHeader << endl << endl;
             }
             else if (verbose) 
               cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
@@ -1796,29 +1879,30 @@ void PlotCSCEffFast(){
                   if (iiRunBin<numRunBins) badDCFEBLastRunSegDead = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
                   else badDCFEBLastRunSegDead = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
                 }
-                else if (badDCFEBLastRunSegDead != 0){
-                  // Save the run range for the DCFEBs
-                  tempRunDepDCFEBSegDead += to_string(badDCFEBFirstRunSegDead) + "-" + to_string(badDCFEBLastRunSegDead);
-                  badDCFEBFirstRunSegDead = badDCFEBLastRunSegDead = 0;
-                  bNewRunDepDCFEBRangeSegDead = true;
-                }
-
-                // Check if chamber/DCFEB name was printed and, if not, print it.
-                if (!bPrintedRunDepDCFEBSeg){
-                  tempRunDepDCFEBSeg += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
-                  badDCFEBFirstRunSeg = iiRun;
-                  bPrintedRunDepDCFEBSeg = true;
-                }
-                // Check if there are multiple ranges being printed for a DCFEB
-                if (bNewRunDepDCFEBRangeSeg){
-                  tempRunDepDCFEBSeg += ", ";
-                  badDCFEBFirstRunSeg = iiRun;
-                  bNewRunDepDCFEBRangeSeg = false;
-                }
-                //badDCFEBLastRunSeg = iiRun+100;
-                if (iiRunBin<numRunBins) badDCFEBLastRunSeg = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
-                else badDCFEBLastRunSeg = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
-                numBadDCFEBBinsSeg++;
+                else{
+                  if (badDCFEBLastRunSegDead != 0){
+                    // Save the run range for the DCFEBs
+                    tempRunDepDCFEBSegDead += to_string(badDCFEBFirstRunSegDead) + "-" + to_string(badDCFEBLastRunSegDead);
+                    badDCFEBFirstRunSegDead = badDCFEBLastRunSegDead = 0;
+                    bNewRunDepDCFEBRangeSegDead = true;
+                  }
+                  // Check if chamber/DCFEB name was printed and, if not, print it.
+                  if (!bPrintedRunDepDCFEBSeg){
+                    tempRunDepDCFEBSeg += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
+                    badDCFEBFirstRunSeg = iiRun;
+                    bPrintedRunDepDCFEBSeg = true;
+                  }
+                  // Check if there are multiple ranges being printed for a DCFEB
+                  if (bNewRunDepDCFEBRangeSeg){
+                    tempRunDepDCFEBSeg += ", ";
+                    badDCFEBFirstRunSeg = iiRun;
+                    bNewRunDepDCFEBRangeSeg = false;
+                  }
+                  //badDCFEBLastRunSeg = iiRun+100;
+                  if (iiRunBin<numRunBins) badDCFEBLastRunSeg = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1);
+                  else badDCFEBLastRunSeg = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinUpEdge(iiRunBin);
+                  numBadDCFEBBinsSeg++;
+                  }
               }
               else if (badDCFEBLastRunSeg != 0){
                 //Float_t avg = sumDCFEBEffSeg * (lastRun - firstRun) / ( (badDCFEBLastRunSeg - badDCFEBFirstRunSeg) * numRunBins);
@@ -1828,15 +1912,15 @@ void PlotCSCEffFast(){
                 // Generate automatic array values for removal in CSCEffFast.C
                 if (rangeIndex < NUM_BAD_RANGES){
                   if (ssAutoHeader.str() == "" && ssTempAutoHeader.str() == "")
-                    ssTempAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                    ssTempAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                   ssTempAutoHeader << "    //  Run-Dependent Low Efficiency DCFEB " << iiDCFEB;
-                  ssTempAutoHeader << " seg " << (avg*100) << "\% " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << std::endl;
+                  ssTempAutoHeader << " seg " << (avg*100) << "\% " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << endl;
                   ssTempAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                   ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRunSeg << ";  ";
                   ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRunSeg << ";  ";
                   ssTempAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                   ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
-                  ssTempAutoHeader << std::endl << std::endl;
+                  ssTempAutoHeader << endl << endl;
                 }
                 else if (verbose) 
                   cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << endl;
@@ -1903,15 +1987,15 @@ void PlotCSCEffFast(){
                 /*
                 if (rangeIndex < NUM_BAD_RANGES){
                   if (ssAutoHeader.str() == "" && ssTempAutoHeader.str() == "")
-                    ssTempAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                    ssTempAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                   ssTempAutoHeader << "    //  Run-Dependent Low Efficiency DCFEB " << iiDCFEB;
-                  ssTempAutoHeader << " LCT " << (avg*100) << "\% " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << std::endl;
+                  ssTempAutoHeader << " LCT " << (avg*100) << "\% " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << endl;
                   ssTempAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                   ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRunLCT << ";  ";
                   ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRunLCT << ";  ";
                   ssTempAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                   ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
-                  ssTempAutoHeader << std::endl << std::endl;
+                  ssTempAutoHeader << endl << endl;
                 }
                 else if (verbose) 
                   cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << endl;
@@ -1935,15 +2019,15 @@ void PlotCSCEffFast(){
               // Generate automatic array values for removal in CSCEffFast.C
               if (rangeIndex < NUM_BAD_RANGES){
                 if (ssAutoHeader.str() == "" && ssTempAutoHeader.str() == "")
-                  ssTempAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  ssTempAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                 ssTempAutoHeader << "    //  Run-Dependent Low Efficiency DCFEB " << iiDCFEB;
-                ssTempAutoHeader << " seg " << (avg*100) << "\% " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << std::endl;
+                ssTempAutoHeader << " seg " << (avg*100) << "\% " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << endl;
                 ssTempAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                 ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRunSeg << ";  ";
                 ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRunSeg << ";  ";
                 ssTempAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                 ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
-                ssTempAutoHeader << std::endl << std::endl;
+                ssTempAutoHeader << endl << endl;
               }
               else if (verbose) 
                 cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << endl;
@@ -1971,15 +2055,15 @@ void PlotCSCEffFast(){
               /*
               if (rangeIndex < NUM_BAD_RANGES){
                 if (ssAutoHeader.str() == "" && ssTempAutoHeader.str() == "")
-                  ssTempAutoHeader << std::endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << std::endl;
+                  ssTempAutoHeader << endl << "    // ----- " << GetMELabel(iiStation, iiRing, iiChamber) << " -----" << endl;
                 ssTempAutoHeader << "    //  Run-Dependent Low Efficiency DCFEB " << iiDCFEB;
-                ssTempAutoHeader << " LCT " << (avg*100) << "\% " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << std::endl;
+                ssTempAutoHeader << " LCT " << (avg*100) << "\% " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << endl;
                 ssTempAutoHeader << "    badChamber[" << rangeIndex << indexstr << " = true;  ";
                 ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[0] = " << badDCFEBFirstRunLCT << ";  ";
                 ssTempAutoHeader << "badChamberRun[" << rangeIndex << indexstr << "[1] = " << badDCFEBLastRunLCT << ";  ";
                 ssTempAutoHeader << "badChamberLCS[" << rangeIndex << indexstr << "[0] = " << DCFEBRanges[iiDCFEB-1][0] << ";  ";
                 ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
-                ssTempAutoHeader << std::endl << std::endl;
+                ssTempAutoHeader << endl << endl;
               }
               else if (verbose) 
                 cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << endl;
@@ -2008,58 +2092,51 @@ void PlotCSCEffFast(){
         }
       }
     }
+    if (ssRunDepChamberSeg.str() != "") ssRunDepChamberSeg.str(ssRunDepChamberSeg.str().substr(1));
+    if (ssRunDepChamberLCT.str() != "") ssRunDepChamberLCT.str(ssRunDepChamberLCT.str().substr(1));
+    if (ssRunDepDCFEBSeg.str() != "") ssRunDepDCFEBSeg.str(ssRunDepDCFEBSeg.str().substr(1));
+    if (ssRunDepDCFEBSegDead.str() != "") ssRunDepDCFEBSegDead.str(ssRunDepDCFEBSegDead.str().substr(1));
+    if (ssRunDepDCFEBLCT.str() != "") ssRunDepDCFEBLCT.str(ssRunDepDCFEBLCT.str().substr(1));
+    if (ssRunDepDCFEBLCTDead.str() != "") ssRunDepDCFEBLCTDead.str(ssRunDepDCFEBLCTDead.str().substr(1));
     //Print Low Efficiency Chambers to File
-    cscEffCheck << "Low Efficiency Chambers" << std::endl << "-----------------------" << std::endl;
-    cscEffCheck << ssLowEffChambers.str() << std::endl;
-    cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+    cscEffCheck << Printout("Low Efficiency Chambers", ssLowEffChambers.str()) << endl;
+    cscEffCheck << " * Segment Only" << endl << " ** LCT Only" << endl << endl;
     //Print Dead Chambers to File
-    cscEffCheck << std::endl;
-    cscEffCheck << "Dead Chambers" << std::endl << "-------------" << std::endl;
-    cscEffCheck << ssDeadChambers.str() << std::endl;
+    cscEffCheck << Printout("Dead Chambers", ssDeadChambers.str()) << endl << endl;
+    cscEffCheckSimple << Printout("Dead Chambers", ssDeadChambers.str()) << endl << endl;
     //Print Dead DCFEBs to File (without efficiency)
-    cscEffCheckSimple << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
-    cscEffCheckSimple << ssDeadDCFEBs.str() << std::endl;
-    cscEffCheckSimple << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+    cscEffCheckSimple << Printout("Dead DCFEBs", ssDeadDCFEBs.str()) << endl;
+    cscEffCheckSimple << " * Segment Only" << endl << " ** LCT Only" << endl << endl;
     //Print Dead DCFEBs to File (with efficiency)
-    cscEffCheck << std::endl;
-    cscEffCheck << "Dead DCFEBs" << std::endl << "-----------" << std::endl;
-    cscEffCheck << ssDeadDCFEBsWithEff.str() << std::endl;
-    cscEffCheck << " * Segment Only" << std::endl << " ** LCT Only" << std::endl;
+    cscEffCheck << Printout("Dead DCFEBs", ssDeadDCFEBsWithEff.str()) << endl;
+    cscEffCheck << " * Segment Only" << endl << " ** LCT Only" << endl << endl;
     if (runDepAnalysis){
       //Print run-dependent chamber failures (segment)
-      cscEffCheck << std::endl;
-      cscEffCheck << std::endl << "Run-Dependent Chamber Issues (Segment)" << std::endl << "--------------------------------------";
-      cscEffCheck << ssRunDepChamberSeg.str() << std::endl;
+      cscEffCheck << Printout("Run-Dependent Chamber Issues (Segment)", ssRunDepChamberSeg.str()) << endl << endl;
       //Print run-dependent chamber failures (LCT)
-      cscEffCheck << std::endl;
-      cscEffCheck << std::endl << "Run-Dependent Chamber Issues (LCT)" << std::endl << "----------------------------------";
-      cscEffCheck << ssRunDepChamberLCT.str() << std::endl;
+      cscEffCheck << Printout("Run-Dependent Chamber Issues (LCT)", ssRunDepChamberLCT.str()) << endl << endl;
       //Print run-dependent DCFEB failures (segment)
-      cscEffCheck << std::endl;
-      cscEffCheck << std::endl << "Run-Dependent DCFEB Issues (Segment)" << std::endl << "------------------------------------";
-      cscEffCheck << ssRunDepDCFEBSeg.str() << std::endl;
+      cscEffCheck << Printout("Run-Dependent DCFEB Issues (Segment)", ssRunDepDCFEBSeg.str()) << endl << endl;
       //Print run-dependent DCFEB failures (segment - simple)
-      cscEffCheckSimple << std::endl << "Run-Dependent Dead DCFEBs (Segment)" << std::endl << "------------------------------------";
-      cscEffCheckSimple << std::endl << ssRunDepDCFEBSegDead.str() << std::endl;
+      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDead.str()) << endl << endl;
+      cscEffCheckSimple << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDead.str()) << endl << endl;
       //Print run-dependent DCFEB failures (LCT)
-      cscEffCheck << std::endl;
-      cscEffCheck << std::endl << "Run-Dependent DCFEB Issues (LCT)" << std::endl << "--------------------------------";
-      cscEffCheck << ssRunDepDCFEBLCT.str() << std::endl;
+      cscEffCheck << Printout("Run-Dependent DCFEB Issues (LCT)", ssRunDepDCFEBLCT.str()) << endl << endl;
       //Print run-dependent DCFEB failures (LCT - simple)
-      cscEffCheckSimple << std::endl << "Run-Dependent Dead DCFEBs (LCT)" << std::endl << "--------------------------------";
-      cscEffCheckSimple << std::endl << ssRunDepDCFEBLCTDead.str() << std::endl;
+      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDead.str()) << endl << endl;
+      cscEffCheckSimple << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDead.str()) << endl << endl;
     }
     //Print auto-generated removal statements
-    //cscEffCheck << std::endl;
-    //cscEffCheck << std::endl << "Auto Header" << std::endl << "-----------" << std::endl;
+    //cscEffCheck << endl;
+    //cscEffCheck << endl << "Auto Header" << endl << "-----------" << endl;
     for (Int_t iiStation=0; iiStation<8; iiStation++)
       for (Int_t iiRing=0; iiRing<4; iiRing++)
         for (Int_t iiChamber=0; iiChamber<36; iiChamber++)
           badChambersHeader << sAutoHeaderChambers[iiStation][iiRing][iiChamber];
           //cscEffCheck << sAutoHeaderChambers[iiStation][iiRing][iiChamber];
-    //cscEffCheck << std::endl;
-    badChambersHeader << std::endl << "}" << std::endl << std::endl;
-    badChambersHeader << "#endif//BadChambers_h" << std::endl;
+    //cscEffCheck << endl;
+    badChambersHeader << endl << "}" << endl << endl;
+    badChambersHeader << "#endif//BadChambers_h" << endl;
     // Closing Text Files and Exiting
     cscEffCheck.close();
     cscEffCheckSimple.close();
@@ -2067,17 +2144,12 @@ void PlotCSCEffFast(){
   }
 
   if (DCFEBAnalysis && (TH2F*)file0->Get("segEff2DStation1Ring1DCFEB1ChamberRun") != NULL){
-    // Check for plots directory
-    {
-      DIR *plotdir = opendir("plots");
-      if (!plotdir) mkdir("plots", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-      else closedir(plotdir);
-    }
+    if (verbose) cout << "Analyzing DCFEB plots..." << endl;
     // Check for plots/DCFEBAnalysis directory
     {
-      DIR *plotdir = opendir("plots/DCFEBAnalysis");
-      if (!plotdir) mkdir("plots/DCFEBAnalysis", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-      else closedir(plotdir);
+      DIR *tempdir = opendir((plotdir + "DCFEBAnalysis").c_str());
+      if (!tempdir) mkdir((plotdir + "DCFEBAnalysis").c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      else closedir(tempdir);
     }
 
     gStyle->SetOptStat(0);
@@ -2086,7 +2158,7 @@ void PlotCSCEffFast(){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
 
         sprintf(title, "Segment DCFEB Analysis %s", GetMELabel(iiStation, iiRing).c_str());
-        sprintf(file, "plots/DCFEBAnalysis/CSCSegEffRun3Data2DChamberRunCompact%s.pdf", GetMELabel(iiStation,iiRing).c_str());
+        sprintf(file, (plotdir + "DCFEBAnalysis/CSCSegEffRun3Data2DChamberRunCompact%s.pdf").c_str(), GetMELabel(iiStation,iiRing).c_str());
         c1.Print(((string)file + "[").c_str());
         for (Int_t iiPage=0; iiPage*10<numRunBins; iiPage++){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
@@ -2126,7 +2198,7 @@ void PlotCSCEffFast(){
         c1.Print(((string)file + "]").c_str());
 
         sprintf(title, "LCT DCFEB Analysis %s", GetMELabel(iiStation, iiRing).c_str());
-        sprintf(file, "plots/DCFEBAnalysis/CSCLCTEffRun3Data2DChamberRunCompact%s.pdf", GetMELabel(iiStation,iiRing).c_str());
+        sprintf(file, (plotdir + "DCFEBAnalysis/CSCLCTEffRun3Data2DChamberRunCompact%s.pdf").c_str(), GetMELabel(iiStation,iiRing).c_str());
         c1.Print(((string)file + "[").c_str());
         for (Int_t iiPage=0; iiPage*10<numRunBins; iiPage++){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
@@ -2171,15 +2243,28 @@ void PlotCSCEffFast(){
   c1.Close();
 }
 
+#ifndef __CLING__
+int main(int argc, char *argv[]){
+  if (argc > 2){
+    cerr << "Too many arguments." << endl;
+    return 1;
+  }
+  string filename="cscEffHistoFile.root";
+  if (argc == 2) filename = argv[1];
+  PlotCSCEffFast(filename);
+  return 0;
+}
+#endif
+
 // Helper functions
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   string result = "";
   if ((station==1||station==2||station==3||station==5||station==6||station==7)&&(ring==0||ring==3)){
-    std::cout << "Unexpected station/ring. Given " << station << "/" << ring << std::endl;
+    cout << "Unexpected station/ring. Given " << station << "/" << ring << endl;
     return result;
   }
   if (chamber!=-1&&(station==1||station==2||station==3||station==5||station==6||station==7)&&ring==1&&chamber>18){
-    std::cout << "Unexpected station/ring/chamber. Given " << station << "/" << ring << "/" << chamber << std::endl;
+    cout << "Unexpected station/ring/chamber. Given " << station << "/" << ring << "/" << chamber << endl;
     return result;
   }
   string symb = (station < 4)? "-" : "+";
@@ -2193,5 +2278,13 @@ string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   if (chamber != -1)
     result += "/" + to_string(chamber);
 
+  return result;
+}
+
+string Printout(const string& title, const string& info){
+  if (info == "") return "";
+  string result = title + "\n";
+  for (int i=0; i<title.size(); i++) result += "-";
+  result += "\n" + info;
   return result;
 }

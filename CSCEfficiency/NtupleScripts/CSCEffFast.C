@@ -29,6 +29,7 @@ void CSCEffFast::Loop()
   std::cout.flush();
 
   TFile cscEffHistoFile("cscEffHistoFile.root","Recreate");
+  setName->Write();
 
 
   char name[50];
@@ -52,6 +53,7 @@ void CSCEffFast::Loop()
   bool badChambers2023Track2 = false; // Max Chamber and DCFEB Removal for 2023C
 
   //bool badChambers2023TrackAuto = true; // Chamber and DCFEB Removal for 2023C
+  bool deadChambersTrack = (TString(firstSet.id).BeginsWith("2023") || TString(firstSet.id).BeginsWith("2024")); // Manually remove dead chambers
 
 
   bool ME21EvenOdd = true;
@@ -59,8 +61,6 @@ void CSCEffFast::Loop()
   bool ME41EvenOdd = false;
 
   // Setting run ranges
-  //  NOTE: When setting the lastRun variable, set it to the upper edge. i.e. the maximum value that won't be exceeded
-  //  This will allow the run bins to be generated properly.
 #if newData
   //const Int_t firstRun = 367100; //2023 excluding B and first few runs of C where MEx1 was bad
   //const Int_t firstRun = 369800; //2023D
@@ -80,8 +80,8 @@ void CSCEffFast::Loop()
   
   // Pt, Eta, phi (chamber) parameters and histograms
 
-  const Int_t numPtBins=9;       //number of pt bins in eff plots
-  Float_t ptBins[(numPtBins+1)] = {0.0,10.0,20.0,30.0,40.0,50.0,60.0,80.0,100.0,200.0};
+  const Int_t numPtBins=10;       //number of pt bins in eff plots
+  Float_t ptBins[(numPtBins+1)] = {0.0,10.0,20.0,30.0,40.0,50.0,60.0,80.0,100.0,150.0,200.0};
   //const Int_t numPtBins=17;       //number of pt bins in eff plots
   //Float_t ptBins[(numPtBins+1)] = {0.0,10.0,20.0,30.0,40.0,50.0,60.0,80.0,100.0,200.0,300.0,400.0,500.0,600.0,700.0,800.0,900.0,1000.0};
 
@@ -98,8 +98,8 @@ void CSCEffFast::Loop()
   const Int_t numIsoBins=14;       //number of track based isolation bins in eff plots
   Float_t isoBins[(numIsoBins+1)] = {0.0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.24,0.28,0.34,0.40};
 
-  const Int_t numPVBins=12;       //number of primary vertex bins eff plots 17, 9
-  Float_t pvBins[(numPVBins+1)] = {-0.5,0.5,4.5,8.5,16.5,24.5,32.5,40.5,48.5,56.5,64.5,72.5,80.5};
+  const Int_t numPVBins=13;       //number of primary vertex bins eff plots 17, 9
+  Float_t pvBins[(numPVBins+1)] = {-0.5,0.5,4.5,8.5,16.5,24.5,32.5,40.5,48.5,56.5,64.5,72.5,80.5,120.0};
   //Float_t pvBins[(numPVBins+1)] = {0.0,0.5,4.5,8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5,60.5,70.5};
 
   const Int_t numILBins=26;       //number instantatanious lumi bins in eff plots
@@ -1004,10 +1004,18 @@ void CSCEffFast::Loop()
   // Removing chambers bellow 80%
   // move start from period D, 320394to period B, 318800
 
-  // New data chamberes Run 3 auto generated
+  // New data chambers Run 3 auto generated
 #if autoRemoval
   SetBadChambers(badChamber, badChamberRun, badChamberLCS);
 #endif
+  // Optional chamber removal
+  if (deadChambersTrack){
+    // ----- ME-42/4 -----
+    // Dead Chamber All 2023-2024
+    badChamber[0][0][4-1][2][4-1] = true;  badChamberRun[0][0][4-1][2][4-1][0] = firstRun;  badChamberRun[0][0][4-1][2][4-1][1] = lastRun;
+  }
+  
+
   if (badChambers2023Track && !autoRemoval) {
 
 
@@ -2155,7 +2163,7 @@ void CSCEffFast::Loop()
 
       // Define histrogram bins	  
       Int_t pTBin = -1;
-      if (tracks_pt>ptBins[numPtBins]) pTBin = numPtBins;
+      if (tracks_pt>=ptBins[numPtBins]) pTBin = numPtBins;
       for (Int_t iiPt=0; iiPt< numPtBins; iiPt++){
         if (tracks_pt>=ptBins[iiPt]&&tracks_pt<ptBins[iiPt+1]) pTBin = iiPt;
       }
@@ -2164,6 +2172,11 @@ void CSCEffFast::Loop()
       Int_t etaBin2 = -1;
       Int_t etaBin3 = -1;
       Int_t etaBin4 = -1;
+      //if (fabs(CSCTTetaGc1)>=etaBins[numEtaBins]) etaBin = numEtaBins;
+      //if (fabs(CSCTTetaGc1)>=etaBins[numEtaBins]) etaBin1 = numEtaBins;
+      //if (fabs(CSCTTetaGc2)>=etaBins[numEtaBins]) etaBin2 = numEtaBins;
+      //if (fabs(CSCTTetaGc3)>=etaBins[numEtaBins]) etaBin3 = numEtaBins;
+      //if (fabs(CSCTTetaGc4)>=etaBins[numEtaBins]) etaBin4 = numEtaBins;
       for (Int_t iiEta=0; iiEta< numEtaBins; iiEta++){
         //if (fabs(tracks_eta)>etaBins[iiEta]&&fabs(tracks_eta)<etaBins[iiEta+1]) etaBin = iiEta;
         //std::cout << "Eta " << tracks_eta << " " << CSCTTetaGc1 << std::endl;
@@ -2174,19 +2187,23 @@ void CSCEffFast::Loop()
         if (fabs(CSCTTetaGc4)>=etaBins[iiEta]&&fabs(CSCTTetaGc4)<etaBins[iiEta+1]) etaBin4 = iiEta;
       }
       Int_t isoBin = -1;
+      //if (tracks_IsoR03Ratio>=isoBins[numIsoBins]) isoBin = numIsoBins;
       for (Int_t iiIso=0; iiIso< numIsoBins; iiIso++){
         if (tracks_IsoR03Ratio>=isoBins[iiIso]&&tracks_IsoR03Ratio<isoBins[iiIso+1]) isoBin = iiIso;
       }
       Int_t pvBin = -1;
+      if (numberOfPrimaryVertices>=pvBins[numPVBins]) pvBin = numPVBins;
       for (Int_t iiPV=0; iiPV< numPVBins; iiPV++){
         if (numberOfPrimaryVertices>=pvBins[iiPV]&&numberOfPrimaryVertices<pvBins[iiPV+1]) pvBin = iiPV;
       }
       Int_t ilBin = -1;
+      //if (LumiInst->front()>=ilBins[numILBins]) ilBin = numILBins;
       for (Int_t iiIL=0; iiIL< numILBins; iiIL++){
         if (LumiInst->front()>=ilBins[iiIL]&&LumiInst->front()<ilBins[iiIL+1]) ilBin = iiIL;
       }
       //std::cout << "Lumi " << LumiInst->front() << " ilBin " << ilBin << " size " << LumiInst->size() << std::endl;
       Int_t runBin = -1;
+      if (run_number>=runBins[numRunBins]) runBin = numRunBins;
       for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
         if (run_number>=runBins[iiRun]&&run_number<runBins[iiRun+1]) runBin = iiRun;
         //if (runBin == numRunBins-1) std:: cout << "runBin calc, run:  " << run_number << std::endl;
@@ -2203,6 +2220,14 @@ void CSCEffFast::Loop()
       Int_t lC3YBin2 = -1;
       Int_t lC3YBin3 = -1;
       Int_t lC3YBin4 = -1;
+      //if (CSCTTyLc1>=lCYBins[numLCYBins]) lCYBin1 = numLCYBins;
+      //if (CSCTTyLc2>=lCYBins[numLCYBins]) lCYBin2 = numLCYBins;
+      //if (CSCTTyLc3>=lCYBins[numLCYBins]) lCYBin3 = numLCYBins;
+      //if (CSCTTyLc4>=lCYBins[numLCYBins]) lCYBin4 = numLCYBins;
+      //if (CSCTT3yLc1>=lCYBins[numLCYBins]) lC3YBin1 = numLCYBins;
+      //if (CSCTT3yLc2>=lCYBins[numLCYBins]) lC3YBin2 = numLCYBins;
+      //if (CSCTT3yLc3>=lCYBins[numLCYBins]) lC3YBin3 = numLCYBins;
+      //if (CSCTT3yLc4>=lCYBins[numLCYBins]) lC3YBin4 = numLCYBins;
       for (Int_t iiLCY=0; iiLCY< numLCYBins; iiLCY++){
         if (CSCTTyLc1>=lCYBins[iiLCY]&&CSCTTyLc1<lCYBins[iiLCY+1]) lCYBin1 = iiLCY;
         if (CSCTTyLc2>=lCYBins[iiLCY]&&CSCTTyLc2<lCYBins[iiLCY+1]) lCYBin2 = iiLCY;
@@ -2223,6 +2248,14 @@ void CSCEffFast::Loop()
       Int_t lC3WBin2 = -1;
       Int_t lC3WBin3 = -1;
       Int_t lC3WBin4 = -1;
+      //if (CSCTTyLc1>=lCWBins[numLCWBins]) lCWBin1 = numLCWBins;
+      //if (CSCTTyLc2>=lCWBins[numLCWBins]) lCWBin2 = numLCWBins;
+      //if (CSCTTyLc3>=lCWBins[numLCWBins]) lCWBin3 = numLCWBins;
+      //if (CSCTTyLc4>=lCWBins[numLCWBins]) lCWBin4 = numLCWBins;
+      //if (CSCTT3yLc1>=lCWBins[numLCWBins]) lC3WBin1 = numLCWBins;
+      //if (CSCTT3yLc2>=lCWBins[numLCWBins]) lC3WBin2 = numLCWBins;
+      //if (CSCTT3yLc3>=lCWBins[numLCWBins]) lC3WBin3 = numLCWBins;
+      //if (CSCTT3yLc4>=lCWBins[numLCWBins]) lC3WBin4 = numLCWBins;
       for (Int_t iiLCW=0; iiLCW< numLCWBins; iiLCW++){
         if (CSCTTyLc1>=lCWBins[iiLCW]&&CSCTTyLc1<lCWBins[iiLCW+1]) lCWBin1 = iiLCW;
         if (CSCTTyLc2>=lCWBins[iiLCW]&&CSCTTyLc2<lCWBins[iiLCW+1]) lCWBin2 = iiLCW;
@@ -2233,6 +2266,12 @@ void CSCEffFast::Loop()
         if (CSCTT3yLc3>=lCWBins[iiLCW]&&CSCTT3yLc3<lCWBins[iiLCW+1]) lC3WBin3 = iiLCW;
         if (CSCTT3yLc4>=lCWBins[iiLCW]&&CSCTT3yLc4<lCWBins[iiLCW+1]) lC3WBin4 = iiLCW;
       }
+      //TODO: Temporary fix for LCW out-of-bounds errors.
+      //Currently just changes out-of-bounds values to 0 since the histograms aren't being written at the moment.
+      if (lCWBin1 == -1) lCWBin1 = 0;
+      if (lCWBin2 == -1) lCWBin2 = 0;
+      if (lCWBin3 == -1) lCWBin3 = 0;
+      if (lCWBin4 == -1) lCWBin4 = 0;
 
 
       Int_t lCSBin1 = -1;
@@ -2243,6 +2282,14 @@ void CSCEffFast::Loop()
       Int_t lC3SBin2 = -1;
       Int_t lC3SBin3 = -1;
       Int_t lC3SBin4 = -1;
+      //if (CSCTTsLc1>=lCSBins[numLCSBins]) lCSBin1 = numLCSBins;
+      //if (CSCTTsLc2>=lCSBins[numLCSBins]) lCSBin2 = numLCSBins;
+      //if (CSCTTsLc3>=lCSBins[numLCSBins]) lCSBin3 = numLCSBins;
+      //if (CSCTTsLc4>=lCSBins[numLCSBins]) lCSBin4 = numLCSBins;
+      //if (CSCTT3sLc1>=lCSBins[numLCSBins]) lC3SBin1 = numLCSBins;
+      //if (CSCTT3sLc2>=lCSBins[numLCSBins]) lC3SBin2 = numLCSBins;
+      //if (CSCTT3sLc3>=lCSBins[numLCSBins]) lC3SBin3 = numLCSBins;
+      //if (CSCTT3sLc4>=lCSBins[numLCSBins]) lC3SBin4 = numLCSBins;
       for (Int_t iiLCS=0; iiLCS< numLCSBins; iiLCS++){
         if (CSCTTsLc1>=lCSBins[iiLCS]&&CSCTTsLc1<lCSBins[iiLCS+1]) lCSBin1 = iiLCS;
         if (CSCTTsLc2>=lCSBins[iiLCS]&&CSCTTsLc2<lCSBins[iiLCS+1]) lCSBin2 = iiLCS;
@@ -2262,6 +2309,14 @@ void CSCEffFast::Loop()
       Int_t dCFEB3Bin2 = -1;
       Int_t dCFEB3Bin3 = -1;
       Int_t dCFEB3Bin4 = -1;
+      if (CSCTTsLc1>=dCFEBLCSBins[numDCFEBBins]) dCFEBBin1 = numDCFEBBins;
+      if (CSCTTsLc2>=dCFEBLCSBins[numDCFEBBins]) dCFEBBin2 = numDCFEBBins;
+      if (CSCTTsLc3>=dCFEBLCSBins[numDCFEBBins]) dCFEBBin3 = numDCFEBBins;
+      if (CSCTTsLc4>=dCFEBLCSBins[numDCFEBBins]) dCFEBBin4 = numDCFEBBins;
+      if (CSCTT3sLc1>=dCFEBLCSBins[numDCFEBBins]) dCFEB3Bin1 = numDCFEBBins;
+      if (CSCTT3sLc2>=dCFEBLCSBins[numDCFEBBins]) dCFEB3Bin2 = numDCFEBBins;
+      if (CSCTT3sLc3>=dCFEBLCSBins[numDCFEBBins]) dCFEB3Bin3 = numDCFEBBins;
+      if (CSCTT3sLc4>=dCFEBLCSBins[numDCFEBBins]) dCFEB3Bin4 = numDCFEBBins;
       for (Int_t iiDCFEB=0; iiDCFEB< numDCFEBBins; iiDCFEB++){
         if (CSCTTsLc1>=dCFEBLCSBins[iiDCFEB]&&CSCTTsLc1<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin1 = iiDCFEB;
         if (CSCTTsLc2>=dCFEBLCSBins[iiDCFEB]&&CSCTTsLc2<dCFEBLCSBins[iiDCFEB+1]) dCFEBBin2 = iiDCFEB;
@@ -3415,6 +3470,7 @@ void CSCEffFast::Loop()
         LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
         //LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
+        //TODO: Filling underflow? Setting bin content at bin 0 (underflow)
         for (Int_t ii=0; ii< lastRun-firstRun; ii++){
           if (segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0&&segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->GetBinContent(ii)==0){
             segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->SetBinContent(ii,-0.001);
@@ -4211,12 +4267,13 @@ void CSCEffFast::Loop()
   /* delete[] effSigmaStationRingDCFEBChamberRunLCT; */
 }
 
-
-// int main() {
-//   CSCEffFast* cscEffFast = new CSCEffFast();
-//   cscEffFast->Loop();
-//   return 0;
-// }
+#ifndef __CLING__
+int main() {
+  CSCEffFast* cscEffFast = new CSCEffFast();
+  //cscEffFast->Loop();
+  return 0;
+}
+#endif
 
 /*
    .L CSCEffFast.C+

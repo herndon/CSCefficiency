@@ -29,30 +29,34 @@ class CSCEffFast {
     typedef struct {
       Int_t firstRun;
       Int_t lastRun;
+      Text_t id[10];
     } dataset;
-    static constexpr dataset d2022all = {355000, 362760};
-    static constexpr dataset d2023all = {367100, 370790};
+    static constexpr dataset d2022all = {355000, 362760, "2022"};
 
-    static constexpr dataset d2023Cv1 = {367100, 367515};
-    static constexpr dataset d2023Cv2 = {367500, 367758};
-    static constexpr dataset d2023Cv4 = {367700, 369694};
-    static constexpr dataset d2023Dv1 = {369800, 370580};
-    static constexpr dataset d2023Dv2 = {370600, 370790};
+    static constexpr dataset d2023all = {367100, 370790, "2023"};
+    static constexpr dataset d2023Cv1 = {367100, 367515, "2023Cv1"};
+    static constexpr dataset d2023Cv2 = {367500, 367758, "2023Cv2"};
+    static constexpr dataset d2023Cv4 = {367700, 369694, "2023Cv4"};
+    static constexpr dataset d2023Dv1 = {369800, 370580, "2023Dv1"};
+    static constexpr dataset d2023Dv2 = {370600, 370790, "2023Dv2"};
 
-    static constexpr dataset d2024Bv1 = {378900, 379400};// this data is pretty much all bad
-    static constexpr dataset d2024Cv1 = {379300, 380300};
-    static constexpr dataset d2024Dv1 = {380200, 381000};
-    static constexpr dataset d2024Ev1 = {380900, 381200};
-    static constexpr dataset d2024all = {379300, 381200};
+    static constexpr dataset d2024all = {379300, 381200, "2024"};
+    static constexpr dataset d2024Bv1 = {378900, 379400, "2024Bv1"};// this data is pretty much all bad
+    static constexpr dataset d2024Cv1 = {379300, 380300, "2024Cv1"};
+    static constexpr dataset d2024Dv1 = {380200, 381000, "2024Dv1"};
+    static constexpr dataset d2024Ev1 = {380900, 381200, "2024Ev1"};
 #if newData
-  //    static const Int_t firstRun = d2024all.firstRun;
-  //    static const Int_t lastRun  = d2024all.lastRun;
-    static const Int_t firstRun = d2024Ev1.firstRun;
-    static const Int_t lastRun  = d2024Ev1.lastRun;
+    //static constexpr dataset firstSet = d2024all;
+    //static constexpr dataset lastSet  = d2024all;
+    static constexpr dataset firstSet = d2024Dv1;
+    static constexpr dataset lastSet = d2024Dv1;
 #else
-    static const Int_t firstRun = 355000;
-    static const Int_t lastRun  = 362800;
+    static const Int_t firstSet = d2022all;
+    static const Int_t lastSet  = d2022all;
 #endif
+    static const Int_t firstRun = firstSet.firstRun;
+    static const Int_t lastRun  = lastSet.lastRun;
+    TNamed *setName;
 
 
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -714,7 +718,16 @@ CSCEffFast::CSCEffFast() : fChain(0)
   Int_t numberFiles = 0;
   TChain *chain = new TChain("aodDump/Fraction");
 
-  std::cout << "Analyzing " << (newData? "2023 or 2024" : "2022") << " data." << std::endl;
+  //std::cout << "Analyzing " << (newData? "2023 or 2024" : "2022") << " data." << std::endl;
+  std::string name = "";
+  std::cout << "Analyzing ";
+  if (firstSet.firstRun == firstRun && lastSet.lastRun == lastRun){
+    if (strcmp(firstSet.id, lastSet.id) == 0) name += firstSet.id;
+    else name += (std::string)firstSet.id + "-" + lastSet.id;
+    std::cout << name << " data." << std::endl;
+  }
+  else std::cout << "runs " << firstRun << "-" << lastRun << "." << std::endl;
+  setName = new TNamed("setName", name.c_str());
 
   if (newData){
 
