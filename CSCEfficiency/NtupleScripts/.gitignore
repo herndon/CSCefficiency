@@ -3,3 +3,6 @@ CSCEffFast_C*.*
 cscEffHistoFile.root
 cscRunEffData.txt
 cscEffCheck.txt
+cscEffCheckSimple.txt
+BadChambers.h
+BadChambers_auto.h
