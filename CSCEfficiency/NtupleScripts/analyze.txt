@@ -1,0 +1,2 @@
+.L CSCEffFast.C+
+CSCEffFast* cscEffFast = new CSCEffFast()

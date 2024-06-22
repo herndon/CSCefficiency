@@ -1,0 +1,5 @@
+plots/
+CSCEffFast_C*.*
+cscEffHistoFile.root
+cscRunEffData.txt
+cscEffCheck.txt

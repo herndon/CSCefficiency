@@ -469,7 +469,7 @@ TPTrackMuonSys::~TPTrackMuonSys(){
 void 
 TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
-   std::cout <<"TPTrackMuonSys::analyze..."<<std::endl;
+  //std::cout <<"TPTrackMuonSys::analyze..."<<std::endl;
 
 
   nEventsAnalyzed++;
@@ -681,8 +681,8 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
  if (run_number == 356004 && event_number == 14788293) {
    std::cout << "Bad event Segment and RecHits size "<< cscSegments->size() << " " << recHits->size() << std::endl;
   }
-  std::cout << "run event "<< run_number << " " << event_number << std::endl;
-  std::cout << "Segment and RecHits size "<< cscSegments->size() << " " << recHits->size() << std::endl;
+ //std::cout << "run event "<< run_number << " " << event_number << std::endl;
+ // std::cout << "Segment and RecHits size "<< cscSegments->size() << " " << recHits->size() << std::endl;
 
   
   edm::Handle<CSCCorrelatedLCTDigiCollection> mpclcts;
@@ -854,6 +854,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	for (vector<Int_t>::const_iterator iter=m_HLTMuTrgBit.begin();iter<m_HLTMuTrgBit.end();iter++)
 	  HLTMuAcceptance->push_back( triggerResults.product()->accept(*iter) );
 	if ( m_HLTDiMuTrgBit>-1 ) HLTDiMuAcceptance=triggerResults.product()->accept( m_HLTDiMuTrgBit );
+	//std::cout << "HLTDiMuTrgBit accepted: " <<  HLTDiMuAcceptance << std::endl;
       } // end if at least one triggerResult accepted
     }// end if wasRun
   } catch (...) {// some old codes, it is possibly not going to happen in >CMSSW_4_4_X versions
@@ -1026,7 +1027,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   Nevents_diMuonMass = -9999.0;
     for (reco::MuonCollection::const_iterator muIter1 = muons->begin(); muIter1 != muons->end(); ++muIter1) {  
     for (reco::MuonCollection::const_iterator muIter2 = std::next(muIter1); muIter2 != muons->end(); ++muIter2) { 
-      std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
+      //std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
 
       Float_t mMu = 0.1134289256;
       Float_t mass = pow( ( sqrt(pow(muIter1->p(),2)+ mMu*mMu) +  sqrt(pow(muIter2->p(),2)+ mMu*mMu) ) ,2 ) -
@@ -1038,15 +1039,15 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
       if(mass > 0) mass = sqrt(mass);
       if ((muIter1->charge()*muIter2->charge()==-1) && (fabs(mass-91.1876) < fabs(Nevents_diMuonMass-91.1876))) Nevents_diMuonMass = mass;
-      std::cout << "invMass: " << mass << std::endl;
+      //std::cout << "invMass: " << mass << std::endl;
       if ((muIter1->pt()>28&&muIter2->pt()>10&&fabs(muIter2->eta())>0.9)||
 	  (muIter1->charge()*muIter2->charge()==-1))
       {
-	std::cout << "Good CSC candidate" << std::endl;
-	std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
-	if (muIter1->isGlobalMuon()&&muIter2->isGlobalMuon()){
-	  std::cout << "Tracks, Tr 1 pt, eta: " << muIter1->track()->pt() << ", " << muIter1->track()->eta() << " Tr 2 pt, eta: " << muIter2->track()->pt() << ", " << muIter2->track()->eta() << "Hits: " <<  muIter1->track()->numberOfValidHits() << " " << muIter2->track()->numberOfValidHits() << std::endl;
-	}
+	//std::cout << "Good CSC candidate" << std::endl;
+	//std::cout << "Muons, Mu 1 pt, eta: " << muIter1->pt() << ", " << muIter1->eta() << " Mu 2 pt, eta: " << muIter2->pt() << ", " << muIter2->eta() << std::endl;
+	//if (muIter1->isGlobalMuon()&&muIter2->isGlobalMuon()){
+	//std::cout << "Tracks, Tr 1 pt, eta: " << muIter1->track()->pt() << ", " << muIter1->track()->eta() << " Tr 2 pt, eta: " << muIter2->track()->pt() << ", " << muIter2->track()->eta() << "Hits: " <<  muIter1->track()->numberOfValidHits() << " " << muIter2->track()->numberOfValidHits() << std::endl;
+	//}
 
       }
 
@@ -1088,12 +1089,15 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
     Float_t mu1Chi2 = muIter1->track()->normalizedChi2();
     MuTagHitsTrkSys  = muIter1->track()->hitPattern().numberOfValidTrackerHits();
-        Bool_t goodTrack  = (fabs(mu1dxy) < 2.0 && fabs(mu1dz) < 24.0 && fabs(mu1Chi2) < 4.0 && MuTagHitsTrkSys > 7 ); //&& MuTagHitsMuSys > 3 
-    //    Bool_t goodTrack  = (fabs(mu1dxy) < 5.0 && fabs(mu1dz) < 50.0 && fabs(mu1Chi2) < 4.0 && MuTagHitsTrkSys > 7 ); //&& MuTagHitsMuSys > 3 
-//    Bool_t goodTrack  = (fabs(mu1dxy) < 10.0 && fabs(mu1dz) < 100.0 && fabs(mu1Chi2) < 10.0 && MuTagHitsTrkSys >3 ); //&& MuTagHitsMuSys > 3 
-std::cout << "Good tag track, pt, eta " << goodTrack << " " << muIter1->pt() << ", " << muIter1->eta() << std::endl;  	
-std::cout << "Quality Variables" << mu1dxy << " " << mu1dz << " " << mu1Chi2 << " " << MuTagHitsTrkSys << std::endl;
-if(!goodTrack)continue;
+    Bool_t goodTrack  = (fabs(mu1dxy) < 2.0 && fabs(mu1dz) < 24.0 && fabs(mu1Chi2) < 4.0 && MuTagHitsTrkSys > 7 );
+    //&& MuTagHitsMuSys > 3 
+	//    Bool_t goodTrack  = (fabs(mu1dxy) < 5.0 && fabs(mu1dz) < 50.0 && fabs(mu1Chi2) < 4.0 && MuTagHitsTrkSys > 7 );
+	//&& MuTagHitsMuSys > 3 
+	    //    Bool_t goodTrack  = (fabs(mu1dxy) < 10.0 && fabs(mu1dz) < 100.0 && fabs(mu1Chi2) < 10.0 && MuTagHitsTrkSys >3 );
+	    //&& MuTagHitsMuSys > 3 
+		//std::cout << "Good tag track, pt, eta " << goodTrack << " " << muIter1->pt() << ", " << muIter1->eta() << std::endl;  	
+    //std::cout << "Quality Variables" << mu1dxy << " " << mu1dz << " " << mu1Chi2 << " " << MuTagHitsTrkSys << std::endl;
+    if(!goodTrack)continue;
 
 
     if (event_number_muon3 != event.id().event()){
@@ -1129,6 +1133,7 @@ if(!goodTrack)continue;
 
     /// check for HLT matching
     minDRHLTDiMu=100.; minDRHLTAllSingleMu=100.;
+    //std::cout << "HLTMuObjModuleNmaes size: " << HLTMuObjModuleNames->size() << std::endl;
     minDRHLTMu->assign(HLTMuObjModuleNames->size(),100.);
     Float_t PhiTemp1 = MuTagPhi<0?MuTagPhi + 2*M_PI:MuTagPhi;
     if ( m_GotTrgObj ){
@@ -1148,6 +1153,7 @@ if(!goodTrack)continue;
 	  if(l3phi < 0 )l3phi = l3phi + 2*M_PI;
 
 	  Float_t deltaR_TTHLT   = sqrt((l3eta - MuTagEta) * (l3eta - MuTagEta) + (l3phi - PhiTemp1) *(l3phi - PhiTemp1));
+	  //std::cout << "Found an HLT muon, deltaR: " << deltaR_TTHLT << std::endl; 
 	  if ( deltaR_TTHLT > 0.4 ) continue;
 	  if ( name == *HLTDiMuObjModuleName ) {
 	    if ( deltaR_TTHLT < minDRHLTDiMu ){
@@ -1156,14 +1162,24 @@ if(!goodTrack)continue;
 	  }
 	  UChar_t idx=0;
 	  for (vector<string>::const_iterator iter=HLTMuObjModuleNames->begin(); iter<HLTMuObjModuleNames->end();iter++,idx++ )
-	    if ( name == *iter ) {
-	      if ( deltaR_TTHLT < minDRHLTMu->at(idx) ){
-		minDRHLTMu->at(idx) = deltaR_TTHLT;
-	      }
-	      if ( deltaR_TTHLT < minDRHLTAllSingleMu ){
-		minDRHLTAllSingleMu = deltaR_TTHLT;
-	      }
-	      break;
+	    {
+	      // Can't easilty get HLT path anymore.  Just accept this, though we might want to check if name has Mu
+	      //std::cout << "Trying to put HLT muon deltaR in list: " << deltaR_TTHLT << std::endl;	      
+	      //std::cout << "name and *iter: " << name << " " << *iter << std::endl;
+	      //if ( name == *iter ) {
+
+	      //std::cout << "Trying to put HLT muon deltaR in list: " << deltaR_TTHLT << std::endl;	      
+		if ( deltaR_TTHLT < minDRHLTMu->at(idx) ){
+		  //std::cout << "Put HLT muon deltaR in list: " << deltaR_TTHLT << std::endl;	      
+
+		  minDRHLTMu->at(idx) = deltaR_TTHLT;
+		}
+		if ( deltaR_TTHLT < minDRHLTAllSingleMu ){
+		  //std::cout << "Put HLT muon deltaR in All muon list: " << deltaR_TTHLT << std::endl;	      
+		  minDRHLTAllSingleMu = deltaR_TTHLT;
+		}
+		break;
+		//}
 	    }
 	}//end of loop ki
       }//end of loop ia
@@ -1332,7 +1348,7 @@ if(!goodTrack)continue;
 
 //      goodTrack = ( fabs(itTrack->eta())< 2.4 && fabs(tracks_dz)< 50.0 &&
 //                    fabs(tracks_dxy)< 5.0 && tracks_chi2> 0.0 &&  tracks_chi2< 4.0 && MuProbenHitsTrkSys > 7 );
-	  std::cout << "Good probe track, pt, eta" << goodTrack << " " << itTrack->pt() << ", " << itTrack->eta() << std::endl; 
+	//std::cout << "Good probe track, pt, eta" << goodTrack << " " << itTrack->pt() << ", " << itTrack->eta() << std::endl; 
       if (!goodTrack) continue;
 
       
@@ -1400,7 +1416,7 @@ if(!goodTrack)continue;
 			  && tracks_ptError/tracks_pt < 0.1 && tracks_numberOfValidHits >= 5); // cuts removed from the SkimDPG.C file and put here...
 */
       if(!trQuality)continue;
-std::cout << "More quality " << trQuality << std::endl;
+      //std::cout << "More quality " << trQuality << std::endl;
       /*
       Bool_t trIso = (tracks_IsoR03Ratio<0.1);
       if(!trIso)continue;
@@ -1437,7 +1453,7 @@ std::cout << "More quality " << trQuality << std::endl;
       if ( m_saveJPsi and (invMass > 2.5 &&  invMass < 3.6) ) 
 	gotMass =  true; 
 
- std::cout << "mass and more quality " << invMass << std::endl; 
+      //std::cout << "mass and more quality " << invMass << std::endl; 
       if(!gotMass)continue;
  
       /*------------------------Start getting the Monte Carlo Truth--------------------------*/
@@ -2083,9 +2099,9 @@ void TPTrackMuonSys::beginRun(const edm::Run& r, const edm::EventSetup& iSet)
     const vector<string> & HLTNamesSet_=hltConfigProvider_.triggerNames();
     UInt_t idx=0;
     for ( vector<string>::const_iterator itertable=HLTNamesSet_.begin();itertable != HLTNamesSet_.end();itertable++,idx++ ) {
-#ifdef jz_debug
-      cout<<endl<<idx<<":"<<*itertable;
-#endif
+      //#ifdef jz_debug
+      //std::cout << " Idx and HLTNmae: " << idx << ": "<< *itertable;
+      //#endif
       Bool_t selected=false;
       for ( vector<string>::const_iterator iter=m_HLTMuTrgNames.begin();iter!=m_HLTMuTrgNames.end();iter++ ) {
 	if ( wildcmp(iter->c_str(),itertable->c_str()) ) {
@@ -2097,17 +2113,23 @@ void TPTrackMuonSys::beginRun(const edm::Run& r, const edm::EventSetup& iSet)
 	m_HLTMuTrgBit.push_back(idx);
 	HLTMuNames->push_back(*itertable);
 	HLTMuObjModuleNames->push_back( *(hltConfigProvider_.moduleLabels(idx).end()-2) );
-#ifdef jz_debug
-	cout<<", saved for singlemu";
-#endif
+	//The second to last module name no longer gets a good HLT module name
+	//#ifdef jz_debug
+        //std::cout << ", saved ";
+	//for (auto moduleLableIter = hltConfigProvider_.moduleLabels(idx).begin(); moduleLableIter != hltConfigProvider_.moduleLabels(idx).end(); moduleLableIter++)
+	//  {
+	//    std::cout << ", save? " << *(moduleLableIter) << " ";
+	//  }
+	//std::cout << std::endl;
+        //#endif
       }
       if ( m_HLTDiMuTrgBit<0 && wildcmp(m_HLTDiMuTrgName.c_str(),itertable->c_str()) ) {
 	m_HLTDiMuTrgBit=idx;
 	HLTDiMuName->assign(*itertable);
 	HLTDiMuObjModuleName->assign( *(hltConfigProvider_.moduleLabels(idx).end()-2) );
-#ifdef jz_debug
-	cout<<", saved for doublemu";
-#endif
+	//#ifdef jz_debug
+	//std::cout << ", saved for doublemu" << std::endl;
+	//#endif
       }
     }//end of iter HLT table
     RunInfo->Fill();
