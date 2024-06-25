@@ -25,7 +25,7 @@
 
 class CSCEffFast {
   public :
-    // Define dataset run ranges (firstRun should be the nearest multiple of 100 below the first run in the set)
+    // Define dataset run ranges
     typedef struct {
       Int_t firstRun;
       Int_t lastRun;
@@ -40,9 +40,9 @@ class CSCEffFast {
     static constexpr dataset d2023Dv1 = {369800, 370580, "2023Dv1"};
     static constexpr dataset d2023Dv2 = {370600, 370790, "2023Dv2"};
 
-    static constexpr dataset d2024all = {379300, 382300, "2024"};
-    static constexpr dataset d2024Bv1 = {378900, 379400, "2024Bv1"};// this data is pretty much all bad
-    static constexpr dataset d2024Cv1 = {379300, 380300, "2024Cv1"};
+    static constexpr dataset d2024all = {379380, 382300, "2024"};
+    //static constexpr dataset d2024Bv1 = {378900, 379400, "2024Bv1"};// this data is pretty much all bad
+    static constexpr dataset d2024Cv1 = {379380, 380300, "2024Cv1"};
     static constexpr dataset d2024Dv1 = {380200, 381000, "2024Dv1"};
     static constexpr dataset d2024Ev1 = {380900, 381400, "2024Ev1"};
     static constexpr dataset d2024Ev2 = {381300, 381600, "2024Ev2"};
@@ -721,6 +721,7 @@ CSCEffFast::CSCEffFast() : fChain(0)
   TChain *chain = new TChain("aodDump/Fraction");
 
   //std::cout << "Analyzing " << (newData? "2023 or 2024" : "2022") << " data." << std::endl;
+  //TODO: Smart labeling. For datasets 2023Cv1, v3, and v4 => name = 2023Cv1,3-4
   std::string name = "";
   std::cout << "Analyzing ";
   if (firstSet.firstRun == firstRun && lastSet.lastRun == lastRun){
@@ -980,15 +981,15 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
     if (firstRun <= d2024Fv1.firstRun && lastRun >= d2024Fv1.lastRun){
 
-     for (int fileNum=0; fileNum<23; fileNum++){//Muon0
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024F0_1_240621_1/240621_205625/0000/CSCeff_Muon_2024F_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024F0_1_240621_1/240621_205625/0000/CSCeff_Muon_2024F_1_%d.root",fileNum));
+     for (int fileNum=0; fileNum<320; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024F0_1_240621_2/240624_155124/0000/CSCeff_Muon_2024F_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024F0_1_240621_2/240624_155124/0000/CSCeff_Muon_2024F_1_%d.root",fileNum));
           numberFiles++;
         }
      }
-     for (int fileNum=0; fileNum<26; fileNum++){//Muon0
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024F1_1_240621_1/240621_205710/0000/CSCeff_Muon_2024F_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024F1_1_240621_1/240621_205710/0000/CSCeff_Muon_2024F_1_%d.root",fileNum));
+     for (int fileNum=0; fileNum<320; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024F1_1_240621_2/240624_155201/0000/CSCeff_Muon_2024F_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024F1_1_240621_2/240624_155201/0000/CSCeff_Muon_2024F_1_%d.root",fileNum));
           numberFiles++;
         }
      }

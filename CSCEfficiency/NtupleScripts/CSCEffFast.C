@@ -143,7 +143,7 @@ void CSCEffFast::Loop()
   // auto-generate equally-spaced run bins (100 runs each)
   const Int_t numRunBins = (lastRun-firstRun)/100 + 1;
   Double_t *runBins = new Double_t[(numRunBins+1)]{0};
-  for (int i=0; i<numRunBins+1; i++) runBins[i] = firstRun + i*100;
+  for (int i=0; i<numRunBins+1; i++) runBins[i] = (firstRun - (Int_t)firstRun%100) + i*100;
 #else
   // Run 3 2022 A-G
   runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
@@ -1875,7 +1875,7 @@ void CSCEffFast::Loop()
 
     // Use badRun to select run range
     //badRun = badRun||(run_number < 379728);
-    badRun = badRun||(run_number < 379380);
+    //badRun = badRun||(run_number < 379380);
     
     inZMass = (invMass>zMassMin)&&(invMass<zMassMax);
     inZMassLowSideBand = (invMass>zMassLowSideBandMin)&&(invMass<zMassLowSideBandMax);
