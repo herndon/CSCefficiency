@@ -1638,7 +1638,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           // Run-Dependent Chamber Analysis
           // NOTE: Average of 1D histogram is h->Integral()/h->GetNbinsX();
           // -> May want to eventually change runDepEffThreshold to ~10% below average of ring.
-          if (!runDepAnalysis) continue;
+          if (!runDepAnalysis || bDeadChamber) continue;
           const int badChamberRunRangesMax = 5;
           int badChamberRunRangesIndexSeg = 0, badChamberRunRangesIndexLCT = 0;
           Int_t badChamberRunRangesSeg[badChamberRunRangesMax][2] = {0}, badChamberRunRangesLCT[badChamberRunRangesMax][2] = {0};
