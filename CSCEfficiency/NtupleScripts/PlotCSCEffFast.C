@@ -28,7 +28,7 @@ using namespace std;
 
 const int NUM_BAD_RANGES=50;
 
-string Printout(const string& title, const string& info);
+string Printout(const string& title, const string& info, bool legend=false);
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
 
 void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
@@ -74,7 +74,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
   // Constants
   float deadDCFEBThreshold = 0.10; // Efficiency threshold for dead (D)CFEBs.
-  float effThreshold = 0.50; // Efficiency threshold for file readouts.
+  float effThreshold = 0.50; // Efficiency threshold for old file readouts.
   float maxRemovalThreshold = 0.20; // Efficiency threshold for maximal removal of low efficiency DCFEBs
   float runDepEffThreshold = 0.20; // Efficiency threshold for run-dependent chamber failures
   float DCFEBRanges[5][2] = { {-2.0,18.0}, {14.0,34.0}, {30.0,50.0}, {46.0,66.0},{62.0,82.0}};
@@ -1466,6 +1466,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssLowEffChambers;
     stringstream ssRunDepChamberSeg, ssRunDepChamberLCT;
     stringstream ssRunDepDCFEBSeg, ssRunDepDCFEBSegDead, ssRunDepDCFEBLCT, ssRunDepDCFEBLCTDead;
+    ssLowEffChambers << fixed << setprecision(2);
     ssDeadDCFEBsWithEff << fixed << setprecision(2);
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
@@ -1479,7 +1480,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
           stringstream ssAutoHeader;
           ssAutoHeader << fixed << setprecision(2);
-          int numMaxRemoval=0, numIneffDCFEBs=0;
+          int numMaxRemoval=0, numIneffDCFEBsSeg=0, numIneffDCFEBsLCT;
+          float lowEffChamberAvgSeg=0., lowEffChamberAvgLCT=0.;
 
           int rangeIndex = 0;
           string indexstr = "][";
@@ -1623,16 +1625,22 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
             // Low efficiency flag
             if (segEff > maxRemovalThreshold && segEff < 0.90){
-              numIneffDCFEBs++;
-              if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
-                if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << endl;
-              }
-              else if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " *" << endl;
+              numIneffDCFEBsSeg++;
+              lowEffChamberAvgSeg += segEff;
             }
-            else if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
-              numIneffDCFEBs++;
-              if (numIneffDCFEBs == totDCFEBs) ssLowEffChambers << GetMELabel(iiStation,iiRing, iiChamber) << " **" << endl;
+            if (LCTEff > maxRemovalThreshold && LCTEff < 0.90){
+              numIneffDCFEBsLCT++;
+              lowEffChamberAvgLCT += LCTEff;
             }
+
+            if (numIneffDCFEBsSeg == totDCFEBs){
+              ssLowEffChambers << GetMELabel(iiStation, iiRing, iiChamber) << ": ("
+                << (lowEffChamberAvgSeg/totDCFEBs)*100 << "%)";
+              if (numIneffDCFEBsLCT == totDCFEBs) ssLowEffChambers << " *";
+              ssLowEffChambers << endl;
+            }
+            else if (numIneffDCFEBsLCT == totDCFEBs)
+              ssLowEffChambers << GetMELabel(iiStation, iiRing, iiChamber) << ": (" << (lowEffChamberAvgLCT/totDCFEBs)*100 << "%) **" << endl;
           }
 
           // Run-Dependent Chamber Analysis
@@ -2098,33 +2106,31 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     if (ssRunDepDCFEBSegDead.str() != "") ssRunDepDCFEBSegDead.str(ssRunDepDCFEBSegDead.str().substr(1));
     if (ssRunDepDCFEBLCT.str() != "") ssRunDepDCFEBLCT.str(ssRunDepDCFEBLCT.str().substr(1));
     if (ssRunDepDCFEBLCTDead.str() != "") ssRunDepDCFEBLCTDead.str(ssRunDepDCFEBLCTDead.str().substr(1));
+    if (ssDeadChambers.str() != "") ssDeadChambers.str(ssDeadChambers.str().substr(0,ssDeadChambers.str().size()-1));
     //Print Low Efficiency Chambers to File
-    cscEffCheck << Printout("Low Efficiency Chambers", ssLowEffChambers.str()) << endl;
-    cscEffCheck << " * Segment Only" << endl << " ** LCT Only" << endl << endl;
+    cscEffCheck << Printout("Low Efficiency Chambers", ssLowEffChambers.str(), true);
     //Print Dead Chambers to File
-    cscEffCheck << Printout("Dead Chambers", ssDeadChambers.str()) << endl << endl;
-    cscEffCheckSimple << Printout("Dead Chambers", ssDeadChambers.str()) << endl << endl;
+    cscEffCheck << Printout("Dead Chambers", ssDeadChambers.str());
+    cscEffCheckSimple << Printout("Dead Chambers", ssDeadChambers.str());
     //Print Dead DCFEBs to File (without efficiency)
-    cscEffCheckSimple << Printout("Dead DCFEBs", ssDeadDCFEBs.str()) << endl;
-    cscEffCheckSimple << " * Segment Only" << endl << " ** LCT Only" << endl << endl;
+    cscEffCheckSimple << Printout("Dead DCFEBs", ssDeadDCFEBs.str(), true);
     //Print Dead DCFEBs to File (with efficiency)
-    cscEffCheck << Printout("Dead DCFEBs", ssDeadDCFEBsWithEff.str()) << endl;
-    cscEffCheck << " * Segment Only" << endl << " ** LCT Only" << endl << endl;
+    cscEffCheck << Printout("Dead DCFEBs", ssDeadDCFEBsWithEff.str(), true);
     if (runDepAnalysis){
       //Print run-dependent chamber failures (segment)
-      cscEffCheck << Printout("Run-Dependent Chamber Issues (Segment)", ssRunDepChamberSeg.str()) << endl << endl;
+      cscEffCheck << Printout("Run-Dependent Chamber Issues (Segment)", ssRunDepChamberSeg.str());
       //Print run-dependent chamber failures (LCT)
-      cscEffCheck << Printout("Run-Dependent Chamber Issues (LCT)", ssRunDepChamberLCT.str()) << endl << endl;
+      cscEffCheck << Printout("Run-Dependent Chamber Issues (LCT)", ssRunDepChamberLCT.str());
       //Print run-dependent DCFEB failures (segment)
-      cscEffCheck << Printout("Run-Dependent DCFEB Issues (Segment)", ssRunDepDCFEBSeg.str()) << endl << endl;
+      cscEffCheck << Printout("Run-Dependent DCFEB Issues (Segment)", ssRunDepDCFEBSeg.str());
       //Print run-dependent DCFEB failures (segment - simple)
-      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDead.str()) << endl << endl;
-      cscEffCheckSimple << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDead.str()) << endl << endl;
+      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDead.str());
+      cscEffCheckSimple << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDead.str());
       //Print run-dependent DCFEB failures (LCT)
-      cscEffCheck << Printout("Run-Dependent DCFEB Issues (LCT)", ssRunDepDCFEBLCT.str()) << endl << endl;
+      cscEffCheck << Printout("Run-Dependent DCFEB Issues (LCT)", ssRunDepDCFEBLCT.str());
       //Print run-dependent DCFEB failures (LCT - simple)
-      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDead.str()) << endl << endl;
-      cscEffCheckSimple << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDead.str()) << endl << endl;
+      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDead.str());
+      cscEffCheckSimple << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDead.str());
     }
     //Print auto-generated removal statements
     //cscEffCheck << endl;
@@ -2281,10 +2287,12 @@ string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   return result;
 }
 
-string Printout(const string& title, const string& info){
+string Printout(const string& title, const string& info, bool legend){
   if (info == "") return "";
   string result = title + "\n";
   for (int i=0; i<title.size(); i++) result += "-";
   result += "\n" + info;
+  if (legend) result += "\n *Segment Only\n ** LCT Only"; 
+  result += "\n\n\n";
   return result;
 }
