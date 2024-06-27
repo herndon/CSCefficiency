@@ -53,8 +53,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       ssLumi << fixed << setprecision(1) << tempLumi;
       lumi = ssLumi.str();
     }
-    if (dataset != "") dataInfo += ", " + dataset;
-    if (lumi != "") dataInfo += ", " + lumi + "fb^{-1}";
+    if (dataset == "" || lumi == "") dataInfo = "Run 3";
+    else dataInfo = dataset + " " + lumi + "fb^{-1}";
+    dataInfo += " (13.6 TeV)";
   }
 
   char file[100];
@@ -487,7 +488,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     segEffEtaStation1CRing0->SetTitle("     CSC Segment Efficiency vs #eta         Run 3 Data");
     segEffEtaStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.8,2.5);
+    segEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.8,2.5); //NOTE: Range Warning
     segEffEtaStation1CRing0->SetLineColor(kRed);
     segEffEtaStation1CRing0->SetMarkerColor(kRed);
     segEffEtaStation1CRing0->SetMarkerStyle(8);
@@ -528,7 +529,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     segEffEtaStation2CRing1->SetTitle("     CSC Segment Efficiency vs #eta         Run 3 Data");
     segEffEtaStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffEtaStation2CRing1->GetXaxis()->SetRangeUser(0.8,2.5);
+    segEffEtaStation2CRing1->GetXaxis()->SetRangeUser(0.8,2.5); //NOTE: Range Warning
     segEffEtaStation2CRing1->SetLineColor(kRed);
     segEffEtaStation2CRing1->SetMarkerColor(kRed);
     segEffEtaStation2CRing1->SetMarkerStyle(8);
@@ -780,15 +781,19 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     // Drawing 2D CSC Segment Efficiency
     TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
 
-    sprintf(title, "CSC Seg. Eff.     Run 3%s", dataInfo.c_str());
-    segEff2DStationRingChamber->SetTitle(title);
+    //sprintf(title, "CSC Seg. Eff.     Run 3%s", dataInfo.c_str());
+    segEff2DStationRingChamber->SetTitle("");
     segEff2DStationRingChamber->SetMarkerSize(0.75);
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     segEff2DStationRingChamber->Draw("COLZ TEXT");
-    TLatex text2(-3.0,20.8,"CMS Preliminary");
-    text2.SetTextSize(0.03);
-    text2.DrawClone();
+    TLatex textCMSSeg(0.5,20.7,"CMS Preliminary");
+    textCMSSeg.SetTextSize(0.03);
+    textCMSSeg.DrawClone();
+    TLatex textInfoSeg(36.5,20.7,dataInfo.c_str());
+    textInfoSeg.SetTextSize(0.03);
+    textInfoSeg.SetTextAlign(kHAlignRight+kVAlignBottom);
+    textInfoSeg.DrawClone();
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.pdf").c_str());
 
@@ -896,7 +901,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     LCTEffEtaStation1CRing0->SetTitle("     CSC LCT Efficiency vs #eta         Run 3 Data");
     LCTEffEtaStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.8,2.5);
+    LCTEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.8,2.5); //NOTE: Range Warning
     LCTEffEtaStation1CRing0->SetLineColor(kRed);
     LCTEffEtaStation1CRing0->SetMarkerColor(kRed);
     LCTEffEtaStation1CRing0->SetMarkerStyle(8);
@@ -937,7 +942,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     LCTEffEtaStation2CRing1->SetTitle("     CSC LCT Efficiency vs #eta         Run 3 Data");
     LCTEffEtaStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffEtaStation2CRing1->GetXaxis()->SetRangeUser(0.8,2.5);
+    LCTEffEtaStation2CRing1->GetXaxis()->SetRangeUser(0.8,2.5); //NOTE: Range Warning
     LCTEffEtaStation2CRing1->SetLineColor(kRed);
     LCTEffEtaStation2CRing1->SetMarkerColor(kRed);
     LCTEffEtaStation2CRing1->SetMarkerStyle(8);
@@ -1189,15 +1194,19 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     // Drawing 2D CSC LCT Efficiency
     TH2F * LCTEff2DStationRingChamber = (TH2F*)file0->Get("LCTEff2DStationRingChamber");
 
-    sprintf(title, "CSC LCT Eff.     Run 3%s", dataInfo.c_str());
-    LCTEff2DStationRingChamber->SetTitle(title);
+    //sprintf(title, "CSC LCT Eff.     Run 3%s", dataInfo.c_str());
+    LCTEff2DStationRingChamber->SetTitle("");
     LCTEff2DStationRingChamber->SetMarkerSize(0.75);
     LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     LCTEff2DStationRingChamber->Draw("COLZ TEXT");
-    TLatex text(-3.0,20.8,"CMS Preliminary");
-    text.SetTextSize(0.03);
-    text.DrawClone();
+    TLatex textCMSLCT(0.5,20.7,"CMS Preliminary");
+    textCMSLCT.SetTextSize(0.03);
+    textCMSLCT.DrawClone();
+    TLatex textInfoLCT(36.5,20.7,dataInfo.c_str());
+    textInfoLCT.SetTextSize(0.03);
+    textInfoLCT.SetTextAlign(kHAlignRight+kVAlignBottom);
+    textInfoLCT.DrawClone();
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.pdf").c_str());
 
