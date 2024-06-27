@@ -1469,6 +1469,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     stringstream ssRunDepDCFEBSeg, ssRunDepDCFEBSegDead, ssRunDepDCFEBSegDeadWithEff;
     stringstream ssRunDepDCFEBLCT, ssRunDepDCFEBLCTDead, ssRunDepDCFEBLCTDeadWithEff;
     ssLowEffChambers << fixed << setprecision(2);
+    ssRunDepChamberSeg << fixed << setprecision(2);
+    ssRunDepChamberLCT << fixed << setprecision(2);
     ssDeadDCFEBsWithEff << fixed << setprecision(2);
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
       for (Int_t iiRing=0; iiRing < 4; iiRing++){
@@ -1658,6 +1660,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           Int_t badChamberFirstRunSeg=0, badChamberLastRunSeg=0;
           bool bPrintedRunDepChamberLCT=false, bNewRunDepChamberRangeLCT=false;
           Int_t badChamberFirstRunLCT=0, badChamberLastRunLCT=0;
+
+          Float_t runDepChamberAvgSeg=0., runDepChamberAvgLCT=0.;
+          Int_t numBadRunBinsSeg=0, numBadRunBinsLCT=0;
           for (Int_t iiRunBin=1; iiRunBin<=numRunBins; iiRunBin++){
             //Int_t iiRun = firstRun + (iiRunBin-1)*(lastRun-firstRun)/numRunBins;
 
@@ -1672,8 +1677,10 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
               // Seg Analysis
               if (segEff < runDepEffThreshold && segEff != -1){
+                runDepChamberAvgSeg += segEff;
                 numDCFEBsSeg++;
                 if (numDCFEBsSeg == totDCFEBs){
+                  numBadRunBinsSeg++;
                   // Check if chamber name was printed and, if not, print it.
                   if (!bPrintedRunDepChamberSeg){
                     ssRunDepChamberSeg << endl << GetMELabel(iiStation, iiRing, iiChamber) << " ";
@@ -1707,7 +1714,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                   cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
 
                 // Save the run range for the chambers
-                ssRunDepChamberSeg << badChamberFirstRunSeg << "-" << badChamberLastRunSeg;
+                ssRunDepChamberSeg << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << " (" << (runDepChamberAvgSeg/numBadRunBinsSeg)*100 << "%)";
+                runDepChamberAvgSeg=0.;
+                numBadRunBinsSeg=0;
                 if (badChamberRunRangesIndexSeg < badChamberRunRangesMax){
                   badChamberRunRangesSeg[badChamberRunRangesIndexSeg][0] = badChamberFirstRunSeg;
                   badChamberRunRangesSeg[badChamberRunRangesIndexSeg++][1] = badChamberLastRunSeg;
@@ -1722,8 +1731,10 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
               // LCT Analysis
               if (LCTEff < runDepEffThreshold && LCTEff != -1){
+                runDepChamberAvgLCT += LCTEff;
                 numDCFEBsLCT++;
                 if (numDCFEBsLCT == totDCFEBs){
+                  numBadRunBinsLCT++;
                   // Check if chamber name was printed and, if not, print it.
                   if (!bPrintedRunDepChamberLCT){
                     ssRunDepChamberLCT << endl << GetMELabel(iiStation, iiRing, iiChamber) << " ";
@@ -1758,7 +1769,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                 */
 
                 // Save the run range for the chambers
-                ssRunDepChamberLCT << badChamberFirstRunLCT << "-" << badChamberLastRunLCT;
+                ssRunDepChamberLCT << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << " (" << (runDepChamberAvgLCT/numBadRunBinsLCT)*100 << "%)";
+                runDepChamberAvgLCT=0.;
+                numBadRunBinsLCT=0;
                 if (badChamberRunRangesIndexLCT < badChamberRunRangesMax){
                   badChamberRunRangesLCT[badChamberRunRangesIndexLCT][0] = badChamberFirstRunLCT;
                   badChamberRunRangesLCT[badChamberRunRangesIndexLCT++][1] = badChamberLastRunLCT;
@@ -1788,8 +1801,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
               cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
 
             // Save the run range for the chambers
-            if (badChamberFirstRunSeg == firstRun && badChamberLastRunSeg == lastRun) ssRunDepChamberSeg << "all runs";
-            else ssRunDepChamberSeg << badChamberFirstRunSeg << "-" << badChamberLastRunSeg;
+            if (badChamberFirstRunSeg == firstRun && badChamberLastRunSeg == lastRun)
+              ssRunDepChamberSeg << "all runs (" << (runDepChamberAvgSeg/numBadRunBinsSeg)*100 << "%)";
+            else ssRunDepChamberSeg << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << " (" << (runDepChamberAvgSeg/numBadRunBinsSeg)*100 << "%)";
             if (badChamberRunRangesIndexSeg < badChamberRunRangesMax){
               badChamberRunRangesSeg[badChamberRunRangesIndexSeg][0] = badChamberFirstRunSeg;
               badChamberRunRangesSeg[badChamberRunRangesIndexSeg++][1] = badChamberLastRunSeg;
@@ -1815,8 +1829,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
             */
 
             // Save the run range for the chambers
-            if (badChamberFirstRunLCT == firstRun && badChamberLastRunLCT == lastRun) ssRunDepChamberLCT << "all runs";
-            else ssRunDepChamberLCT << badChamberFirstRunLCT << "-" << badChamberLastRunLCT;
+            if (badChamberFirstRunLCT == firstRun && badChamberLastRunLCT == lastRun)
+              ssRunDepChamberLCT << "all runs (" << (runDepChamberAvgLCT/numBadRunBinsLCT)*100 << "%)";
+            else ssRunDepChamberLCT << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << " (" << (runDepChamberAvgLCT/numBadRunBinsLCT)*100 << "%)";
             if (badChamberRunRangesIndexLCT < badChamberRunRangesMax){
               badChamberRunRangesLCT[badChamberRunRangesIndexLCT][0] = badChamberFirstRunLCT;
               badChamberRunRangesLCT[badChamberRunRangesIndexLCT++][1] = badChamberLastRunLCT;
@@ -2145,7 +2160,6 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     //Print Dead DCFEBs to File (with efficiency)
     cscEffCheck << Printout("Dead DCFEBs", ssDeadDCFEBsWithEff.str(), true);
     if (runDepAnalysis){
-      //TODO: Add efficiencies for chamber failures below
       //Print run-dependent chamber failures (segment)
       cscEffCheck << Printout("Run-Dependent Chamber Issues (Segment)", ssRunDepChamberSeg.str());
       //Print run-dependent chamber failures (LCT)
