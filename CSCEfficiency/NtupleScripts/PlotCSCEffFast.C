@@ -1466,7 +1466,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     bool runDepAnalysis = ((TH2F*)file0->Get("segEff2DStation1Ring1DCFEB1ChamberRun") != NULL);
     stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssLowEffChambers;
     stringstream ssRunDepChamberSeg, ssRunDepChamberLCT;
-    stringstream ssRunDepDCFEBSeg, ssRunDepDCFEBSegDead, ssRunDepDCFEBLCT, ssRunDepDCFEBLCTDead;
+    stringstream ssRunDepDCFEBSeg, ssRunDepDCFEBSegDead, ssRunDepDCFEBSegDeadWithEff;
+    stringstream ssRunDepDCFEBLCT, ssRunDepDCFEBLCTDead, ssRunDepDCFEBLCTDeadWithEff;
     ssLowEffChambers << fixed << setprecision(2);
     ssDeadDCFEBsWithEff << fixed << setprecision(2);
     for (Int_t iiStation=0; iiStation < 8; iiStation++){
@@ -1839,8 +1840,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           Int_t numBadDCFEBBinsLCT, numBadDCFEBBinsLCTDead;
           Float_t sumDCFEBEffLCT;
 
-          string tempRunDepDCFEBSeg="", tempRunDepDCFEBSegDead="";
-          string tempRunDepDCFEBLCT="", tempRunDepDCFEBLCTDead="";
+          string tempRunDepDCFEBSeg="", tempRunDepDCFEBSegDead="", tempRunDepDCFEBSegDeadWithEff="";
+          string tempRunDepDCFEBLCT="", tempRunDepDCFEBLCTDead="", tempRunDepDCFEBLCTDeadWithEff="";
           stringstream ssTempAutoHeader;
           ssTempAutoHeader << fixed << setprecision(2);
           for (Int_t iiDCFEB=1; iiDCFEB<6; iiDCFEB++){
@@ -1879,12 +1880,14 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                   // Check if chamber/DCFEB name was printed and, if not, print it.
                   if (!bPrintedRunDepDCFEBSegDead){
                     tempRunDepDCFEBSegDead += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
+                    tempRunDepDCFEBSegDeadWithEff += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
                     badDCFEBFirstRunSegDead = iiRun;
                     bPrintedRunDepDCFEBSegDead = true;
                   }
                   // Check if there are multiple ranges being printed for a DCFEB
                   if (bNewRunDepDCFEBRangeSegDead){
                     tempRunDepDCFEBSegDead += ", ";
+                    tempRunDepDCFEBSegDeadWithEff += ", ";
                     badDCFEBFirstRunSegDead = iiRun;
                     bNewRunDepDCFEBRangeSegDead = false;
                   }
@@ -1897,7 +1900,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                     // Save the run range for the DCFEBs
                     stringstream ssAvg; ssAvg << fixed << setprecision(2) << (sumDCFEBEffSeg/numBadDCFEBBinsSegDead)*100;
                     tempRunDepDCFEBSegDead += to_string(badDCFEBFirstRunSegDead) + "-" + to_string(badDCFEBLastRunSegDead);
-                    tempRunDepDCFEBSegDead += " (" + ssAvg.str() + "%)";
+                    tempRunDepDCFEBSegDeadWithEff += to_string(badDCFEBFirstRunSegDead) + "-" + to_string(badDCFEBLastRunSegDead);
+                    tempRunDepDCFEBSegDeadWithEff += " (" + ssAvg.str() + "%)";
                     badDCFEBFirstRunSegDead = badDCFEBLastRunSegDead = 0;
                     bNewRunDepDCFEBRangeSegDead = true;
                   }
@@ -1957,12 +1961,14 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                   // Check if chamber/DCFEB name was printed and, if not, print it.
                   if (!bPrintedRunDepDCFEBLCTDead){
                     tempRunDepDCFEBLCTDead += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
+                    tempRunDepDCFEBLCTDeadWithEff += "\n" + GetMELabel(iiStation, iiRing, iiChamber) + " DCFEB " + to_string(iiDCFEB) + " ";
                     badDCFEBFirstRunLCTDead = iiRun;
                     bPrintedRunDepDCFEBLCTDead = true;
                   }
                   // Check if there are multiple ranges being printed for a DCFEB
                   if (bNewRunDepDCFEBRangeLCTDead){
                     tempRunDepDCFEBLCTDead += ", ";
+                    tempRunDepDCFEBLCTDeadWithEff += ", ";
                     badDCFEBFirstRunLCTDead = iiRun;
                     bNewRunDepDCFEBRangeLCTDead = false;
                   }
@@ -1975,7 +1981,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                     // Save the run range for the DCFEBs
                     stringstream ssAvg; ssAvg << fixed << setprecision(2) << (sumDCFEBEffLCT/numBadDCFEBBinsLCTDead)*100;
                     tempRunDepDCFEBLCTDead += to_string(badDCFEBFirstRunLCTDead) + "-" + to_string(badDCFEBLastRunLCTDead);
-                    tempRunDepDCFEBLCTDead += " (" + ssAvg.str() + "%)";
+                    tempRunDepDCFEBLCTDeadWithEff += to_string(badDCFEBFirstRunLCTDead) + "-" + to_string(badDCFEBLastRunLCTDead);
+                    tempRunDepDCFEBLCTDeadWithEff += " (" + ssAvg.str() + "%)";
                     badDCFEBFirstRunLCTDead = badDCFEBLastRunLCTDead = 0;
                     bNewRunDepDCFEBRangeLCTDead = true;
                   }
@@ -2058,11 +2065,15 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
             }
             if (badDCFEBLastRunSegDead != 0){
               // Save the run range for the DCFEBs
-              if (badDCFEBFirstRunSegDead == firstRun && badDCFEBLastRunSegDead == lastRun) tempRunDepDCFEBSegDead += "all runs";
+              if (badDCFEBFirstRunSegDead == firstRun && badDCFEBLastRunSegDead == lastRun){
+                tempRunDepDCFEBSegDead += "all runs";
+                tempRunDepDCFEBSegDeadWithEff += "all runs";
+              }
               else{
                 stringstream ssAvg; ssAvg << fixed << setprecision(2) << (sumDCFEBEffSeg/numBadDCFEBBinsSegDead)*100;
                 tempRunDepDCFEBSegDead += to_string(badDCFEBFirstRunSegDead) + "-" + to_string(badDCFEBLastRunSegDead);
-                tempRunDepDCFEBSegDead += " (" + ssAvg.str() + "%)";
+                tempRunDepDCFEBSegDeadWithEff += to_string(badDCFEBFirstRunSegDead) + "-" + to_string(badDCFEBLastRunSegDead);
+                tempRunDepDCFEBSegDeadWithEff += " (" + ssAvg.str() + "%)";
               }
               badDCFEBFirstRunSegDead = badDCFEBLastRunSegDead = 0;
             }
@@ -2099,19 +2110,25 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
             }
             if (badDCFEBLastRunLCTDead != 0){
               // Save the run range for the DCFEBs
-              if (badDCFEBFirstRunLCTDead == firstRun && badDCFEBLastRunLCTDead == lastRun) tempRunDepDCFEBLCTDead += "all runs";
+              if (badDCFEBFirstRunLCTDead == firstRun && badDCFEBLastRunLCTDead == lastRun){
+                tempRunDepDCFEBLCTDead += "all runs";
+                tempRunDepDCFEBLCTDeadWithEff += "all runs";
+              }
               else{
                 stringstream ssAvg; ssAvg << fixed << setprecision(2) << (sumDCFEBEffLCT/numBadDCFEBBinsLCTDead)*100;
                 tempRunDepDCFEBLCTDead += to_string(badDCFEBFirstRunLCTDead) + "-" + to_string(badDCFEBLastRunLCTDead);
-                tempRunDepDCFEBLCTDead += " (" + ssAvg.str() + "%)";
+                tempRunDepDCFEBLCTDeadWithEff += to_string(badDCFEBFirstRunLCTDead) + "-" + to_string(badDCFEBLastRunLCTDead);
+                tempRunDepDCFEBLCTDeadWithEff += " (" + ssAvg.str() + "%)";
               }
               badDCFEBFirstRunLCTDead = badDCFEBLastRunLCTDead = 0;
             }
           }
           ssRunDepDCFEBSeg << tempRunDepDCFEBSeg;
           ssRunDepDCFEBSegDead << tempRunDepDCFEBSegDead;
+          ssRunDepDCFEBSegDeadWithEff << tempRunDepDCFEBSegDeadWithEff;
           ssRunDepDCFEBLCT << tempRunDepDCFEBLCT;
           ssRunDepDCFEBLCTDead << tempRunDepDCFEBLCTDead;
+          ssRunDepDCFEBLCTDeadWithEff << tempRunDepDCFEBLCTDeadWithEff;
           ssAutoHeader << ssTempAutoHeader.str();
 
           sAutoHeaderChambers[iiStation][iiRing][iiChamber] += ssAutoHeader.str();
@@ -2128,6 +2145,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     //Print Dead DCFEBs to File (with efficiency)
     cscEffCheck << Printout("Dead DCFEBs", ssDeadDCFEBsWithEff.str(), true);
     if (runDepAnalysis){
+      //TODO: Add efficiencies for chamber failures below
       //Print run-dependent chamber failures (segment)
       cscEffCheck << Printout("Run-Dependent Chamber Issues (Segment)", ssRunDepChamberSeg.str());
       //Print run-dependent chamber failures (LCT)
@@ -2136,12 +2154,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       cscEffCheck << Printout("Run-Dependent DCFEB Issues (Segment)", ssRunDepDCFEBSeg.str());
       //Print run-dependent DCFEB failures (LCT)
       cscEffCheck << Printout("Run-Dependent DCFEB Issues (LCT)", ssRunDepDCFEBLCT.str());
-      //TODO: Remove efficiencies on simple output for run-dependent dead DCFEBs
       //Print run-dependent dead DCFEB failures (segment)
-      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDead.str());
+      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDeadWithEff.str());
       cscEffCheckSimple << Printout("Run-Dependent Dead DCFEBs (Segment)", ssRunDepDCFEBSegDead.str());
       //Print run-dependent dead DCFEB failures (LCT)
-      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDead.str());
+      cscEffCheck << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDeadWithEff.str());
       cscEffCheckSimple << Printout("Run-Dependent Dead DCFEBs (LCT)", ssRunDepDCFEBLCTDead.str());
     }
     //Print auto-generated removal statements
