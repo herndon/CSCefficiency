@@ -384,10 +384,10 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     }
 
     // Defining important text
-    TLatex textCMS(0.5,20.7,"CMS Preliminary");
+    TLatex textCMS(0.5,20.7,"#font[61]{CMS}#scale[0.76]{#font[52]{ Preliminary}}");
     textCMS.SetTextSize(0.03);
-    TLatex textInfo(36.5,20.7,dataInfo.c_str());
-    textInfo.SetTextSize(0.03);
+    TLatex textInfo(36.5,20.7,TString::Format("#font[42]{%s}", dataInfo.c_str()));
+    textInfo.SetTextSize(0.03 * 0.6/0.75);
     textInfo.SetTextAlign(kHAlignRight+kVAlignBottom);
 
 
