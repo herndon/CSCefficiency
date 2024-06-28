@@ -795,8 +795,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEff2DStationRingChamber->SetMarkerSize(0.75);
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
-    segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment Efficiency");
-    segEff2DStationRingChamber->GetZaxis()->RotateTitle();
+    segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment Efficiency ");
     segEff2DStationRingChamber->Draw("COLZ TEXT");
     textCMS.DrawClone();
     textInfo.DrawClone();
@@ -1207,8 +1206,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEff2DStationRingChamber->SetMarkerSize(0.75);
     LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
-    LCTEff2DStationRingChamber->GetZaxis()->SetTitle("CSC LCT Efficiency");
-    LCTEff2DStationRingChamber->GetZaxis()->RotateTitle();
+    LCTEff2DStationRingChamber->GetZaxis()->SetTitle("CSC LCT Efficiency ");
     LCTEff2DStationRingChamber->Draw("COLZ TEXT");
     textCMS.DrawClone();
     textInfo.DrawClone();
