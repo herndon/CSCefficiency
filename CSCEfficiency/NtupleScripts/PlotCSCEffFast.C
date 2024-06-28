@@ -159,6 +159,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
   // Begin Drawing
   TCanvas c1("c1","<Title>",0,0,1600,1200);
+  Float_t oldRightMargin = c1.GetRightMargin();
   gStyle->SetTitleX(0.2);
   gStyle->SetOptStat(1);
 
@@ -789,15 +790,19 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
 
     //sprintf(title, "CSC Seg. Eff.     Run 3%s", dataInfo.c_str());
+    c1.SetRightMargin(0.125);
     segEff2DStationRingChamber->SetTitle("");
     segEff2DStationRingChamber->SetMarkerSize(0.75);
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
+    segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment Efficiency");
+    segEff2DStationRingChamber->GetZaxis()->RotateTitle();
     segEff2DStationRingChamber->Draw("COLZ TEXT");
     textCMS.DrawClone();
     textInfo.DrawClone();
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.pdf").c_str());
+    c1.SetRightMargin(oldRightMargin);
 
 
 
@@ -1197,15 +1202,19 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     TH2F * LCTEff2DStationRingChamber = (TH2F*)file0->Get("LCTEff2DStationRingChamber");
 
     //sprintf(title, "CSC LCT Eff.     Run 3%s", dataInfo.c_str());
+    c1.SetRightMargin(0.125);
     LCTEff2DStationRingChamber->SetTitle("");
     LCTEff2DStationRingChamber->SetMarkerSize(0.75);
     LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
+    LCTEff2DStationRingChamber->GetZaxis()->SetTitle("CSC LCT Efficiency");
+    LCTEff2DStationRingChamber->GetZaxis()->RotateTitle();
     LCTEff2DStationRingChamber->Draw("COLZ TEXT");
     textCMS.DrawClone();
     textInfo.DrawClone();
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.pdf").c_str());
+    c1.SetRightMargin(oldRightMargin);
 
     // Drawing 2D CSC Efficiency Plots
     for (Int_t iiStation=0; iiStation<8; iiStation++){
