@@ -496,7 +496,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     segEffEtaStation1CRing0->SetTitle("     CSC Segment Efficiency vs #eta         Run 3 Data");
     segEffEtaStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.8,2.5); //NOTE: Range Warning
+    //segEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.8,2.5);
     segEffEtaStation1CRing0->SetLineColor(kRed);
     segEffEtaStation1CRing0->SetMarkerColor(kRed);
     segEffEtaStation1CRing0->SetMarkerStyle(8);
@@ -537,7 +537,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     segEffEtaStation2CRing1->SetTitle("     CSC Segment Efficiency vs #eta         Run 3 Data");
     segEffEtaStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffEtaStation2CRing1->GetXaxis()->SetRangeUser(0.8,2.5); //NOTE: Range Warning
+    //segEffEtaStation2CRing1->GetXaxis()->SetRangeUser(0.8,2.5);
     segEffEtaStation2CRing1->SetLineColor(kRed);
     segEffEtaStation2CRing1->SetMarkerColor(kRed);
     segEffEtaStation2CRing1->SetMarkerStyle(8);
@@ -907,7 +907,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     LCTEffEtaStation1CRing0->SetTitle("     CSC LCT Efficiency vs #eta         Run 3 Data");
     LCTEffEtaStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.8,2.5); //NOTE: Range Warning
+    //LCTEffEtaStation1CRing0->GetXaxis()->SetRangeUser(0.8,2.5);
     LCTEffEtaStation1CRing0->SetLineColor(kRed);
     LCTEffEtaStation1CRing0->SetMarkerColor(kRed);
     LCTEffEtaStation1CRing0->SetMarkerStyle(8);
@@ -948,7 +948,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     LCTEffEtaStation2CRing1->SetTitle("     CSC LCT Efficiency vs #eta         Run 3 Data");
     LCTEffEtaStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffEtaStation2CRing1->GetXaxis()->SetRangeUser(0.8,2.5); //NOTE: Range Warning
+    //LCTEffEtaStation2CRing1->GetXaxis()->SetRangeUser(0.8,2.5);
     LCTEffEtaStation2CRing1->SetLineColor(kRed);
     LCTEffEtaStation2CRing1->SetMarkerColor(kRed);
     LCTEffEtaStation2CRing1->SetMarkerStyle(8);
