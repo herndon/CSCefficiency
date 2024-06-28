@@ -28,8 +28,9 @@ using namespace std;
 
 const int NUM_BAD_RANGES=50;
 
-string Printout(const string& title, string info, bool legend=false);
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
+void DrawCMSLumi(string lumi, Double_t xoffset=0., Double_t yoffset=0.2);
+string Printout(const string& title, string info, bool legend=false);
 
 void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   // Initializing
@@ -382,13 +383,6 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       segmentsNoME21->Draw("SAME");
       c1.Print((plotdir + "segmentsWvsWoME21.png").c_str());
     }
-
-    // Defining important text
-    TLatex textCMS(0.5,20.7,"#font[61]{CMS}#scale[0.76]{#font[52]{ Preliminary}}");
-    textCMS.SetTextSize(0.03);
-    TLatex textInfo(36.5,20.7,TString::Format("#font[42]{%s}", dataInfo.c_str()));
-    textInfo.SetTextSize(0.03 * 0.6/0.75);
-    textInfo.SetTextAlign(kHAlignRight+kVAlignBottom);
 
 
     // Setting New Stat Block
@@ -797,8 +791,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment Efficiency ");
     segEff2DStationRingChamber->Draw("COLZ TEXT");
-    textCMS.DrawClone();
-    textInfo.DrawClone();
+    DrawCMSLumi(dataInfo);
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.pdf").c_str());
     c1.SetRightMargin(oldRightMargin);
@@ -1208,8 +1201,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     LCTEff2DStationRingChamber->GetZaxis()->SetTitle("CSC LCT Efficiency ");
     LCTEff2DStationRingChamber->Draw("COLZ TEXT");
-    textCMS.DrawClone();
-    textInfo.DrawClone();
+    DrawCMSLumi(dataInfo);
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.pdf").c_str());
     c1.SetRightMargin(oldRightMargin);
@@ -2215,6 +2207,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     }
 
     gStyle->SetOptStat(0);
+    c1.SetRightMargin(0.135);
     for (Int_t iiStation = 0; iiStation < 8; iiStation++){
       for (Int_t iiRing = 0; iiRing < 4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
@@ -2226,7 +2219,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
 
           sprintf(name, "segEff2DStation%dRing%dDCFEBChamberRunCompact%d", iiStation+1, iiRing, iiPage);
-          TH2F * hcompactSeg = new TH2F(name, title, 36, 0.5, 36.5, numBins*5, 0, numBins*5);
+          TH2F * hcompactSeg = new TH2F(name, "", 36, 0.5, 36.5, numBins*5, 0, numBins*5);
           for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){ 
             hcompactSeg->GetXaxis()->SetBinLabel(iiChamber, to_string(iiChamber).c_str());
             if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
@@ -2246,15 +2239,27 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           }
           hcompactSeg->SetMarkerSize(0.6);
           hcompactSeg->GetXaxis()->SetLabelSize(0.035);
-          hcompactSeg->GetYaxis()->SetLabelSize(0.028);
           hcompactSeg->GetXaxis()->SetTickLength(0.02);
+          hcompactSeg->GetXaxis()->SetTitle("Chamber");
+          hcompactSeg->GetXaxis()->SetTitleFont(42);
+          hcompactSeg->GetXaxis()->SetTitleSize(0.035);
           hcompactSeg->GetYaxis()->SetTickLength(0.01);
+          hcompactSeg->GetYaxis()->SetLabelSize(0.026);
+          hcompactSeg->GetYaxis()->SetTitle("Run + #DCFEB ");
+          hcompactSeg->GetYaxis()->SetTitleFont(42);
+          hcompactSeg->GetYaxis()->SetTitleSize(0.035);
+          hcompactSeg->GetYaxis()->SetTitleOffset(1.5);
           hcompactSeg->GetZaxis()->SetRangeUser(0,1.0);
+          hcompactSeg->GetZaxis()->SetTitle("Segment DCFEB Efficiency ");
+          hcompactSeg->GetZaxis()->SetTitleFont(42);
+          hcompactSeg->GetZaxis()->SetTitleSize(0.035);
+          hcompactSeg->GetZaxis()->SetTitleOffset(1.1);
           hcompactSeg->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
             TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
             line->Draw();
           }
+          DrawCMSLumi(dataInfo);
           c1.Print(file);
         }
         c1.Print(((string)file + "]").c_str());
@@ -2286,20 +2291,33 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           }
           hcompactLCT->SetMarkerSize(0.6);
           hcompactLCT->GetXaxis()->SetLabelSize(0.035);
-          hcompactLCT->GetYaxis()->SetLabelSize(0.028);
           hcompactLCT->GetXaxis()->SetTickLength(0.02);
+          hcompactLCT->GetXaxis()->SetTitle("Chamber");
+          hcompactLCT->GetXaxis()->SetTitleFont(42);
+          hcompactLCT->GetXaxis()->SetTitleSize(0.035);
           hcompactLCT->GetYaxis()->SetTickLength(0.01);
+          hcompactLCT->GetYaxis()->SetLabelSize(0.026);
+          hcompactLCT->GetYaxis()->SetTitle("Run + #DCFEB ");
+          hcompactLCT->GetYaxis()->SetTitleFont(42);
+          hcompactLCT->GetYaxis()->SetTitleSize(0.035);
+          hcompactLCT->GetYaxis()->SetTitleOffset(1.5);
           hcompactLCT->GetZaxis()->SetRangeUser(0,1.0);
+          hcompactLCT->GetZaxis()->SetTitle("LCT DCFEB Efficiency ");
+          hcompactLCT->GetZaxis()->SetTitleFont(42);
+          hcompactLCT->GetZaxis()->SetTitleSize(0.035);
+          hcompactLCT->GetZaxis()->SetTitleOffset(1.1);
           hcompactLCT->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
             TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
             line->Draw();
           }
+          DrawCMSLumi(dataInfo);
           c1.Print(file);
         }
         c1.Print(((string)file + "]").c_str());
       }
     }
+    c1.SetRightMargin(oldRightMargin);
   }
 
   c1.Close();
@@ -2341,6 +2359,19 @@ string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
     result += "/" + to_string(chamber);
 
   return result;
+}
+
+void DrawCMSLumi(string lumi, Double_t xoffset, Double_t yoffset){
+  gPad->Update();
+  TLatex textCMS(gPad->GetUxmin()+xoffset, gPad->GetUymax()+yoffset, 
+      "#font[61]{CMS}#scale[0.76]{#font[52]{ Preliminary}}");
+  textCMS.SetTextSize(0.03);
+  TLatex textInfo(gPad->GetUxmax()-xoffset, gPad->GetUymax()+yoffset, 
+      TString::Format("#font[42]{%s}", lumi.c_str()));
+  textInfo.SetTextSize(0.03 * 0.6/0.75);
+  textInfo.SetTextAlign(kHAlignRight+kVAlignBottom);
+  textCMS.DrawClone();
+  textInfo.DrawClone();
 }
 
 string Printout(const string& title, string info, bool legend){
