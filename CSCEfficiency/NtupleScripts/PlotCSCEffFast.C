@@ -382,6 +382,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       c1.Print((plotdir + "segmentsWvsWoME21.png").c_str());
     }
 
+    // Defining important text
+    TLatex textCMS(0.5,20.7,"CMS Preliminary");
+    textCMS.SetTextSize(0.03);
+    TLatex textInfo(36.5,20.7,dataInfo.c_str());
+    textInfo.SetTextSize(0.03);
+    textInfo.SetTextAlign(kHAlignRight+kVAlignBottom);
+
 
     // Setting New Stat Block
     gStyle->SetOptStat(0);  
@@ -787,13 +794,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     segEff2DStationRingChamber->Draw("COLZ TEXT");
-    TLatex textCMSSeg(0.5,20.7,"CMS Preliminary");
-    textCMSSeg.SetTextSize(0.03);
-    textCMSSeg.DrawClone();
-    TLatex textInfoSeg(36.5,20.7,dataInfo.c_str());
-    textInfoSeg.SetTextSize(0.03);
-    textInfoSeg.SetTextAlign(kHAlignRight+kVAlignBottom);
-    textInfoSeg.DrawClone();
+    textCMS.DrawClone();
+    textInfo.DrawClone();
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.pdf").c_str());
 
@@ -1200,13 +1202,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     LCTEff2DStationRingChamber->Draw("COLZ TEXT");
-    TLatex textCMSLCT(0.5,20.7,"CMS Preliminary");
-    textCMSLCT.SetTextSize(0.03);
-    textCMSLCT.DrawClone();
-    TLatex textInfoLCT(36.5,20.7,dataInfo.c_str());
-    textInfoLCT.SetTextSize(0.03);
-    textInfoLCT.SetTextAlign(kHAlignRight+kVAlignBottom);
-    textInfoLCT.DrawClone();
+    textCMS.DrawClone();
+    textInfo.DrawClone();
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.pdf").c_str());
 
