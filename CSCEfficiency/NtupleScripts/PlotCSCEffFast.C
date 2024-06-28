@@ -54,7 +54,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       lumi = ssLumi.str();
     }
     if (dataset == "" || lumi == "") dataInfo = "Run 3";
-    else dataInfo = dataset + " " + lumi + "fb^{-1}";
+    else dataInfo = dataset + " " + lumi + " fb^{-1}";
     dataInfo += " (13.6 TeV)";
   }
 
