@@ -29,7 +29,7 @@ using namespace std;
 const int NUM_BAD_RANGES=50;
 
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
-void DrawCMSLumi(string lumi, Double_t xoffset=0., Double_t yoffset=0.2);
+void DrawCMSLumi(string lumi, Double_t xscale=1., Double_t yscale=1.01);
 string Printout(const string& title, string info, bool legend=false);
 
 void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
@@ -1207,6 +1207,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     c1.SetRightMargin(oldRightMargin);
 
     // Drawing 2D CSC Efficiency Plots
+    c1.SetRightMargin(0.125);
     for (Int_t iiStation=0; iiStation<8; iiStation++){
       for (Int_t iiRing=0; iiRing<4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
@@ -1214,85 +1215,101 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
         // Drawing 2D CSC Segment Efficiency and Run
         sprintf(name, "segEff2DStation%dRing%dChamberRun", iiStation+1, iiRing);
-        sprintf(title, "CSC Segment Efficiency vs Chamber and Run %s", label);
+        //sprintf(title, "CSC Segment Efficiency vs Chamber and Run %s", label);
         sprintf(file, (plotdir + "Run/CSCSegEffRun3Data2DChamberRun%s.png").c_str(), label);
         TH2F * segEff2DStationRingChamberRun = (TH2F*)file0->Get(name);
-        segEff2DStationRingChamberRun->SetTitle(title);
+        segEff2DStationRingChamberRun->SetTitle("");
         segEff2DStationRingChamberRun->GetXaxis()->SetTitle("Chamber #");
         segEff2DStationRingChamberRun->GetYaxis()->SetTitle("Run ");
         segEff2DStationRingChamberRun->GetYaxis()->SetTitleOffset(1.45);
+        segEff2DStationRingChamberRun->GetYaxis()->SetNoExponent();
         segEff2DStationRingChamberRun->GetXaxis()->SetTickLength(0.015);
         segEff2DStationRingChamberRun->GetYaxis()->SetTickLength(0.015);
+        segEff2DStationRingChamberRun->GetYaxis()->SetLabelSize(0.026);
+        segEff2DStationRingChamberRun->GetZaxis()->SetTitle((GetMELabel(iiStation, iiRing) + " Segment Efficiency ").c_str());
         segEff2DStationRingChamberRun->GetZaxis()->SetRangeUser(0.0,1.0);
         segEff2DStationRingChamberRun->SetMarkerSize(0.75);
         segEff2DStationRingChamberRun->Draw("COLZ TEXT");
+        DrawCMSLumi(dataInfo, 1, 1.0001);
         c1.Print(file);
 
         // Drawing 2D CSC Segment Efficiency and Layer
+        c1.SetRightMargin(0.125);
         sprintf(name, "segEff2DStation%dRing%dChamberLayer", iiStation+1, iiRing);
-        sprintf(title, "CSC Segment Efficiency vs Chamber and Layer %s", label);
+        //sprintf(title, "CSC Segment Efficiency vs Chamber and Layer %s", label);
         sprintf(file, (plotdir + "Layer/CSCSegEffRun3Data2DChamberLayer%s.png").c_str(), label);
         TH2F * segEff2DStationRingChamberLayer = (TH2F*)file0->Get(name);
-        segEff2DStationRingChamberLayer->SetTitle(title);
+        segEff2DStationRingChamberLayer->SetTitle("");
         segEff2DStationRingChamberLayer->GetXaxis()->SetTitle("Chamber #");
         segEff2DStationRingChamberLayer->GetYaxis()->SetTitle("Layer ");
         segEff2DStationRingChamberLayer->GetYaxis()->SetTitleOffset(1.45);
         segEff2DStationRingChamberLayer->GetXaxis()->SetTickLength(0.015);
         segEff2DStationRingChamberLayer->GetYaxis()->SetTickLength(0.015);
+        segEff2DStationRingChamberLayer->GetZaxis()->SetTitle((GetMELabel(iiStation, iiRing) + " Segment Efficiency ").c_str());
         segEff2DStationRingChamberLayer->GetZaxis()->SetRangeUser(0.0,1.0);
         segEff2DStationRingChamberLayer->SetMarkerSize(0.75);
         segEff2DStationRingChamberLayer->Draw("COLZ TEXT");
+        DrawCMSLumi(dataInfo);
         c1.Print(file);
 
         // Drawing 2D CSC Segment Efficiency and DCFEB
         sprintf(name, "segEff2DStation%dRing%dChamberDCFEB", iiStation+1, iiRing);
-        sprintf(title, "CSC Segment Efficiency vs Chamber and DCFEB %s", label);
+        //sprintf(title, "CSC Segment Efficiency vs Chamber and DCFEB %s", label);
         sprintf(file, (plotdir + "DCFEB/CSCSegEffRun3Data2DChamberDCFEB%s.png").c_str(), GetMELabel(iiStation, iiRing).c_str());
         TH2F * segEff2DStationRingChamberDCFEB = (TH2F*)file0->Get(name);
-        segEff2DStationRingChamberDCFEB->SetTitle(title);
+        segEff2DStationRingChamberDCFEB->SetTitle("");
         segEff2DStationRingChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
         segEff2DStationRingChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
         segEff2DStationRingChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
         segEff2DStationRingChamberDCFEB->GetXaxis()->SetTickLength(0.015);
         segEff2DStationRingChamberDCFEB->GetYaxis()->SetTickLength(0.015);
+        segEff2DStationRingChamberDCFEB->GetZaxis()->SetTitle((GetMELabel(iiStation, iiRing) + " Segment Efficiency ").c_str());
         segEff2DStationRingChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
         segEff2DStationRingChamberDCFEB->SetMarkerSize(0.75);
         segEff2DStationRingChamberDCFEB->Draw("COLZ TEXT");
+        DrawCMSLumi(dataInfo);
         c1.Print(file);
 
         // Drawing 2D CSC LCT Efficiency and Run
         sprintf(name, "LCTEff2DStation%dRing%dChamberRun", iiStation+1, iiRing);
-        sprintf(title, "CSC LCT Efficiency vs Chamber and Run %s", label);
+        //sprintf(title, "CSC LCT Efficiency vs Chamber and Run %s", label);
         sprintf(file, (plotdir + "Run/CSCLCTEffRun3Data2DChamberRun%s.png").c_str(), label);
         TH2F * LCTEff2DStationRingChamberRun = (TH2F*)file0->Get(name);
-        LCTEff2DStationRingChamberRun->SetTitle(title);
+        LCTEff2DStationRingChamberRun->SetTitle("");
         LCTEff2DStationRingChamberRun->GetXaxis()->SetTitle("Chamber #");
         LCTEff2DStationRingChamberRun->GetYaxis()->SetTitle("Run ");
         LCTEff2DStationRingChamberRun->GetYaxis()->SetTitleOffset(1.45);
+        LCTEff2DStationRingChamberRun->GetYaxis()->SetNoExponent();
         LCTEff2DStationRingChamberRun->GetXaxis()->SetTickLength(0.015);
         LCTEff2DStationRingChamberRun->GetYaxis()->SetTickLength(0.015);
+        LCTEff2DStationRingChamberRun->GetYaxis()->SetLabelSize(0.026);
+        LCTEff2DStationRingChamberRun->GetZaxis()->SetTitle((GetMELabel(iiStation, iiRing) + " LCT Efficiency ").c_str());
         LCTEff2DStationRingChamberRun->GetZaxis()->SetRangeUser(0.0,1.0);
         LCTEff2DStationRingChamberRun->SetMarkerSize(0.75);
         LCTEff2DStationRingChamberRun->Draw("COLZ TEXT");
+        DrawCMSLumi(dataInfo, 1, 1.0001);
         c1.Print(file);
 
         // Drawing 2D CSC LCT Efficiency and DCFEB
         sprintf(name, "LCTEff2DStation%dRing%dChamberDCFEB", iiStation+1, iiRing);
-        sprintf(title, "CSC LCT Efficiency vs Chamber and DCFEB %s", label);
+        //sprintf(title, "CSC LCT Efficiency vs Chamber and DCFEB %s", label);
         sprintf(file, (plotdir + "DCFEB/CSCLCTEffRun3Data2DChamberDCFEB%s.png").c_str(), GetMELabel(iiStation, iiRing).c_str());
         TH2F * LCTEff2DStationRingChamberDCFEB = (TH2F*)file0->Get(name);
-        LCTEff2DStationRingChamberDCFEB->SetTitle(title);
+        LCTEff2DStationRingChamberDCFEB->SetTitle("");
         LCTEff2DStationRingChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
         LCTEff2DStationRingChamberDCFEB->GetYaxis()->SetTitle("DCFEB ");
         LCTEff2DStationRingChamberDCFEB->GetYaxis()->SetTitleOffset(1.45);
         LCTEff2DStationRingChamberDCFEB->GetXaxis()->SetTickLength(0.015);
         LCTEff2DStationRingChamberDCFEB->GetYaxis()->SetTickLength(0.015);
         LCTEff2DStationRingChamberDCFEB->GetZaxis()->SetRangeUser(0.0,1.0);
+        LCTEff2DStationRingChamberDCFEB->GetZaxis()->SetTitle((GetMELabel(iiStation, iiRing) + " LCT Efficiency ").c_str());
         LCTEff2DStationRingChamberDCFEB->SetMarkerSize(0.75);
         LCTEff2DStationRingChamberDCFEB->Draw("COLZ TEXT");
+        DrawCMSLumi(dataInfo);
         c1.Print(file);
       }
     }
+    c1.SetRightMargin(oldRightMargin);
   }
 
 
@@ -2240,7 +2257,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactSeg->SetMarkerSize(0.6);
           hcompactSeg->GetXaxis()->SetLabelSize(0.035);
           hcompactSeg->GetXaxis()->SetTickLength(0.02);
-          hcompactSeg->GetXaxis()->SetTitle("Chamber");
+          hcompactSeg->GetXaxis()->SetTitle("Chamber #");
           hcompactSeg->GetXaxis()->SetTitleFont(42);
           hcompactSeg->GetXaxis()->SetTitleSize(0.035);
           hcompactSeg->GetYaxis()->SetTickLength(0.01);
@@ -2292,7 +2309,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactLCT->SetMarkerSize(0.6);
           hcompactLCT->GetXaxis()->SetLabelSize(0.035);
           hcompactLCT->GetXaxis()->SetTickLength(0.02);
-          hcompactLCT->GetXaxis()->SetTitle("Chamber");
+          hcompactLCT->GetXaxis()->SetTitle("Chamber #");
           hcompactLCT->GetXaxis()->SetTitleFont(42);
           hcompactLCT->GetXaxis()->SetTitleSize(0.035);
           hcompactLCT->GetYaxis()->SetTickLength(0.01);
@@ -2361,12 +2378,12 @@ string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   return result;
 }
 
-void DrawCMSLumi(string lumi, Double_t xoffset, Double_t yoffset){
+void DrawCMSLumi(string lumi, Double_t xscale, Double_t yscale){
   gPad->Update();
-  TLatex textCMS(gPad->GetUxmin()+xoffset, gPad->GetUymax()+yoffset, 
+  TLatex textCMS(gPad->GetUxmin()*xscale, gPad->GetUymax()*yscale, 
       "#font[61]{CMS}#scale[0.76]{#font[52]{ Preliminary}}");
   textCMS.SetTextSize(0.03);
-  TLatex textInfo(gPad->GetUxmax()-xoffset, gPad->GetUymax()+yoffset, 
+  TLatex textInfo(gPad->GetUxmax()*(2-xscale), gPad->GetUymax()*yscale, 
       TString::Format("#font[42]{%s}", lumi.c_str()));
   textInfo.SetTextSize(0.03 * 0.6/0.75);
   textInfo.SetTextAlign(kHAlignRight+kVAlignBottom);
