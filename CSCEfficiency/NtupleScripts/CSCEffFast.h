@@ -721,12 +721,16 @@ CSCEffFast::CSCEffFast() : fChain(0)
   TChain *chain = new TChain("aodDump/Fraction");
 
   //std::cout << "Analyzing " << (newData? "2023 or 2024" : "2022") << " data." << std::endl;
-  //TODO: Smart labeling. For datasets 2023Cv1, v3, and v4 => name = 2023Cv1,3-4
   std::string name = "";
   std::cout << "Analyzing ";
   if (firstSet.firstRun == firstRun && lastSet.lastRun == lastRun){
-    if (strcmp(firstSet.id, lastSet.id) == 0) name += firstSet.id;
-    else name += (std::string)firstSet.id + "-" + lastSet.id;
+    TString first(firstSet.id), last(lastSet.id), period = first(0,first.First('v'));
+    char v1 = first[first.Length()-1], v2 = last[last.Length()-1];
+    if (last.BeginsWith(period)){
+      if (v1==v2) name = first;
+      else name = period + "v" + v1 + "-" + v2;
+    }
+    else name = first + "-" + last;
     std::cout << name << " data." << std::endl;
   }
   else std::cout << "runs " << firstRun << "-" << lastRun << "." << std::endl;

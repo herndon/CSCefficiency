@@ -7,4 +7,4 @@ analyze: CSCEffFast.C CSCEffFast.h; ${CC} -o $@ $<
 plot: PlotCSCEffFast.C; ${CC} -o $@ $<
 
 clean:
-	rm analyze plot
+	rm -f analyze plot
