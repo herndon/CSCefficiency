@@ -29,7 +29,7 @@ using namespace std;
 const int NUM_BAD_RANGES=50;
 
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
-void DrawCMSLumi(string lumi, Double_t xscale=1., Double_t yscale=1.01);
+void DrawCMSLumi(string lumi);
 string Printout(const string& title, string info, bool legend=false);
 
 void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
@@ -418,7 +418,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPTStation1CRing3->SetMarkerStyle(8);
     segEffPTStation1CRing3->SetMarkerSize(0.75);
     segEffPTStation1CRing3->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendSegPT = new TLegend(0.88,0.7,0.98,0.9);
     legendSegPT->AddEntry(segEffPTStation1CRing0,"ME11a");
@@ -474,7 +474,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPTStation4CRing2->SetMarkerStyle(8);
     segEffPTStation4CRing2->SetMarkerSize(0.75);
     segEffPTStation4CRing2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendSegPT2 = new TLegend(0.88,0.7,0.98,0.9);
     legendSegPT2->AddEntry(segEffPTStation2CRing1,"ME21");
@@ -518,7 +518,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffEtaStation1CRing3->SetMarkerStyle(8);
     segEffEtaStation1CRing3->SetMarkerSize(0.75);
     segEffEtaStation1CRing3->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendSegEta = new TLegend(0.88,0.7,0.98,0.9);
     legendSegEta->AddEntry(segEffEtaStation1CRing0,"ME11a");
@@ -574,7 +574,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffEtaStation4CRing2->SetMarkerStyle(8);
     segEffEtaStation4CRing2->SetMarkerSize(0.75);
     segEffEtaStation4CRing2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendSegEta2 = new TLegend(0.88,0.7,0.98,0.9);
     legendSegEta2->AddEntry(segEffEtaStation2CRing1,"ME21");
@@ -618,7 +618,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation1CRing3->SetMarkerStyle(8);
     segEffPVStation1CRing3->SetMarkerSize(0.75);
     segEffPVStation1CRing3->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendSegPV = new TLegend(0.88,0.7,0.98,0.9);
     legendSegPV->AddEntry(segEffPVStation1CRing0,"ME11a");
@@ -674,7 +674,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation4CRing2->SetMarkerStyle(8);
     segEffPVStation4CRing2->SetMarkerSize(0.75);
     segEffPVStation4CRing2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendSegPV2 = new TLegend(0.88,0.7,0.98,0.9);
     legendSegPV2->AddEntry(segEffPVStation2CRing1,"ME21");
@@ -733,7 +733,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation4Ring2->SetMarkerStyle(8);
     segEffPVStation4Ring2->SetMarkerSize(0.75);
     segEffPVStation4Ring2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendSegPV3 = new TLegend(0.88,0.7,0.98,0.9);
     legendSegPV3->AddEntry(segEffPVStation2Ring1,"ME-21");
@@ -792,7 +792,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation8Ring2->SetMarkerStyle(8);
     segEffPVStation8Ring2->SetMarkerSize(0.75);
     segEffPVStation8Ring2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendSegPV4 = new TLegend(0.88,0.7,0.98,0.9);
     legendSegPV4->AddEntry(segEffPVStation6Ring1,"ME+21");
@@ -852,7 +852,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPTStation1CRing3->SetMarkerStyle(8);
     LCTEffPTStation1CRing3->SetMarkerSize(0.75);
     LCTEffPTStation1CRing3->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendLCTPT = new TLegend(0.88,0.7,0.98,0.9);
     legendLCTPT->AddEntry(LCTEffPTStation1CRing0,"ME11a");
@@ -908,7 +908,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPTStation4CRing2->SetMarkerStyle(8);
     LCTEffPTStation4CRing2->SetMarkerSize(0.75);
     LCTEffPTStation4CRing2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendLCTPT2 = new TLegend(0.88,0.7,0.98,0.9);
     legendLCTPT2->AddEntry(LCTEffPTStation2CRing1,"ME21");
@@ -952,7 +952,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffEtaStation1CRing3->SetMarkerStyle(8);
     LCTEffEtaStation1CRing3->SetMarkerSize(0.75);
     LCTEffEtaStation1CRing3->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendLCTEta = new TLegend(0.88,0.7,0.98,0.9);
     legendLCTEta->AddEntry(LCTEffEtaStation1CRing0,"ME11a");
@@ -1008,7 +1008,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffEtaStation4CRing2->SetMarkerStyle(8);
     LCTEffEtaStation4CRing2->SetMarkerSize(0.75);
     LCTEffEtaStation4CRing2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendLCTEta2 = new TLegend(0.88,0.7,0.98,0.9);
     legendLCTEta2->AddEntry(LCTEffEtaStation2CRing1,"ME21");
@@ -1052,7 +1052,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation1CRing3->SetMarkerStyle(8);
     LCTEffPVStation1CRing3->SetMarkerSize(0.75);
     LCTEffPVStation1CRing3->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendLCTPV = new TLegend(0.88,0.7,0.98,0.9);
     legendLCTPV->AddEntry(LCTEffPVStation1CRing0,"ME11a");
@@ -1108,7 +1108,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation4CRing2->SetMarkerStyle(8);
     LCTEffPVStation4CRing2->SetMarkerSize(0.75);
     LCTEffPVStation4CRing2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendLCTPV2 = new TLegend(0.88,0.7,0.98,0.9);
     legendLCTPV2->AddEntry(LCTEffPVStation2CRing1,"ME21");
@@ -1167,7 +1167,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation4Ring2->SetMarkerStyle(8);
     LCTEffPVStation4Ring2->SetMarkerSize(0.75);
     LCTEffPVStation4Ring2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendLCTPV3 = new TLegend(0.88,0.7,0.98,0.9);
     legendLCTPV3->AddEntry(LCTEffPVStation2Ring1,"ME-21");
@@ -1226,7 +1226,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation8Ring2->SetMarkerStyle(8);
     LCTEffPVStation8Ring2->SetMarkerSize(0.75);
     LCTEffPVStation8Ring2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo, 1, 1.001);
+    DrawCMSLumi(dataInfo);
 
     TLegend *legendLCTPV4 = new TLegend(0.88,0.7,0.98,0.9);
     legendLCTPV4->AddEntry(LCTEffPVStation6Ring1,"ME+21");
@@ -1278,7 +1278,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
         segEff2DStationRingChamberRun->GetZaxis()->SetRangeUser(0.0,1.0);
         segEff2DStationRingChamberRun->SetMarkerSize(0.75);
         segEff2DStationRingChamberRun->Draw("COLZ TEXT");
-        DrawCMSLumi(dataInfo, 1, 1.0001);
+        DrawCMSLumi(dataInfo);
         c1.Print(file);
 
         // Drawing 2D CSC Segment Efficiency and Layer
@@ -1334,7 +1334,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
         LCTEff2DStationRingChamberRun->GetZaxis()->SetRangeUser(0.0,1.0);
         LCTEff2DStationRingChamberRun->SetMarkerSize(0.75);
         LCTEff2DStationRingChamberRun->Draw("COLZ TEXT");
-        DrawCMSLumi(dataInfo, 1, 1.0001);
+        DrawCMSLumi(dataInfo);
         c1.Print(file);
 
         // Drawing 2D CSC LCT Efficiency and DCFEB
@@ -2385,6 +2385,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   }
 
   c1.Close();
+  file0->Close();
 }
 
 #ifndef __CLING__
@@ -2425,12 +2426,13 @@ string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   return result;
 }
 
-void DrawCMSLumi(string lumi, Double_t xscale, Double_t yscale){
+void DrawCMSLumi(string lumi){
   gPad->Update();
-  TLatex textCMS(gPad->GetUxmin()*xscale, gPad->GetUymax()*yscale, 
+  Double_t ycoord = (gPad->GetUymax()-gPad->GetUymin())/100 + gPad->GetUymax();
+  TLatex textCMS(gPad->GetUxmin(), ycoord,
       "#font[61]{CMS}#scale[0.76]{#font[52]{ Preliminary}}");
   textCMS.SetTextSize(0.03);
-  TLatex textInfo(gPad->GetUxmax()*(2-xscale), gPad->GetUymax()*yscale, 
+  TLatex textInfo(gPad->GetUxmax(), ycoord,
       TString::Format("#font[42]{%s}", lumi.c_str()));
   textInfo.SetTextSize(0.03 * 0.6/0.75);
   textInfo.SetTextAlign(kHAlignRight+kVAlignBottom);
