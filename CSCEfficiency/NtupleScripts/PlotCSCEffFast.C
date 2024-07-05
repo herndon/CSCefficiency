@@ -185,6 +185,25 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     zMassAll->Draw();
     c1.Print((plotdir + "zMassRun3.png").c_str());
 
+    // Efficiency vs. CSCs
+    TH1F * segEffCSCs = (TH1F*)file0->Get("segEffCSCs");
+    segEffCSCs->GetXaxis()->SetRangeUser(70.0, 100.0);
+    segEffCSCs->GetXaxis()->SetTitle("CSC Trigger Primitive Efficiency (%)");
+    segEffCSCs->GetYaxis()->SetTitle("Number of CSCs ");
+    segEffCSCs->SetMaximum(segEffCSCs->GetMaximum() * 1.2);
+    segEffCSCs->Draw("hist");
+    //DrawCMSLumi(dataInfo);
+    c1.Print((plotdir + "segEffCSCs.png").c_str());
+    
+    TH1F * LCTEffCSCs = (TH1F*)file0->Get("LCTEffCSCs");
+    LCTEffCSCs->GetXaxis()->SetRangeUser(70.0, 100.0);
+    LCTEffCSCs->GetXaxis()->SetTitle("CSC Trigger Primitive Efficiency (%)");
+    LCTEffCSCs->GetYaxis()->SetTitle("Number of CSCs ");
+    LCTEffCSCs->SetMaximum(LCTEffCSCs->GetMaximum() * 1.2);
+    LCTEffCSCs->Draw("hist");
+    //DrawCMSLumi(dataInfo);
+    c1.Print((plotdir + "LCTEffCSCs.png").c_str());
+
 
 
     if (segmentAnalysis){

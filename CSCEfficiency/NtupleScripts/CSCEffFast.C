@@ -758,6 +758,8 @@ void CSCEffFast::Loop()
   TH1F *segmentsFid1HighpT  = new TH1F("segmentsFid1HighpT", "Number of CSC Segments Fiducial ring 1 High pT", 6, -0.5, 5.5);
   TH1F *segmentsFid2HighpT  = new TH1F("segmentsFid2HighpT", "Number of CSC Segments fiducial ring 2 High pT", 6, -0.5, 5.5);
 
+  TH1F * segEffCSCs = new TH1F("segEffCSCs", "Number of CSCs vs. Segment Efficiency", 160,70,150);
+  TH1F * LCTEffCSCs = new TH1F("LCTEffCSCs", "Number of CSCs vs. LCT Efficiency", 160,70,150);
 
 
 
@@ -3424,6 +3426,13 @@ void CSCEffFast::Loop()
 
         // LCTEffStationRingChamber[iiStation][iiRing]->SetBinContent(iiChamber,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
         // LCTEffStationRingChamber[iiStation][iiRing]->SetBinError(iiChamber,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
+
+        bool cond1 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3));
+        bool cond2 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>17);
+        if (cond1 && cond2 && iiChamber != 36){
+          segEffCSCs->Fill(effStationRingChamberSeg[iiStation][iiRing][iiChamber]*100); 
+          LCTEffCSCs->Fill(effStationRingChamberLCT[iiStation][iiRing][iiChamber]*100); 
+        }
 
 
         if (effStationRingChamberSeg[iiStation][iiRing][iiChamber] > 1.1 || fabs(effStationRingChamberSeg[iiStation][iiRing][iiChamber] - 1.0 )  < 0.001 ) {
