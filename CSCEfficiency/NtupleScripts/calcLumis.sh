@@ -20,6 +20,7 @@ if [[ ! -f $infile ]]; then
   exit 2
 fi
 
+echo Determining run range...
 runs=$(
 root -l -b << EOF
 TFile *infile = TFile::Open("$infile");
@@ -33,12 +34,12 @@ TFile *infile = TFile::Open("$infile");
     else {
       cout << "0 0" << endl;
     }
+    infile->Close();
   }
   else{
     cout << "0 0" << endl;
   }
 }
-infile->Close();
 .q
 EOF
 )
@@ -49,6 +50,7 @@ if [[ $begin -eq 0 && $end -eq 0 ]]; then
   echo "$begin-$end"
   exit 3
 fi
+echo Calculating luminosity...
 brilcalc lumi -c web --begin $begin --end $end -u /fb -o lumi.csv
 if [[ ! -f lumi.csv ]]; then
   echo error calculating lumi
@@ -71,12 +73,16 @@ TFile *infile = TFile::Open("$infile", "update");
       lumi->SetTitle("$lumi");
     }
     lumi->Write();
+    TNamed *setName = (TNamed*)infile->Get("setName");
+    if (setName != nullptr){
+      cout << setName->GetTitle() << ": ";
+    }
     cout << "Lumi updated to $lumi /fb" << endl;
+    infile->Close();
   }
   else {
     cout << "File not found." << endl;
   }
 }
-infile->Close();
 .q
 EOF
