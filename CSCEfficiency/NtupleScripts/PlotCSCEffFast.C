@@ -396,22 +396,24 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffCSCs->GetYaxis()->SetTitle("Number of CSCs ");
     segEffCSCs->Draw("hist");
     DrawCMSLumi(dataInfo);
-    TLatex textStatsSeg;
-    textStatsSeg.SetTextSize(0.03);
-    textStatsSeg.SetTextAlign(kHAlignLeft+kVAlignBottom);
-    textStatsSeg.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.1, "Entries:");
-    textStatsSeg.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.15, "Mean:");
-    textStatsSeg.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.2, "RMS:");
-    textStatsSeg.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.25, "Underflow:");
-    textStatsSeg.SetTextAlign(kHAlignRight+kVAlignBottom);
-    textStatsSeg.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.1,
-        TString::Format("%.0f", segEffCSCs->GetEntries()));
-    textStatsSeg.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.15,
-        TString::Format("%.1f", segEffCSCs->GetMean()));
-    textStatsSeg.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.2,
-        TString::Format("%.1f", segEffCSCs->GetRMS()));
-    textStatsSeg.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.25,
-        TString::Format("%.1f", segEffCSCs->GetBinContent(0)));
+    {
+      TLatex textStats;
+      textStats.SetTextSize(0.03);
+      textStats.SetTextAlign(kHAlignLeft+kVAlignBottom);
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.1, "Entries:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.15, "Mean:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.2, "RMS:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.25, "Underflow:");
+      textStats.SetTextAlign(kHAlignRight+kVAlignBottom);
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.1,
+          TString::Format("%.0f", segEffCSCs->GetEntries()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.15,
+          TString::Format("%.1f", segEffCSCs->GetMean()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.2,
+          TString::Format("%.1f", segEffCSCs->GetRMS()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.25,
+          TString::Format("%.0f", segEffCSCs->GetBinContent(0)));
+    }
     c1.Print((plotdir + "segEffCSCs.png").c_str());
     
     TH1F * LCTEffCSCs = (TH1F*)file0->Get("LCTEffCSCs");
@@ -419,26 +421,82 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffCSCs->GetXaxis()->SetRangeUser(70.0, 100.0);
     LCTEffCSCs->GetXaxis()->SetTitle("CSC Trigger Primitive LCT Efficiency (%)");
     LCTEffCSCs->GetYaxis()->SetTitle("Number of CSCs ");
-    LCTEffCSCs->SetMaximum(LCTEffCSCs->GetMaximum() * 1.2);
     LCTEffCSCs->Draw("hist");
     DrawCMSLumi(dataInfo);
-    TLatex textStatsLCT;
-    textStatsLCT.SetTextSize(0.03);
-    textStatsLCT.SetTextAlign(kHAlignLeft+kVAlignBottom);
-    textStatsLCT.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.1, "Entries:");
-    textStatsLCT.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.15, "Mean:");
-    textStatsLCT.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.2, "RMS:");
-    textStatsLCT.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.25, "Underflow:");
-    textStatsLCT.SetTextAlign(kHAlignRight+kVAlignBottom);
-    textStatsLCT.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.1,
-        TString::Format("%.0f", segEffCSCs->GetEntries()));
-    textStatsLCT.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.15,
-        TString::Format("%.1f", segEffCSCs->GetMean()));
-    textStatsLCT.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.2,
-        TString::Format("%.1f", segEffCSCs->GetRMS()));
-    textStatsLCT.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.25,
-        TString::Format("%.1f", segEffCSCs->GetBinContent(0)));
+    {
+      TLatex textStats;
+      textStats.SetTextSize(0.03);
+      textStats.SetTextAlign(kHAlignLeft+kVAlignBottom);
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.1, "Entries:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.15, "Mean:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.2, "RMS:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.25, "Underflow:");
+      textStats.SetTextAlign(kHAlignRight+kVAlignBottom);
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.1,
+          TString::Format("%.0f", LCTEffCSCs->GetEntries()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.15,
+          TString::Format("%.1f", LCTEffCSCs->GetMean()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.2,
+          TString::Format("%.1f", LCTEffCSCs->GetRMS()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.25,
+          TString::Format("%.0f", LCTEffCSCs->GetBinContent(0)));
+    }
     c1.Print((plotdir + "LCTEffCSCs.png").c_str());
+
+    // Efficiency vs. DCFEBs
+    TH1F * segEffDCFEBs = (TH1F*)file0->Get("segEffDCFEBs");
+    segEffDCFEBs->SetTitle("");
+    segEffDCFEBs->GetXaxis()->SetRangeUser(70.0, 100.0);
+    segEffDCFEBs->GetXaxis()->SetTitle("CSC Trigger Primitive Segment Efficiency (%)");
+    segEffDCFEBs->GetYaxis()->SetTitle("Number of DCFEBs ");
+    segEffDCFEBs->Draw("hist");
+    DrawCMSLumi(dataInfo);
+    {
+      TLatex textStats;
+      textStats.SetTextSize(0.03);
+      textStats.SetTextAlign(kHAlignLeft+kVAlignBottom);
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.1, "Entries:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.15, "Mean:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.2, "RMS:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.25, "Underflow:");
+      textStats.SetTextAlign(kHAlignRight+kVAlignBottom);
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.1,
+          TString::Format("%.0f", segEffDCFEBs->GetEntries()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.15,
+          TString::Format("%.1f", segEffDCFEBs->GetMean()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.2,
+          TString::Format("%.1f", segEffDCFEBs->GetRMS()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.25,
+          TString::Format("%.0f", segEffDCFEBs->GetBinContent(0)));
+    }
+    c1.Print((plotdir + "segEffDCFEBs.png").c_str());
+    
+    TH1F * LCTEffDCFEBs = (TH1F*)file0->Get("LCTEffDCFEBs");
+    LCTEffDCFEBs->SetTitle("");
+    LCTEffDCFEBs->GetXaxis()->SetRangeUser(70.0, 100.0);
+    LCTEffDCFEBs->GetXaxis()->SetTitle("CSC Trigger Primitive LCT Efficiency (%)");
+    LCTEffDCFEBs->GetYaxis()->SetTitle("Number of DCFEBs ");
+    LCTEffDCFEBs->Draw("hist");
+    DrawCMSLumi(dataInfo);
+    {
+      TLatex textStats;
+      textStats.SetTextSize(0.03);
+      textStats.SetTextAlign(kHAlignLeft+kVAlignBottom);
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.1, "Entries:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.15, "Mean:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.2, "RMS:");
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.1, 1-1.3*gPad->GetTopMargin()-0.25, "Underflow:");
+      textStats.SetTextAlign(kHAlignRight+kVAlignBottom);
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.1,
+          TString::Format("%.0f", LCTEffDCFEBs->GetEntries()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.15,
+          TString::Format("%.1f", LCTEffDCFEBs->GetMean()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.2,
+          TString::Format("%.1f", LCTEffDCFEBs->GetRMS()));
+      textStats.DrawLatexNDC(gPad->GetLeftMargin()+0.3, 1-1.3*gPad->GetTopMargin()-0.25,
+          TString::Format("%.0f", LCTEffDCFEBs->GetBinContent(0)));
+    }
+    c1.Print((plotdir + "LCTEffDCFEBs.png").c_str());
 
 
     c1.SetRightMargin(0.125);
