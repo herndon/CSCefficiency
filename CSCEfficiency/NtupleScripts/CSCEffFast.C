@@ -760,6 +760,8 @@ void CSCEffFast::Loop()
 
   TH1F * segEffCSCs = new TH1F("segEffCSCs", "Number of CSCs vs. Segment Efficiency", 160,70,150);
   TH1F * LCTEffCSCs = new TH1F("LCTEffCSCs", "Number of CSCs vs. LCT Efficiency", 160,70,150);
+  TH1F * segEffDCFEBs = new TH1F("segEffDCFEBs", "Number of DCFEBs vs. Segment Efficiency", 160,70,150);
+  TH1F * LCTEffDCFEBs = new TH1F("LCTEffDCFEBs", "Number of DCFEBs vs. LCT Efficiency", 160,70,150);
 
 
 
@@ -3429,6 +3431,10 @@ void CSCEffFast::Loop()
 
         bool cond1 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3));
         bool cond2 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>17);
+        Int_t totDCFEBs;
+        if (iiRing==0) totDCFEBs = 3;
+        else if ((iiStation == 0 || iiStation == 4) && (iiRing == 1 || iiRing == 3)) totDCFEBs = 4;
+        else totDCFEBs = 5;
         if (cond1 && cond2 && iiChamber != 36){
           segEffCSCs->Fill(effStationRingChamberSeg[iiStation][iiRing][iiChamber]*100); 
           LCTEffCSCs->Fill(effStationRingChamberLCT[iiStation][iiRing][iiChamber]*100); 
@@ -3605,6 +3611,11 @@ void CSCEffFast::Loop()
           segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]);
           LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
           LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
+
+          if (cond1 && cond2 && iiDCFEB < totDCFEBs && iiChamber != 36){
+            segEffDCFEBs->Fill(effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]*100);
+            LCTEffDCFEBs->Fill(effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]*100);
+          }
 
           for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
 
