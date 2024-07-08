@@ -392,7 +392,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     TH1F * segEffCSCs = (TH1F*)file0->Get("segEffCSCs");
     segEffCSCs->SetTitle("");
     segEffCSCs->GetXaxis()->SetRangeUser(70.0, 100.0);
-    segEffCSCs->GetXaxis()->SetTitle("CSC Trigger Primitive Segment Efficiency (%)");
+    segEffCSCs->GetXaxis()->SetTitle("Segment Efficiency (%)");
     segEffCSCs->GetYaxis()->SetTitle("Number of CSCs ");
     segEffCSCs->Draw("hist");
     DrawCMSLumi(dataInfo);
@@ -419,7 +419,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     TH1F * LCTEffCSCs = (TH1F*)file0->Get("LCTEffCSCs");
     LCTEffCSCs->SetTitle("");
     LCTEffCSCs->GetXaxis()->SetRangeUser(70.0, 100.0);
-    LCTEffCSCs->GetXaxis()->SetTitle("CSC Trigger Primitive LCT Efficiency (%)");
+    LCTEffCSCs->GetXaxis()->SetTitle("LCT Efficiency (%)");
     LCTEffCSCs->GetYaxis()->SetTitle("Number of CSCs ");
     LCTEffCSCs->Draw("hist");
     DrawCMSLumi(dataInfo);
@@ -447,8 +447,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     TH1F * segEffDCFEBs = (TH1F*)file0->Get("segEffDCFEBs");
     segEffDCFEBs->SetTitle("");
     segEffDCFEBs->GetXaxis()->SetRangeUser(70.0, 100.0);
-    segEffDCFEBs->GetXaxis()->SetTitle("CSC Trigger Primitive Segment Efficiency (%)");
-    segEffDCFEBs->GetYaxis()->SetTitle("Number of DCFEBs ");
+    segEffDCFEBs->GetXaxis()->SetTitle("Segment Efficiency (%)");
+    segEffDCFEBs->GetYaxis()->SetTitle("Number of (D)CFEBs ");
     segEffDCFEBs->Draw("hist");
     DrawCMSLumi(dataInfo);
     {
@@ -474,8 +474,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     TH1F * LCTEffDCFEBs = (TH1F*)file0->Get("LCTEffDCFEBs");
     LCTEffDCFEBs->SetTitle("");
     LCTEffDCFEBs->GetXaxis()->SetRangeUser(70.0, 100.0);
-    LCTEffDCFEBs->GetXaxis()->SetTitle("CSC Trigger Primitive LCT Efficiency (%)");
-    LCTEffDCFEBs->GetYaxis()->SetTitle("Number of DCFEBs ");
+    LCTEffDCFEBs->GetXaxis()->SetTitle("LCT Efficiency (%)");
+    LCTEffDCFEBs->GetYaxis()->SetTitle("Number of (D)CFEBs ");
     LCTEffDCFEBs->Draw("hist");
     DrawCMSLumi(dataInfo);
     {
