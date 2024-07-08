@@ -3430,13 +3430,13 @@ void CSCEffFast::Loop()
         // LCTEffStationRingChamber[iiStation][iiRing]->SetBinError(iiChamber,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
 
         bool cond1 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3));
-        bool cond2 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>17);
+        bool cond2 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18);
         Int_t totDCFEBs;
         if (iiRing==0) totDCFEBs = 3;
         else if ((iiStation == 0 || iiStation == 4) && (iiRing == 1 || iiRing == 3)) totDCFEBs = 4;
         else totDCFEBs = 5;
-        if (cond1 && cond2 && iiChamber != 36){
-          segEffCSCs->Fill(effStationRingChamberSeg[iiStation][iiRing][iiChamber]*100); 
+        if (cond1 && cond2 && iiChamber != 0){
+          segEffCSCs->Fill(effStationRingChamberSeg[iiStation][iiRing][iiChamber]*100);
           LCTEffCSCs->Fill(effStationRingChamberLCT[iiStation][iiRing][iiChamber]*100); 
         }
 
@@ -3612,7 +3612,7 @@ void CSCEffFast::Loop()
           LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
           LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
 
-          if (cond1 && cond2 && iiDCFEB < totDCFEBs && iiChamber != 36){
+          if (cond1 && cond2 && iiDCFEB < totDCFEBs && iiChamber != 0){
             segEffDCFEBs->Fill(effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]*100);
             LCTEffDCFEBs->Fill(effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]*100);
           }
