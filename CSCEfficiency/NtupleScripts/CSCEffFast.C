@@ -758,6 +758,10 @@ void CSCEffFast::Loop()
   TH1F *segmentsFid1HighpT  = new TH1F("segmentsFid1HighpT", "Number of CSC Segments Fiducial ring 1 High pT", 6, -0.5, 5.5);
   TH1F *segmentsFid2HighpT  = new TH1F("segmentsFid2HighpT", "Number of CSC Segments fiducial ring 2 High pT", 6, -0.5, 5.5);
 
+  TH1F * segEffCSCs = new TH1F("segEffCSCs", "Number of CSCs vs. Segment Efficiency", 160,70,150);
+  TH1F * LCTEffCSCs = new TH1F("LCTEffCSCs", "Number of CSCs vs. LCT Efficiency", 160,70,150);
+  TH1F * segEffDCFEBs = new TH1F("segEffDCFEBs", "Number of DCFEBs vs. Segment Efficiency", 160,70,150);
+  TH1F * LCTEffDCFEBs = new TH1F("LCTEffDCFEBs", "Number of DCFEBs vs. LCT Efficiency", 160,70,150);
 
 
 
@@ -3425,6 +3429,17 @@ void CSCEffFast::Loop()
         // LCTEffStationRingChamber[iiStation][iiRing]->SetBinContent(iiChamber,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
         // LCTEffStationRingChamber[iiStation][iiRing]->SetBinError(iiChamber,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
 
+        bool cond1 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3));
+        bool cond2 = !((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18);
+        Int_t totDCFEBs;
+        if (iiRing==0) totDCFEBs = 3;
+        else if ((iiStation == 0 || iiStation == 4) && (iiRing == 1 || iiRing == 3)) totDCFEBs = 4;
+        else totDCFEBs = 5;
+        if (cond1 && cond2 && iiChamber != 0){
+          segEffCSCs->Fill(effStationRingChamberSeg[iiStation][iiRing][iiChamber]*100);
+          LCTEffCSCs->Fill(effStationRingChamberLCT[iiStation][iiRing][iiChamber]*100); 
+        }
+
 
         if (effStationRingChamberSeg[iiStation][iiRing][iiChamber] > 1.1 || fabs(effStationRingChamberSeg[iiStation][iiRing][iiChamber] - 1.0 )  < 0.001 ) {
           std::cout << "Eff > 0.99999: " << effStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " <<  effSigmaStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " << totStationRingChamber[iiStation][iiRing][iiChamber] << " " << totSBStationRingChamber[iiStation][iiRing][iiChamber] << " " << passStationRingChamberSeg[iiStation][iiRing][iiChamber] << " " << passSBStationRingChamberSeg[iiStation][iiRing][iiChamber] << std::endl;
@@ -3596,6 +3611,11 @@ void CSCEffFast::Loop()
           segEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]);
           LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinContent(iiChamber,iiDCFEB+1,effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
           LCTEff2DStationRingChamberDCFEB[iiStation][iiRing]->SetBinError(iiChamber,iiDCFEB+1,effSigmaStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]);
+
+          if (cond1 && cond2 && iiDCFEB < totDCFEBs && iiChamber != 0){
+            segEffDCFEBs->Fill(effStationRingChamberDCFEBSeg[iiStation][iiRing][iiChamber][iiDCFEB]*100);
+            LCTEffDCFEBs->Fill(effStationRingChamberDCFEBLCT[iiStation][iiRing][iiChamber][iiDCFEB]*100);
+          }
 
           for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
 
