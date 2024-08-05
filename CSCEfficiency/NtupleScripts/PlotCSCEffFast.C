@@ -83,7 +83,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   float DCFEBRanges[5][2] = { {-2.0,18.0}, {14.0,34.0}, {30.0,50.0}, {46.0,66.0},{62.0,82.0}};
   double lowEff = 0.9;
   double highEff = 1.02;
-
+  double lowEff2D = 0.5;
+  
   Int_t numRunBins, firstRun, lastRun;
   {
     TH2F *htemp = (TH2F*)file0->Get("segEff2DStation1Ring1ChamberRun");
@@ -948,6 +949,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.pdf").c_str());
 
 
+    segEff2DStationRingChamber->GetZaxis()->SetRangeUser(lowEff2D,1.005);
+    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber50-100.png").c_str());
+ 
+
+    
 
     // Drawing CSC LCT Efficiency vs. pT
     TH1F * LCTEffPTStation1CRing0 = (TH1F*)file0->Get("LCTEffPTStation1CRing0");
@@ -1381,6 +1387,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.png").c_str());
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.pdf").c_str());
 
+    LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(lowEff2D,1.005);
+    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber50-100.png").c_str());
+
+
+    
     // Drawing 2D CSC Efficiency Plots
     for (Int_t iiStation=0; iiStation<8; iiStation++){
       for (Int_t iiRing=0; iiRing<4; iiRing++){
