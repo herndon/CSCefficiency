@@ -1540,8 +1540,8 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
 CSCEffFast::~CSCEffFast()
 {
-  if (!fChain) return;
-  delete fChain->GetCurrentFile();
+  if (fChain) delete fChain->GetCurrentFile();
+  delete setName;
 }
 
 Int_t CSCEffFast::GetEntry(Long64_t entry)
