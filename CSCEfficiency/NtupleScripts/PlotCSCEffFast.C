@@ -2529,7 +2529,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactSeg->GetZaxis()->SetTitleOffset(1.1);
           hcompactSeg->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,numChambers + 0.5,5*iiRunBin + 5);
+            TLine *line = new TLine(0.5-0.05*numChambers, 5*iiRunBin + 5,numChambers + 0.5,5*iiRunBin + 5);
             line->Draw();
           }
           DrawCMSLumi(dataInfo);
@@ -2580,7 +2580,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactLCT->GetZaxis()->SetTitleOffset(1.1);
           hcompactLCT->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,numChambers + 0.5,5*iiRunBin + 5);
+            TLine *line = new TLine(0.5-0.05*numChambers, 5*iiRunBin + 5,numChambers + 0.5,5*iiRunBin + 5);
             line->Draw();
           }
           DrawCMSLumi(dataInfo);
