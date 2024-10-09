@@ -2484,6 +2484,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     for (Int_t iiStation = 0; iiStation < 8; iiStation++){
       for (Int_t iiRing = 0; iiRing < 4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
+        int numChambers = (iiStation != 0 && iiStation != 4 && iiRing == 1) ? 18 : 36;
 
         //sprintf(title, "Segment DCFEB Analysis %s", GetMELabel(iiStation, iiRing).c_str());
         sprintf(file, (plotdir + "DCFEBAnalysis/CSCSegEffRun3Data2DChamberRunCompact%s.pdf").c_str(), GetMELabel(iiStation,iiRing).c_str());
@@ -2492,10 +2493,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
 
           sprintf(name, "segEff2DStation%dRing%dDCFEBChamberRunCompact%d", iiStation+1, iiRing, iiPage);
-          TH2F * hcompactSeg = new TH2F(name, "", 36, 0.5, 36.5, numBins*5, 0, numBins*5);
-          for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){ 
+          TH2F * hcompactSeg = new TH2F(name, "", numChambers, 0.5, numChambers+0.5, numBins*5, 0, numBins*5);
+          for (Int_t iiChamber=1; iiChamber <= numChambers; iiChamber++){ 
             hcompactSeg->GetXaxis()->SetBinLabel(iiChamber, to_string(iiChamber).c_str());
-            if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
             for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
               for (Int_t iiDCFEB=1; iiDCFEB < 6; iiDCFEB++){
                 sprintf(name, "segEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
@@ -2529,7 +2529,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactSeg->GetZaxis()->SetTitleOffset(1.1);
           hcompactSeg->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,numChambers + 0.5,5*iiRunBin + 5);
             line->Draw();
           }
           DrawCMSLumi(dataInfo);
@@ -2544,10 +2544,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
 
           sprintf(name, "LCTEff2DStation%dRing%dDCFEBChamberRunCompact%d", iiStation+1, iiRing, iiPage);
-          TH2F * hcompactLCT = new TH2F(name, "", 36, 0.5, 36.5, numBins*5, 0, numBins*5);
-          for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){ 
+          TH2F * hcompactLCT = new TH2F(name, "", numChambers, 0.5, numChambers + 0.5, numBins*5, 0, numBins*5);
+          for (Int_t iiChamber=1; iiChamber <= numChambers; iiChamber++){ 
             hcompactLCT->GetXaxis()->SetBinLabel(iiChamber, to_string(iiChamber).c_str());
-            if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
             for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
               for (Int_t iiDCFEB=1; iiDCFEB < 6; iiDCFEB++){
                 sprintf(name, "LCTEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
@@ -2581,7 +2580,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactLCT->GetZaxis()->SetTitleOffset(1.1);
           hcompactLCT->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,numChambers + 0.5,5*iiRunBin + 5);
             line->Draw();
           }
           DrawCMSLumi(dataInfo);
