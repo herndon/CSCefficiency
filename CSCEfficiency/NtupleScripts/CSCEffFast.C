@@ -141,7 +141,7 @@ void CSCEffFast::Loop()
 
 #if newData
   // auto-generate equally-spaced run bins (100 runs each)
-  const Int_t numRunBins = (lastRun-firstRun)/100 + 1;
+  const Int_t numRunBins = (lastRun-firstRun+(Int_t)firstRun%100)/100 + 1;
   Double_t *runBins = new Double_t[(numRunBins+1)]{0};
   for (int i=0; i<numRunBins+1; i++) runBins[i] = (firstRun - (Int_t)firstRun%100) + i*100;
 #else
