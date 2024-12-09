@@ -1836,7 +1836,7 @@ void CSCEffFast::Loop()
   if (fChain == 0) return;
 
   //Long64_t nentries = fChain->GetEntries();
-  Long64_t nentries = 50000000;
+  Long64_t nentries = 100000000;
   Int_t nCands = 0;
   Int_t nZs = 0;
   std::cout << "Number of entries: " << nentries << std::endl;
