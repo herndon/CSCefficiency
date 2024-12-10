@@ -8,3 +8,6 @@ plot: PlotCSCEffFast.C; ${CC} -o $@ $<
 
 clean:
 	rm -f analyze plot
+
+rootclean:
+	rm -f CSCEffFast_C*.* PlotCSCEffFast_C*.*
