@@ -35,10 +35,10 @@ class CSCEffFast {
 
     static constexpr dataset d2023all = {367100, 370790, "2023"};
     static constexpr dataset d2023Cv1 = {367100, 367515, "2023Cv1"};
-    static constexpr dataset d2023Cv2 = {367500, 367758, "2023Cv2"};
-    static constexpr dataset d2023Cv4 = {367700, 369694, "2023Cv4"};
-    static constexpr dataset d2023Dv1 = {369800, 370580, "2023Dv1"};
-    static constexpr dataset d2023Dv2 = {370600, 370790, "2023Dv2"};
+    static constexpr dataset d2023Cv2 = {367516, 367758, "2023Cv2"};
+    static constexpr dataset d2023Cv4 = {367765, 369694, "2023Cv4"};
+    static constexpr dataset d2023Dv1 = {369803, 370580, "2023Dv1"};
+    static constexpr dataset d2023Dv2 = {370603, 370790, "2023Dv2"};
 
     static constexpr dataset d2024all = {379412, 387000, "2024"};
     //static constexpr dataset d2024Bv1 = {378900, 379400, "2024Bv1"};// this data is pretty much all bad
@@ -53,17 +53,17 @@ class CSCEffFast {
     //static constexpr dataset d2024Iv1 = {386409, 386797, "2024Iv1"};
     //static constexpr dataset d2024Iv2 = {386798, 387121, "2024Iv2"};
 #if newData
-    //static constexpr dataset firstSet = d2024all;
-    //static constexpr dataset lastSet  = d2024all;
-    static constexpr dataset firstSet = d2024Gv1;
-    static constexpr dataset lastSet  = d2024Gv1;
+    static constexpr dataset firstSet = d2024all;
+    static constexpr dataset lastSet  = d2024all;
+    //static constexpr dataset firstSet = d2024HIv12;
+    //static constexpr dataset lastSet  = d2024HIv12;
 #else
     static const Int_t firstSet = d2022all;
     static const Int_t lastSet  = d2022all;
 #endif
     static const Int_t firstRun = firstSet.firstRun;
     static const Int_t lastRun  = lastSet.lastRun;
-    TNamed *setName;
+    TNamed *setName, *setRuns;
 
 
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -740,6 +740,7 @@ CSCEffFast::CSCEffFast() : fChain(0)
   }
   else std::cout << "runs " << firstRun << "-" << lastRun << "." << std::endl;
   setName = new TNamed("setName", name.c_str());
+  setRuns = new TNamed("setRuns", TString::Format("%i %i", firstRun, lastRun).Data());
 
   if (newData){
 
@@ -1761,6 +1762,7 @@ CSCEffFast::~CSCEffFast()
 {
   if (fChain) delete fChain->GetCurrentFile();
   delete setName;
+  delete setRuns;
 }
 
 Int_t CSCEffFast::GetEntry(Long64_t entry)

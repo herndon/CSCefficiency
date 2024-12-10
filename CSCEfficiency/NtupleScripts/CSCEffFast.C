@@ -30,6 +30,7 @@ void CSCEffFast::Loop()
 
   TFile cscEffHistoFile("cscEffHistoFile.root","Recreate");
   setName->Write();
+  setRuns->Write();
 
 
   char name[50];
