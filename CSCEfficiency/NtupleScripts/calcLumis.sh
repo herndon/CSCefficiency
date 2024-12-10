@@ -26,13 +26,19 @@ root -l -b << EOF
 TFile *infile = TFile::Open("$infile");
 {
   if (infile != nullptr){
-    TH2F* htemp = (TH2F*)infile->Get("segEff2DStation1Ring1ChamberRun");
-    if (htemp != NULL){
-      Int_t numRunBins = htemp->GetNbinsY();
-      cout << htemp->GetYaxis()->GetBinLowEdge(1) << " " << htemp->GetYaxis()->GetBinUpEdge(numRunBins) << endl;
+    TNamed *setRuns = (TNamed*)infile->Get("setRuns");
+    if (setRuns == nullptr){
+      TH2F* htemp = (TH2F*)infile->Get("segEff2DStation1Ring1ChamberRun");
+      if (htemp != NULL){
+        Int_t numRunBins = htemp->GetNbinsY();
+        cout << htemp->GetYaxis()->GetBinLowEdge(1) << " " << htemp->GetYaxis()->GetBinUpEdge(numRunBins) << endl;
+      }
+      else {
+        cout << "0 0" << endl;
+      }
     }
-    else {
-      cout << "0 0" << endl;
+    else{
+      cout << setRuns->GetTitle() << endl;
     }
     infile->Close();
   }
