@@ -57,7 +57,8 @@ if [[ $begin -eq 0 && $end -eq 0 ]]; then
   exit 3
 fi
 echo Calculating luminosity...
-brilcalc lumi -c web --begin $begin --end $end -u /fb -o lumi.csv
+#brilcalc lumi -c web --begin $begin --end $end -u /fb -o lumi.csv
+brilcalc lumi -c web --begin $begin --end $end --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json -u /fb -o lumi.csv
 if [[ ! -f lumi.csv ]]; then
   echo error calculating lumi
   exit 3
