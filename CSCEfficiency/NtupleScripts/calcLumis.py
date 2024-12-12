@@ -25,16 +25,6 @@ def main():
   if args.lumi is not None and args.lumi <= 0.0:
     parser.error("invalid lumi: %s" % args.lumi)
 
-  if subprocess.run("which brilcalc".split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
-    print("brilcalc not found.")
-    print("set up by running the following commands:\n")
-    print("export NEWPATH=\$HOME/.local/bin:\$PATH")
-    print("export PATH=\$HOME/.local/bin/:/cvmfs/cms-bril.cern.ch/brilconda/bin:\$PATH")
-    print("pip install --user brilws")
-    print("export PATH=\$NEWPATH\n")
-    print("afterwards, add 'export PATH=\$HOME/.local/bin:\$PATH' to your .bashrc file\n")
-    parser.error("brilcalc not found")
-
   if args.online:
     print("WARNING: Not using a normtag is NOT recommended. Consider using a normtag with this command.")
   
@@ -68,6 +58,16 @@ def main():
           print("Retrieved lumi from JSON (%s /fb)" % args.lumi)
       else:
         updated_lumi = True
+        if subprocess.run("which brilcalc".split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
+          print("brilcalc not found.")
+          print("set up by running the following commands:\n")
+          print("export NEWPATH=\$HOME/.local/bin:\$PATH")
+          print("export PATH=\$HOME/.local/bin/:/cvmfs/cms-bril.cern.ch/brilconda/bin:\$PATH")
+          print("pip install --user brilws")
+          print("export PATH=\$NEWPATH\n")
+          print("afterwards, add 'export PATH=\$HOME/.local/bin:\$PATH' to your .bashrc file\n")
+          parser.error("brilcalc not found")
+
 
         #command = f"brilcalc lumi -c web --begin {firstRun} --end {lastRun} -u /fb -o lumi.csv"
         command = f"brilcalc lumi -c web --begin {firstRun} --end {lastRun} -u /fb -o lumi.csv"
