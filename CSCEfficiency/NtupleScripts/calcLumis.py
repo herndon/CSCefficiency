@@ -59,11 +59,11 @@ def main():
       firstRun = int(htemp.GetYaxis().GetBinLowEdge(1))
       lastRun = int(htemp.GetYaxis().GetBinUpEdge(htemp.GetNbinsY()))
     if not args.quiet: print("Determined run range: %s-%s" % (firstRun, lastRun))
-    runId = "-".join([str(x) for x in [firstRun, lastRun]])
+    runs = "-".join([str(x) for x in [firstRun, lastRun]])
 
     if args.lumi is None:
-      if not args.recalc and args.name in lumi_dict and runId in lumi_dict[args.name]:
-        args.lumi = lumi_dict[args.name][runId]
+      if not args.recalc and args.name in lumi_dict and lumi_dict[args.name]["runs"] == runs:
+        args.lumi = lumi_dict[args.name]["lumi"]
         if not args.quiet:
           print("Retrieved lumi from JSON (%s /fb)" % args.lumi)
       else:
@@ -96,10 +96,12 @@ def main():
   if not args.nostore and updated_lumi:
     with open(args.json, "w") as outfile:
       if args.name in lumi_dict:
-        lumi_dict[args.name][runId] = args.lumi
+        lumi_dict[args.name]["lumi"] = args.lumi
+        lumi_dict[args.name]["runs"] = runs
       else:
         lumi_dict[args.name] = {}
-        lumi_dict[args.name][runId] = args.lumi
+        lumi_dict[args.name]["lumi"] = args.lumi
+        lumi_dict[args.name]["runs"] = runs
       json.dump(lumi_dict, outfile, indent=2)
       if not args.quiet: print("Saved lumi to JSON")
 
