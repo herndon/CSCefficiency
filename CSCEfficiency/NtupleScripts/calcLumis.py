@@ -34,6 +34,9 @@ def main():
     print("export PATH=\$NEWPATH\n")
     print("afterwards, add 'export PATH=\$HOME/.local/bin:\$PATH' to your .bashrc file\n")
     parser.error("brilcalc not found")
+
+  if args.online:
+    print("WARNING: Not using a normtag is NOT recommended. Consider using a normtag with this command.")
   
   updated_lumi = False
   lumi_dict = {}
