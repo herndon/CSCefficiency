@@ -38,7 +38,7 @@ def main():
   if args.online:
     print("WARNING: Not using a normtag is NOT recommended. Consider using a normtag with this command.")
   
-  updated_lumi = False
+  updated_lumi = args.lumi is not None
   lumi_dict = {}
   if os.path.isfile(args.json):
     with open(args.json, "r") as infile:
@@ -51,21 +51,23 @@ def main():
       args.name = infile.Get("setName").GetTitle() if infile.GetListOfKeys().Contains("setName") else args.infile
     if not args.quiet: print("Loaded set '%s'" % args.name)
 
+    firstRun = lastRun = 0
+    if infile.GetListOfKeys().Contains("setRuns"):
+      firstRun,lastRun = infile.Get("setRuns").GetTitle().split()
+    elif infile.GetListOfKeys().Contains("segEff2DStation1Ring1ChamberRun"):
+      htemp = infile.Get("segEff2DStation1Ring1ChamberRun")
+      firstRun = int(htemp.GetYaxis().GetBinLowEdge(1))
+      lastRun = int(htemp.GetYaxis().GetBinUpEdge(htemp.GetNbinsY()))
+    if not args.quiet: print("Determined run range: %s-%s" % (firstRun, lastRun))
+    runId = "-".join([str(x) for x in [firstRun, lastRun]])
+
     if args.lumi is None:
-      if not args.recalc and args.name in lumi_dict:
-        args.lumi = lumi_dict[args.name]
+      if not args.recalc and args.name in lumi_dict and runId in lumi_dict[args.name]:
+        args.lumi = lumi_dict[args.name][runId]
         if not args.quiet:
           print("Retrieved lumi from JSON (%s /fb)" % args.lumi)
       else:
         updated_lumi = True
-        firstRun = lastRun = 0
-        if infile.GetListOfKeys().Contains("setRuns"):
-          firstRun,lastRun = infile.Get("setRuns").GetTitle().split()
-        elif infile.GetListOfKeys().Contains("segEff2DStation1Ring1ChamberRun"):
-          htemp = infile.Get("segEff2DStation1Ring1ChamberRun")
-          firstRun = int(htemp.GetYaxis().GetBinLowEdge(1))
-          lastRun = int(htemp.GetYaxis().GetBinUpEdge(htemp.GetNbinsY()))
-        if not args.quiet: print("Determined run range: %s-%s" % (firstRun, lastRun))
 
         #command = f"brilcalc lumi -c web --begin {firstRun} --end {lastRun} -u /fb -o lumi.csv"
         command = f"brilcalc lumi -c web --begin {firstRun} --end {lastRun} -u /fb -o lumi.csv"
@@ -93,7 +95,11 @@ def main():
 
   if not args.nostore and updated_lumi:
     with open(args.json, "w") as outfile:
-      lumi_dict[args.name] = args.lumi
+      if args.name in lumi_dict:
+        lumi_dict[args.name][runId] = args.lumi
+      else:
+        lumi_dict[args.name] = {}
+        lumi_dict[args.name][runId] = args.lumi
       json.dump(lumi_dict, outfile, indent=2)
       if not args.quiet: print("Saved lumi to JSON")
 
