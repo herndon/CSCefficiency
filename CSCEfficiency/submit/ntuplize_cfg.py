@@ -4,12 +4,55 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: step3 --conditions auto:phase1_2021_realistic -n 10 --era Run3 --eventcontent RECOSIM -s RAW2DIGI,L1Reco,RECO,RECOSIM --datatier RECO --geometry DB:Extended --io RecoPU_2021PU.io --python RecoPU_2021PU.py --filein root://cms-xrd-global.cern.ch//store/relval/CMSSW_11_3_0/RelValZMM_14/GEN-SIM-DIGI-RAW/113X_mcRun3_2021_realistic_v10-v1/00000/175b3087-820c-49c9-99ba-cba0f30ad6f5.root --fileout file:step3.root --nThreads 8
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+import re
 
 from Configuration.Eras.Era_Run3_cff import Run3
 HLTProcessName='HLT'
 
 process = cms.Process('ntuple',Run3)
 
+# command-line arguments
+options = VarParsing.VarParsing("ntuple")
+
+options.register("globalTag", "",
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.string,
+        "global tag for analysis")
+options.register("primaryDS", "",
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.string,
+        "primary dataset name (Muon0 or Muon1)")
+options.register("era", "",
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.string,
+        "era identifier (e.g. 2024A)")
+options.register("version", 0,
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.int,
+        "version identifier for era")
+options.register("attempt", 1,
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.int,
+        "identifier for the attempt processing with these settings")
+options.parseArguments()
+
+# error checking
+for name in ["globalTag", "primaryDS", "era", "version"]:
+    if not getattr(options, name):
+        print("ERROR: %s option is required" % name)
+        exit(1)
+if not re.fullmatch("[0-9]{4}[A-Z]", options.era):
+    print("ERROR: invalid era:", options.era)
+    exit(1)
+if not options.primaryDS.startswith("Muon") or not any(options.primaryDS.endswith(num) for num in "01"):
+    print("ERROR: invalid primaryDS:", options.primaryDS)
+    exit(1)
+for name in ["version", "attempt"]:
+    if getattr(options, name) <= 0:
+        print("ERROR: invalid %s:" % name, getattr(options,name))
+        exit(1)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -66,7 +109,7 @@ process.options = cms.untracked.PSet(
 process.configurationMetadata = cms.untracked.PSet(
     annotation = cms.untracked.string('step3 nevts:10'),
     name = cms.untracked.string('Applications'),
-    version = cms.untracked.string('$$Revision: 1.19 $$')
+    version = cms.untracked.string('$Revision: 1.19 $')
 )
 
 # Output definition
@@ -85,7 +128,7 @@ process.ALCARECOoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '$globalTag', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -174,6 +217,10 @@ process = customiseEarlyDelete(process)
 # End adding early deletion
 # Output
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string('CSCeff_Muon_${dataset}${stream}v${attempt}.root')
-#    fileName = cms.string('test.root')
+    fileName = cms.string("CSCeff_Muon_%s%iv%i_%i.root" % (
+        options.era,
+        int(options.primaryDS.replace("Muon","")),
+        options.version,
+        options.attempt,
+    )
 )   
