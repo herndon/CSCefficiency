@@ -8,10 +8,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 import re
 
-from Configuration.Eras.Era_Run3_cff import Run3
+from Configuration.StandardSequences.Eras import eras
 HLTProcessName='HLT'
 
-process = cms.Process('ntuple',Run3)
+process = cms.Process('ntuple',eras.Run3)
 
 # command-line arguments
 options = VarParsing.VarParsing("analysis")
@@ -48,23 +48,30 @@ options.parseArguments()
 
 # error checking
 if not options.globalTag:
-    print("ERROR: globalTag option is required")
-    exit(1)
-if not options.local:
+    raise ValueError("globalTag option is required")
+if options.local:
+    if not options.inputFiles:
+        raise ValueError("inputFiles option is required for local submissions")
+else:
     for name in ["primaryDS", "era", "version"]:
         if not getattr(options, name):
-            print("ERROR: %s option is required" % name)
-            exit(1)
+            raise ValueError("%s option is required" % name)
     if not re.fullmatch("[0-9]{4}[A-Z]", options.era):
-        print("ERROR: invalid era:", options.era)
-        exit(1)
+        raise valueError("invalid era:", options.era)
     if not options.primaryDS.startswith("Muon") or not any(options.primaryDS.endswith(num) for num in "01"):
-        print("ERROR: invalid primaryDS:", options.primaryDS)
-        exit(1)
+        raise ValueError("invalid primaryDS:", options.primaryDS)
     for name in ["version", "attempt"]:
         if getattr(options, name) <= 0:
-            print("ERROR: invalid %s:" % name, getattr(options,name))
-            exit(1)
+            raise ValueError("invalid %s:" % name, getattr(options,name))
+
+# printout
+print("Running local" if options.local else "Submitting CRAB", "job")
+if options.local:
+    for name in ["inputFiles", "outputFile", "maxEvents"]:
+        print("%s: %s" % (name, getattr(options, name)))
+else:
+    for name in ["primaryDS", "era", "version", "attempt"]:
+        print("%s: %s" % (name, getattr(options, name)))
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -90,34 +97,37 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(options.inputFiles) if options.local else cms.untracked.vstring()
 )
 
-process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
-    IgnoreCompletely = cms.untracked.vstring(),
-    Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
-    accelerators = cms.untracked.vstring('*'),
-    allowUnscheduled = cms.obsolete.untracked.bool,
-    canDeleteEarly = cms.untracked.vstring(),
-    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
-    emptyRunLumiMode = cms.obsolete.untracked.string,
-    eventSetup = cms.untracked.PSet(
-        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
-            allowAnyLabel_=cms.required.untracked.uint32
+if options.local:
+    process.options = cms.untracked.PSet()
+else:
+    process.options = cms.untracked.PSet(
+        FailPath = cms.untracked.vstring(),
+        IgnoreCompletely = cms.untracked.vstring(),
+        Rethrow = cms.untracked.vstring(),
+        SkipEvent = cms.untracked.vstring(),
+        accelerators = cms.untracked.vstring('*'),
+        allowUnscheduled = cms.obsolete.untracked.bool,
+        canDeleteEarly = cms.untracked.vstring(),
+        deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
+        emptyRunLumiMode = cms.obsolete.untracked.string,
+        eventSetup = cms.untracked.PSet(
+            forceNumberOfConcurrentIOVs = cms.untracked.PSet(
+                allowAnyLabel_=cms.required.untracked.uint32
+            ),
+            numberOfConcurrentIOVs = cms.untracked.uint32(1)
         ),
-        numberOfConcurrentIOVs = cms.untracked.uint32(1)
-    ),
-    fileMode = cms.untracked.string('FULLMERGE'),
-    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
-    makeTriggerResults = cms.obsolete.untracked.bool,
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
-    numberOfConcurrentRuns = cms.untracked.uint32(1),
-    numberOfStreams = cms.untracked.uint32(0),
-    numberOfThreads = cms.untracked.uint32(1),
-    printDependencies = cms.untracked.bool(False),
-    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
-    throwIfIllegalParameter = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(False)
-)
+        fileMode = cms.untracked.string('FULLMERGE'),
+        forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+        makeTriggerResults = cms.obsolete.untracked.bool,
+        numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
+        numberOfConcurrentRuns = cms.untracked.uint32(1),
+        numberOfStreams = cms.untracked.uint32(0),
+        numberOfThreads = cms.untracked.uint32(1),
+        printDependencies = cms.untracked.bool(False),
+        sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
+        throwIfIllegalParameter = cms.untracked.bool(True),
+        wantSummary = cms.untracked.bool(False)
+    )
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -204,9 +214,10 @@ associatePatAlgosToolsTask(process)
 #Setup FWK for multithreaded
 #process.options.numberOfThreads = 8
 process.options.numberOfStreams = 0
-process.options.numberOfConcurrentLuminosityBlocks = 2
-process.options.eventSetup.numberOfConcurrentIOVs = 1
-if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)
+if not options.local:
+    process.options.numberOfConcurrentLuminosityBlocks = 2
+    process.options.eventSetup.numberOfConcurrentIOVs = 1
+    if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)
 
 # customisation of the process.
 
@@ -236,5 +247,5 @@ process.TFileService = cms.Service('TFileService',
         int(options.primaryDS.replace("Muon","")),
         options.version,
         options.attempt,
-    ) if not options.local else options.outputFile
+    )) if not options.local else cms.string(options.outputFile)
 )   
