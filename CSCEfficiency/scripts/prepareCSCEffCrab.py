@@ -9,10 +9,12 @@ def main():
         print("set up CMSSW first")
         exit(1)
 
+    TEMPLATE_DIR = f'{os.environ["CMSSW_BASE"]}/src/CSCefficiency/CSCEfficiency/scripts/templates'
+
     DESC=""
     parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--template_dir", type=str, default=f'{os.environ["CMSSW_BASE"]}/src/CSCefficiency/CSCEfficiency/scripts/templates',
-        help="directory holding the template files")
+    parser.add_argument("--lumiMask", type=str, default="", help="optional lumiMask for job submission")
+    parser.add_argument("--appendDate", action="store_true", help="if provided, append date (YYYY_MMDD) to the output dataset tag")
     parser.add_argument("--unitsPerJob", type=int, metavar="UNITS", default=4, help="files to process per job")
     parser.add_argument("-v", "--version", type=int, default=1, help="data version")
     parser.add_argument("-s", "--streams", type=lambda x: [int(i) for i in x.split(',')], default="0,1", help="desired muon stream(s) given as a comma-separated list")
@@ -20,14 +22,14 @@ def main():
     parser.add_argument("globalTag", help="global tag for data processing")
     args = parser.parse_args()
 
-    config_template = f'{args.template_dir}/crabConfig_template.py'
+    config_template = f'{TEMPLATE_DIR}/crabConfig_template.py'
     config_prefix   = "crabConfig_CSCEff"
-    exe_template    = f'{args.template_dir}/create_ntuple_crab_template.py'
+    exe_template    = f'{TEMPLATE_DIR}/create_ntuple_crab_template.py'
     exe_prefix      = "create_ntuple_crab_Run3Data"
 
     #Error checking
-    if not os.path.isdir(args.template_dir):
-        parser.error("template directory not found:", args.template_dir)
+    if not os.path.isdir(TEMPLATE_DIR):
+        parser.error("template directory not found:", TEMPLATE_DIR)
     if not os.path.isfile(config_template):
         parser.error("config template not found:", config_template)
     if not os.path.isfile(exe_template):
@@ -53,12 +55,14 @@ def main():
             exe_filename    = f'{exe_prefix}_{dataID}_v{attempt}.py'
 
         fill_dict = {
-            "dataset": args.era,
+            "era": args.era,
             "stream": stream,
             "version": args.version,
             "attempt": attempt,
             "globalTag": args.globalTag,
             "unitsPerJob": args.unitsPerJob,
+            "lumiMask": args.lumiMask,
+            "appendDate": args.appendDate,
         }
 
         print("Filling template with",fill_dict)
