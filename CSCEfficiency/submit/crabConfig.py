@@ -39,7 +39,7 @@ config.Data.publication = True
 config.Data.outputDatasetTag = sectionSettings["tag"]
 if sectionSettings["lumiMask"]:
     config.Data.lumiMask = sectionSettings["lumiMask"]
-if settings.getboolean("extra", "appendDate"):
+if sectionSettings.getboolean("appendDate"):
     from datetime import datetime
     config.Data.outputDatasetTag += f'_{datetime.now():%Y_%m%d}'
 
