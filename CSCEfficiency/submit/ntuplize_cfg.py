@@ -14,12 +14,20 @@ HLTProcessName='HLT'
 process = cms.Process('ntuple',Run3)
 
 # command-line arguments
-options = VarParsing.VarParsing("ntuple")
+options = VarParsing.VarParsing("analysis")
+options.maxEvents = 100000
 
+# main settings
 options.register("globalTag", "",
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
         "global tag for analysis")
+options.register("local", 0,
+        VarParsing.VarParsing.multiplicity.singleton,
+        VarParsing.VarParsing.varType.int,
+        "type of job 0: local 1: CRAB submission")
+
+# CRAB settings
 options.register("primaryDS", "",
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
@@ -39,20 +47,24 @@ options.register("attempt", 1,
 options.parseArguments()
 
 # error checking
-for name in ["globalTag", "primaryDS", "era", "version"]:
-    if not getattr(options, name):
-        print("ERROR: %s option is required" % name)
-        exit(1)
-if not re.fullmatch("[0-9]{4}[A-Z]", options.era):
-    print("ERROR: invalid era:", options.era)
+if not options.globalTag:
+    print("ERROR: globalTag option is required")
     exit(1)
-if not options.primaryDS.startswith("Muon") or not any(options.primaryDS.endswith(num) for num in "01"):
-    print("ERROR: invalid primaryDS:", options.primaryDS)
-    exit(1)
-for name in ["version", "attempt"]:
-    if getattr(options, name) <= 0:
-        print("ERROR: invalid %s:" % name, getattr(options,name))
+if not options.local:
+    for name in ["primaryDS", "era", "version"]:
+        if not getattr(options, name):
+            print("ERROR: %s option is required" % name)
+            exit(1)
+    if not re.fullmatch("[0-9]{4}[A-Z]", options.era):
+        print("ERROR: invalid era:", options.era)
         exit(1)
+    if not options.primaryDS.startswith("Muon") or not any(options.primaryDS.endswith(num) for num in "01"):
+        print("ERROR: invalid primaryDS:", options.primaryDS)
+        exit(1)
+    for name in ["version", "attempt"]:
+        if getattr(options, name) <= 0:
+            print("ERROR: invalid %s:" % name, getattr(options,name))
+            exit(1)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -69,12 +81,14 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000),
+    input = cms.untracked.int32(options.maxEvents),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 # Input source
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
+process.source = cms.Source("PoolSource", 
+    fileNames = cms.untracked.vstring(options.inputFiles) if options.local else cms.untracked.vstring()
+)
 
 process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring(),
@@ -222,5 +236,5 @@ process.TFileService = cms.Service('TFileService',
         int(options.primaryDS.replace("Muon","")),
         options.version,
         options.attempt,
-    )
+    ) if not options.local else options.outputFile
 )   
