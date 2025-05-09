@@ -10,9 +10,6 @@ configParams = [
     "era=%s" % sectionSettings["era"],
     "version=%s" % sectionSettings["version"],
 ]
-for param in configParams:
-    print(param)
-
 import os
 jobAttempt = 1
 requestName = "%s_%i" % (sectionSettings["requestName"], jobAttempt)
@@ -20,6 +17,10 @@ while os.path.exists("crab_%s" % sectionSettings["requestName"]):
     jobAttempt += 1
     requestName = "%s_%i" % (sectionSettings["requestName"], jobAttempt)
 
+print("Submitting job:", requestName)
+print("Global tag:", sectionSettings["globalTag"])
+
+exit(1)
 
 # Initialize CRAB config
 from CRABClient.UserUtilities import config
