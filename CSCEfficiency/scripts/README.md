@@ -13,7 +13,6 @@ if you want to process the dataset `/Muon0/Run2025B-ZMu-PromptReco-v1/RAW-RECO`,
 stream: 0
 era: 2025B
 version: 1
-jobAttempt: 1
 globalTag: 150X_dataRun3_Prompt_v1 
 ```
 
@@ -24,11 +23,10 @@ defined as follows:
 `Muon1`, respectively)
 * `era`: The acquisition era name of the dataset, without the "Run" prefix.
 * `version`: The processing version of the dataset.
-* `jobAttempt`: The job attempt identifier -- this option allows submitting jobs to re-process the same dataset. The request name will be changed
 accordingly.
 * `globalTag`: The global tag for processing this dataset.
 
-With the exception of the `jobAttempt` option, all of these can be found on the Data Aggregation System (DAS) with the appropriate query. For example, here we
+All of these can be found on the Data Aggregation System (DAS) with the appropriate query. For example, here we
 would search `dataset=/Muon0/Run2025B-ZMu-PromptReco-v1/RAW-RECO` and hit the "show" button next to the listed dataset.
 
 **NOTE**: Once you've configured this new section, go to the `section` option in the `DEFAULT` section and change the value to the name of your newly created section.
@@ -44,10 +42,13 @@ the value to your new section instead. For example, if you want to change the de
 stream: 0
 era: 2025B
 version: 1
-jobAttempt: 1
 globalTag: 150X_dataRun3_Prompt_v1 
 requestName: myNewRequestName
 ```
+
+Note that the request name will always have the job attempt appended to it automatically. For example, when you submit the above example the request name will be set to
+`myNewRequestName_1`. If you were to submit the request again, the script will notice you already have a CRAB directory for that name and will increment the attempt counter.
+Then, the new job would be named `myNewRequestName_2`, and so on.
 
 **NOTE**: The `dataset` option should not be overwritten in your new section! This analysis can only work with a specific dataset as input, so the
 python script determines this from the settings provided in your new section. The `psetName` option can be changed, but note that the `cmsDriver` file you use instead

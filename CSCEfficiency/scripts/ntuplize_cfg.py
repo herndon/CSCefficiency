@@ -9,9 +9,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import re
 
 from Configuration.StandardSequences.Eras import eras
-HLTProcessName='HLT'
-
 process = cms.Process('ntuple',eras.Run3)
+HLTProcessName='HLT'
 
 # command-line arguments
 options = VarParsing.VarParsing("analysis")
@@ -40,10 +39,6 @@ options.register("version", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.int,
         "version identifier for era")
-options.register("attempt", 1,
-        VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.int,
-        "identifier for the attempt processing with these settings")
 options.parseArguments()
 
 # error checking
@@ -60,9 +55,8 @@ else:
         raise valueError("invalid era:", options.era)
     if not options.primaryDS.startswith("Muon") or not any(options.primaryDS.endswith(num) for num in "01"):
         raise ValueError("invalid primaryDS:", options.primaryDS)
-    for name in ["version", "attempt"]:
-        if getattr(options, name) <= 0:
-            raise ValueError("invalid %s:" % name, getattr(options,name))
+    if options.version <= 0:
+        raise ValueError("invalid version:", options.version)
 
 # printout
 print("Running local" if options.local else "Submitting CRAB", "job")
@@ -70,7 +64,7 @@ if options.local:
     for name in ["inputFiles", "outputFile", "maxEvents"]:
         print("%s: %s" % (name, getattr(options, name)))
 else:
-    for name in ["primaryDS", "era", "version", "attempt"]:
+    for name in ["primaryDS", "era", "version"]:
         print("%s: %s" % (name, getattr(options, name)))
 
 # import of standard configurations
@@ -234,10 +228,9 @@ process = customiseEarlyDelete(process)
 # End adding early deletion
 # Output
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string("CSCeff_Muon_%s%iv%i_%i.root" % (
+    fileName = cms.string("CSCeff_Muon_%s%iv%i.root" % (
         options.era,
         int(options.primaryDS.replace("Muon","")),
         options.version,
-        options.attempt,
     )) if not options.local else cms.string(options.outputFile)
 )   

@@ -9,18 +9,24 @@ configParams = [
     "primaryDS=Muon%s" % sectionSettings["stream"],
     "era=%s" % sectionSettings["era"],
     "version=%s" % sectionSettings["version"],
-    "attempt=%s" % sectionSettings["jobAttempt"],
 ]
 for param in configParams:
     print(param)
 
+import os
+jobAttempt = 1
+requestName = "%s_%i" % (sectionSettings["requestName"], jobAttempt)
+while os.path.exists("crab_%s" % sectionSettings["requestName"]):
+    jobAttempt += 1
+    requestName = "%s_%i" % (sectionSettings["requestName"], jobAttempt)
+
+
 # Initialize CRAB config
 from CRABClient.UserUtilities import config
-import os
 config = config()
 
 # General settings
-config.General.requestName = sectionSettings["requestName"]
+config.General.requestName = requestName
 config.General.workArea = ''
 config.General.transferOutputs = True
 config.General.transferLogs = True
