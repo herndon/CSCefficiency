@@ -39,15 +39,13 @@ config.JobType.pyCfgParams = configParams
 
 # Data settings
 config.Data.inputDataset = sectionSettings["dataset"]
+config.Data.lumiMask = sectionSettings["lumiMask"]
+config.Data.runRange = sectionSettings["runRange"]
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = int(sectionSettings["unitsPerJob"])
 config.Data.publication = True
 config.Data.outputDatasetTag = sectionSettings["tag"]
-if sectionSettings["runRange"]:
-    config.Data.runRange = sectionSettings["runRange"]
-if sectionSettings["lumiMask"]:
-    config.Data.lumiMask = sectionSettings["lumiMask"]
 if sectionSettings.getboolean("appendDate"):
     from datetime import datetime
     config.Data.outputDatasetTag += f'_{datetime.now():%Y_%m%d}'

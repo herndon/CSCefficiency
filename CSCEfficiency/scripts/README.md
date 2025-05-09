@@ -69,6 +69,7 @@ The additional options in the `DEFAULT` section are defined as follows:
 * `unitsPerJob`: The number of files to include in each job.
 * `appendDate`: Whether to append the current date (YYYY_MMDD) to the output dataset tag.
 * `lumiMask`: A lumi-mask to apply to the input dataset before analysis.
+* `runRange`: The runs and/or run ranges to process.
 * `maxMemoryMB`: The maximum memory (in MB) a job is allowed to use.
 * `dataID`: An identifier for the dataset being processed.
 * `requestName`: A name given to the request.
