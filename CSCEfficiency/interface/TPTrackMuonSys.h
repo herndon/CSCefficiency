@@ -149,394 +149,394 @@ using namespace reco;
 const Float_t MEZ[6]         ={601.3,  696.11, 696.11, 827.56, 936.44, 1025.9}; // 839.96
 
 class TPTrackMuonSys : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
- public:
-  enum ParticleType {LightMeson=1,CharmedMeson=2,ccbarMeson=3,BottomMeson=4,bbarMeson=5,LightBaryon=6,CharmedBaryon=7,BottomBaryon=8,DiQuarks=9,Lepton=10,W=11,Z=12,Muon=13,JPsi=14,Other=15};
-  enum TheTrackType {PromptMuFromW=10,PromptMuFromZ=11,PromptMuFromJPsi=12,PromptMuFromLightMeson=13,PromptMuFromHeavyMeson=14,PromptMuFromLightBaryon=15,PromptMuFromHeavyBaryon=16,NotPromptMufromWZ=17,PromptMuFromOthers=18,PunchThrough=20,PunchThroughAndDecayInFlight=21,DecayInFlightFromLightMeson=31,DecayInFlightFromHeavyMeson=32,DecayInFlightFromLightBaryon=33,DecayInFlightFromHeavyBaryon=34,NoMuSysHit=40,Others=01,NothingMatched=00};
-  /// Constructor
-  TPTrackMuonSys(const edm::ParameterSet& pset);
+  public:
+    enum ParticleType {LightMeson=1,CharmedMeson=2,ccbarMeson=3,BottomMeson=4,bbarMeson=5,LightBaryon=6,CharmedBaryon=7,BottomBaryon=8,DiQuarks=9,Lepton=10,W=11,Z=12,Muon=13,JPsi=14,Other=15};
+    enum TheTrackType {PromptMuFromW=10,PromptMuFromZ=11,PromptMuFromJPsi=12,PromptMuFromLightMeson=13,PromptMuFromHeavyMeson=14,PromptMuFromLightBaryon=15,PromptMuFromHeavyBaryon=16,NotPromptMufromWZ=17,PromptMuFromOthers=18,PunchThrough=20,PunchThroughAndDecayInFlight=21,DecayInFlightFromLightMeson=31,DecayInFlightFromHeavyMeson=32,DecayInFlightFromLightBaryon=33,DecayInFlightFromHeavyBaryon=34,NoMuSysHit=40,Others=01,NothingMatched=00};
+    /// Constructor
+    TPTrackMuonSys(const edm::ParameterSet& pset);
 
-  /// Destructor
-  virtual ~TPTrackMuonSys();
+    /// Destructor
+    virtual ~TPTrackMuonSys();
 
- protected:
- private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& iSet);
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& iSet);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  protected:
+  private:
+    virtual void beginJob() ;
+    virtual void beginRun(const edm::Run& r, const edm::EventSetup& iSet);
+    virtual void endRun(const edm::Run& r, const edm::EventSetup& iSet);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob() ;
 
-  TrajectoryStateOnSurface cylExtrapTrkSam(reco::TrackRef track, double rho);
-  TrajectoryStateOnSurface surfExtrapTrkSam(reco::TrackRef track, double z);
-  FreeTrajectoryState freeTrajStateMuon(reco::TrackRef track);
+    TrajectoryStateOnSurface cylExtrapTrkSam(reco::TrackRef track, double rho);
+    TrajectoryStateOnSurface surfExtrapTrkSam(reco::TrackRef track, double z);
+    FreeTrajectoryState freeTrajStateMuon(reco::TrackRef track);
 
-  struct MCParticleInfo
-  {
-    Bool_t IsThisFromSimTrk,IsParticleFromGenerator,DoesParticleHaveMuonHit,IsParticleBornInsideOfARegion,IsPileup;
-    Int_t pdgId;
-  };
-      
-  MCParticleInfo MCParticleInfo_Creator( const SimTrack * thisTrk, TrackingParticleRef tpr );
-  MCParticleInfo MCParticleInfo_Creator( HepMC::GenParticle * GenParticle ) {
-    MCParticleInfo TBA;
-    TBA.IsThisFromSimTrk=false;
-    TBA.IsParticleFromGenerator=true;    TBA.DoesParticleHaveMuonHit=false;
-    TBA.IsParticleBornInsideOfARegion=true;    TBA.IsPileup=false;
-    TBA.pdgId=GenParticle->pdg_id();
-    return TBA;
-  }
+    struct MCParticleInfo
+    {
+      Bool_t IsThisFromSimTrk,IsParticleFromGenerator,DoesParticleHaveMuonHit,IsParticleBornInsideOfARegion,IsPileup;
+      Int_t pdgId;
+    };
 
-  vector<SimVertex> SVC;
-  vector< MCParticleInfo > MCParticlesList;
-  vector<Int_t> DChain;
-  vector< vector<Int_t> > SimChains;
-  vector< vector<Int_t> > HepMCChains;
-  vector<const SimTrack *> SavedSimTrk;
-  vector<HepMC::GenParticle *> SavedHepPar;
+    MCParticleInfo MCParticleInfo_Creator( const SimTrack * thisTrk, TrackingParticleRef tpr );
+    MCParticleInfo MCParticleInfo_Creator( HepMC::GenParticle * GenParticle ) {
+      MCParticleInfo TBA;
+      TBA.IsThisFromSimTrk=false;
+      TBA.IsParticleFromGenerator=true;    TBA.DoesParticleHaveMuonHit=false;
+      TBA.IsParticleBornInsideOfARegion=true;    TBA.IsPileup=false;
+      TBA.pdgId=GenParticle->pdg_id();
+      return TBA;
+    }
 
-  inline Int_t FindSimTrackInMCParticlesList( Int_t PosInSimTrackVec ) {
-    Int_t count=0;
-    vector<MCParticleInfo>::const_iterator MCParticlesList_iter = MCParticlesList.begin();
-    for (; MCParticlesList_iter != MCParticlesList.end(); MCParticlesList_iter++ )
-      if ( MCParticlesList_iter->IsThisFromSimTrk ) {
-	if (count==PosInSimTrackVec) break;
-	else count++;
-      }
-    return MCParticlesList_iter-MCParticlesList.begin();
-  }
+    vector<SimVertex> SVC;
+    vector< MCParticleInfo > MCParticlesList;
+    vector<Int_t> DChain;
+    vector< vector<Int_t> > SimChains;
+    vector< vector<Int_t> > HepMCChains;
+    vector<const SimTrack *> SavedSimTrk;
+    vector<HepMC::GenParticle *> SavedHepPar;
 
-  inline Int_t FindHepMCInMCParticlesList( Int_t PosInHepMCVec ) {
-    Int_t count=0;
-    vector<MCParticleInfo>::const_iterator MCParticlesList_iter = MCParticlesList.begin();
-    for (; MCParticlesList_iter != MCParticlesList.end(); MCParticlesList_iter++ )
-      if ( !MCParticlesList_iter->IsThisFromSimTrk ) {
-	if (count==PosInHepMCVec) break;
-	else count++;
-      }
-    return MCParticlesList_iter-MCParticlesList.begin();
-  }
-      
-  Bool_t GetDecayChains(TrackingParticleRef tpr, HepMC::GenEvent *HepGenEvent, ULong64_t &type, Int_t &truth_thesamewith, vector<vector< vector<Int_t> > > & SimChains);
-  void SimTrackDaughtersTree(const SimTrack * thisTrk, TrackingParticleRef tpr);
-  void HepMCParentTree(HepMC::GenParticle *genPar);
-  inline ParticleType ParticleCata(Int_t pid);
-  Bool_t SaveAndClassify(vector<Int_t> &Chain, vector<TheTrackType> &types, Int_t & truth_thesamewith, vector<vector< vector<Int_t> > > &  SimChains);
-  TheTrackType Classify(vector<Int_t> &Chain);
-  Bool_t IstheSameDChain(const vector<Int_t> &Chain1,const vector<Int_t> &Chain2);
+    inline Int_t FindSimTrackInMCParticlesList( Int_t PosInSimTrackVec ) {
+      Int_t count=0;
+      vector<MCParticleInfo>::const_iterator MCParticlesList_iter = MCParticlesList.begin();
+      for (; MCParticlesList_iter != MCParticlesList.end(); MCParticlesList_iter++ )
+        if ( MCParticlesList_iter->IsThisFromSimTrk ) {
+          if (count==PosInSimTrackVec) break;
+          else count++;
+        }
+      return MCParticlesList_iter-MCParticlesList.begin();
+    }
 
-  CSCConditions theDbConditions;
-  HLTConfigProvider  hltConfigProvider_;
-  
-  void chamberCandidates(Int_t station, Float_t feta, Float_t phi, std::vector <int> &coupleOfChambers);
-  Int_t ringCandidate(Int_t station, Float_t feta, Float_t phi);
-  UChar_t thisChamberCandidate(UChar_t station, UChar_t ring, Float_t phi);
+    inline Int_t FindHepMCInMCParticlesList( Int_t PosInHepMCVec ) {
+      Int_t count=0;
+      vector<MCParticleInfo>::const_iterator MCParticlesList_iter = MCParticlesList.begin();
+      for (; MCParticlesList_iter != MCParticlesList.end(); MCParticlesList_iter++ )
+        if ( !MCParticlesList_iter->IsThisFromSimTrk ) {
+          if (count==PosInHepMCVec) break;
+          else count++;
+        }
+      return MCParticlesList_iter-MCParticlesList.begin();
+    }
 
-  ///// Functions needed...
-  void getCSCSegWkeyHalfStrip(const std::vector<CSCRecHit2D> &theseRecHits, Float_t &cStrp, Float_t &ckWG);
-  
-  Float_t YDistToHVDeadZone(Float_t yLocal, Int_t StationAndRing);
+    Bool_t GetDecayChains(TrackingParticleRef tpr, HepMC::GenEvent *HepGenEvent, ULong64_t &type, Int_t &truth_thesamewith, vector<vector< vector<Int_t> > > & SimChains);
+    void SimTrackDaughtersTree(const SimTrack * thisTrk, TrackingParticleRef tpr);
+    void HepMCParentTree(HepMC::GenParticle *genPar);
+    inline ParticleType ParticleCata(Int_t pid);
+    Bool_t SaveAndClassify(vector<Int_t> &Chain, vector<TheTrackType> &types, Int_t & truth_thesamewith, vector<vector< vector<Int_t> > > &  SimChains);
+    TheTrackType Classify(vector<Int_t> &Chain);
+    Bool_t IstheSameDChain(const vector<Int_t> &Chain1,const vector<Int_t> &Chain2);
 
-  inline vector<Float_t> GetEdgeAndDistToGap(reco::TrackRef trackRef, CSCDetId & detid);
+    CSCConditions theDbConditions;
+    HLTConfigProvider  hltConfigProvider_;
 
-  reco::MuonCollection::const_iterator matchTTwithMT(reco::TrackCollection::const_iterator &itrack);
+    void chamberCandidates(Int_t station, Float_t feta, Float_t phi, std::vector <int> &coupleOfChambers);
+    Int_t ringCandidate(Int_t station, Float_t feta, Float_t phi);
+    UChar_t thisChamberCandidate(UChar_t station, UChar_t ring, Float_t phi);
 
-  bool matchTTwithCSCRecHit(bool trackDir,
-			    Int_t j, 
-			    reco::TrackRef trackRef, 
-			    edm::Handle<CSCRecHit2DCollection> recHits, 
-			    //std::vector<CSCRecHit2DCollection> recHitOut, 
-			    std::vector<CSCRecHit2D> &recHitOut, 
-			    std::vector<Int_t > &deltaRecHitX,
-			    std::vector<Int_t > &deltaRecHitY);
-  /*  
-  bool matchTTwithRPCEChit(bool trackDir, 
-			   Int_t j, 
-			   reco::TrackRef trackRef, 
-			   edm::Handle<RPCRecHitCollection> rpcRecHits, 
-			   RPCRecHitCollection::const_iterator &rpcHitOut);
-  */
-  inline Float_t TrajectoryDistToSeg( TrajectoryStateOnSurface *TrajSuf, CSCSegmentCollection::const_iterator segIt);
- 
-  TrajectoryStateOnSurface* matchTTwithCSCSeg( reco::TrackRef trackRef, edm::Handle<CSCSegmentCollection> cscSegments, 
-					       CSCSegmentCollection::const_iterator &cscSegOut, CSCDetId & idCSC );
+    ///// Functions needed...
+    void getCSCSegWkeyHalfStrip(const std::vector<CSCRecHit2D> &theseRecHits, Float_t &cStrp, Float_t &ckWG);
 
-  Bool_t matchTTwithCSCSeg(Bool_t trackDir, Int_t j, reco::TrackRef trackRef, edm::Handle<CSCSegmentCollection> cscSegments, 
-			   CSCSegmentCollection::const_iterator &cscSegOut );
+    Float_t YDistToHVDeadZone(Float_t yLocal, Int_t StationAndRing);
 
-/*
-  Bool_t matchCSCSegWithLCT(edm::Handle<CSCCorrelatedLCTDigiCollection> mpclcts, 
-			    CSCDetId & idCSC, 
-			    Int_t TT,
-			    Float_t TrkPhi, Float_t TrkEta,
-			    Float_t c1, Float_t w1,
-			    CSCCorrelatedLCTDigiCollection::const_iterator &mpcItOut,
-			    CSCCorrelatedLCTDigiCollection::const_iterator &mpcHsWkOut,
-			    Bool_t *xMatch,
-			    Float_t *mDAngle,
-			    Float_t *diffTrkEta,
-			    Float_t *diffTrkPhi,
-			    Float_t *delHStrp,
-			    Float_t *delWkey
-			    );
-*/
-  LocalPoint * matchTTwithLCTs(Float_t xPos, Float_t yPos, UChar_t ec, UChar_t st, UChar_t &rg, UChar_t cham, 
-			       edm::Handle<CSCCorrelatedLCTDigiCollection> mpclcts, Float_t &dRTrkLCT, Int_t &lctBX );
+    inline vector<Float_t> GetEdgeAndDistToGap(reco::TrackRef trackRef, CSCDetId & detid);
 
-  Int_t getNLayerMatchedCSCSeg(CSCSegmentCollection::const_iterator &cscSegMatch,
-			       edm::Handle<CSCRecHit2DCollection> recHits,
-			       Float_t *delRecSegX,
-			       Float_t *delRecSegY,
-			       Int_t &nGHits);
+    reco::MuonCollection::const_iterator matchTTwithMT(reco::TrackCollection::const_iterator &itrack);
 
-  CSCSectorReceiverLUT *srLUTs_[2][6][5];
-  const L1MuTriggerScales* theTriggerScales;
+    bool matchTTwithCSCRecHit(bool trackDir,
+        Int_t j, 
+        reco::TrackRef trackRef, 
+        edm::Handle<CSCRecHit2DCollection> recHits, 
+        //std::vector<CSCRecHit2DCollection> recHitOut, 
+        std::vector<CSCRecHit2D> &recHitOut, 
+        std::vector<Int_t > &deltaRecHitX,
+        std::vector<Int_t > &deltaRecHitY);
+    /*  
+        bool matchTTwithRPCEChit(bool trackDir, 
+        Int_t j, 
+        reco::TrackRef trackRef, 
+        edm::Handle<RPCRecHitCollection> rpcRecHits, 
+        RPCRecHitCollection::const_iterator &rpcHitOut);
+     */
+    inline Float_t TrajectoryDistToSeg( TrajectoryStateOnSurface *TrajSuf, CSCSegmentCollection::const_iterator segIt);
 
-  edm::Handle<CSCSegmentCollection> cscSegments;
-  edm::Handle<reco::MuonCollection> muons;
+    TrajectoryStateOnSurface* matchTTwithCSCSeg( reco::TrackRef trackRef, edm::Handle<CSCSegmentCollection> cscSegments, 
+        CSCSegmentCollection::const_iterator &cscSegOut, CSCDetId & idCSC );
 
-  edm::EDGetTokenT<CSCSegmentCollection>          seg_token;
-  std::string m_seg;
+    Bool_t matchTTwithCSCSeg(Bool_t trackDir, Int_t j, reco::TrackRef trackRef, edm::Handle<CSCSegmentCollection> cscSegments, 
+        CSCSegmentCollection::const_iterator &cscSegOut );
 
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> _magFieldToken;
-  edm::ESHandle<MagneticField> theBField;
-  //edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  /*
-  // DT Geometry
-  edm::ESHandle<DTGeometry> dtGeom;
-  //RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  */
-  // CSC Geometry
-  
-  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
-  edm::ESHandle<CSCGeometry> cscGeom;
+    /*
+       Bool_t matchCSCSegWithLCT(edm::Handle<CSCCorrelatedLCTDigiCollection> mpclcts, 
+       CSCDetId & idCSC, 
+       Int_t TT,
+       Float_t TrkPhi, Float_t TrkEta,
+       Float_t c1, Float_t w1,
+       CSCCorrelatedLCTDigiCollection::const_iterator &mpcItOut,
+       CSCCorrelatedLCTDigiCollection::const_iterator &mpcHsWkOut,
+       Bool_t *xMatch,
+       Float_t *mDAngle,
+       Float_t *diffTrkEta,
+       Float_t *diffTrkPhi,
+       Float_t *delHStrp,
+       Float_t *delWkey
+       );
+     */
+    LocalPoint * matchTTwithLCTs(Float_t xPos, Float_t yPos, UChar_t ec, UChar_t st, UChar_t &rg, UChar_t cham, 
+        edm::Handle<CSCCorrelatedLCTDigiCollection> mpclcts, Float_t &dRTrkLCT, Int_t &lctBX );
 
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-  edm::ESHandle<CaloGeometry> calogeo;
+    Int_t getNLayerMatchedCSCSeg(CSCSegmentCollection::const_iterator &cscSegMatch,
+        edm::Handle<CSCRecHit2DCollection> recHits,
+        Float_t *delRecSegX,
+        Float_t *delRecSegY,
+        Int_t &nGHits);
 
-  // Trigger
-  
-  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> trigScalesToken_;
-  edm::ESHandle<L1MuTriggerScales> trigScalesHandle_;
+    CSCSectorReceiverLUT *srLUTs_[2][6][5];
+    const L1MuTriggerScales* theTriggerScales;
 
-  edm::ESGetToken<L1GtTriggerMenu,L1GtTriggerMenuRcd> trigMenuToken_;
-  edm::ESHandle<L1GtTriggerMenu> trigMenuHandle_;
+    edm::Handle<CSCSegmentCollection> cscSegments;
+    edm::Handle<reco::MuonCollection> muons;
 
-  // Extrapolator to cylinder
+    edm::EDGetTokenT<CSCSegmentCollection>          seg_token;
+    std::string m_seg;
 
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> _magFieldToken;
+    edm::ESHandle<MagneticField> theBField;
+    //edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+    /*
+    // DT Geometry
+    edm::ESHandle<DTGeometry> dtGeom;
+    //RPC Geometry
+    edm::ESHandle<RPCGeometry> rpcGeo;
+     */
+    // CSC Geometry
 
-  edm::ESGetToken<Propagator,TrackingComponentsRecord> propagatorAlongToken_;
-  edm::ESGetToken<Propagator,TrackingComponentsRecord> propagatorOppositeToken_;
-  edm::ESHandle<Propagator> propagatorAlong;
-  edm::ESHandle<Propagator> propagatorOpposite;
+    edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+    edm::ESHandle<CSCGeometry> cscGeom;
+
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+    edm::ESHandle<CaloGeometry> calogeo;
+
+    // Trigger
+
+    edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> trigScalesToken_;
+    edm::ESHandle<L1MuTriggerScales> trigScalesHandle_;
+
+    edm::ESGetToken<L1GtTriggerMenu,L1GtTriggerMenuRcd> trigMenuToken_;
+    edm::ESHandle<L1GtTriggerMenu> trigMenuHandle_;
+
+    // Extrapolator to cylinder
 
 
-  //  edm::ParameterSet trackExtractorPSet_;
-  // counters
-  Int_t nEventsAnalyzed,nEventsObjects,nEventsTracks,nEventsMuons,nEventsMuons_ok,nEventsMuons_ok2,nEventsMuons_ok3,nEventsMuons_okgood,nEventsMuonsTracks;
-  Int_t treeCount;
-
-  unsigned long long etime; 
-  Int_t bunchX, orbitNumb, expType, LumiBlock, LumiSection;
-  //
-  // The root file for the histograms.
-  //
-  TFile *theFile;
-
-  //
-  // General input parameters
-  //
-  std::string m_rootFileName, m_refRootFile, m_hltSingleMuTriName, m_hltDoubleMuTriName;
-  //  std::string trackExtractorName;
-  double m_cellThreshold;
-  // Steering parameters...
-  edm::InputTag m_beamSpot;
- 
- edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
- edm::EDGetTokenT<edm::ValueMap<DeDxData>> dedxCollectionToken_;
-
-  edm::EDGetTokenT<LumiScalersCollection> lumiscalers_;
-
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotCollectionToken_;
-  edm::EDGetTokenT<reco::TrackCollection> gTracksCollectionToken_;
-  edm::EDGetTokenT<edm::View<Track>> gTracksHVCollectionToken_;
-  edm::EDGetTokenT<trigger::TriggerEvent> hltTrgEvCollectionToken_;
-
-  edm::EDGetTokenT<edm::TriggerResults> hltCollectionToken_;
+    edm::ESGetToken<Propagator,TrackingComponentsRecord> propagatorAlongToken_;
+    edm::ESGetToken<Propagator,TrackingComponentsRecord> propagatorOppositeToken_;
+    edm::ESHandle<Propagator> propagatorAlong;
+    edm::ESHandle<Propagator> propagatorOpposite;
 
 
-  edm::ESGetToken<CSCBadChambers,CSCBadChambersRcd> CSCBadChambersToken_;
-  edm::ESHandle<CSCBadChambers> CSCBadChambersHandle_;
-//  edm::EDGetTokenT<edm::CSCBadChambersRcd> CSCBadChambersRcdToken_
+    //  edm::ParameterSet trackExtractorPSet_;
+    // counters
+    Int_t nEventsAnalyzed,nEventsObjects,nEventsTracks,nEventsMuons,nEventsMuons_ok,nEventsMuons_ok2,nEventsMuons_ok3,nEventsMuons_okgood,nEventsMuonsTracks;
+    Int_t treeCount;
 
-  edm::EDGetTokenT<CSCRecHit2DCollection>          rh_token;
-  std::string m_rh;
+    unsigned long long etime; 
+    Int_t bunchX, orbitNumb, expType, LumiBlock, LumiSection;
+    //
+    // The root file for the histograms.
+    //
+    TFile *theFile;
 
-  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>          muonCSCDigis_token;
-  std::string m_muonCSCDigis;
+    //
+    // General input parameters
+    //
+    std::string m_rootFileName, m_refRootFile, m_hltSingleMuTriName, m_hltDoubleMuTriName;
+    //  std::string trackExtractorName;
+    double m_cellThreshold;
+    // Steering parameters...
+    edm::InputTag m_beamSpot;
 
-  /*
-  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>          muonCSCDigis_token;
-  std::string m_muonCSCDigis;
-  */
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>          gt_token;
-  std::string m_gt;
+    edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
+    edm::EDGetTokenT<edm::ValueMap<DeDxData>> dedxCollectionToken_;
 
-  edm::EDGetTokenT<reco::MuonCollection>          muons_token;
-  std::string m_muons;
+    edm::EDGetTokenT<LumiScalersCollection> lumiscalers_;
 
-  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorTrack_;
-  //reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotCollectionToken_;
+    edm::EDGetTokenT<reco::TrackCollection> gTracksCollectionToken_;
+    edm::EDGetTokenT<edm::View<Track>> gTracksHVCollectionToken_;
+    edm::EDGetTokenT<trigger::TriggerEvent> hltTrgEvCollectionToken_;
 
-  Bool_t m_isMC, m_doTrigger, m_doTrack, m_doMuon, m_doElectron, m_doEIDAndIso, m_doPhoton, m_doGenPart;
-  Bool_t m_saveZ,m_saveJPsi;
-  Bool_t m_doTau, m_doJet, m_doBJet, m_doMET, m_doCaloTiming, m_doIslandHybrid;
-  edm::InputTag m_gTracksTag, m_fitTracksTag, m_electronTag, m_muonTag, m_photonTag, m_mcTag;
-  edm::InputTag m_jet0Tag, m_jet1Tag, m_jet2Tag, m_jet3Tag, m_jet4Tag, m_jet5Tag, m_jet6Tag;
-  edm::InputTag m_trujet0Tag, m_trujet1Tag, m_trujet2Tag, m_trujet3Tag, m_trujet4Tag, m_trujet5Tag, m_trujet6Tag, m_vertexSrc, m_dEdxDiscrimTag;
-  edm::InputTag m_HepMCTag, m_lumiScalers;
-  edm::InputTag trackProducer;
-  edm::InputTag m_hlt, m_hltTrgEv, m_L1extraTag;
-  vector<Int_t> m_HLTMuTrgBit;
-  Int_t m_HLTDiMuTrgBit;
-  vector<string> m_HLTMuTrgNames;
-  string m_HLTDiMuTrgName;
-
-  //badchambers
-  edm::ESHandle<CSCBadChambers> pBad;
-  CSCBadChambers* badChambers_;
-
-  /// Ntuple variables
-  TTree *fractNtuple, *RunInfo, *Nevents;
-  //HLT
-  vector<string> *HLTMuNames,*HLTMuObjModuleNames;
-  string *HLTTableName, *HLTDiMuName, *HLTDiMuObjModuleName;
-  vector<Int_t> *badChambersIndices; 
-  vector<Bool_t> *HLTMuAcceptance;
-  Bool_t HLTDiMuAcceptance,trgSingle;
-  vector<Float_t> *minDRHLTMu;
-  Float_t minDRHLTAllSingleMu,minDRHLTDiMu;
-
-  vector<Float_t> *LumiInst;
-  vector<Float_t> *LumiInstErr;
-  vector<Float_t> *LumiInstQlty;
-  vector<Float_t> *LumiEtInst;
-  vector<Float_t> *LumiEtInstErr;
-  vector<Float_t> *LumiEtInstQlty;
-  vector<Float_t> *LumiStartOrbit;
-  vector<Float_t> *LumiNumOrbits;
-
-  // for general information
-  Int_t isItMC, run_number, event_number,Nevents_all,Nevents_objects,Nevents_tracks,Nevents_muons,Nevents_muons_ok,Nevents_muons_ok2,Nevents_muons_ok3,Nevents_muons_okgood,Nevents_muonstracks;
-  Float_t Nevents_diMuonMass;
-  Float_t mcweight;
-  UInt_t numberOfPUVertices; // the number of pileup interactions that have been added to the event from BX=0
-  Float_t numberOfPUVerticesMixingTruth;// the "MixingTruth" mean number of pileup interactions for this event from which each bunch crossing has been sampled; same for all bunch crossings in an event (before possion smearing); in fact BX=-1, this value is zero, it's a bug I believe.
-  UInt_t numberOfPUVerticesTot;  // all PX : BX=0 and out-of-time PU
-  UInt_t numberOfPrimaryVertices ;
-  //// for track information
-  //
-  Float_t tracks_ecalCrossedE, tracks_ecal3E, tracks_ecal5E, tracks_ecal3EMax, tracks_ecal5EMax;
-  Float_t tracks_ecalTrueE, tracks_trkPosAtEcalEta, tracks_trkPosAtEcalPhi, tracks_ecalMaxPosEta, tracks_ecalMaxPosPhi;
-  Float_t tracks_hcalCrossedE, tracks_hcal3E, tracks_hcal5E, tracks_hcal3EMax, tracks_hcal5EMax;
-  Float_t tracks_hcalTrueE, tracks_trkPosAtHcalEta, tracks_trkPosAtHcalPhi, tracks_hcalMaxPosEta, tracks_hcalMaxPosPhi;
-  Float_t tracks_hcalTrueECorrected;
-  Float_t tracktruth_pt, tracktruth_e, tracktruth_p, tracktruth_id;
-  Bool_t tracktruth_isPileup;
-  ULong64_t tracktruth_type;
-  Int_t tracktruth_thesamewith;
-  TrackDetectorAssociator trackAssociator_;
-  TrackAssociatorParameters parameters_;
-
-  // Tracks
-  Int_t tracks_algo, tracks_charge, tracks_numberOfValidHits, tracks_algN, tracks_numberOfLostHits, tracks_recHitsSize;
-  Float_t tracks_id, tracks_chi2, tracks_e;
-  Float_t tracks_px, tracks_py, tracks_pz, tracks_pt;
-  Float_t tracks_eta, tracks_phi, tracks_dxy, tracks_d0, tracks_dsz, tracks_dz;
-  Float_t tracks_vx, tracks_vy, tracks_vz, tracks_ndof;
-  Float_t tracks_qoverp, tracks_lambda, tracks_quality;
-  Float_t tracks_IsoR03Ratio,tracks_IsoR05Ratio;//ratio of track pT
-  Float_t tracks_qoverpError, tracks_ptError, tracks_thetaError, tracks_lambdaError;
-  Float_t tracks_etaError, tracks_phiError, tracks_dxyError, tracks_d0Error , tracks_dszError;
-  Float_t tracks_dzError;
-  Bool_t tracks_isCaloMuTrk,tracks_isTrackerMuTrk,trackVeto_strict,trackVeto_isClosestToLCT;
-
-  Int_t nTotalTrks;//nPosTrk, nNegTrk
-  
-  Int_t myRegion;// 1-DT, 2-DT&CSC 3-CSC;
-
-  Int_t mpc_endcap, mpc_ring, mpc_station, mpc_chamber;
-  Int_t mpc_triggerSector, mpc_triggerCscId, mpc_trknmb, mpc_quality, mpc_bX, mpc_bX0, mpc_strip;
-  Int_t mpc_pattern, mpc_bend, mpc_keyWG, mpc_syncErr, mpc_cscID, mpc_mpcLink;
-  Float_t trkPhiScale, trkEtaScale, minDAngle, CSCSegMPCMatch, minPhi;
-  
-  Float_t muon_px, muon_py, muon_pz, muon_pt, muon_e, muon_eta, muon_phi, muon_charge, dRMU;
-  Float_t muon_nChambers, muon_nChambersMSeg;
-  Int_t muon_id, motherID;
-
-  Float_t centerStrp, centerkWG;
-  Int_t lctMatch1, lctMatch2, TTcase;
-  Float_t lctPhiDiff1, lctEtaDiff1, lctDelHStrp1, lctDelWkey1; 
-  Float_t lctPhiDiff2, lctEtaDiff2, lctDelHStrp2, lctDelWkey2; 
-
-  Float_t MuTagPx, MuTagPy, MuTagPz, MuProbePx, MuProbePy, MuProbePz;
-  Int_t MuTagHitsMuSys, MuTagHitsTrkSys;
-  Float_t MuTagE, MuProbeE;
-  Float_t MuTagPhiProj1, MuTagEtaProj1, MuTagPhiProj2, MuTagEtaProj2;
-  Float_t MuTagIsoR03Ratio,MuTagIsoR05Ratio,MuTagPFIsoR04Ratio;//ratio of muon pT
-  Float_t MuTagtracktruth_pt, MuTagtracktruth_p, MuTagtracktruth_id;
-  Bool_t MuTagtracktruth_isPileup;
-  ULong64_t MuTagtracktruth_type;
-  Int_t MuTagtracktruth_thesamewith;
-
-  /// For the ntuples..
-  //
-  Bool_t MuTagCaloL, MuTagCaloT, iSameVtx;
-
-  Int_t mu_found, MuProbenHitsMuSys, MuProbenHitsTrkSys, MuProbenHitsPixSys;
-  Int_t MuTagPromt, MuTagnSegTrkArb, MuProbeCharge, tracks_numberOfMatches;
-  Float_t MuProbePt, MuProbeEta, MuProbePhi, MuTagPt, MuTagEta, MuTagPhi, invMass, deltaRTrkMu;      
-  Float_t vtx_r, vtx_z, vtx_rError, vtx_zError, vtx_normChi2;
-  Int_t vtx_size, igSameVtx;
-
-  Int_t nTrkCountCSCSeg;
-  /*CSC Chamber Candidates in each station*/
-  Bool_t CSCEndCapPlus;
-  UChar_t CSCRg[4],CSCChCand[4];
-  Bool_t CSCChBad[4];
-  
-  /*Extrapolated Tracks on CSC Chamber Candidates in each station including lc and gc postions*/
-  Float_t CSCDyProjHVGap[4],CSCDyErrProjHVGap[4],CSCProjEdgeDist[4],CSCProjEdgeDistErr[4];//note: there is no so-called extrapolated track position on CSC chambers, because you need to know which layer.
-  Float_t CSCTTxLc[4],CSCTTwLc[4],CSCTTyLc[4],CSCTTsLc[4];
-  Float_t CSCTTwSegxLc[4],CSCTTwSegyLc[4];
-  Float_t CSCTT3xLc[4], CSCTT3wLc[4],CSCTT3yLc[4],CSCTT3sLc[4];
-  Float_t CSCTT3wLCTxLc[4],CSCTT3wLCTyLc[4];
-  Float_t CSCTTxGc[4],CSCTTyGc[4],CSCTTzGc[4],CSCTTetaGc[4];
-  Float_t CSCTT3xGc[4],CSCTT3yGc[4],CSCTT3zGc[4],CSCTT3etaGc[4];
+    edm::EDGetTokenT<edm::TriggerResults> hltCollectionToken_;
 
 
-  
-  /*Segments characteristics*/
-  Float_t CSCSegxLc[4],CSCSegyLc[4],CSCSegxErrLc[4],CSCSegyErrLc[4],CSCSegChisqProb[4],CSCdXdZTTSeg[4],CSCdYdZTTSeg[4];
-  Float_t CSCSegNumber[5],DTSegNumber[5],RPCSegNumber[5]; 
-  Int_t CSCnSegHits[4];
+    edm::ESGetToken<CSCBadChambers,CSCBadChambersRcd> CSCBadChambersToken_;
+    edm::ESHandle<CSCBadChambers> CSCBadChambersHandle_;
+    //  edm::EDGetTokenT<edm::CSCBadChambersRcd> CSCBadChambersRcdToken_
 
-  /*Distance from the Extrapolated Tracks to CSC Segments, 99999. for no CSC segment found*/
-  Float_t CSCDxTTSeg[4],CSCDxErrTTSeg[4],CSCDyTTSeg[4],CSCDyErrTTSeg[4],CSCDxyTTSeg[4],CSCDxyErrTTSeg[4];
+    edm::EDGetTokenT<CSCRecHit2DCollection>          rh_token;
+    std::string m_rh;
+
+    edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>          muonCSCDigis_token;
+    std::string m_muonCSCDigis;
+
+    /*
+       edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>          muonCSCDigis_token;
+       std::string m_muonCSCDigis;
+     */
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>          gt_token;
+    std::string m_gt;
+
+    edm::EDGetTokenT<reco::MuonCollection>          muons_token;
+    std::string m_muons;
+
+    std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorTrack_;
+    //reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
+
+    Bool_t m_isMC, m_doTrigger, m_doTrack, m_doMuon, m_doElectron, m_doEIDAndIso, m_doPhoton, m_doGenPart;
+    Bool_t m_saveZ,m_saveJPsi;
+    Bool_t m_doTau, m_doJet, m_doBJet, m_doMET, m_doCaloTiming, m_doIslandHybrid;
+    edm::InputTag m_gTracksTag, m_fitTracksTag, m_electronTag, m_muonTag, m_photonTag, m_mcTag;
+    edm::InputTag m_jet0Tag, m_jet1Tag, m_jet2Tag, m_jet3Tag, m_jet4Tag, m_jet5Tag, m_jet6Tag;
+    edm::InputTag m_trujet0Tag, m_trujet1Tag, m_trujet2Tag, m_trujet3Tag, m_trujet4Tag, m_trujet5Tag, m_trujet6Tag, m_vertexSrc, m_dEdxDiscrimTag;
+    edm::InputTag m_HepMCTag, m_lumiScalers;
+    edm::InputTag trackProducer;
+    edm::InputTag m_hlt, m_hltTrgEv, m_L1extraTag;
+    vector<Int_t> m_HLTMuTrgBit;
+    Int_t m_HLTDiMuTrgBit;
+    vector<string> m_HLTMuTrgNames;
+    string m_HLTDiMuTrgName;
+
+    //badchambers
+    edm::ESHandle<CSCBadChambers> pBad;
+    CSCBadChambers* badChambers_;
+
+    /// Ntuple variables
+    TTree *fractNtuple, *RunInfo, *Nevents;
+    //HLT
+    vector<string> *HLTMuNames,*HLTMuObjModuleNames;
+    string *HLTTableName, *HLTDiMuName, *HLTDiMuObjModuleName;
+    vector<Int_t> *badChambersIndices; 
+    vector<Bool_t> *HLTMuAcceptance;
+    Bool_t HLTDiMuAcceptance,trgSingle;
+    vector<Float_t> *minDRHLTMu;
+    Float_t minDRHLTAllSingleMu,minDRHLTDiMu;
+
+    vector<Float_t> *LumiInst;
+    vector<Float_t> *LumiInstErr;
+    vector<Float_t> *LumiInstQlty;
+    vector<Float_t> *LumiEtInst;
+    vector<Float_t> *LumiEtInstErr;
+    vector<Float_t> *LumiEtInstQlty;
+    vector<Float_t> *LumiStartOrbit;
+    vector<Float_t> *LumiNumOrbits;
+
+    // for general information
+    Int_t isItMC, run_number, event_number,Nevents_all,Nevents_objects,Nevents_tracks,Nevents_muons,Nevents_muons_ok,Nevents_muons_ok2,Nevents_muons_ok3,Nevents_muons_okgood,Nevents_muonstracks;
+    Float_t Nevents_diMuonMass;
+    Float_t mcweight;
+    UInt_t numberOfPUVertices; // the number of pileup interactions that have been added to the event from BX=0
+    Float_t numberOfPUVerticesMixingTruth;// the "MixingTruth" mean number of pileup interactions for this event from which each bunch crossing has been sampled; same for all bunch crossings in an event (before possion smearing); in fact BX=-1, this value is zero, it's a bug I believe.
+    UInt_t numberOfPUVerticesTot;  // all PX : BX=0 and out-of-time PU
+    UInt_t numberOfPrimaryVertices ;
+    //// for track information
+    //
+    Float_t tracks_ecalCrossedE, tracks_ecal3E, tracks_ecal5E, tracks_ecal3EMax, tracks_ecal5EMax;
+    Float_t tracks_ecalTrueE, tracks_trkPosAtEcalEta, tracks_trkPosAtEcalPhi, tracks_ecalMaxPosEta, tracks_ecalMaxPosPhi;
+    Float_t tracks_hcalCrossedE, tracks_hcal3E, tracks_hcal5E, tracks_hcal3EMax, tracks_hcal5EMax;
+    Float_t tracks_hcalTrueE, tracks_trkPosAtHcalEta, tracks_trkPosAtHcalPhi, tracks_hcalMaxPosEta, tracks_hcalMaxPosPhi;
+    Float_t tracks_hcalTrueECorrected;
+    Float_t tracktruth_pt, tracktruth_e, tracktruth_p, tracktruth_id;
+    Bool_t tracktruth_isPileup;
+    ULong64_t tracktruth_type;
+    Int_t tracktruth_thesamewith;
+    TrackDetectorAssociator trackAssociator_;
+    TrackAssociatorParameters parameters_;
+
+    // Tracks
+    Int_t tracks_algo, tracks_charge, tracks_numberOfValidHits, tracks_algN, tracks_numberOfLostHits, tracks_recHitsSize;
+    Float_t tracks_id, tracks_chi2, tracks_e;
+    Float_t tracks_px, tracks_py, tracks_pz, tracks_pt;
+    Float_t tracks_eta, tracks_phi, tracks_dxy, tracks_d0, tracks_dsz, tracks_dz;
+    Float_t tracks_vx, tracks_vy, tracks_vz, tracks_ndof;
+    Float_t tracks_qoverp, tracks_lambda, tracks_quality;
+    Float_t tracks_IsoR03Ratio,tracks_IsoR05Ratio;//ratio of track pT
+    Float_t tracks_qoverpError, tracks_ptError, tracks_thetaError, tracks_lambdaError;
+    Float_t tracks_etaError, tracks_phiError, tracks_dxyError, tracks_d0Error , tracks_dszError;
+    Float_t tracks_dzError;
+    Bool_t tracks_isCaloMuTrk,tracks_isTrackerMuTrk,trackVeto_strict,trackVeto_isClosestToLCT;
+
+    Int_t nTotalTrks;//nPosTrk, nNegTrk
+
+    Int_t myRegion;// 1-DT, 2-DT&CSC 3-CSC;
+
+    Int_t mpc_endcap, mpc_ring, mpc_station, mpc_chamber;
+    Int_t mpc_triggerSector, mpc_triggerCscId, mpc_trknmb, mpc_quality, mpc_bX, mpc_bX0, mpc_strip;
+    Int_t mpc_pattern, mpc_bend, mpc_keyWG, mpc_syncErr, mpc_cscID, mpc_mpcLink;
+    Float_t trkPhiScale, trkEtaScale, minDAngle, CSCSegMPCMatch, minPhi;
+
+    Float_t muon_px, muon_py, muon_pz, muon_pt, muon_e, muon_eta, muon_phi, muon_charge, dRMU;
+    Float_t muon_nChambers, muon_nChambersMSeg;
+    Int_t muon_id, motherID;
+
+    Float_t centerStrp, centerkWG;
+    Int_t lctMatch1, lctMatch2, TTcase;
+    Float_t lctPhiDiff1, lctEtaDiff1, lctDelHStrp1, lctDelWkey1; 
+    Float_t lctPhiDiff2, lctEtaDiff2, lctDelHStrp2, lctDelWkey2; 
+
+    Float_t MuTagPx, MuTagPy, MuTagPz, MuProbePx, MuProbePy, MuProbePz;
+    Int_t MuTagHitsMuSys, MuTagHitsTrkSys;
+    Float_t MuTagE, MuProbeE;
+    Float_t MuTagPhiProj1, MuTagEtaProj1, MuTagPhiProj2, MuTagEtaProj2;
+    Float_t MuTagIsoR03Ratio,MuTagIsoR05Ratio,MuTagPFIsoR04Ratio;//ratio of muon pT
+    Float_t MuTagtracktruth_pt, MuTagtracktruth_p, MuTagtracktruth_id;
+    Bool_t MuTagtracktruth_isPileup;
+    ULong64_t MuTagtracktruth_type;
+    Int_t MuTagtracktruth_thesamewith;
+
+    /// For the ntuples..
+    //
+    Bool_t MuTagCaloL, MuTagCaloT, iSameVtx;
+
+    Int_t mu_found, MuProbenHitsMuSys, MuProbenHitsTrkSys, MuProbenHitsPixSys;
+    Int_t MuTagPromt, MuTagnSegTrkArb, MuProbeCharge, tracks_numberOfMatches;
+    Float_t MuProbePt, MuProbeEta, MuProbePhi, MuTagPt, MuTagEta, MuTagPhi, invMass, deltaRTrkMu;      
+    Float_t vtx_r, vtx_z, vtx_rError, vtx_zError, vtx_normChi2;
+    Int_t vtx_size, igSameVtx;
+
+    Int_t nTrkCountCSCSeg;
+    /*CSC Chamber Candidates in each station*/
+    Bool_t CSCEndCapPlus;
+    UChar_t CSCRg[4],CSCChCand[4];
+    Bool_t CSCChBad[4];
+
+    /*Extrapolated Tracks on CSC Chamber Candidates in each station including lc and gc postions*/
+    Float_t CSCDyProjHVGap[4],CSCDyErrProjHVGap[4],CSCProjEdgeDist[4],CSCProjEdgeDistErr[4];//note: there is no so-called extrapolated track position on CSC chambers, because you need to know which layer.
+    Float_t CSCTTxLc[4],CSCTTwLc[4],CSCTTyLc[4],CSCTTsLc[4];
+    Float_t CSCTTwSegxLc[4],CSCTTwSegyLc[4];
+    Float_t CSCTT3xLc[4], CSCTT3wLc[4],CSCTT3yLc[4],CSCTT3sLc[4];
+    Float_t CSCTT3wLCTxLc[4],CSCTT3wLCTyLc[4];
+    Float_t CSCTTxGc[4],CSCTTyGc[4],CSCTTzGc[4],CSCTTetaGc[4];
+    Float_t CSCTT3xGc[4],CSCTT3yGc[4],CSCTT3zGc[4],CSCTT3etaGc[4];
 
 
-  
-  /*LCT characteristics*/
-  Float_t CSCLCTxLc[4],CSCLCTyLc[4];
-  Int_t CSCLCTbx[4];
-  Int_t N_seg_inChamber[4];
 
-  /*Distance from the Extrapolated Tracks to LCT, 99999. for no LCT found*/
-  Float_t CSCDxTTLCT[4],CSCDxErrTTLCT[4],CSCDyTTLCT[4],CSCDyErrTTLCT[4],CSCDxyTTLCT[4],CSCDxyErrTTLCT[4];
+    /*Segments characteristics*/
+    Float_t CSCSegxLc[4],CSCSegyLc[4],CSCSegxErrLc[4],CSCSegyErrLc[4],CSCSegChisqProb[4],CSCdXdZTTSeg[4],CSCdYdZTTSeg[4];
+    Float_t CSCSegNumber[5],DTSegNumber[5],RPCSegNumber[5]; 
+    Int_t CSCnSegHits[4];
 
-  /*DetlaR between the extrapolated tracker track on muon system and the tagged muon*/
-  Float_t dRTkMu[4];  
-  /*Default decision of whether a segment or LCT is found*/
-  Int_t segSt[4],lctSt[4];
+    /*Distance from the Extrapolated Tracks to CSC Segments, 99999. for no CSC segment found*/
+    Float_t CSCDxTTSeg[4],CSCDxErrTTSeg[4],CSCDyTTSeg[4],CSCDyErrTTSeg[4],CSCDxyTTSeg[4],CSCDxyErrTTSeg[4];
+
+
+
+    /*LCT characteristics*/
+    Float_t CSCLCTxLc[4],CSCLCTyLc[4];
+    Int_t CSCLCTbx[4];
+    Int_t N_seg_inChamber[4];
+
+    /*Distance from the Extrapolated Tracks to LCT, 99999. for no LCT found*/
+    Float_t CSCDxTTLCT[4],CSCDxErrTTLCT[4],CSCDyTTLCT[4],CSCDyErrTTLCT[4],CSCDxyTTLCT[4],CSCDxyErrTTLCT[4];
+
+    /*DetlaR between the extrapolated tracker track on muon system and the tagged muon*/
+    Float_t dRTkMu[4];  
+    /*Default decision of whether a segment or LCT is found*/
+    Int_t segSt[4],lctSt[4];
 };
 #endif
