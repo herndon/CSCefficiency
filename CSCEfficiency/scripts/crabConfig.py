@@ -20,8 +20,6 @@ while os.path.exists("crab_%s" % sectionSettings["requestName"]):
 print("Submitting job:", requestName)
 print("Global tag:", sectionSettings["globalTag"])
 
-exit(1)
-
 # Initialize CRAB config
 from CRABClient.UserUtilities import config
 config = config()
