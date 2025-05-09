@@ -1,17 +1,11 @@
 # CRAB Submissions
 
-To make submitting CRAB jobs easier, there is a `settings.cfg` file in this directory that will allow for easy configuration of a given job without having
-to create a new set of files for every unique dataset and job attempt. Once the settings file has been configured to your needs, you can run
-
-```bash
-crab submit -c crabConfig.py
-```
-
-within this directory to submit the job.
+To submit CRAB jobs, move to the [`submit/`](CSCEfficiency/submit/.) directory and run `crabSubmit.sh`. To customize the job that is submitted (such as dataset, 
+request name, etc.) edit the [`settings.cfg`](CSCEfficiency/submit/settings.cfg) file appropriately. The following sections describe how to do so.
 
 ## Configuring the job
 
-To configure the job, you must edit the `settings.cfg` file in this directory to add a new config section corresponding to the dataset you wish to process. For example,
+To configure the job, you must edit the `settings.cfg` file to add a new config section corresponding to the dataset you wish to process. For example,
 if you want to process the dataset `/Muon0/Run2025B-ZMu-PromptReco-v1/RAW-RECO`, then you would add the following section:
 
 ```dosini
@@ -23,7 +17,8 @@ jobAttempt: 1
 globalTag: 150X_dataRun3_Prompt_v1 
 ```
 
-The section name is merely a convention to keep things organized - you can name it whatever you'd like. Possible options in these user-defined sections are defined as follows:
+The section name is merely a convention to keep things organized - you can name it whatever you'd like. Possible options in these user-defined sections are 
+defined as follows:
 
 * `stream`: The integer identifier of the split `Muon` primary dataset streams. (e.g. 0 or 1 corresponding to `Muon0` and
 `Muon1`, respectively)
@@ -36,7 +31,8 @@ accordingly.
 With the exception of the `jobAttempt` option, all of these can be found on the Data Aggregation System (DAS) with the appropriate query. For example, here we
 would search `dataset=/Muon0/Run2025B-ZMu-PromptReco-v1/RAW-RECO` and hit the "show" button next to the listed dataset.
 
-Once you've configured this new section, go to the `section` option in the `DEFAULT` section and change the value to the name of your newly created section.
+**NOTE**: Once you've configured this new section, go to the `section` option in the `DEFAULT` section and change the value to the name of your newly created section.
+This option controls what jobs are submitted - make sure to change this when you submit a new job.
 
 ### Overwriting default options
 

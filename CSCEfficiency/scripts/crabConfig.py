@@ -11,6 +11,8 @@ configParams = [
     "version=%s" % sectionSettings["version"],
     "attempt=%s" % sectionSettings["jobAttempt"],
 ]
+for param in configParams:
+    print(param)
 
 # Initialize CRAB config
 from CRABClient.UserUtilities import config
@@ -37,6 +39,8 @@ config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = int(sectionSettings["unitsPerJob"])
 config.Data.publication = True
 config.Data.outputDatasetTag = sectionSettings["tag"]
+if sectionSettings["runRange"]:
+    config.Data.runRange = sectionSettings["runRange"]
 if sectionSettings["lumiMask"]:
     config.Data.lumiMask = sectionSettings["lumiMask"]
 if sectionSettings.getboolean("appendDate"):
