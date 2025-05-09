@@ -1,7 +1,15 @@
 # CRAB Submissions
 
 To submit CRAB jobs, move to the [`submit/`](CSCEfficiency/submit/.) directory and run `crabSubmit.sh`. To customize the job that is submitted (such as dataset, 
-request name, etc.) edit the [`settings.cfg`](CSCEfficiency/submit/settings.cfg) file appropriately. The following sections describe how to do so.
+request name, etc.) edit the [`settings.cfg`](CSCEfficiency/submit/settings.cfg) file appropriately. If you want to submit a job with a pre-existing section's settings,
+you can run the following:
+
+```bash
+crabSubmit.sh <SECTION_NAME>
+```
+
+Here, `<SECTION_NAME>` refers to the name of the section with the settings you want to apply. If the name is not found in the settings file, an error will print and it
+will cancel the script. The following sections describe how to create new setting sections to configure your jobs.
 
 ## Configuring the job
 
@@ -30,7 +38,7 @@ All of these can be found on the Data Aggregation System (DAS) with the appropri
 would search `dataset=/Muon0/Run2025B-ZMu-PromptReco-v1/RAW-RECO` and hit the "show" button next to the listed dataset.
 
 **NOTE**: Once you've configured this new section, go to the `section` option in the `DEFAULT` section and change the value to the name of your newly created section.
-This option controls what jobs are submitted - make sure to change this when you submit a new job.
+This option controls what jobs are submitted - make sure to change this when you submit a new job. Alternatively, you can provide this name when running `crabSubmit.sh`.
 
 ### Overwriting default options
 
@@ -65,4 +73,5 @@ The additional options in the `DEFAULT` section are defined as follows:
 * `dataID`: An identifier for the dataset being processed.
 * `requestName`: A name given to the request.
 * `tag`: A custom string used in both the LFN of the output files and the publication dataset name.
-* `section`: The config section in the file to pull process-specific options from for analysis.
+* `section`: The config section in the file to pull process-specific options from for analysis. You can change this manually or by providing it as the
+first argument when running `crabSubmit.sh`.
