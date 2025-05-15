@@ -77,7 +77,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
-process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
+#process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -94,7 +94,7 @@ process.source = cms.Source("PoolSource",
 process.options = cms.untracked.PSet(
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    accelerators = cms.untracked.vstring('*'),
+    #accelerators = cms.untracked.vstring('*'),
     canDeleteEarly = cms.untracked.vstring(),
     deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
     eventSetup = cms.untracked.PSet(
@@ -105,10 +105,10 @@ process.options = cms.untracked.PSet(
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
-    numberOfThreads = cms.untracked.uint32(1),
+    numberOfThreads = cms.untracked.uint32(2),
     printDependencies = cms.untracked.bool(False),
     sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
     throwIfIllegalParameter = cms.untracked.bool(True),
@@ -124,13 +124,13 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Output definition
 
-process.ALCARECOoutput = cms.OutputModule("PoolOutputModule",
+process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('ALCARECO'),
-        filterName = cms.untracked.string('StreamALCACombined')
+        dataTier = cms.untracked.string('RECO'),
+        filterName = cms.untracked.string('')
     ),
     fileName = cms.untracked.string('file:step3.root'),
-    outputCommands = process.ALCARECOEventContent.outputCommands,
+    outputCommands = process.RECOSIMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
 
@@ -198,7 +198,7 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-#process.options.numberOfThreads = 8
+process.options.numberOfThreads = 2
 process.options.numberOfStreams = 0
 if not options.local:
     process.options.numberOfConcurrentLuminosityBlocks = 2
@@ -208,10 +208,10 @@ if not options.local:
 # customisation of the process.
 
 # Automatic addition of the customisation function from Configuration.DataProcessing.RecoTLR
-from Configuration.DataProcessing.RecoTLR import customiseExpress 
+#from Configuration.DataProcessing.RecoTLR import customiseExpress 
 
 #call to customisation function customiseExpress imported from Configuration.DataProcessing.RecoTLR
-process = customiseExpress(process)
+#process = customiseExpress(process)
 
 # End of customisation functions
 
