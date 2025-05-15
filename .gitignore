@@ -1,0 +1,4 @@
+__pycache__/
+
+CSCEfficiency/submit/*.log
+CSCEfficiency/submit/crab_*/
