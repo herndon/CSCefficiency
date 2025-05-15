@@ -1,16 +1,31 @@
-# Import user configurations
+import os
+import re
 import configparser
+from datetime import datetime
+
+# Import user configurations
 settings = configparser.ConfigParser()
 settings.read("settings.cfg")
 sectionSettings = settings[settings.get("DEFAULT", "section")]
 
+# Error checking
+pattern = "/Muon\d/Run\d{4}[A-Z]-ZMu-PromptReco-v\d+/RAW-RECO"
+if re.fullmatch(pattern, sectionSettings["dataset"]) is None:
+    raise Exception(f'invalid input dataset: {sectionSettings["dataset"]}' + \
+                    f'\nexpected input of the form: {pattern}')
+
+# Read user configurations
+primaryDS, conditions, _ = sectionSettings["dataset"].split("/")[1:]
+sectionSettings["stream"] = primaryDS[-1]
+sectionSettings["era"] = conditions.split("-")[0].replace("Run","")
+sectionSettings["version"] = conditions[-1]
+
 configParams = [
+    "CRAB=1",
     "globalTag=%s" % sectionSettings["globalTag"],
-    "primaryDS=Muon%s" % sectionSettings["stream"],
-    "era=%s" % sectionSettings["era"],
-    "version=%s" % sectionSettings["version"],
+    "outputFile=%s" % sectionSettings["outputFile"],
 ]
-import os
+
 jobAttempt = 1
 requestName = "%s_%i" % (sectionSettings["requestName"], jobAttempt)
 while os.path.exists("crab_%s" % requestName):
@@ -48,7 +63,6 @@ config.Data.unitsPerJob = int(sectionSettings["unitsPerJob"])
 config.Data.publication = True
 config.Data.outputDatasetTag = sectionSettings["tag"]
 if sectionSettings.getboolean("appendDate"):
-    from datetime import datetime
     config.Data.outputDatasetTag += f'_{datetime.now():%Y_%m%d}'
 
 # Site settings

@@ -6,12 +6,6 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-import re
-
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('ntuple',eras.Run3)
-HLTProcessName='HLT'
-
 # command-line arguments
 options = VarParsing.VarParsing("analysis")
 options.maxEvents = 100000
@@ -21,51 +15,36 @@ options.register("globalTag", "",
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
         "global tag for analysis")
-options.register("local", 0,
+options.register("CRAB", 0,
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.int,
         "type of job 0: local 1: CRAB submission")
-
-# CRAB settings
-options.register("primaryDS", "",
+options.register("HLTProcessName", 'HLT',
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
-        "primary dataset name (Muon0 or Muon1)")
-options.register("era", "",
-        VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.string,
-        "era identifier (e.g. 2024A)")
-options.register("version", 0,
-        VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.int,
-        "version identifier for era")
+        "name for HLT process")
 options.parseArguments()
 
 # error checking
 if not options.globalTag:
     raise ValueError("globalTag option is required")
-if options.local:
+if not options.CRAB:
     if not options.inputFiles:
         raise ValueError("inputFiles option is required for local submissions")
-else:
-    for name in ["primaryDS", "era", "version"]:
-        if not getattr(options, name):
-            raise ValueError("%s option is required" % name)
-    if not re.fullmatch("[0-9]{4}[A-Z]", options.era):
-        raise valueError("invalid era:", options.era)
-    if not options.primaryDS.startswith("Muon") or not any(options.primaryDS.endswith(num) for num in "01"):
-        raise ValueError("invalid primaryDS:", options.primaryDS)
-    if options.version <= 0:
-        raise ValueError("invalid version:", options.version)
 
 # printout
-print("Running local" if options.local else "Submitting CRAB", "job")
-if options.local:
-    for name in ["inputFiles", "outputFile", "maxEvents"]:
-        print("%s: %s" % (name, getattr(options, name)))
-else:
-    for name in ["primaryDS", "era", "version"]:
-        print("%s: %s" % (name, getattr(options, name)))
+print("Running local" if not options.CRAB else "Submitting CRAB", "job...")
+for name in ["globalTag", "inputFiles", "outputFile", "maxEvents"]:
+    print("%s: %s" % (name, getattr(options, name)))
+
+# initialize process
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('ntuple',eras.Run3)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(options.maxEvents),
+    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
+)
+
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -81,16 +60,12 @@ process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(options.maxEvents),
-    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
-)
-
 # Input source
 process.source = cms.Source("PoolSource", 
-    fileNames = cms.untracked.vstring(options.inputFiles) if options.local else cms.untracked.vstring()
+    fileNames = cms.untracked.vstring(options.inputFiles) if not options.CRAB else cms.untracked.vstring()
 )
 
+# set options
 process.options = cms.untracked.PSet(
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
@@ -105,7 +80,7 @@ process.options = cms.untracked.PSet(
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(2 if options.CRAB else 1),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
     numberOfThreads = cms.untracked.uint32(2),
@@ -178,8 +153,8 @@ process.aodDump = cms.EDAnalyzer('TPTrackMuonSys',
                                  trackProducer   = cms.InputTag('csctfunpacker:'),
                                  readBadChannels = cms.bool(True),
                                  readBadChambers = cms.bool(True),
-                                 hltTag      = cms.untracked.InputTag("TriggerResults","",HLTProcessName),
-                                 hltEvTag    = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
+                                 hltTag      = cms.untracked.InputTag("TriggerResults","",options.HLTProcessName),
+                                 hltEvTag    = cms.untracked.InputTag("hltTriggerSummaryAOD","",options.HLTProcessName),
                                  HLTMuTrgNames =  cms.vstring("HLT_Mu?_v*","HLT_Mu??_v*","HLT_Mu???_v*","HLT_IsoMu?_v*","HLT_IsoMu??_v*","HLT_IsoMu???_v*","HLT_L2Mu?_v*","HLT_L2Mu??_v*","HLT_L2Mu???_v*","HLT_SingleMu*","HLT_L1SingleMu*","HLT_IsoTkMu??_v*","HLT_TkMu??_v*"),
                                  HLTDiMuTrgName =  cms.string("HLT_DoubleMu?_v*"),
                                  #                      hltEvTag    = cms.untracked.InputTag("hltTriggerSummaryAOD","","REDIGI36X"),
@@ -198,11 +173,7 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-process.options.numberOfThreads = 2
-process.options.numberOfStreams = 0
-if not options.local:
-    process.options.numberOfConcurrentLuminosityBlocks = 2
-    process.options.eventSetup.numberOfConcurrentIOVs = 1
+if options.CRAB:
     if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)
 
 # customisation of the process.
@@ -228,9 +199,5 @@ process = customiseEarlyDelete(process)
 # End adding early deletion
 # Output
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string("CSCeff_Muon_%s%iv%i.root" % (
-        options.era,
-        int(options.primaryDS.replace("Muon","")),
-        options.version,
-    )) if not options.local else cms.string(options.outputFile)
+    fileName = cms.string(options.outputFile)
 )   
