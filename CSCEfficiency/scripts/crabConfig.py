@@ -13,7 +13,7 @@ configParams = [
 import os
 jobAttempt = 1
 requestName = "%s_%i" % (sectionSettings["requestName"], jobAttempt)
-while os.path.exists("crab_%s" % sectionSettings["requestName"]):
+while os.path.exists("crab_%s" % requestName):
     jobAttempt += 1
     requestName = "%s_%i" % (sectionSettings["requestName"], jobAttempt)
 
@@ -33,7 +33,8 @@ config.General.transferLogs = True
 # Job settings
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = "%s/src/%s" % (os.environ["CMSSW_BASE"], sectionSettings["psetName"])
-config.JobType.maxMemoryMB = 2500 
+config.JobType.maxMemoryMB = int(sectionSettings["maxMemoryMB"]) 
+config.JobType.numCores = int(sectionSettings["numCores"])
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.pyCfgParams = configParams
 
