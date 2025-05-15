@@ -30,6 +30,7 @@ void CSCEffFast::Loop()
 
   TFile cscEffHistoFile("cscEffHistoFile.root","Recreate");
   setName->Write();
+  setRuns->Write();
 
 
   char name[50];
@@ -141,12 +142,13 @@ void CSCEffFast::Loop()
 
 #if newData
   // auto-generate equally-spaced run bins (100 runs each)
-  const Int_t numRunBins = (lastRun-firstRun)/100 + 1;
+  const Int_t numRunBins = (lastRun-firstRun+(Int_t)firstRun%100)/100 + 1;
   Double_t *runBins = new Double_t[(numRunBins+1)]{0};
   for (int i=0; i<numRunBins+1; i++) runBins[i] = (firstRun - (Int_t)firstRun%100) + i*100;
 #else
   // Run 3 2022 A-G
-  runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
+  const Int_t numRunBins = 35; //all 2022
+  Double_t *runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
 #endif
 
 
@@ -1835,7 +1837,7 @@ void CSCEffFast::Loop()
   if (fChain == 0) return;
 
   //Long64_t nentries = fChain->GetEntries();
-  Long64_t nentries = 50000000;
+  Long64_t nentries = 100000000;
   Int_t nCands = 0;
   Int_t nZs = 0;
   std::cout << "Number of entries: " << nentries << std::endl;
