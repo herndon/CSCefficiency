@@ -11,6 +11,7 @@
 #include "TStyle.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH2Poly.h"
 #include "TLatex.h"
 #include "TFrame.h"
 #include "TCanvas.h"
@@ -23,14 +24,17 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TError.h"
+#include "Math/Vector2D.h"
 
 using namespace std;
+using ROOT::Math::Polar2DVector;
 
 const int NUM_BAD_RANGES=50;
 
-string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
+string GetMELabel(Int_t station, Int_t ring=-1, Int_t chamber=-1);
 void DrawCMSLumi(string lumi);
 string Printout(const string& title, string info, bool legend=false);
+int GetRingIndex(Int_t station, Int_t ring);
 
 void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   // Initializing
@@ -1391,6 +1395,74 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber50-100.png").c_str());
 
 
+    // Drawing Detector Efficiency Plots
+    {
+      // Define constants
+      struct Ring {
+        double inner, outer;
+        Ring(double i=0, double o=0) : inner(i), outer(o){}
+      };
+      //const Ring RADII_ME1[3]   = {Ring(101,260), Ring(281.49,455.99), Ring(511.99,676.15)};
+      const Ring RADII_ME1[4]   = {Ring(71,161), Ring(161,260), Ring(281.49,455.99), Ring(511.99,676.15)};
+      const Ring RADII_ME234[2] = {Ring(146.9,336.56), Ring(364.02,687.08)};
+      const double PHI_START = 0.; //degrees
+      const double DEG_TO_RAD = M_PI/180.0;
+
+      for (int iiStation=0; iiStation < 8; iiStation++){
+        bool isME1 = (iiStation == 0 || iiStation == 4);
+        TH2Poly *detplot = new TH2Poly(
+            ("csc" + GetMELabel(iiStation)).c_str(), "",
+            -750, 750, -750, 750);
+        for (int iiRing=0; iiRing < 4; iiRing++){
+          if (!isME1 && (iiRing == 0 || iiRing == 3)) continue;
+
+          int numChambers = (!isME1 && iiRing == 1) ? 18 : 36;
+          for (int iiChamber=1; iiChamber<=numChambers; iiChamber++){
+            // Get appropriate ring struct
+            Ring ring;
+            if (!isME1) ring = RADII_ME234[iiRing-1];
+            else ring = RADII_ME1[iiRing];
+            //else if (iiRing == 0) continue; //ring = RADII_ME1[0];
+            //else ring = RADII_ME1[iiRing-1];
+
+            // Get phi
+            double dPhi = (360.0/numChambers)*DEG_TO_RAD;
+            double phi = PHI_START*DEG_TO_RAD + dPhi*(iiChamber-1);
+
+            // Get coordinates
+            Polar2DVector v1(ring.inner, phi);
+            Polar2DVector v2(ring.inner, phi+dPhi);
+            Polar2DVector v3(ring.outer, phi+dPhi);
+            Polar2DVector v4(ring.outer, phi);
+
+            // Add chamber bin
+            double x[4] = {v1.X(), v2.X(), v3.X(), v4.X()};
+            double y[4] = {v1.Y(), v2.Y(), v3.Y(), v4.Y()};
+            int binnum = detplot->AddBin(4, x, y);
+            //cout << GetMELabel(iiStation, iiRing, iiChamber) << " " << binnum << endl;
+
+            // Get "center" coordinate
+            Polar2DVector center(ring.inner + 0.01, phi + 0.01);
+            int findbin = detplot->FindBin(center.X(), center.Y());
+            if (findbin != binnum){
+              cout << "Misidentified bin (ID, bin): " << GetMELabel(iiStation, iiRing, iiChamber) << " " << findbin << endl;
+              continue;
+            }
+            //if (isME1 && iiRing <= 1) continue;
+            detplot->Fill(center.X(), center.Y(), segEff2DStationRingChamber->GetBinContent(iiChamber, GetRingIndex(iiStation, iiRing)));
+          }
+        }
+        detplot->GetZaxis()->SetLabelSize(0.035);
+        detplot->GetZaxis()->SetLabelFont(42);
+        detplot->GetZaxis()->SetTitleSize(0.035);
+        detplot->GetZaxis()->SetTitleFont(42);
+        detplot->GetZaxis()->SetTitle((GetMELabel(iiStation) + " Segment Efficiency ").c_str());
+        detplot->GetZaxis()->SetRangeUser(0.0,1.005);
+        detplot->Draw("COLZ L");
+        DrawCMSLumi(dataInfo);
+        c1.Print((plotdir + GetMELabel(iiStation) + ".png").c_str());
+      }
+    }
     
     // Drawing 2D CSC Efficiency Plots
     for (Int_t iiStation=0; iiStation<8; iiStation++){
@@ -2412,6 +2484,10 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     for (Int_t iiStation = 0; iiStation < 8; iiStation++){
       for (Int_t iiRing = 0; iiRing < 4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
+        int numChambers = (iiStation != 0 && iiStation != 4 && iiRing == 1) ? 18 : 36;
+        Int_t totDCFEBs = 5;
+        if (iiRing==0) totDCFEBs = 3;
+        else if ((iiStation == 0 || iiStation == 4) && (iiRing == 1 || iiRing == 3)) totDCFEBs = 4;
 
         //sprintf(title, "Segment DCFEB Analysis %s", GetMELabel(iiStation, iiRing).c_str());
         sprintf(file, (plotdir + "DCFEBAnalysis/CSCSegEffRun3Data2DChamberRunCompact%s.pdf").c_str(), GetMELabel(iiStation,iiRing).c_str());
@@ -2420,21 +2496,20 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
 
           sprintf(name, "segEff2DStation%dRing%dDCFEBChamberRunCompact%d", iiStation+1, iiRing, iiPage);
-          TH2F * hcompactSeg = new TH2F(name, "", 36, 0.5, 36.5, numBins*5, 0, numBins*5);
-          for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){ 
+          TH2F * hcompactSeg = new TH2F(name, "", numChambers, 0.5, numChambers+0.5, numBins*totDCFEBs, 0, numBins*totDCFEBs);
+          for (Int_t iiChamber=1; iiChamber <= numChambers; iiChamber++){ 
             hcompactSeg->GetXaxis()->SetBinLabel(iiChamber, to_string(iiChamber).c_str());
-            if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
             for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-              for (Int_t iiDCFEB=1; iiDCFEB < 6; iiDCFEB++){
+              for (Int_t iiDCFEB=1; iiDCFEB <= totDCFEBs; iiDCFEB++){
                 sprintf(name, "segEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
                 Float_t segEff = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin+1+iiPage*10);
                 Int_t iiRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1+iiPage*10);
 
-                if (segEff != -1) hcompactSeg->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, segEff);
-                if (iiDCFEB == 3)
-                  hcompactSeg->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
+                if (segEff != -1) hcompactSeg->SetBinContent(iiChamber, totDCFEBs*iiRunBin + iiDCFEB, segEff);
+                if (iiDCFEB == totDCFEBs/2+1)
+                  hcompactSeg->GetYaxis()->SetBinLabel(totDCFEBs*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
                 else
-                  hcompactSeg->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
+                  hcompactSeg->GetYaxis()->SetBinLabel(totDCFEBs*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
               }
             }
           }
@@ -2457,7 +2532,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactSeg->GetZaxis()->SetTitleOffset(1.1);
           hcompactSeg->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+            TLine *line = new TLine(0.5-0.05*numChambers, totDCFEBs*iiRunBin + totDCFEBs,numChambers + 0.5,totDCFEBs*iiRunBin + totDCFEBs);
             line->Draw();
           }
           DrawCMSLumi(dataInfo);
@@ -2472,21 +2547,20 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
 
           sprintf(name, "LCTEff2DStation%dRing%dDCFEBChamberRunCompact%d", iiStation+1, iiRing, iiPage);
-          TH2F * hcompactLCT = new TH2F(name, "", 36, 0.5, 36.5, numBins*5, 0, numBins*5);
-          for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){ 
+          TH2F * hcompactLCT = new TH2F(name, "", numChambers, 0.5, numChambers + 0.5, numBins*totDCFEBs, 0, numBins*totDCFEBs);
+          for (Int_t iiChamber=1; iiChamber <= numChambers; iiChamber++){ 
             hcompactLCT->GetXaxis()->SetBinLabel(iiChamber, to_string(iiChamber).c_str());
-            if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
             for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-              for (Int_t iiDCFEB=1; iiDCFEB < 6; iiDCFEB++){
+              for (Int_t iiDCFEB=1; iiDCFEB <= totDCFEBs; iiDCFEB++){
                 sprintf(name, "LCTEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
                 Float_t LCTEff = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin+1+iiPage*10);
                 Int_t iiRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1+iiPage*10);
 
-                if (LCTEff != -1) hcompactLCT->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, LCTEff);
-                if (iiDCFEB == 3)
-                  hcompactLCT->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
+                if (LCTEff != -1) hcompactLCT->SetBinContent(iiChamber, totDCFEBs*iiRunBin + iiDCFEB, LCTEff);
+                if (iiDCFEB == totDCFEBs/2+1)
+                  hcompactLCT->GetYaxis()->SetBinLabel(totDCFEBs*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
                 else
-                  hcompactLCT->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
+                  hcompactLCT->GetYaxis()->SetBinLabel(totDCFEBs*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
               }
             }
           }
@@ -2509,7 +2583,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactLCT->GetZaxis()->SetTitleOffset(1.1);
           hcompactLCT->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+            TLine *line = new TLine(0.5-0.05*numChambers, totDCFEBs*iiRunBin + totDCFEBs,numChambers + 0.5,totDCFEBs*iiRunBin + totDCFEBs);
             line->Draw();
           }
           DrawCMSLumi(dataInfo);
@@ -2540,6 +2614,9 @@ int main(int argc, char *argv[]){
 
 // Helper functions
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
+  //station: 0-7
+  //ring: 0-3
+  //chamber: 1-36
   string result = "";
   if ((station==1||station==2||station==3||station==5||station==6||station==7)&&(ring==0||ring==3)){
     cout << "Unexpected station/ring. Given " << station << "/" << ring << endl;
@@ -2553,12 +2630,12 @@ string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   if (station >= 4) station -= 4;
 
   result = "ME" + symb + to_string(station+1);
-  if (ring == 0) result += "1A";
-  else if (station == 0 && ring == 1) result += "1B";
-  else result += to_string(ring);
-
-  if (chamber != -1)
-    result += "/" + to_string(chamber);
+  if (ring != -1){
+    if (ring == 0) result += "1A";
+    else if (station == 0 && ring == 1) result += "1B";
+    else result += to_string(ring);
+    if (chamber != -1) result += "/" + to_string(chamber);
+  }
 
   return result;
 }
@@ -2587,4 +2664,33 @@ string Printout(const string& title, string info, bool legend){
   if (legend) result += "\n\n *  Segment Only\n ** LCT Only"; 
   result += "\n\n\n";
   return result;
+}
+
+int GetRingIndex(int station, int ring){
+  //station: 0-7
+  //ring: 0-3
+  enum RingIndex {
+    MEm42, MEm41, MEm32, MEm31, MEm22, MEm21, MEm13, MEm12, MEm11b, MEm11a,
+    MEp11a, MEp11b, MEp12, MEp13, MEp21, MEp22, MEp31, MEp32, MEp41, MEp42
+  };
+  int index = -2;
+  if (station == 0){
+    if (ring == 0) index = MEm11a;
+    else if (ring == 1) index = MEm11b;
+    else if (ring == 2) index = MEm12;
+    else if (ring == 3) index = MEm13;
+  }
+  else if (station == 1) index = (ring == 1)? MEm21:MEm22;
+  else if (station == 2) index = (ring == 1)? MEm31:MEm32;
+  else if (station == 3) index = (ring == 1)? MEm41:MEm42;
+  else if (station == 4){
+    if (ring == 0) index = MEp11a;
+    else if (ring == 1) index = MEp11b;
+    else if (ring == 2) index = MEp12;
+    else if (ring == 3) index = MEp13;
+  }
+  else if (station == 5) index = (ring == 1)? MEp21:MEp22;
+  else if (station == 6) index = (ring == 1)? MEp31:MEp32;
+  else if (station == 7) index = (ring == 1)? MEp41:MEp42;
+  return index+1;
 }

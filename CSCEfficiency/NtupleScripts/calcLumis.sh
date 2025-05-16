@@ -26,13 +26,19 @@ root -l -b << EOF
 TFile *infile = TFile::Open("$infile");
 {
   if (infile != nullptr){
-    TH2F* htemp = (TH2F*)infile->Get("segEff2DStation1Ring1ChamberRun");
-    if (htemp != NULL){
-      Int_t numRunBins = htemp->GetNbinsY();
-      cout << htemp->GetYaxis()->GetBinLowEdge(1) << " " << htemp->GetYaxis()->GetBinUpEdge(numRunBins) << endl;
+    TNamed *setRuns = (TNamed*)infile->Get("setRuns");
+    if (setRuns == nullptr){
+      TH2F* htemp = (TH2F*)infile->Get("segEff2DStation1Ring1ChamberRun");
+      if (htemp != NULL){
+        Int_t numRunBins = htemp->GetNbinsY();
+        cout << htemp->GetYaxis()->GetBinLowEdge(1) << " " << htemp->GetYaxis()->GetBinUpEdge(numRunBins) << endl;
+      }
+      else {
+        cout << "0 0" << endl;
+      }
     }
-    else {
-      cout << "0 0" << endl;
+    else{
+      cout << setRuns->GetTitle() << endl;
     }
     infile->Close();
   }
@@ -51,7 +57,8 @@ if [[ $begin -eq 0 && $end -eq 0 ]]; then
   exit 3
 fi
 echo Calculating luminosity...
-brilcalc lumi -c web --begin $begin --end $end -u /fb -o lumi.csv
+#brilcalc lumi -c web --begin $begin --end $end -u /fb -o lumi.csv
+brilcalc lumi -c web --begin $begin --end $end --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json -u /fb -o lumi.csv
 if [[ ! -f lumi.csv ]]; then
   echo error calculating lumi
   exit 3
