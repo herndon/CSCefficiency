@@ -1,8 +1,15 @@
 # Scripts for CSC Efficiency
 
+- [Creating the Efficiency Histogram File](#creating-the-efficiency-histogram-file)
+   * [Bad Chamber Removal](#bad-chamber-removal)
+   * [Analyzing New Data](#analyzing-new-data)
+- [Calculate and/or Embed Luminosity](#calculate-andor-embed-luminosity)
+   * [Installing `brilcalc`](#installing-brilcalc)
+- [Saving Final Plots](#saving-final-plots)
+
 ## Creating the Efficiency Histogram File
 
-To calculate CSC efficiency using the ntuples, we use the `CSCEffFast` class defined in `CSCEffFast.h` and `CSCEffFast.C`. To begin an efficiency analysis,
+To calculate CSC efficiency using the ntuples, you can use the `CSCEffFast` class defined in `CSCEffFast.h` and `CSCEffFast.C`. To begin an efficiency analysis,
 you can run the script as a standalone executable or through the ROOT CLI. This will create a histogram file `cscEffHistoFile.root` with all of the efficiency 
 calculations put into relevant plots. To run the script, see options below.
 
