@@ -25,6 +25,8 @@ scramv1 b
 </pre>
 
 ## Make the Ntuple
+The instructions for manual ntuple creation are below. Alternatively, the scripts within [`CSCEfficiency/scripts`](CSCEfficiency/scripts) can be used.
+
 1. Modify the config file [create_ntuple_local_Run3_2025_Data_test.py](CSCEfficiency/create_ntuple_local_Run3_2025_Data_test.py). 
 The output file name can be changed in the following line ---
 <pre>

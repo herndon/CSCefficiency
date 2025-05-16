@@ -74,3 +74,21 @@ parsed from the input `dataset` option.
 * `outputFile`: The name of the output file to be passed to the `cmsRun` script.
 * `section`: The config section in the file to pull process-specific options from for analysis. You can change this manually or by providing it as the
 first argument when running `crabSubmit.sh`.
+
+# Local jobs
+
+Local jobs can also be submitted using [`ntuplize_cfg.py`](CSCEfficiency/scripts/ntuplize_cfg.py). It can be run from any directory, but to avoid clutter in 
+the main package directory it is recommended to use a subdirectory (or simply [`submit`](CSCEfficiency/submit)). To see the available options, run
+
+```bash
+# assuming you run the command within CSCEfficiency/
+cmsRun scripts/ntuplize_cfg.py --help
+```
+
+The required options for this script are `inputFiles` and `globalTag`. The `outputFile` option can also be set if desired. Note that the `CRAB` option should only
+be set to `1` for CRAB submissions. By default, it is `0` for local submissions. An example use of the command is below.
+
+```bash
+cd CSCEfficiency/submit
+cmsRun ../scripts/ntuplize_cfg.py --inputFiles=root://cms-xrd-global.cern.ch//store/data/Run2025B/Muon0/RAW-RECO/ZMu-PromptReco-v1/000/391/668/00000/b7adfb3e-c0f3-4c04-9908-b4a5cbacad1a.root globalTag=150X_dataRun3_Prompt_v1 outputFile=test.root
+```
