@@ -9,9 +9,9 @@
 
 ## Creating the Efficiency Histogram File
 
-To calculate CSC efficiency using the ntuples, you can use the `CSCEffFast` class defined in `CSCEffFast.h` and `CSCEffFast.C`. To begin an efficiency analysis,
-you can run the script as a standalone executable or through the ROOT CLI. This will create a histogram file `cscEffHistoFile.root` with all of the efficiency 
-calculations put into relevant plots. To run the script, see options below.
+To calculate CSC efficiency using the ntuples, you can use the `CSCEffFast` class defined in [`CSCEffFast.h`](CSCEffFast.h) and [`CSCEffFast.C`](CSCEffFast.C).
+To begin an efficiency analysis, you can run the script as a standalone executable or through the ROOT CLI. This will create a histogram file `cscEffHistoFile.root` 
+with all of the efficiency calculations put into relevant plots. To run the script, see options below.
 
 ```bash
 # (1) standalone executable
@@ -45,7 +45,7 @@ the code may include something like the following.
 
 When plotting these output histograms at a later stage (see [here](#saving-final-plots)), an automatic efficiency analysis can be done. This will flag  
 runs, chambers, etc. below given thresholds and output a `BadChambers_auto.h` file. This header file can be used with `CSCEffFast` to recalculate efficiencies
-while ignoring these flagged sections. To do so, change the `autoRemoval` pre-processor macro found in `CSCEffFast.C` to `true`. The program will automatically
+while ignoring these flagged sections. To do so, change the `autoRemoval` pre-processor macro found in [`CSCEffFast.C`](CSCEffFast.C) to `true`. The program will automatically
 filter  out the flagged chambers when doing its efficiency calculations.
 
 ### Analyzing New Data
@@ -110,8 +110,8 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
 ## Calculate and/or Embed Luminosity
 
-To help format titles in final plots, the luminosity needs to be calculated. This is done through the script `calcLumis.py`. To see available options for running
-this script, run the following.
+To help format titles in final plots, the luminosity needs to be calculated. This is done through the script [`calcLumis.py`](calcLumis.py). 
+To see available options for running this script, run the following.
 
 ```bash
 ./calcLumis.py --help
@@ -121,8 +121,8 @@ This script uses the `brilcalc` tool to calculate the luminosity for a given run
 have `brilcalc` installed, follow the instructions [here](#installing-brilcalc). For *most* cases, the default options are sufficient to calculate and store the 
 luminosity. In other words, just run `./calcLumis.py`.
 
-The benefit of this script is that it will only calculate luminosities if it cannot find the luminosity stored in `lumi.json`. This way if any alterations are made to
-`CSCEffFast` and the script is re-ran the luminosity is read from the JSON file and does not need to be recalculated.
+The benefit of this script is that it will only calculate luminosities if it cannot find the luminosity stored in [`lumi.json`](lumi.json). 
+This way if any alterations are made to `CSCEffFast` and the script is re-ran the luminosity is read from the JSON file and does not need to be recalculated.
 
 **NOTE**: For slightly better accuracy, the `brilcalc` command can be run without the `web` option. This does not work on the UW HEP server at the moment, but will work
 on LXPLUS. If you are using `calcLumis.py` on LXPLUS, you can use the `--no-web` option to omit it. Note that `calcLumis.py` is independent of any CMSSW release but
