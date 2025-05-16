@@ -97,8 +97,8 @@ to appear on this page.
 
 ## Local submissions
 
-Local jobs can also be submitted using [`ntuplize_cfg.py`](CSCEfficiency/scripts/ntuplize_cfg.py). It can be run from any directory, but to avoid clutter in 
-the main package directory it is recommended to use a subdirectory (or simply [`submit`](CSCEfficiency/submit)). To see the available options, run
+Local jobs can also be submitted using [`ntuplize_cfg.py`](ntuplize_cfg.py). It can be run from any directory, but to avoid clutter in 
+the main package directory it is recommended to use a subdirectory (or simply [`submit`](../submit)). To see the available options, run
 
 ```bash
 # assuming you run the command within CSCEfficiency/
