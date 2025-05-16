@@ -2,10 +2,10 @@
 ====================
 
 ## About
---- tested in CMSSW_10_4_10, needed to run full 2022 dataset
+--- tested in CMSSW_15_0_5, this release needed to run the 2025 dataset
 * It is based on the tag-and-probe method using the Z pole or the J/ψ pole;
 * The efficiency obtained is the CSC detector efficiency times the efficiency that the muon is not scattered.
-* Need RAW information to get the LCT efficiency. RECO or AOD sample is not enough.
+* Need RECO-RAW information to get the LCT efficiency. RECO, AOD (mini, nano or simple AOD) samples are not enough.
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
@@ -16,8 +16,8 @@
    
 ## Installation
 <pre>
-cmsrel CMSSW_14_0_7
-cd CMSSW_14_0_7/src
+cmsrel CMSSW_15_0_5
+cd CMSSW_15_0_5/src
 cmsenv
 mkdir CSCEfficiency
 git clone https://github.com/herndon/CSCefficiency CSCEfficiency
