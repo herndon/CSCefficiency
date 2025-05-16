@@ -55,9 +55,12 @@ Note there you can click on config to see the release and global tag used to pro
 
 <pre>
 voms-proxy-init -voms cms -valid 192:00
-crab submit -c crabConfig_CSCEff_v1.py
+crab submit -c crabConfig_CSCEff2025B0_1.py
 </pre>
 
+First time you run the crab command each day you often have to type you voms passcode again.
+
+The crab command, if sucessful, will return a report and an example crab status command to check on the job.  Run that.   crab status will return some web links to a graphical monitor of your job status.   The monit-grafana site is the useful one.   It can take several tens of minutes till your job shows up there.
 
 ## Make the Efficiency plots
 See files in [NtupleScripts](CSCEfficiency/NtupleScripts/.)
