@@ -1,4 +1,11 @@
-# CRAB Submissions
+# CSCEfficiency/scripts: Making Ntuples
+
+- [CRAB Submissions](#crab-submissions)
+   * [Configuring the job](#configuring-the-job)
+   * [Overwriting default options](#overwriting-default-options)
+- [Local jobs](#local-jobs)
+
+## CRAB Submissions
 
 To submit CRAB jobs, move to the [`submit/`](../submit/) directory and run `crabSubmit.sh`. To customize the job that is submitted (such as dataset, 
 request name, etc.) edit the [`settings.cfg`](../submit/settings.cfg) file appropriately. If you want to submit a job with a pre-existing section's settings,
@@ -12,7 +19,7 @@ Here, `<SECTION_NAME>` refers to the name of the section with the settings you w
 will cancel the script. Unused sections (like a section configuring 2023 jobs) can be deleted freely, but note that the settings used for those jobs are not saved elsewhere. 
 The following sections describe how to create new setting sections to configure your jobs.
 
-## Configuring the job
+### Configuring the job
 
 To configure the job, you must edit the `settings.cfg` file to add a new config section corresponding to the dataset you wish to process. For example,
 if you want to process the dataset `/Muon0/Run2025B-ZMu-PromptReco-v1/RAW-RECO`, then you would add the following section:
@@ -75,7 +82,7 @@ parsed from the input `dataset` option.
 * `section`: The config section in the file to pull process-specific options from for analysis. You can change this manually or by providing it as the
 first argument when running `crabSubmit.sh`.
 
-# Local jobs
+## Local jobs
 
 Local jobs can also be submitted using [`ntuplize_cfg.py`](CSCEfficiency/scripts/ntuplize_cfg.py). It can be run from any directory, but to avoid clutter in 
 the main package directory it is recommended to use a subdirectory (or simply [`submit`](CSCEfficiency/submit)). To see the available options, run
