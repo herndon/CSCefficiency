@@ -44,6 +44,13 @@ Things that may need to be chanched to run more recent data are.   The input fil
 or
 
 There is a CRAB submission file [CSCEfficiency/crabConfig_CSCEff2025B0_1.py](CSCEfficiency/crabConfig_CSCEff2025B0_1.py). That runs the cmsRun script [CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py](CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py)
+
+These scripts are running on data described at:
+
+https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2FMuon*%2FRun2025*-ZMu-PromptReco-v*%2FRAW-RECO
+
+Note there you can click on config to see the release and global tag used to process the original data.   The same release (or later in the same series, only updating the minor number) and global tag should be used.  You can click on files to find file names that could be used in the local script.
+
 <pre>
 voms-proxy-init -voms cms -valid 192:00
 crab submit -c crabConfig_CSCEff_v1.py
