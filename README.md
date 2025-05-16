@@ -25,20 +25,24 @@ scramv1 b
 </pre>
 
 ## Make the Ntuple
-1. Modify the config file [create_ntuple_local.py](CSCEfficiency/create_ntuple_local.py). 
+1. Modify the config file [create_ntuple_local_Run3_2025_Data_test.py](CSCEfficiency/create_ntuple_local_Run3_2025_Data_test.py). 
 The output file name can be changed in the following line ---
 <pre>
 process.aoddump.rootFileName=cms.untracked.string('???.root')
 </pre>
 
-2. Run [create_ntuple_local.py](CSCEfficiency/create_ntuple_local.py). CRAB is recommended
+2. Run [create_ntuple_local_Run3_2025_Data_test.py](CSCEfficiency/create_ntuple_local_Run3_2025_Data_test.py). This will test program on the local computer.  You will still need to run voms-proxy-init to gain access to cms data.  CRAB is recommended for running larger numbers of events.
 <pre>
 voms-proxy-init -voms cms
 cmsRun create_ntuple_local.py
 </pre>
 
+Steps necessary to setup access to the cms data are explained at: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid
+
+Things that may need to be chanched to run more recent data are.   The input file name.  The global tag to load the correct configurations and callibrations for the data and release you are using.
+
 or
-There is a CRAB submission file [crabConfig_CSCEff_v1.py](CSCEfficiency/crabConfig_CSCEff_v1.py). Also be sure to check you are using a compatible global tag if you are using a more recent release.
+There is a CRAB submission file [CSCEfficiency/crabConfig_CSCEff2025B0_1.py](CSCEfficiency/crabConfig_CSCEff2025B0_1.py). That runs the cmsRun script [CSCEfficiency/](CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py)
 <pre>
 voms-proxy-init -voms cms
 crab submit -c crabConfig_CSCEff_v1.py
@@ -57,6 +61,6 @@ This makes the file cscEffHistoFile.root
 The file commands.txt has commands to make pretty plots from cscEffHistoFile.root.
 There is scipt to make plots automatically.  However, you likely have to create of copy over the directory structure made under plots/ first.
 <pre>
-root6
+root
 .x PlotCSCEffFast.C
 </pre>
