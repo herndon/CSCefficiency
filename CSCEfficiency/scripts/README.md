@@ -3,9 +3,15 @@
 - [CRAB Submissions](#crab-submissions)
    * [Configuring the job](#configuring-the-job)
    * [Overwriting default options](#overwriting-default-options)
-- [Local jobs](#local-jobs)
+- [Local submissions](#local-submissions)
 
 ## CRAB Submissions
+
+Before submitting any jobs, make sure your proxy is refreshed with the following:
+
+```bash
+voms-proxy-init -voms cms -valid 192:00
+```
 
 To submit CRAB jobs, move to the [`submit/`](../submit/) directory and run `crabSubmit.sh`. To customize the job that is submitted (such as dataset, 
 request name, etc.) edit the [`settings.cfg`](../submit/settings.cfg) file appropriately. If you want to submit a job with a pre-existing section's settings,
@@ -38,6 +44,7 @@ multiple long files per job. The required options in these user-defined sections
 * `globalTag`: The global tag for processing this dataset.
 
 The appropriate global tag to process the data can be found on the Data Aggregation System (DAS) with the query `dataset=...`, where the desired dataset is provided.
+Note that, depending on the desired dataset, a different CMSSW release may be needed.
 
 **NOTE**: Once you've configured this new section, go to the `section` option in the `DEFAULT` section and change the value to the name of your newly created section.
 This option controls what jobs are submitted - make sure to change this when you submit a new job. Alternatively, you can provide this name when running `crabSubmit.sh`.
@@ -82,7 +89,7 @@ parsed from the input `dataset` option.
 * `section`: The config section in the file to pull process-specific options from for analysis. You can change this manually or by providing it as the
 first argument when running `crabSubmit.sh`.
 
-## Local jobs
+## Local submissions
 
 Local jobs can also be submitted using [`ntuplize_cfg.py`](CSCEfficiency/scripts/ntuplize_cfg.py). It can be run from any directory, but to avoid clutter in 
 the main package directory it is recommended to use a subdirectory (or simply [`submit`](CSCEfficiency/submit)). To see the available options, run
