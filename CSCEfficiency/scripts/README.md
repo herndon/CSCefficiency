@@ -7,11 +7,9 @@
 
 ## CRAB Submissions
 
-Before submitting any jobs, make sure your proxy is refreshed with the following:
-
-```bash
-voms-proxy-init -voms cms -valid 192:00
-```
+Before submitting any jobs, make sure to authenticate your grid certificate. If you need a new one, 
+visit [this page](https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid#ObtainingCert). 
+To authenticate the grid certificate, run `voms-proxy-init -voms cms -valid 192:00`.
 
 To submit CRAB jobs, move to the [`submit/`](../submit/) directory and run `crabSubmit.sh`. To customize the job that is submitted (such as dataset, 
 request name, etc.) edit the [`settings.cfg`](../submit/settings.cfg) file appropriately. If you want to submit a job with a pre-existing section's settings,
@@ -44,7 +42,9 @@ multiple long files per job. The required options in these user-defined sections
 * `globalTag`: The global tag for processing this dataset.
 
 The appropriate global tag to process the data can be found on the Data Aggregation System (DAS) with the query `dataset=...`, where the desired dataset is provided.
-Note that, depending on the desired dataset, a different CMSSW release may be needed.
+(For example, 2025 data can be found 
+[here](https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2FMuon*%2FRun2025*-ZMu-PromptReco-v*%2FRAW-RECO).)
+Note that, depending on the desired dataset, a different CMSSW release may be needed. These can both be found by selecting `Config` on the desired dataset on DAS.
 
 **NOTE**: Once you've configured this new section, go to the `section` option in the `DEFAULT` section and change the value to the name of your newly created section.
 This option controls what jobs are submitted - make sure to change this when you submit a new job. Alternatively, you can provide this name when running `crabSubmit.sh`.
@@ -88,6 +88,12 @@ parsed from the input `dataset` option.
 * `outputFile`: The name of the output file to be passed to the `cmsRun` script.
 * `section`: The config section in the file to pull process-specific options from for analysis. You can change this manually or by providing it as the
 first argument when running `crabSubmit.sh`.
+
+### Monitoring jobs
+
+Once a CRAB job is successfully submitted, some information will be provided to `stdout`. If you run the provided `crab status` command and visit the
+Grafana webpage provided in the printout, the progress on the job can be monitored through a nice interface. Note, though, that it'll sometimes take 10-20 minutes
+to appear on this page.
 
 ## Local submissions
 
