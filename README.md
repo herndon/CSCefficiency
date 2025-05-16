@@ -32,14 +32,16 @@ process.aoddump.rootFileName=cms.untracked.string('???.root')
 </pre>
 
 2. Run [create_ntuple_local_Run3_2025_Data_test.py](CSCEfficiency/create_ntuple_local_Run3_2025_Data_test.py). This will test program on the local computer.  You will still need to run voms-proxy-init to gain access to cms data.  CRAB is recommended for running larger numbers of events.
+
+Steps necessary to setup access to the cms data are explained at: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid
+   
 <pre>
 voms-proxy-init -voms cms -valid 192:00
 cmsRun create_ntuple_local.py
 </pre>
 
-Steps necessary to setup access to the cms data are explained at: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid
 
-Things that may need to be chanched to run more recent data are.   The input file name.  The global tag to load the correct configurations and callibrations for the data and release you are using.
+Things that may need to be chanched to run more recent data are:   The input file name.  The release being used.  The global tag to load the correct configurations and callibrations for the data and release you are using.  
 
 or
 
