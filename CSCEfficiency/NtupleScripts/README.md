@@ -61,8 +61,8 @@ The naming convention for the string identifier is the acquisition era (e.g. 202
 variable is to name it 'd' followed by the string identifier provided. Remember that if you want to process this new data, you need to modify `firstSet` and `lastSet`
 as instructed in the previous section.
 
-Now that the struct variable is ready, you must list the files that need to be loaded for this dataset. For example, the ntuples for 2024Iv2 would be listed as 
-the following.
+Now that the struct variable is ready, you must list the files that need to be loaded for this dataset in the constructor.
+For example, the ntuples for 2024Iv2 would be listed as the following.
 
 ```C++
 CSCEffFast::CSCEffFast() : fChain(0)
@@ -106,6 +106,8 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
       // ...
     }
+  // ...
+}
 ```
 
 ## Calculate and/or Embed Luminosity
