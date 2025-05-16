@@ -8,11 +8,12 @@ def main():
   DESC = ""
   parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument("-q", "--quiet", action="store_true", help="if provided, no print statements will show")
-  parser.add_argument("--json", default="lumi.json", help="json file to store previously calculated luminosities")
+  parser.add_argument("--json", default="lumi.json", help="json file for reading/writing calculated luminosities")
   parser.add_argument("--nostore", action="store_true", help="if provided, the luminosity will not be stored in the JSON file")
   parser.add_argument("--nowrite", action="store_true", help="if provided, the luminosity will not be stored in the ROOT file")
   parser.add_argument("--recalc", action="store_true", help="if provided, re-calculate the luminosity even if an entry is found in the JSON file")
   parser.add_argument("--normtag", default="/cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json", help="normtag for lumi calculation. set to preliminary normtag by default")
+  parser.add_argument("--no-web", action="store_true", help="if provided, the 'web' option will not be passed. this is recommended when running on LXPLUS")
   parser.add_argument("--online", action="store_true", help="if provided, the normtag will not be used. this is meant to be a debugging tool, as this is NOT RECOMMENDED. without a normtag, the lumi will be inaccurate.")
   parser.add_argument("-n", "--name", help="if provided, use this name as the key when saving to the JSON file. otherwise, the key will be the title of the setName object in the ROOT file")
   parser.add_argument("-l", "--lumi", type=float, help="if provided, skip calculation and save this luminosity to the file")
@@ -69,8 +70,8 @@ def main():
           parser.error("brilcalc not found")
 
 
-        #command = f"brilcalc lumi -c web --begin {firstRun} --end {lastRun} -u /fb -o lumi.csv"
-        command = f"brilcalc lumi -c web --begin {firstRun} --end {lastRun} -u /fb -o lumi.csv"
+        extra = "" if args.no_web else "-c web"
+        command = f"brilcalc lumi {extra} --begin {firstRun} --end {lastRun} -u /fb -o lumi.csv"
         if not args.online:
           command += f" --normtag {args.normtag}"
         if not args.quiet: print("Running command: %s" % command)
@@ -99,9 +100,10 @@ def main():
         lumi_dict[args.name]["lumi"] = args.lumi
         lumi_dict[args.name]["runs"] = runs
       else:
-        lumi_dict[args.name] = {}
-        lumi_dict[args.name]["lumi"] = args.lumi
-        lumi_dict[args.name]["runs"] = runs
+        lumi_dict[args.name] = {
+          "lumi": args.lumi,
+          "runs": runs
+        }
       json.dump(lumi_dict, outfile, indent=2)
       if not args.quiet: print("Saved lumi to JSON")
 
