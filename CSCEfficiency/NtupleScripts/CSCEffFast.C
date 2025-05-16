@@ -61,24 +61,6 @@ void CSCEffFast::Loop()
   bool ME31EvenOdd = false;
   bool ME41EvenOdd = false;
 
-  // Setting run ranges
-#if newData
-  //const Int_t firstRun = 367100; //2023 excluding B and first few runs of C where MEx1 was bad
-  //const Int_t firstRun = 369800; //2023D
-  //const Int_t firstRun = 370600;
-
-  //const Int_t lastRun = 367700; //2023Cv1-2
-  //const Int_t lastRun = 369700; //2023Cv4
-  //const Int_t lastRun = 370400; //2023Dv1
-  //const Int_t lastRun = 370800; //2023Dv2
-
-  //const Int_t firstRun = d2023Dv2.firstRun;
-  //const Int_t lastRun = d2023Dv2.lastRun;
-#else
-  //const Int_t firstRun = 355000; //2022
-  //const Int_t lastRun = 362800; //2022
-#endif
-  
   // Pt, Eta, phi (chamber) parameters and histograms
 
   const Int_t numPtBins=10;       //number of pt bins in eff plots
