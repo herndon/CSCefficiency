@@ -1,0 +1,35 @@
+git commands
+
+# Checking out an existing repository to directory  
+git clone https://github.com/herndon/CSCefficiency.git CSCefficiency
+
+
+# check status of project for modifictions
+git status -s
+git diff
+
+# committing new files.
+# add all
+git add .
+#add by name
+git add filenames
+
+#prep for commit
+git commit -m 'commit text'
+
+
+# committing changes files
+git commit -am 'commit text'
+
+# commit, push to repository
+git push origin master
+
+
+# set repository if necessary
+git remote set-url origin ssh://git@github.com/herndon/CSCefficiency.git
+git remote -v
+
+# get a new personal access token if necessary
+# your icon at right, settings, developer setting bottom left, personal access tokens, tokens classic, you use it like a password
+# at https://github.com/settings/tokens
+
