@@ -16,11 +16,12 @@ request name, etc.) edit the [`settings.cfg`](../submit/settings.cfg) file appro
 you can run the following:
 
 ```bash
-crabSubmit.sh <SECTION_NAME>
+crabSubmit.sh <SECTION_NAME> ...
 ```
 
 Here, `<SECTION_NAME>` refers to the name of the section with the settings you want to apply. If the name is not found in the settings file, an error will print and it
-will cancel the script. Unused sections (like a section configuring 2023 jobs) can be deleted freely, but note that the settings used for those jobs are not saved elsewhere. 
+will cancel the script. You can provide as many pre-existing section names in the command (symbolized by the `...` above) and, as long as it exists, jobs will be run.
+Unused sections (like a section configuring 2023 jobs) can be deleted freely, but note that the settings used for those jobs are not saved elsewhere. 
 The following sections describe how to create new setting sections to configure your jobs.
 
 ### Configuring the job
