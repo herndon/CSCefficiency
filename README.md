@@ -1,81 +1,91 @@
 # CSC Primitive Efficiency Measurement Package
+
 ====================
 
-## About
---- tested in CMSSW_15_0_5, this release needed to run the 2025 dataset
-* It is based on the tag-and-probe method using the Z pole or the J/ψ pole;
+This package has been tested in `CMSSW_15_0_6`, the release needed to run the 2025 dataset. Important details about the package are as follows:
+
+* This package is based on the tag-and-probe method using the Z pole or the J/ψ pol.
 * The efficiency obtained is the CSC detector efficiency times the efficiency that the muon is not scattered.
-* Need RECO-RAW information to get the LCT efficiency. RECO, AOD (mini, nano or simple AOD) samples are not enough.
+* The package needs RECO-RAW information to get the LCT efficiency. RECO and AOD (mini, nano or simple AOD) samples are not enough.
 
 ## Table of Contents
-- [Table of Contents](#table-of-contents)
-    - [About](#about)
-    - [Installation](#installation)
-    - [Make the Ntuple](#make-the-ntuple)
-    - [Make the Efficiency Plots](#make-the-efficiency-plots)
-   
+
+- [Installation](#installation)
+- [Make the Ntuple](#make-the-ntuple)
+   * [Local submission](#local-submission)
+   * [CRAB submission](#crab-submission)
+- [Make the Efficiency plots](#make-the-efficiency-plots)
+
 ## Installation
-<pre>
-cmsrel CMSSW_15_0_5
-cd CMSSW_15_0_5/src
+```bash
+cmsrel CMSSW_15_0_6
+cd CMSSW_15_0_6/src
 cmsenv
-mkdir CSCEfficiency
-git clone https://github.com/herndon/CSCefficiency CSCEfficiency
-scramv1 b
-</pre>
+#git cms-init
+git clone https://github.com/herndon/CSCefficiency
+scram build
+```
 
 ## Make the Ntuple
-The instructions for manual ntuple creation are below. Alternatively, the scripts within [`CSCEfficiency/scripts`](CSCEfficiency/scripts) can be used.
 
-1. Modify the config file [create_ntuple_local_Run3_2025_Data_test.py](CSCEfficiency/create_ntuple_local_Run3_2025_Data_test.py). 
-The output file name can be changed in the following line ---
-<pre>
-process.aoddump.rootFileName=cms.untracked.string('???.root')
-</pre>
+For automatic CRAB/local jobs for making ntuples, check [this README](CSCEfficiency/scripts/README.md). The local job can be used to test that the settings are correct.
+Alternatively, you can use the scripts within the package directory [`CSCEfficiency/`](CSCEfficiency). The instructions for that are found below.
 
-2. Run [create_ntuple_local_Run3_2025_Data_test.py](CSCEfficiency/create_ntuple_local_Run3_2025_Data_test.py). This will test program on the local computer.  You will still need to run voms-proxy-init to gain access to cms data.  CRAB is recommended for running larger numbers of events.
+### Local submission
 
-Steps necessary to setup access to the cms data are explained at: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid
-   
-<pre>
+1. Modify the config file [`create_ntuple_local_Run3_2025_Data_test.py`](CSCEfficiency/create_ntuple_local_Run3_2025_Data_test.py). 
+The output file name can be changed in the configuration of the `TFileService` for the process:
+
+```python
+process.TFileService = cms.Service('TFileService',
+    fileName = cms.string('CSCeff_Muon_202B1_1_test.root')
+) 
+```
+
+2. Run the config file with `cmsRun`. This will test program on the local computer. You will still need to run voms-proxy-init to reauthenticate your grid certificate and gain access to cms data. CRAB is recommended for running larger numbers of events if the tests are successful. Steps necessary to setup access to the cms data are explained at: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid. The commands to run the test are below.
+
+```bash
 voms-proxy-init -voms cms -valid 192:00
-cmsRun create_ntuple_local.py
-</pre>
+cmsRun create_ntuple_local_Run3_2025_Data_test.py
+```
 
+To create scripts for more recent data, you may need to change the following things:
 
-Things that may need to be chanched to run more recent data are:   The input file name.  The release being used.  The global tag to load the correct configurations and callibrations for the data and release you are using.  
+* Input filename
+* CMSSW release
+* Global tag (for loading the correct configurations and calibrations for the data and release being used)
 
-or
+### CRAB submission
 
-There is a CRAB submission file [CSCEfficiency/crabConfig_CSCEff2025B0_1.py](CSCEfficiency/crabConfig_CSCEff2025B0_1.py). That runs the cmsRun script [CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py](CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py)
+There is a CRAB submission file [`CSCEfficiency/crabConfig_CSCEff2025B0_1.py`](CSCEfficiency/crabConfig_CSCEff2025B0_1.py) that runs the cmsRun script [`CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py`](CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py). These scripts are running on data described at: https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2FMuon*%2FRun2025*-ZMu-PromptReco-v*%2FRAW-RECO.
 
-These scripts are running on data described at:
+Note there you can click on `config` to see the release and global tag used to process the original data. The same release (or later in the same series, only updating the minor number) and global tag should be used. You can click on files to find file names that could be used in the local script. The commands to submit the CRAB job are below - note that again you may need to reauthenticate your grid certificate.
 
-https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2FMuon*%2FRun2025*-ZMu-PromptReco-v*%2FRAW-RECO
-
-Note there you can click on config to see the release and global tag used to process the original data.   The same release (or later in the same series, only updating the minor number) and global tag should be used.  You can click on files to find file names that could be used in the local script.
-
-<pre>
+```bash
 voms-proxy-init -voms cms -valid 192:00
 crab submit -c crabConfig_CSCEff2025B0_1.py
-</pre>
+```
 
-First time you run the crab command each day you often have to type you voms passcode again.
+The first time you run the crab command each day you often have to type you voms passcode again.
 
-The crab command, if sucessful, will return a report and an example crab status command to check on the job.  Run that.   crab status will return some web links to a graphical monitor of your job status.   The monit-grafana site is the useful one.   It can take several tens of minutes till your job shows up there.
+The crab command, if successful, will return a report and an example crab status command to check on the job. Run that - the command will return some web links to a graphical monitor of your job status. The monit-grafana site is the useful one. It can take several tens of minutes till your job shows up there.
 
 ## Make the Efficiency plots
-See files in [NtupleScripts](CSCEfficiency/NtupleScripts/.)
-After modifying CSCEffFast.h to point to your T&P output Ntuple files run in root using:
-<pre>
+
+For a more detailed description of the scripts and how to use them, check [this README](CSCEfficiency/NtupleScripts/README.md). For a quick start, see below.
+
+After modifying CSCEffFast.h to point to your T&P output Ntuple files run in root using the [`CSCEffFast`](CSCEfficiency/NtupleScripts/CSCEffFast.h) class:
+
+```bash
 root -b
 .L CSCEffFast.C+
 CSCEffFast* cscEffFast = new CSCEffFast()
-</pre>
-This makes the file cscEffHistoFile.root
-The file commands.txt has commands to make pretty plots from cscEffHistoFile.root.
-There is scipt to make plots automatically.  However, you likely have to create of copy over the directory structure made under plots/ first.
-<pre>
-root
+```
+
+This makes the file `cscEffHistoFile.root`.
+To make plots automatically, you can use the [`PlotCSCEffFast.C`](CSCEfficiency/NtupleScripts/PlotCSCEffFast.C) script:
+
+```bash
+root -b
 .x PlotCSCEffFast.C
-</pre>
+```
