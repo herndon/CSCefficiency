@@ -24,6 +24,7 @@ cmsenv
 #git cms-init
 git clone https://github.com/herndon/CSCefficiency
 scram build
+cd CSCefficiency/CSCefficiency
 ```
 
 ## Make the Ntuple
