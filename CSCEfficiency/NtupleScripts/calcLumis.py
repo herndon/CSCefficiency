@@ -87,9 +87,9 @@ def main():
 
     if infile.GetListOfKeys().Contains("lumi"):
       lumi = infile.Get("lumi")
-      lumi.SetTitle("%s" % args.lumi)
+      lumi.SetTitle("%s" % str(args.lumi))
     else:
-      lumi = ROOT.TNamed("lumi", args.lumi)
+      lumi = ROOT.TNamed("lumi", str(args.lumi))
     if not args.nowrite:
       lumi.Write("", ROOT.TObject.kOverwrite)
       if not args.quiet: print("Lumi updated to %s /fb in ROOT file" % args.lumi)
@@ -97,11 +97,11 @@ def main():
   if not args.nostore and updated_lumi:
     with open(args.json, "w") as outfile:
       if args.name in lumi_dict:
-        lumi_dict[args.name]["lumi"] = args.lumi
+        lumi_dict[args.name]["lumi"] = str(args.lumi)
         lumi_dict[args.name]["runs"] = runs
       else:
         lumi_dict[args.name] = {
-          "lumi": args.lumi,
+          "lumi": str(args.lumi),
           "runs": runs
         }
       json.dump(lumi_dict, outfile, indent=2)
