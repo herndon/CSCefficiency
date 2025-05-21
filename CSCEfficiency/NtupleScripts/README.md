@@ -137,7 +137,7 @@ Set up by running the following commands:
 ```bash
 export NEWPATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/.local/bin/:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH
-pip install --user brilws
+pip3 install --user brilws
 export PATH=$NEWPATH
 ```
 
