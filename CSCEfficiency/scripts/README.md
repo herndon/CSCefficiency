@@ -114,5 +114,5 @@ be set to `1` for CRAB submissions. By default, it is `0` for local submissions.
 
 ```bash
 cd CSCEfficiency/submit
-cmsRun ../scripts/ntuplize_cfg.py --inputFiles=root://cms-xrd-global.cern.ch//store/data/Run2025B/Muon0/RAW-RECO/ZMu-PromptReco-v1/000/391/668/00000/b7adfb3e-c0f3-4c04-9908-b4a5cbacad1a.root globalTag=150X_dataRun3_Prompt_v1 outputFile=test.root
+cmsRun ../scripts/ntuplize_cfg.py inputFiles=root://cms-xrd-global.cern.ch//store/data/Run2025B/Muon0/RAW-RECO/ZMu-PromptReco-v1/000/391/668/00000/b7adfb3e-c0f3-4c04-9908-b4a5cbacad1a.root globalTag=150X_dataRun3_Prompt_v1 outputFile=test.root
 ```
