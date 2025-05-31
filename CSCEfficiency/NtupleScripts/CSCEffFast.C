@@ -6,10 +6,9 @@
 #include <TF1.h>
 #include <TStyle.h>
 #include <TCanvas.h>
-
-#define autoRemoval false
+#define autoRemoval true 
 #if autoRemoval
- #include "BadChambers.h"
+ #include "BadChambers_auto.h"
 #endif
 
 void CSCEffFast::Loop()
@@ -30,7 +29,6 @@ void CSCEffFast::Loop()
 
   TFile cscEffHistoFile("cscEffHistoFile.root","Recreate");
   setName->Write();
-  setRuns->Write();
 
 
   char name[50];
@@ -61,6 +59,24 @@ void CSCEffFast::Loop()
   bool ME31EvenOdd = false;
   bool ME41EvenOdd = false;
 
+  // Setting run ranges
+#if newData
+  //const Int_t firstRun = 367100; //2023 excluding B and first few runs of C where MEx1 was bad
+  //const Int_t firstRun = 369800; //2023D
+  //const Int_t firstRun = 370600;
+
+  //const Int_t lastRun = 367700; //2023Cv1-2
+  //const Int_t lastRun = 369700; //2023Cv4
+  //const Int_t lastRun = 370400; //2023Dv1
+  //const Int_t lastRun = 370800; //2023Dv2
+
+  //const Int_t firstRun = d2023Dv2.firstRun;
+  //const Int_t lastRun = d2023Dv2.lastRun;
+#else
+  //const Int_t firstRun = 355000; //2022
+  //const Int_t lastRun = 362800; //2022
+#endif
+  
   // Pt, Eta, phi (chamber) parameters and histograms
 
   const Int_t numPtBins=10;       //number of pt bins in eff plots
@@ -124,13 +140,12 @@ void CSCEffFast::Loop()
 
 #if newData
   // auto-generate equally-spaced run bins (100 runs each)
-  const Int_t numRunBins = (lastRun-firstRun+(Int_t)firstRun%100)/100 + 1;
+  const Int_t numRunBins = (lastRun-firstRun)/100 + 1;
   Double_t *runBins = new Double_t[(numRunBins+1)]{0};
   for (int i=0; i<numRunBins+1; i++) runBins[i] = (firstRun - (Int_t)firstRun%100) + i*100;
 #else
   // Run 3 2022 A-G
-  const Int_t numRunBins = 35; //all 2022
-  Double_t *runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
+  runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
 #endif
 
 
@@ -259,6 +274,9 @@ void CSCEffFast::Loop()
   TH1F *zMassSegNumStationRingPV[8][4][numPVBins];
   TH1F *zMassLCTNumStationRingPV[8][4][numPVBins];
 
+  TH1F *bxLCTStationRingChamber[8][4][37];
+  TH1F *bxLCTStationRing[8][4];
+  
 
 
   //TF1 * fit = new TF1("myfit", "[0] / sqrt(2.0 * TMath::Pi()) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3] + x*[4] + [5] / sqrt(2.0 * TMath::Pi()) / [7] * exp(-(x-[6])*(x-[6])/2./[7]/[7])", 76.0, 106.0);
@@ -616,6 +634,16 @@ void CSCEffFast::Loop()
         sprintf(title,"Segment Residuals for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
         resSigmaSegStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 200, -10.0, 10.0);
 
+        sprintf(name,"bxLCTStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+        sprintf(title,"LCT BX for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
+        bxLCTStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 20, -9.5, 10.5);
+
+	if (iiChamber == 1) {
+        sprintf(name,"bxLCTStation%dRing%d",iiStation+1,iiRing);
+        sprintf(title,"LCT BX for Station %d Ring %d",iiStation+1,iiRing);
+        bxLCTStationRing[iiStation][iiRing] = new TH1F(name,title, 20, -9.5, 10.5);
+	}
+	
         sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
         sprintf(title,"Segement Efficiency vs Y LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
         segEffStationRingChamberLCY[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCYBins, &(*lCYBins));
@@ -623,6 +651,11 @@ void CSCEffFast::Loop()
         sprintf(title,"LCT Efficiency vs LCY for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
         LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCYBins, &(*lCYBins));
 
+
+
+
+
+	
         /* sprintf(name,"segEffLCWStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber); */
         /* sprintf(title,"Segement Efficiency vs Wire LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber); */
         /* segEffStationRingChamberLCW[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCWBins, &(*lCWBins)); */
@@ -709,9 +742,12 @@ void CSCEffFast::Loop()
   // Mass Histogram parameters and histrograms
 
   TH1F *zMassGood  = new TH1F("zMassGood", "Z Mass Good Segements", 120, 60.0, 120.0);
-  TH1F *zMassAll  = new TH1F("zMassAll", "Z Mass all Good Probes", 120, 60.0, 120.0);
+  TH1F *zMassAll  = new TH1F("zMassAll", "Z Mass All Good Probes", 120, 60.0, 120.0);
   TH1F *zMassBad  = new TH1F("zMassBad", "Z Mass Bad Segements", 120, 60.0, 120.0);
 
+  TH1F *nPVAll  = new TH1F("nPVAll", "n PV All Good Probes", 120, 0.5, 120.5);
+  
+  
 
   // Muon Segement Histrograms
 
@@ -1844,8 +1880,10 @@ void CSCEffFast::Loop()
 
 
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    if ((jentry % 100000) ==0) std::cout << jentry << " of " << nentries << " - Number good Candidates: " << nCands << " - Number of Zs: " << nZs << std::endl; 
-
+    if ((jentry % 100000) ==0) {
+      std::cout << jentry << " of " << nentries << " - Number good Candidates: " << nCands << " - Number of Zs: " << nZs << std::endl; 
+      //cscEffHistoFile.Write();
+    }
 
     // if (Cut(ientry) < 0) continue;
     // Probe and dimuon requirements
@@ -2125,6 +2163,7 @@ void CSCEffFast::Loop()
       //Good tag except for Z mass
       if ((fiducial1||fiducial11)&&invMass>60.0&&invMass<120.0) {
         zMassAll->Fill(invMass);
+        nPVAll->Fill(numberOfPrimaryVertices);
         if (foundSeg1) {zMassGood->Fill(invMass);} else {zMassBad->Fill(invMass);}
       }
       if (fiducial2) {
@@ -2401,22 +2440,30 @@ void CSCEffFast::Loop()
               if (CSCRg1==4&&fiducial11) {passStationRingLCT[0][0]++;passStationRingChamberLCT[0][0][CSCCh1]++;passStationRingPtLCT[0][0][pTBin]++;passStationRingEtaLCT[0][0][etaBin]++;passStationRingIsoLCT[0][0][isoBin]++;passStationRingPVLCT[0][0][pvBin]++;passStationRingILLCT[0][0][ilBin]++;passStationRingRunLCT[0][0][runBin]++;passStationRingChamberRunLCT[0][0][CSCCh1][runBin]++;passStationRingLCYLCT[0][0][lC3YBin1]++;passStationRingLCSLCT[0][0][lC3SBin1]++;passStationRingChamberLCYLCT[0][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][0][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][0][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[0][0][dCFEB3Bin1][CSCCh1][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[0][0][CSCCh1]->Fill(run_number);
                 zMassLCTNumStationRingPV[0][0][pvBin]->Fill(invMass);
+                if (inZMass) bxLCTStationRingChamber[0][0][CSCCh1]->Fill(CSCLCTbx1);
+                if (inZMass) bxLCTStationRing[0][0]->Fill(CSCLCTbx1);
                 if (CSCCh1%2 == 0 ) {passStationRingLCT[1][0]++;passStationRingChamberLCT[1][0][CSCCh1]++;passStationRingPtLCT[1][0][pTBin]++;passStationRingEtaLCT[1][0][etaBin]++;passStationRingIsoLCT[1][0][isoBin]++;passStationRingPVLCT[1][0][pvBin]++;passStationRingILLCT[1][0][ilBin]++;passStationRingRunLCT[1][0][runBin]++;passStationRingChamberRunLCT[1][0][CSCCh1][runBin]++;passStationRingLCYLCT[1][0][lC3YBin1]++;passStationRingLCSLCT[1][0][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[1][0][dCFEB3Bin1][CSCCh1][runBin]++;}
                 else {passStationRingLCT[1][3]++;passStationRingChamberLCT[1][3][CSCCh1]++;passStationRingPtLCT[1][3][pTBin]++;passStationRingEtaLCT[1][3][etaBin]++;passStationRingIsoLCT[1][3][isoBin]++;passStationRingPVLCT[1][3][pvBin]++;passStationRingILLCT[1][3][ilBin]++;passStationRingRunLCT[1][3][runBin]++;passStationRingChamberRunLCT[1][3][CSCCh1][runBin]++;passStationRingLCYLCT[1][3][lC3YBin1]++;passStationRingLCSLCT[1][3][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[1][3][dCFEB3Bin1][CSCCh1][runBin]++;}
               }
               if (CSCRg1==1&&fiducial11) {passStationRingLCT[0][1]++;passStationRingChamberLCT[0][1][CSCCh1]++;passStationRingPtLCT[0][1][pTBin]++;passStationRingEtaLCT[0][1][etaBin]++;passStationRingIsoLCT[0][1][isoBin]++;passStationRingPVLCT[0][1][pvBin]++;passStationRingILLCT[0][1][ilBin]++;passStationRingRunLCT[0][1][runBin]++;passStationRingChamberRunLCT[0][1][CSCCh1][runBin]++;passStationRingLCYLCT[0][1][lC3YBin1]++;passStationRingLCSLCT[0][1][lC3SBin1]++;;passStationRingChamberLCYLCT[0][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][1][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][1][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[0][1][dCFEB3Bin1][CSCCh1][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[0][1][CSCCh1]->Fill(run_number);
                 zMassLCTNumStationRingPV[0][1][pvBin]->Fill(invMass);        
+                if (inZMass) bxLCTStationRingChamber[0][1][CSCCh1]->Fill(CSCLCTbx1);
+                if (inZMass) bxLCTStationRing[0][1]->Fill(CSCLCTbx1);
                 if (CSCCh1%2 == 0 ) {passStationRingLCT[2][0]++;passStationRingChamberLCT[2][0][CSCCh1]++;passStationRingPtLCT[2][0][pTBin]++;passStationRingEtaLCT[2][0][etaBin]++;passStationRingIsoLCT[2][0][isoBin]++;passStationRingPVLCT[2][0][pvBin]++;passStationRingILLCT[2][0][ilBin]++;passStationRingRunLCT[2][0][runBin]++;passStationRingChamberRunLCT[2][0][CSCCh1][runBin]++;passStationRingLCYLCT[2][0][lC3YBin1]++;passStationRingLCSLCT[2][0][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[2][0][dCFEB3Bin1][CSCCh1][runBin]++;}
                 else {passStationRingLCT[2][3]++;passStationRingChamberLCT[2][3][CSCCh1]++;passStationRingPtLCT[2][3][pTBin]++;passStationRingEtaLCT[2][3][etaBin]++;passStationRingIsoLCT[2][3][isoBin]++;passStationRingPVLCT[2][3][pvBin]++;passStationRingILLCT[2][3][ilBin]++;passStationRingRunLCT[2][3][runBin]++;passStationRingChamberRunLCT[2][3][CSCCh1][runBin]++;passStationRingLCYLCT[2][3][lC3YBin1]++;passStationRingLCSLCT[2][3][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[2][3][dCFEB3Bin1][CSCCh1][runBin]++;}
               }
               if (CSCRg1==2) {passStationRingLCT[0][2]++;passStationRingChamberLCT[0][2][CSCCh1]++;passStationRingPtLCT[0][2][pTBin]++;passStationRingEtaLCT[0][2][etaBin]++;passStationRingIsoLCT[0][2][isoBin]++;passStationRingPVLCT[0][2][pvBin]++;passStationRingILLCT[0][2][ilBin]++;passStationRingRunLCT[0][2][runBin]++;passStationRingChamberRunLCT[0][2][CSCCh1][runBin]++;passStationRingLCYLCT[0][2][lC3YBin1]++;passStationRingLCSLCT[0][2][lC3SBin1]++;passStationRingChamberLCYLCT[0][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][2][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][2][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[0][2][dCFEB3Bin1][CSCCh1][runBin]++;
                 zMassLCTNumStationRingPV[0][2][pvBin]->Fill(invMass);
                 if (inZMass) LCTNumStationRingChamberRun[0][2][CSCCh1]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[0][2][CSCCh1]->Fill(CSCLCTbx1);
+                if (inZMass) bxLCTStationRing[0][2]->Fill(CSCLCTbx1);
               }
               if (CSCRg1==3) {passStationRingLCT[0][3]++;passStationRingChamberLCT[0][3][CSCCh1]++;passStationRingPtLCT[0][3][pTBin]++;passStationRingEtaLCT[0][3][etaBin]++;passStationRingIsoLCT[0][3][isoBin]++;passStationRingPVLCT[0][3][pvBin]++;passStationRingILLCT[0][3][ilBin]++;passStationRingRunLCT[0][3][runBin]++;passStationRingChamberRunLCT[0][3][CSCCh1][runBin]++;passStationRingLCYLCT[0][3][lC3YBin1]++;passStationRingLCSLCT[0][3][lC3SBin1]++;passStationRingChamberLCYLCT[0][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][3][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][3][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[0][3][dCFEB3Bin1][CSCCh1][runBin]++;
                 zMassLCTNumStationRingPV[0][3][pvBin]->Fill(invMass);
                 if (inZMass) LCTNumStationRingChamberRun[0][3][CSCCh1]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[0][3][CSCCh1]->Fill(CSCLCTbx1);
+                if (inZMass) bxLCTStationRing[0][3]->Fill(CSCLCTbx1);
               }
             }
           }
@@ -2470,10 +2517,14 @@ void CSCEffFast::Loop()
               if (CSCRg2==1) {passStationRingLCT[1][1]++;passStationRingChamberLCT[1][1][CSCCh2]++;passStationRingPtLCT[1][1][pTBin]++;passStationRingEtaLCT[1][1][etaBin2]++;passStationRingIsoLCT[1][1][isoBin]++;passStationRingPVLCT[1][1][pvBin]++;passStationRingILLCT[1][1][ilBin]++;passStationRingRunLCT[1][1][runBin]++;passStationRingChamberRunLCT[1][1][CSCCh2][runBin]++;passStationRingLCYLCT[1][1][lC3YBin1]++;passStationRingLCSLCT[1][1][lC3SBin1]++;passStationRingChamberLCYLCT[1][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[1][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[1][1][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBLCT[1][1][CSCCh2][dCFEB3Bin2]++;passStationRingDCFEBChamberRunLCT[1][1][dCFEB3Bin2][CSCCh2][runBin]++;
                 zMassLCTNumStationRingPV[1][1][pvBin]->Fill(invMass);
                 if (inZMass) LCTNumStationRingChamberRun[1][1][CSCCh2]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[1][1][CSCCh2]->Fill(CSCLCTbx2);
+                if (inZMass) bxLCTStationRing[1][1]->Fill(CSCLCTbx2);
               }
               if (CSCRg2==2) {passStationRingLCT[1][2]++;passStationRingChamberLCT[1][2][CSCCh2]++;passStationRingPtLCT[1][2][pTBin]++;passStationRingEtaLCT[1][2][etaBin2]++;passStationRingIsoLCT[1][2][isoBin]++;passStationRingPVLCT[1][2][pvBin]++;passStationRingILLCT[1][2][ilBin]++;passStationRingRunLCT[1][2][runBin]++;passStationRingChamberRunLCT[1][2][CSCCh2][runBin]++;passStationRingLCYLCT[1][2][lC3YBin1]++;passStationRingLCSLCT[1][2][lC3SBin1]++;passStationRingChamberLCYLCT[1][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[1][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[1][2][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBLCT[1][2][CSCCh2][dCFEB3Bin2]++;passStationRingDCFEBChamberRunLCT[1][2][dCFEB3Bin2][CSCCh2][runBin]++;
                 zMassLCTNumStationRingPV[1][2][pvBin]->Fill(invMass);
                 if (inZMass) LCTNumStationRingChamberRun[1][2][CSCCh2]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[1][2][CSCCh2]->Fill(CSCLCTbx2);
+                if (inZMass) bxLCTStationRing[1][2]->Fill(CSCLCTbx2);
               }
             }
           }
@@ -2522,9 +2573,15 @@ void CSCEffFast::Loop()
               passGlobalLCT++;
               if (CSCRg3==1) {passStationRingLCT[2][1]++;passStationRingChamberLCT[2][1][CSCCh3]++;passStationRingPtLCT[2][1][pTBin]++;passStationRingEtaLCT[2][1][etaBin3]++;passStationRingIsoLCT[2][1][isoBin]++;passStationRingPVLCT[2][1][pvBin]++;passStationRingILLCT[2][1][ilBin]++;passStationRingRunLCT[2][1][runBin]++;passStationRingChamberRunLCT[2][1][CSCCh3][runBin]++;passStationRingLCYLCT[2][1][lC3YBin3]++;passStationRingLCSLCT[2][1][lC3SBin3]++;passStationRingChamberLCYLCT[2][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[2][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[2][1][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[2][1][CSCCh3][dCFEB3Bin3]++;passStationRingDCFEBChamberRunLCT[2][1][dCFEB3Bin3][CSCCh3][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[2][1][CSCCh3]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[2][1][CSCCh3]->Fill(CSCLCTbx3);
+                if (inZMass) bxLCTStationRing[2][1]->Fill(CSCLCTbx3);
+
               }
               if (CSCRg3==2) {passStationRingLCT[2][2]++;passStationRingChamberLCT[2][2][CSCCh3]++;passStationRingPtLCT[2][2][pTBin]++;passStationRingEtaLCT[2][2][etaBin3]++;passStationRingIsoLCT[2][2][isoBin]++;passStationRingPVLCT[2][2][pvBin]++;passStationRingILLCT[2][2][ilBin]++;passStationRingRunLCT[2][2][runBin]++;passStationRingChamberRunLCT[2][2][CSCCh3][runBin]++;passStationRingLCYLCT[2][2][lC3YBin3]++;passStationRingLCSLCT[2][2][lC3SBin3]++;passStationRingChamberLCYLCT[2][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[2][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[2][2][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[2][2][CSCCh3][dCFEB3Bin3]++;passStationRingDCFEBChamberRunLCT[2][2][dCFEB3Bin3][CSCCh3][runBin]++;
-                if (inZMass) LCTNumStationRingChamberRun[2][2][CSCCh3]->Fill(run_number);        
+                if (inZMass) LCTNumStationRingChamberRun[2][2][CSCCh3]->Fill(run_number);
+	        if (inZMass) bxLCTStationRingChamber[2][2][CSCCh3]->Fill(CSCLCTbx3);
+                if (inZMass) bxLCTStationRing[2][2]->Fill(CSCLCTbx3);
+
               }
             }
           }
@@ -2578,9 +2635,13 @@ void CSCEffFast::Loop()
               passGlobalLCT++;
               if (CSCRg4==1) {passStationRingLCT[3][1]++;passStationRingChamberLCT[3][1][CSCCh4]++;passStationRingPtLCT[3][1][pTBin]++;passStationRingEtaLCT[3][1][etaBin4]++;passStationRingIsoLCT[3][1][isoBin]++;passStationRingPVLCT[3][1][pvBin]++;passStationRingILLCT[3][1][ilBin]++;passStationRingRunLCT[3][1][runBin]++;passStationRingChamberRunLCT[3][1][CSCCh4][runBin]++;passStationRingLCYLCT[3][1][lC3YBin4]++;passStationRingLCSLCT[3][1][lC3SBin4]++;passStationRingChamberLCYLCT[3][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[3][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[3][1][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBLCT[3][1][CSCCh4][dCFEB3Bin4]++;passStationRingDCFEBChamberRunLCT[3][1][dCFEB3Bin4][CSCCh4][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[3][1][CSCCh4]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[3][1][CSCCh4]->Fill(CSCLCTbx4);
+                if (inZMass) bxLCTStationRing[3][1]->Fill(CSCLCTbx4);
               }
               if (CSCRg4==2) {passStationRingLCT[3][2]++;passStationRingChamberLCT[3][2][CSCCh4]++;passStationRingPtLCT[3][2][pTBin]++;passStationRingEtaLCT[3][2][etaBin4]++;passStationRingIsoLCT[3][2][isoBin]++;passStationRingPVLCT[3][2][pvBin]++;passStationRingILLCT[3][2][ilBin]++;passStationRingRunLCT[3][2][runBin]++;passStationRingChamberRunLCT[3][2][CSCCh4][runBin]++;passStationRingLCYLCT[3][2][lC3YBin4]++;passStationRingLCSLCT[3][2][lC3SBin4]++;passStationRingChamberLCYLCT[3][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[3][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[3][2][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBLCT[3][2][CSCCh4][dCFEB3Bin4]++;passStationRingDCFEBChamberRunLCT[3][2][dCFEB3Bin4][CSCCh4][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[3][2][CSCCh4]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[3][2][CSCCh4]->Fill(CSCLCTbx4);
+                if (inZMass) bxLCTStationRing[3][2]->Fill(CSCLCTbx4);
               }
             }
           }
@@ -2658,19 +2719,27 @@ void CSCEffFast::Loop()
               passGlobalLCT++;
               if (CSCRg1==4&&fiducial11) {passStationRingLCT[4][0]++;passStationRingChamberLCT[4][0][CSCCh1]++;passStationRingPtLCT[4][0][pTBin]++;passStationRingEtaLCT[4][0][etaBin]++;passStationRingIsoLCT[4][0][isoBin]++;passStationRingPVLCT[4][0][pvBin]++;passStationRingILLCT[4][0][ilBin]++;passStationRingRunLCT[4][0][runBin]++;passStationRingChamberRunLCT[4][0][CSCCh1][runBin]++;passStationRingLCYLCT[4][0][lC3YBin1]++;passStationRingLCSLCT[4][0][lC3SBin1]++;passStationRingChamberLCYLCT[4][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][0][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][0][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[4][0][dCFEB3Bin1][CSCCh1][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[4][0][CSCCh1]->Fill(run_number);        
+                if (inZMass) bxLCTStationRingChamber[4][0][CSCCh1]->Fill(CSCLCTbx1);
+                if (inZMass) bxLCTStationRing[4][0]->Fill(CSCLCTbx1);
                 if (CSCCh1%2 == 0 ) {passStationRingLCT[5][0]++;passStationRingChamberLCT[5][0][CSCCh1]++;passStationRingPtLCT[5][0][pTBin]++;passStationRingEtaLCT[5][0][etaBin]++;passStationRingIsoLCT[5][0][isoBin]++;passStationRingPVLCT[5][0][pvBin]++;passStationRingILLCT[5][0][ilBin]++;passStationRingRunLCT[5][0][runBin]++;passStationRingChamberRunLCT[5][0][CSCCh1][runBin]++;passStationRingLCYLCT[5][0][lC3YBin1]++;passStationRingLCSLCT[5][0][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[5][0][dCFEB3Bin1][CSCCh1][runBin]++;}
                 else {passStationRingLCT[5][3]++;passStationRingChamberLCT[5][3][CSCCh1]++;passStationRingPtLCT[5][3][pTBin]++;passStationRingEtaLCT[5][3][etaBin]++;;passStationRingIsoLCT[5][3][isoBin]++;passStationRingPVLCT[5][3][pvBin]++;passStationRingILLCT[5][3][ilBin]++;passStationRingRunLCT[5][3][runBin]++;passStationRingChamberRunLCT[5][3][CSCCh1][runBin]++;passStationRingLCYLCT[5][3][lC3YBin1]++;passStationRingLCSLCT[5][3][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[5][3][dCFEB3Bin1][CSCCh1][runBin]++;}
               }
               if (CSCRg1==1&&fiducial11) {passStationRingLCT[4][1]++;passStationRingChamberLCT[4][1][CSCCh1]++;passStationRingPtLCT[4][1][pTBin]++;passStationRingEtaLCT[4][1][etaBin]++;passStationRingIsoLCT[4][1][isoBin]++;passStationRingPVLCT[4][1][pvBin]++;passStationRingILLCT[4][1][ilBin]++;passStationRingRunLCT[4][1][runBin]++;passStationRingChamberRunLCT[4][1][CSCCh1][runBin]++;passStationRingLCYLCT[4][1][lC3YBin1]++;passStationRingLCSLCT[4][1][lC3SBin1]++;passStationRingChamberLCYLCT[4][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][1][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][1][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[4][1][dCFEB3Bin1][CSCCh1][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[4][1][CSCCh1]->Fill(run_number);        
+                if (inZMass) bxLCTStationRingChamber[4][1][CSCCh1]->Fill(CSCLCTbx1);
+                if (inZMass) bxLCTStationRing[4][1]->Fill(CSCLCTbx1);
                 if (CSCCh1%2 == 0 ) {passStationRingLCT[6][0]++;passStationRingChamberLCT[6][0][CSCCh1]++;passStationRingPtLCT[6][0][pTBin]++;passStationRingEtaLCT[6][0][etaBin]++;passStationRingIsoLCT[6][0][isoBin]++;passStationRingPVLCT[6][0][pvBin]++;passStationRingILLCT[6][0][ilBin]++;passStationRingRunLCT[6][0][runBin]++;passStationRingChamberRunLCT[6][0][CSCCh1][runBin]++;passStationRingLCYLCT[6][0][lC3YBin1]++;passStationRingLCSLCT[6][0][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[6][0][dCFEB3Bin1][CSCCh1][runBin]++;}
                 else {passStationRingLCT[6][3]++;passStationRingChamberLCT[6][3][CSCCh1]++;passStationRingPtLCT[6][3][pTBin]++;passStationRingEtaLCT[6][3][etaBin]++;passStationRingIsoLCT[6][3][isoBin]++;passStationRingPVLCT[6][3][pvBin]++;passStationRingILLCT[6][3][ilBin]++;passStationRingRunLCT[6][3][runBin]++;passStationRingChamberRunLCT[6][3][CSCCh1][runBin]++;passStationRingLCYLCT[6][3][lC3YBin1]++;passStationRingLCSLCT[6][3][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[6][3][dCFEB3Bin1][CSCCh1][runBin]++;}
               }
               if (CSCRg1==2) {passStationRingLCT[4][2]++;passStationRingChamberLCT[4][2][CSCCh1]++;passStationRingPtLCT[4][2][pTBin]++;passStationRingEtaLCT[4][2][etaBin]++;passStationRingIsoLCT[4][2][isoBin]++;passStationRingPVLCT[4][2][pvBin]++;passStationRingILLCT[4][2][ilBin]++;passStationRingRunLCT[4][2][runBin]++;passStationRingChamberRunLCT[4][2][CSCCh1][runBin]++;passStationRingLCYLCT[4][2][lC3YBin1]++;passStationRingLCSLCT[4][2][lC3SBin1]++;passStationRingChamberLCYLCT[4][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][2][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][2][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][2][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[4][2][dCFEB3Bin1][CSCCh1][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[4][2][CSCCh1]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[4][2][CSCCh1]->Fill(CSCLCTbx1);
+                if (inZMass) bxLCTStationRing[4][2]->Fill(CSCLCTbx1);
               }
               if (CSCRg1==3) {passStationRingLCT[4][3]++;passStationRingChamberLCT[4][3][CSCCh1]++;passStationRingPtLCT[4][3][pTBin]++;passStationRingEtaLCT[4][3][etaBin]++;passStationRingIsoLCT[4][3][isoBin]++;passStationRingPVLCT[4][3][pvBin]++;passStationRingILLCT[4][3][ilBin]++;passStationRingRunLCT[4][3][runBin]++;passStationRingChamberRunLCT[4][3][CSCCh1][runBin]++;passStationRingLCYLCT[4][3][lC3YBin1]++;passStationRingLCSLCT[4][3][lC3SBin1]++;passStationRingChamberLCYLCT[4][3][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][3][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][3][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][3][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[4][3][dCFEB3Bin1][CSCCh1][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[4][3][CSCCh1]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[4][3][CSCCh1]->Fill(CSCLCTbx1);
+                if (inZMass) bxLCTStationRing[4][3]->Fill(CSCLCTbx1);
               }
             }
           }
@@ -2717,10 +2786,14 @@ void CSCEffFast::Loop()
               passGlobalLCT++;
               if (CSCRg2==1) {passStationRingLCT[5][1]++;passStationRingChamberLCT[5][1][CSCCh2]++;passStationRingPtLCT[5][1][pTBin]++;passStationRingEtaLCT[5][1][etaBin2]++;passStationRingIsoLCT[5][1][isoBin]++;passStationRingPVLCT[5][1][pvBin]++;passStationRingILLCT[5][1][ilBin]++;passStationRingRunLCT[5][1][runBin]++;passStationRingChamberRunLCT[5][1][CSCCh2][runBin]++;passStationRingLCYLCT[5][1][lC3YBin2]++;passStationRingLCSLCT[5][1][lC3SBin2]++;passStationRingChamberLCYLCT[5][1][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[5][1][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[5][1][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBLCT[5][1][CSCCh2][dCFEB3Bin2]++;passStationRingDCFEBChamberRunLCT[5][1][dCFEB3Bin2][CSCCh2][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[5][1][CSCCh2]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[5][1][CSCCh2]->Fill(CSCLCTbx2);
+                if (inZMass) bxLCTStationRing[5][1]->Fill(CSCLCTbx2);
               }
               if (CSCRg2==2) {passStationRingLCT[5][2]++;passStationRingChamberLCT[5][2][CSCCh2]++;passStationRingPtLCT[5][2][pTBin]++;passStationRingEtaLCT[5][2][etaBin2]++;passStationRingIsoLCT[5][2][isoBin]++;passStationRingPVLCT[5][2][pvBin]++;passStationRingILLCT[5][2][ilBin]++;passStationRingRunLCT[5][2][runBin]++;passStationRingChamberRunLCT[5][2][CSCCh2][runBin]++;passStationRingLCYLCT[5][2][lC3YBin2]++;passStationRingLCSLCT[5][2][lC3SBin2]++;passStationRingChamberLCYLCT[5][2][CSCCh2][lCYBin2]++;passStationRingChamberLCSLCT[5][2][CSCCh2][lCSBin2]++;passStationRingChamberLCWLCT[5][2][CSCCh2][lCWBin2]++;passStationRingChamberDCFEBLCT[5][2][CSCCh2][dCFEB3Bin2]++;passStationRingDCFEBChamberRunLCT[5][2][dCFEB3Bin2][CSCCh2][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[5][2][CSCCh2]->Fill(run_number);
-              }
+                if (inZMass) bxLCTStationRingChamber[5][2][CSCCh2]->Fill(CSCLCTbx2);
+                if (inZMass) bxLCTStationRing[5][2]->Fill(CSCLCTbx2);
+             }
             }
           }
           if (fiducial3){
@@ -2768,9 +2841,13 @@ void CSCEffFast::Loop()
               passGlobalLCT++;
               if (CSCRg3==1) {passStationRingLCT[6][1]++;passStationRingChamberLCT[6][1][CSCCh3]++;passStationRingPtLCT[6][1][pTBin]++;passStationRingEtaLCT[6][1][etaBin3]++;passStationRingIsoLCT[6][1][isoBin]++;passStationRingPVLCT[6][1][pvBin]++;passStationRingILLCT[6][1][ilBin]++;passStationRingRunLCT[6][1][runBin]++;passStationRingChamberRunLCT[6][1][CSCCh3][runBin]++;passStationRingLCYLCT[6][1][lC3YBin3]++;passStationRingLCSLCT[6][1][lC3SBin3]++;passStationRingChamberLCYLCT[6][1][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[6][1][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[6][1][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[6][1][CSCCh3][dCFEB3Bin3]++;passStationRingDCFEBChamberRunLCT[6][1][dCFEB3Bin3][CSCCh3][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[6][1][CSCCh3]->Fill(run_number);
-              }
+                if (inZMass) bxLCTStationRingChamber[6][1][CSCCh3]->Fill(CSCLCTbx3);
+                if (inZMass) bxLCTStationRing[6][1]->Fill(CSCLCTbx3);
+             }
               if (CSCRg3==2) {passStationRingLCT[6][2]++;passStationRingChamberLCT[6][2][CSCCh3]++;passStationRingPtLCT[6][2][pTBin]++;passStationRingEtaLCT[6][2][etaBin3]++;passStationRingIsoLCT[6][2][isoBin]++;passStationRingPVLCT[6][2][pvBin]++;passStationRingILLCT[6][2][ilBin]++;passStationRingRunLCT[6][2][runBin]++;passStationRingChamberRunLCT[6][2][CSCCh3][runBin]++;passStationRingLCYLCT[6][2][lC3YBin3]++;passStationRingLCSLCT[6][2][lC3SBin3]++;passStationRingChamberLCYLCT[6][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[6][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[6][2][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[6][2][CSCCh3][dCFEB3Bin3]++;passStationRingDCFEBChamberRunLCT[6][2][dCFEB3Bin3][CSCCh3][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[6][2][CSCCh3]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[6][2][CSCCh3]->Fill(CSCLCTbx3);
+                if (inZMass) bxLCTStationRing[6][2]->Fill(CSCLCTbx3);
               }
             }
           }
@@ -2824,9 +2901,14 @@ void CSCEffFast::Loop()
               passGlobalLCT++;
               if (CSCRg4==1) {passStationRingLCT[7][1]++;passStationRingChamberLCT[7][1][CSCCh4]++;passStationRingPtLCT[7][1][pTBin]++;passStationRingEtaLCT[7][1][etaBin4]++;passStationRingIsoLCT[7][1][isoBin]++;passStationRingPVLCT[7][1][pvBin]++;passStationRingILLCT[7][1][ilBin]++;passStationRingRunLCT[7][1][runBin]++;passStationRingChamberRunLCT[7][1][CSCCh4][runBin]++;passStationRingLCYLCT[7][1][lC3YBin4]++;passStationRingLCSLCT[7][1][lC3SBin4]++;passStationRingChamberLCYLCT[7][1][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][1][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][1][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBLCT[7][1][CSCCh4][dCFEB3Bin4]++;passStationRingDCFEBChamberRunLCT[7][1][dCFEB3Bin4][CSCCh4][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[7][1][CSCCh4]->Fill(CSCLCTbx4);
+                if (inZMass) bxLCTStationRing[7][1]->Fill(CSCLCTbx4);
               }
               if (CSCRg4==2) {passStationRingLCT[7][2]++;passStationRingChamberLCT[7][2][CSCCh4]++;passStationRingPtLCT[7][2][pTBin]++;passStationRingEtaLCT[7][2][etaBin4]++;passStationRingIsoLCT[7][2][isoBin]++;passStationRingPVLCT[7][2][pvBin]++;passStationRingILLCT[7][2][ilBin]++;passStationRingRunLCT[7][2][runBin]++;passStationRingChamberRunLCT[7][2][CSCCh4][runBin]++;passStationRingLCYLCT[7][2][lC3YBin4]++;passStationRingLCSLCT[7][2][lC3SBin4]++;passStationRingChamberLCYLCT[7][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSLCT[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWLCT[7][2][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBLCT[7][2][CSCCh4][dCFEB3Bin4]++;passStationRingDCFEBChamberRunLCT[7][2][dCFEB3Bin4][CSCCh4][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[7][2][CSCCh4]->Fill(run_number);
+                if (inZMass) bxLCTStationRingChamber[7][2][CSCCh4]->Fill(CSCLCTbx4);
+                if (inZMass) bxLCTStationRing[7][2]->Fill(CSCLCTbx4);
+		
               }
             }
           }
