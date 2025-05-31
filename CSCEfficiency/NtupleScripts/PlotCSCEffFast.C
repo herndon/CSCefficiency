@@ -111,6 +111,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     }
   }
 
+  // BX analysis
+  ofstream bxAnalysis;
+  bxAnalysis.open("bxAnalysis.txt");
+
+  
   // Efficiency Check text files
   if (verbose < 2) gErrorIgnoreLevel = kWarning;
   ofstream cscRunEffData; 
@@ -1911,9 +1916,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           c1.Print(file);
 	  gPad->SetLogy(0);
 
+          //BX analysis
+ 	  sprintf(name,"%s/%d: ",label,iiChamber);
+	  bxAnalysis << name << LCTBXChamber->GetBinContent(9)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(10)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(11)/LCTBXChamber->Integral() << "  "<< LCTBXChamber->Integral() << endl;
+
+
+	  
         }
-
-
       }
     }
     cscRunEffData.close();
