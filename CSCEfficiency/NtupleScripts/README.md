@@ -135,10 +135,10 @@ expects a CSCEfficiency histogram file as input. Thus, if desired, the script an
 Set up by running the following commands:
 
 ```bash
-export NEWPATH=\$HOME/.local/bin:\$PATH
-export PATH=\$HOME/.local/bin/:/cvmfs/cms-bril.cern.ch/brilconda/bin:\$PATH
-pip install --user brilws
-export PATH=\$NEWPATH\n
+export NEWPATH=$HOME/.local/bin:$PATH
+export PATH=$HOME/.local/bin/:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH
+pip3 install --user brilws
+export PATH=$NEWPATH
 ```
 
 At the time of writing this, newer versions are available but do not work properly on the server. This works perfectly for what we need.
