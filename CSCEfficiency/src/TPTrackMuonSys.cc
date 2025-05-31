@@ -2424,7 +2424,7 @@ LocalPoint * TPTrackMuonSys::matchTTwithLCTs(Float_t xPos, Float_t yPos, UChar_t
         delete interSect;
         interSect=new LocalPoint(interSect_);
         dRTrkLCT =  DeltaR_ ;
-        lctBX = (*mpcIt).getBX();
+        lctBX = (*mpcIt).getBX() - (*mpcIt).getBX0();
         //if (me11a) rg=4;
         //else rg=id.ring();
         //cout << "1: BX = " << (*mpcIt).getBX() << " BX0 = " << (*mpcIt).getBX0() << std::endl;
