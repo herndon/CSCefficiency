@@ -52,11 +52,13 @@ class CSCEffFast {
     static constexpr dataset d2024Hv1 = {385814, 386408, "2024Hv1"};
     static constexpr dataset d2024Iv1 = {386409, 386797, "2024Iv1"};
     static constexpr dataset d2024Iv2 = {386798, 387000, "2024Iv2"};
+
+    static constexpr dataset d2025Bv1 = {391548, 392112, "2025Bv1"};
 #if newData
     //static constexpr dataset firstSet = d2024all;
     //static constexpr dataset lastSet  = d2024all;
-    static constexpr dataset firstSet = d2024Iv1;
-    static constexpr dataset lastSet  = d2024Iv2;
+    static constexpr dataset firstSet = d2025Bv1;
+    static constexpr dataset lastSet  = d2025Bv1;
 #else
     static const Int_t firstSet = d2022all;
     static const Int_t lastSet  = d2022all;
@@ -807,6 +809,22 @@ CSCEffFast::CSCEffFast() : fChain(0)
     //     }
     //   }
     // }
+
+    // 2025B v1
+    if (firstRun <= d2025Bv1.firstRun && lastRun >= d2025Bv1.lastRun){
+      for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/marquez/Muon0/CSCEff2025B0v1/250521_171915/0000/CSCEff2025B0v1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/marquez/Muon0/CSCEff2025B0v1/250521_171915/0000/CSCEff2025B0v1_%d.root",fileNum));
+          numberFiles++;
+        }
+      }
+      for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/marquez/Muon1/CSCEff2025B1v1/250521_190332/0000/CSCEff2025B1v1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/marquez/Muon1/CSCEff2025B1v1/250521_190332/0000/CSCEff2025B1v1_%d.root",fileNum));
+          numberFiles++;
+        }
+      }
+    }
 
     // 2024C v1
     if (firstRun <= d2024Cv1.firstRun && lastRun >= d2024Cv1.lastRun){

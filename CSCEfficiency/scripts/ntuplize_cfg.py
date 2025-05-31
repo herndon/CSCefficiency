@@ -4,25 +4,36 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: step3 --conditions auto:phase1_2021_realistic -n 10 --era Run3 --eventcontent RECOSIM -s RAW2DIGI,L1Reco,RECO,RECOSIM --datatier RECO --geometry DB:Extended --io RecoPU_2021PU.io --python RecoPU_2021PU.py --filein root://cms-xrd-global.cern.ch//store/relval/CMSSW_11_3_0/RelValZMM_14/GEN-SIM-DIGI-RAW/113X_mcRun3_2021_realistic_v10-v1/00000/175b3087-820c-49c9-99ba-cba0f30ad6f5.root --fileout file:step3.root --nThreads 8
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
+from FWCore.ParameterSet.VarParsing import VarParsing
 
 # command-line arguments
-options = VarParsing.VarParsing("analysis")
-options.maxEvents = 100000
+options = VarParsing()
 
 # main settings
 options.register("globalTag", "",
-        VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.string,
+        VarParsing.multiplicity.singleton,
+        VarParsing.varType.string,
         "global tag for analysis")
 options.register("CRAB", 0,
-        VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.int,
+        VarParsing.multiplicity.singleton,
+        VarParsing.varType.int,
         "type of job 0: local 1: CRAB submission")
 options.register("HLTProcessName", 'HLT',
-        VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.string,
+        VarParsing.multiplicity.singleton,
+        VarParsing.varType.string,
         "name for HLT process")
+options.register("maxEvents", 10000,
+        VarParsing.multiplicity.singleton,
+        VarParsing.varType.int,
+        "number of events to process (-1 for all)")
+options.register("inputFiles", [],
+        VarParsing.multiplicity.list,
+        VarParsing.varType.string,
+        "files to process")
+options.register("outputFile", "CSCEff.root",
+        VarParsing.multiplicity.singleton,
+        VarParsing.varType.string,
+        "name of output file")
 options.parseArguments()
 
 # error checking
