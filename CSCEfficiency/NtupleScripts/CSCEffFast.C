@@ -6,9 +6,14 @@
 #include <TF1.h>
 #include <TStyle.h>
 #include <TCanvas.h>
+<<<<<<< automation
+
+#define autoRemoval false
+=======
 #define autoRemoval false 
+>>>>>>> master
 #if autoRemoval
- #include "BadChambers_auto.h"
+#include "BadChambers.h"
 #endif
 
 void CSCEffFast::Loop()
@@ -29,6 +34,7 @@ void CSCEffFast::Loop()
 
   TFile cscEffHistoFile("cscEffHistoFile.root","Recreate");
   setName->Write();
+  setRuns->Write();
 
 
   char name[50];
@@ -59,24 +65,6 @@ void CSCEffFast::Loop()
   bool ME31EvenOdd = false;
   bool ME41EvenOdd = false;
 
-  // Setting run ranges
-#if newData
-  //const Int_t firstRun = 367100; //2023 excluding B and first few runs of C where MEx1 was bad
-  //const Int_t firstRun = 369800; //2023D
-  //const Int_t firstRun = 370600;
-
-  //const Int_t lastRun = 367700; //2023Cv1-2
-  //const Int_t lastRun = 369700; //2023Cv4
-  //const Int_t lastRun = 370400; //2023Dv1
-  //const Int_t lastRun = 370800; //2023Dv2
-
-  //const Int_t firstRun = d2023Dv2.firstRun;
-  //const Int_t lastRun = d2023Dv2.lastRun;
-#else
-  //const Int_t firstRun = 355000; //2022
-  //const Int_t lastRun = 362800; //2022
-#endif
-  
   // Pt, Eta, phi (chamber) parameters and histograms
 
   const Int_t numPtBins=10;       //number of pt bins in eff plots
@@ -104,48 +92,16 @@ void CSCEffFast::Loop()
   const Int_t numILBins=26;       //number instantatanious lumi bins in eff plots
   Float_t ilBins[(numILBins+1)] = {-100.0,0.0,1000.0,2000.0,3000.0,4000.0,5000.0,6000.0,7000.0,8000.0,9000.0,10000.0,11000.0,12000.0,13000.0,14000.0,15000.0,16000.0,17000.0,18000.0,19000.0,20000.0,21000.0,22000.0,23000.0,24000.0,25000.0};
 
-  /* Old Run Bin Assignment
-   *
-  //const Int_t numRunBins = 35; //all 2022
-  //const Int_t numRunBins = 7; //2023Cv1-2
-  //const Int_t numRunBins = 20; //2023Cv4
-  //const Int_t numRunBins = 26; //2023Cv1-2,4
-  //const Int_t numRunBins = 5; //2023Dv1
-  //const Int_t numRunBins = 9; //2023Dv1-2
-  const Int_t numRunBins = 37; //all 2023 (2023Cv1-2,4 and 2023Dv1-2)
-  Double_t *runBins;
-
-  // 2018D
-  //const Int_t numRunBins=50;       //number of run in eff plots 50
-  //Double_t runBins[(numRunBins+1)] = {315200.0,315400.0,315600.0,315800.0,316000.0,316200.0,316400.0,316600.0,316800.0,317000.0,317200.0,317400.0,317600.0,317800.0,318000.0,318200.0,318400.0,318600.0,318800.0,319100.0,319200.0,319400.0,319600.0,319800.0,320000.0,320200.0,320400.0,320600.0,320800.0,321000.0,321200.0,321400.0,321600.0,321800.0,322000.0,322200.0,322400.0,322600.0,322800.0,323000.0,323200.0,323400.0,323600.0,323800.0,324000.0,324200.0,324400.0,324600.0,324800.0,325000.0,325200.0};
-
-#if newData
-  // Need to make sure the run ranges are inclusive of the edges.  i.e. like 99.9 to 200.1
-  // Run 3 2023 B,C
-  //runBins = new Double_t[(numRunBins+1)]{366400,366500,366600,366700,366800,366900,367000,367100,367200,367300,367400,367500,367600,367700,367800};
-  // Run 3 2023 C only
-  //runBins = new Double_t[(numRunBins+1)]{367100,367200,367300,367400,367500,367600,367700,367800}; //v1-2
-  //runBins = new Double_t[(numRunBins+1)]{367770, 367870, 367970, 368070, 368170, 368270, 368370, 368470, 368570, 368670, 368770, 368870, 368970, 369070, 369170, 369270, 369370, 369470, 369570, 369670, 369770}; //v4 only
-
-  //runBins = new Double_t[(numRunBins+1)]{367100,367200,367300,367400,367500,367600,367700,367800,367900,368000,368100,368200,368300,368400,368500,368600,368700,368800,368900,369000,369100,369200,369300,369400,369500,369600,369700}; //2023Cv1-2,4
-  runBins = new Double_t[(numRunBins+1)]{367100,367200,367300,367400,367500,367600,367700,367800,367900,368000,368100,368200,368300,368400,368500,368600,368700,368800,368900,369000,369100,369200,369300,369400,369500,369600,369700,369800,369900,370000,370100,370200,370300,370400,370500,370600,370700,370800}; //2023Cv1-2,4 and 2023D
-  //runBins = new Double_t[(numRunBins+1)]{369800,370000,370100,370200,370300,370400,370500,370600,370700,370800}; //2023Dv1-2
-  
-#else
-  // Run 3 2022 A-G
-  runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
-#endif
-  *
-  */
 
 #if newData
   // auto-generate equally-spaced run bins (100 runs each)
-  const Int_t numRunBins = (lastRun-firstRun)/100 + 1;
+  const Int_t numRunBins = (lastRun-firstRun+(Int_t)firstRun%100)/100 + 1;
   Double_t *runBins = new Double_t[(numRunBins+1)]{0};
   for (int i=0; i<numRunBins+1; i++) runBins[i] = (firstRun - (Int_t)firstRun%100) + i*100;
 #else
   // Run 3 2022 A-G
-  runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
+  const Int_t numRunBins = 35; //all 2022
+  Double_t *runBins = new Double_t[(numRunBins+1)]{355000,355200,355400,355600,355800,356000,356200,356400,356600,356800,357000,357200,357400,357600,357800,358000,359000,359200,359400,359600,359800,360000,360200,360400,360600,360800,361000,361200,361400,361600,361800,362000,362200,362400,362600,362800};
 #endif
 
 
@@ -251,14 +207,14 @@ void CSCEffFast::Loop()
 
 
 
-  TH2F * segEff2DStationRingChamberRun[8][4]; 
-  TH2F * LCTEff2DStationRingChamberRun[8][4]; 
+  TH2F * segEff2DStationRingChamberRun[8][4];
+  TH2F * LCTEff2DStationRingChamberRun[8][4];
 
-  TH2F * segEff2DStationRingChamberLayer[8][4]; 
-  TH2F * LCTEff2DStationRingChamberLayer[8][4]; 
+  TH2F * segEff2DStationRingChamberLayer[8][4];
+  TH2F * LCTEff2DStationRingChamberLayer[8][4];
 
-  TH2F * segEff2DStationRingChamberDCFEB[8][4]; 
-  TH2F * LCTEff2DStationRingChamberDCFEB[8][4]; 
+  TH2F * segEff2DStationRingChamberDCFEB[8][4];
+  TH2F * LCTEff2DStationRingChamberDCFEB[8][4];
 
   TH2F * segEff2DStationRingDCFEBChamberRun[8][4][5];
   TH2F * LCTEff2DStationRingDCFEBChamberRun[8][4][5];
@@ -276,7 +232,7 @@ void CSCEffFast::Loop()
 
   TH1F *bxLCTStationRingChamber[8][4][37];
   TH1F *bxLCTStationRing[8][4];
-  
+
 
 
   //TF1 * fit = new TF1("myfit", "[0] / sqrt(2.0 * TMath::Pi()) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3] + x*[4] + [5] / sqrt(2.0 * TMath::Pi()) / [7] * exp(-(x-[6])*(x-[6])/2./[7]/[7])", 76.0, 106.0);
@@ -455,7 +411,7 @@ void CSCEffFast::Loop()
 
       }
 
-      // +/- seperated 
+      // +/- seperated
       sprintf(name,"segEffPTStation%dRing%d",iiStation+1,iiRing);
       sprintf(title,"Segement Efficiency vs Pt for Station %d Ring %d",iiStation+1,iiRing);
       segEffStationRingPT[iiStation][iiRing] = new TH1F(name,title,numPtBins, &(*ptBins));
@@ -638,12 +594,12 @@ void CSCEffFast::Loop()
         sprintf(title,"LCT BX for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
         bxLCTStationRingChamber[iiStation][iiRing][iiChamber] = new TH1F(name,title, 20, -9.5, 10.5);
 
-	if (iiChamber == 1) {
-        sprintf(name,"bxLCTStation%dRing%d",iiStation+1,iiRing);
-        sprintf(title,"LCT BX for Station %d Ring %d",iiStation+1,iiRing);
-        bxLCTStationRing[iiStation][iiRing] = new TH1F(name,title, 20, -9.5, 10.5);
-	}
-	
+        if (iiChamber == 1) {
+          sprintf(name,"bxLCTStation%dRing%d",iiStation+1,iiRing);
+          sprintf(title,"LCT BX for Station %d Ring %d",iiStation+1,iiRing);
+          bxLCTStationRing[iiStation][iiRing] = new TH1F(name,title, 20, -9.5, 10.5);
+        }
+
         sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
         sprintf(title,"Segement Efficiency vs Y LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
         segEffStationRingChamberLCY[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCYBins, &(*lCYBins));
@@ -651,11 +607,6 @@ void CSCEffFast::Loop()
         sprintf(title,"LCT Efficiency vs LCY for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber);
         LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCYBins, &(*lCYBins));
 
-
-
-
-
-	
         /* sprintf(name,"segEffLCWStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber); */
         /* sprintf(title,"Segement Efficiency vs Wire LC for Station %d Ring %d Chamber %d",iiStation+1,iiRing,iiChamber); */
         /* segEffStationRingChamberLCW[iiStation][iiRing][iiChamber] = new TH1F(name,title,numLCWBins, &(*lCWBins)); */
@@ -746,8 +697,7 @@ void CSCEffFast::Loop()
   TH1F *zMassBad  = new TH1F("zMassBad", "Z Mass Bad Segements", 120, 60.0, 120.0);
 
   TH1F *nPVAll  = new TH1F("nPVAll", "n PV All Good Probes", 120, 0.5, 120.5);
-  
-  
+
 
   // Muon Segement Histrograms
 
@@ -787,10 +737,10 @@ void CSCEffFast::Loop()
 
   // Numerology, station, ring, chamber
   // [s][r][c] station ring chamber
-  // s 0 = -endcap station 1, 1 = -endcap station 2, 2 = -endcap station 3, 3 = -endcap station 4 
-  // s 4 = +endcap station 1, 5 = +endcap station 2, 6 = +endcap station 3, 7 = +endcap station 4 
+  // s 0 = -endcap station 1, 1 = -endcap station 2, 2 = -endcap station 3, 3 = -endcap station 4
+  // s 4 = +endcap station 1, 5 = +endcap station 2, 6 = +endcap station 3, 7 = +endcap station 4
   // r 0 = ring 1(b), r 1 = ring 1(a), r 2 = ring 2, r 3 = ring 3
-  // c 0 = chamber 01 to 17 = or 35 = chamger 16 or 32 
+  // c 0 = chamber 01 to 17 = or 35 = chamger 16 or 32
 
   // ME11 even odd plot in:
   // iiStation 1,2 and 5,6
@@ -1038,7 +988,7 @@ void CSCEffFast::Loop()
     // Dead Chamber All 2023-2024
     badChamber[0][0][4-1][2][4-1] = true;  badChamberRun[0][0][4-1][2][4-1][0] = firstRun;  badChamberRun[0][0][4-1][2][4-1][1] = lastRun;
   }
-  
+
 
   if (badChambers2023Track && !autoRemoval) {
 
@@ -1056,7 +1006,7 @@ void CSCEffFast::Loop()
 
       // ----- ME-11B/1 -----
       // Dead DCFEB 1-4 seg 40.60% LCT 39.73% all runs
-      badChamber[0][0][1-1][1][1-1] = true;  badChamberRun[0][0][1-1][1][1-1][0] = firstRun;  badChamberRun[0][0][1-1][1][1-1][1] = lastRun;  
+      badChamber[0][0][1-1][1][1-1] = true;  badChamberRun[0][0][1-1][1][1-1][0] = firstRun;  badChamberRun[0][0][1-1][1][1-1][1] = lastRun;
 
 
 
@@ -1070,12 +1020,12 @@ void CSCEffFast::Loop()
       // Dead DCFEB 1 seg 2.70% LCT 13.31% all runs
       // Dead DCFEB 3 seg 4.35% LCT 12.54% all runs
       // only would leave 2
-      badChamber[0][0][1-1][0][20-1] = true;  badChamberRun[0][0][1-1][0][20-1][0] = firstRun;  badChamberRun[0][0][1-1][0][20-1][1] = lastRun;  
+      badChamber[0][0][1-1][0][20-1] = true;  badChamberRun[0][0][1-1][0][20-1][0] = firstRun;  badChamberRun[0][0][1-1][0][20-1][1] = lastRun;
 
 
       // ----- ME-42/20 -----
       // ME-42/20 LCT 50%
-      badChamber[0][0][4-1][2][19-1] = true;  badChamberRun[0][0][4-1][2][19-1][0] = firstRun;  badChamberRun[0][0][4-1][2][19-1][1] = lastRun;  
+      badChamber[0][0][4-1][2][19-1] = true;  badChamberRun[0][0][4-1][2][19-1][0] = firstRun;  badChamberRun[0][0][4-1][2][19-1][1] = lastRun;
 
 
 
@@ -1181,7 +1131,7 @@ void CSCEffFast::Loop()
 
     // ----- ME-42/4 -----
     // Dead Chamber
-    badChamber[0][0][4-1][2][4-1] = true;  badChamberRun[0][0][4-1][2][4-1][0] = firstRun;  badChamberRun[0][0][4-1][2][4-1][1] = lastRun;  
+    badChamber[0][0][4-1][2][4-1] = true;  badChamberRun[0][0][4-1][2][4-1][0] = firstRun;  badChamberRun[0][0][4-1][2][4-1][1] = lastRun;
 
 
     // ----- ME-42/27 -----
@@ -1347,7 +1297,7 @@ void CSCEffFast::Loop()
     badChamber[0][1][4-1][1][4-1] = true;   badChamberRun[0][1][4-1][1][4-1][0] = firstRun; badChamberRun[0][1][4-1][1][4-1][1] = lastRun; badChamberLCS[0][1][4-1][1][4-1][0] = 46.0; badChamberLCS[0][1][4-1][1][4-1][1] = 66.0;// ME+42/4 DCFEB 4 all runs
 
     // ME+32
-    badChamber[0][1][3-1][2][19-1] = true;   badChamberRun[0][1][3-1][2][19-1][0] = firstRun; badChamberRun[0][1][3-1][2][19-1][1] = lastRun; badChamberLCS[0][1][3-1][2][19-1][0] = 62.0; badChamberLCS[0][1][3-1][2][19-1][1] = 82.0;// ME+32/19 DCFEB 5 all runs 
+    badChamber[0][1][3-1][2][19-1] = true;   badChamberRun[0][1][3-1][2][19-1][0] = firstRun; badChamberRun[0][1][3-1][2][19-1][1] = lastRun; badChamberLCS[0][1][3-1][2][19-1][0] = 62.0; badChamberLCS[0][1][3-1][2][19-1][1] = 82.0;// ME+32/19 DCFEB 5 all runs
 
     badChamber[0][1][3-1][2][29-1] = true;   badChamberRun[0][1][3-1][2][29-1][0] = firstRun; badChamberRun[0][1][3-1][2][29-1][1] = lastRun; badChamberLCS[0][1][3-1][2][29-1][0] = 46.0; badChamberLCS[0][1][3-1][2][29-1][1] = 66.0;// ME+32/29 DCFEB 4 all runs
 
@@ -1372,7 +1322,7 @@ void CSCEffFast::Loop()
     // ME+12/10 DCFEB 3,4,5 80% eff LCT worse
     badChamber[0][1][1-1][2][13-1] = true;   badChamberRun[0][1][1-1][2][13-1][0] = firstRun; badChamberRun[0][1][1-1][2][13-1][1] = lastRun; badChamberLCS[0][1][1-1][2][13-1][0] = 62.0; badChamberLCS[0][1][1-1][2][13-1][1] = 82.0;// ME+12/13 DCFEB 5 all runs
 
-    badChamber[0][1][1-1][2][15-1] = true;   badChamberRun[0][1][1-1][2][15-1][0] = firstRun; badChamberRun[0][1][1-1][2][15-1][1] = lastRun; badChamberLCS[0][1][1-1][2][15-1][0] = -2.0; badChamberLCS[0][1][1-1][2][15-1][1] = 18.0;// ME+12/15 DCFEB 1 
+    badChamber[0][1][1-1][2][15-1] = true;   badChamberRun[0][1][1-1][2][15-1][0] = firstRun; badChamberRun[0][1][1-1][2][15-1][1] = lastRun; badChamberLCS[0][1][1-1][2][15-1][0] = -2.0; badChamberLCS[0][1][1-1][2][15-1][1] = 18.0;// ME+12/15 DCFEB 1
 
 
     badChamber[0][1][1-1][2][21-1] = true;   badChamberRun[0][1][1-1][2][21-1][0] = firstRun; badChamberRun[0][1][1-1][2][21-1][1] = lastRun; badChamberLCS[0][1][1-1][2][21-1][0] = 14.0; badChamberLCS[0][1][1-1][2][21-1][1] = 66.0;// ME+12/21 DCFEB 2,4 all runs, 2 80%, 4 40%
@@ -1426,7 +1376,7 @@ void CSCEffFast::Loop()
 
     //!!!!! check this ME-13 30 low in 3 our of 4 (D)CFEBs for LCTs 83%
 
-    // ME-21 	 
+    // ME-21
 
     badChamber[0][0][2-1][1][15-1] = true;   badChamberRun[0][0][2-1][1][15-1][0] = firstRun; badChamberRun[0][0][2-1][1][15-1][1] = lastRun; badChamberLCS[0][0][2-1][1][15-1][0] = -2.0; badChamberLCS[0][0][2-1][1][15-1][1] = 18.0;// ME-21/15 DCFEB 1 all runs
 
@@ -1468,7 +1418,7 @@ void CSCEffFast::Loop()
   // ????? exclude 357734?  seen in multiple rings
   if (badChambersTrack && !autoRemoval) {
 
-    //?????? need to test if any of these are back  
+    //?????? need to test if any of these are back
 
     // New Dead Chambers Run 3
     badChamber[0][1][1-1][2][10-1] = true;   badChamberRun[0][1][1-1][2][10-1][0] = firstRun; badChamberRun[0][1][1-1][2][10-1][1] = lastRun; // ME+12/10
@@ -1493,15 +1443,15 @@ void CSCEffFast::Loop()
 
 
     //ME+41
-    badChamber[0][1][4-1][1][4-1] = true;   badChamberRun[0][1][4-1][1][4-1][0] = firstRun; badChamberRun[0][1][4-1][1][4-1][1] = lastRun; badChamberLCS[0][1][4-1][1][4-1][0] = 46.0; badChamberLCS[0][1][4-1][1][4-1][1] = 66.0;// ME+42/4 DCFEB 4 all runs 
+    badChamber[0][1][4-1][1][4-1] = true;   badChamberRun[0][1][4-1][1][4-1][0] = firstRun; badChamberRun[0][1][4-1][1][4-1][1] = lastRun; badChamberLCS[0][1][4-1][1][4-1][0] = 46.0; badChamberLCS[0][1][4-1][1][4-1][1] = 66.0;// ME+42/4 DCFEB 4 all runs
 
-    badChamber[0][1][4-1][1][9-1] = true;   badChamberRun[0][1][4-1][1][9-1][0] = 359700; badChamberRun[0][1][4-1][1][9-1][1] = lastRun; badChamberLCS[0][1][4-1][1][9-1][0] = 14.0; badChamberLCS[0][1][4-1][1][9-1][1] = 34.0;// ME+42/4 DCFEB 2 ~359700-lastRun partially bad 50% 
+    badChamber[0][1][4-1][1][9-1] = true;   badChamberRun[0][1][4-1][1][9-1][0] = 359700; badChamberRun[0][1][4-1][1][9-1][1] = lastRun; badChamberLCS[0][1][4-1][1][9-1][0] = 14.0; badChamberLCS[0][1][4-1][1][9-1][1] = 34.0;// ME+42/4 DCFEB 2 ~359700-lastRun partially bad 50%
 
     badChamber[0][1][4-1][1][12-1] = true;   badChamberRun[0][1][4-1][1][12-1][0] = 362088; badChamberRun[0][1][4-1][1][12-1][1] = 362108; // ME+42/12 bad run range 362088-362108
                                                                                                                                            // ME+41-15 also a few bad run ranges but less so
 
                                                                                                                                            // ME+32
-    badChamber[0][1][3-1][2][19-1] = true;   badChamberRun[0][1][3-1][2][19-1][0] = firstRun; badChamberRun[0][1][3-1][2][19-1][1] = lastRun; badChamberLCS[0][1][3-1][2][19-1][0] = 62.0; badChamberLCS[0][1][3-1][2][19-1][1] = 82.0;// ME+32/19 DCFEB 5 all runs 
+    badChamber[0][1][3-1][2][19-1] = true;   badChamberRun[0][1][3-1][2][19-1][0] = firstRun; badChamberRun[0][1][3-1][2][19-1][1] = lastRun; badChamberLCS[0][1][3-1][2][19-1][0] = 62.0; badChamberLCS[0][1][3-1][2][19-1][1] = 82.0;// ME+32/19 DCFEB 5 all runs
 
     badChamber[0][1][3-1][2][24-1] = true;   badChamberRun[0][1][3-1][2][24-1][0] = 358500; badChamberRun[0][1][3-1][2][24-1][1] = lastRun; badChamberLCS[0][1][3-1][2][24-1][0] = 30.0; badChamberLCS[0][1][3-1][2][24-1][1] = 50.0;// ME+32/24 DCFEB 3 okay before 358500?????
 
@@ -1543,7 +1493,7 @@ void CSCEffFast::Loop()
 
     badChamber[0][1][2-1][1][5-1] = true;   badChamberRun[0][1][2-1][1][5-1][0] = 357734; badChamberRun[0][1][2-1][1][5-1][1] = 360226; // ME+21/5 // HV problem E+F 357734-360226
 
-    badChamber[0][1][2-1][1][6-1] = true;   badChamberRun[0][1][2-1][1][6-1][0] = firstRun; badChamberRun[0][1][2-1][1][6-1][1] = lastRun; badChamberLCS[0][1][2-1][1][6-1][0] = 30.0; badChamberLCS[0][1][2-1][1][6-1][1] = 50.0;// ME+21/6 all runs 
+    badChamber[0][1][2-1][1][6-1] = true;   badChamberRun[0][1][2-1][1][6-1][0] = firstRun; badChamberRun[0][1][2-1][1][6-1][1] = lastRun; badChamberLCS[0][1][2-1][1][6-1][0] = 30.0; badChamberLCS[0][1][2-1][1][6-1][1] = 50.0;// ME+21/6 all runs
 
     if (badRunRangesTrack) badChamber[0][1][2-1][1][11-1] = true;   badChamberRun[0][1][2-1][1][11-1][0] = 355118; badChamberRun[0][1][2-1][1][11-1][1] = 355560;// ME+21/11 four run ranges 355118-355560, 357438-357448, 357538-357734, 361298-361334 capture first 0 area,  Also 0-100% 50% ave eff LCT around 361300
 
@@ -1592,7 +1542,7 @@ void CSCEffFast::Loop()
 
 
     // ME-11A/B
-    // also less inefficinecy earlier  
+    // also less inefficinecy earlier
     if (badRunRangesTrack) badChamber[0][0][1-1][1][4-1] = true;   badChamberRun[0][0][1-1][1][4-1][0] = 359602; badChamberRun[0][0][1-1][1][4-1][1] = 359814;// ME-11A/4 359602 to 359814
     if (badRunRangesTrack) badChamber[0][0][1-1][0][4-1] = true;   badChamberRun[0][0][1-1][0][4-1][0] = 359602; badChamberRun[0][0][1-1][0][4-1][1] = 359814;// ME-11B/4 359602 to 359814
     if (badRunRangesTrack) badChamber[0][0][1-1][0][33-1] = true;   badChamberRun[0][0][1-1][0][33-1][0] = 356722; badChamberRun[0][0][1-1][0][33-1][1] = 357112;// ME-11B/33
@@ -1625,7 +1575,7 @@ void CSCEffFast::Loop()
 
     //ME-13 30 low in 3 our of 4 (D)CFEBs for LCTs 83%
 
-    // ME-21 	 
+    // ME-21
 
     badChamber[0][0][2-1][1][15-1] = true;   badChamberRun[0][0][2-1][1][15-1][0] = firstRun; badChamberRun[0][0][2-1][1][15-1][1] = lastRun; badChamberLCS[0][0][2-1][1][15-1][0] = -2.0; badChamberLCS[0][0][2-1][1][15-1][1] = 18.0;// ME-21/15 also 0% 355988-356078
 
@@ -1723,7 +1673,7 @@ void CSCEffFast::Loop()
     // badChamber[0][1][1-1][1][21-1] = true;  badChamberRun[0][1][1-1][1][21-1][0] = 323755; badChamberRun[0][1][1-1][1][21-1][1] = 324022; // ME+11B/21 323755-324022 40% !!!!! Some low efficiencies in middle me+1/1/21	2018-08-17	DCFEB3	opt link with time approximately correct
 
 
-    //ME+12/5 bad before 318800  
+    //ME+12/5 bad before 318800
     // badChamber[0][1][1-1][2][8-1] = true;   badChamberRun[0][1][1-1][2][8-1][0] = 321067; badChamberRun[0][1][1-1][2][8-1][1] = 321305;// ME+12/8 ** only 321067-321305 and 322013,322014 !!!!! A few low efficincies in the middle Nothing
     badChamber[0][1][1-1][2][13-1] = true;  badChamberRun[0][1][1-1][2][13-1][0] = 316000; badChamberRun[0][1][1-1][2][13-1][1] = 325172; badChamberLCS[0][1][1-1][2][13-1][0] = 62.5; badChamberLCS[0][1][1-1][2][13-1][1] = 80.0;// ME+12/13
     badChamber[0][1][1-1][2][20-1] = true;  badChamberRun[0][1][1-1][2][20-1][0] = 316000; badChamberRun[0][1][1-1][2][20-1][1] = 325172; badChamberLCS[0][1][1-1][2][20-1][0] = 30.5; badChamberLCS[0][1][1-1][2][20-1][1] = 50.5;// ME+12/20
@@ -1880,10 +1830,8 @@ void CSCEffFast::Loop()
 
 
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    if ((jentry % 100000) ==0) {
-      std::cout << jentry << " of " << nentries << " - Number good Candidates: " << nCands << " - Number of Zs: " << nZs << std::endl; 
-      //cscEffHistoFile.Write();
-    }
+    if ((jentry % 100000) ==0) std::cout << jentry << " of " << nentries << " - Number good Candidates: " << nCands << " - Number of Zs: " << nZs << std::endl;
+
 
     // if (Cut(ientry) < 0) continue;
     // Probe and dimuon requirements
@@ -1902,7 +1850,7 @@ void CSCEffFast::Loop()
     // Use badRun to select run range
     //badRun = badRun||(run_number < 379728);
     //badRun = badRun||(run_number < 379380);
-    
+
     inZMass = (invMass>zMassMin)&&(invMass<zMassMax);
     inZMassLowSideBand = (invMass>zMassLowSideBandMin)&&(invMass<zMassLowSideBandMax);
     inZMassHighSideBand = (invMass>zMassHighSideBandMin)&&(invMass<zMassHighSideBandMax);
@@ -1931,7 +1879,7 @@ void CSCEffFast::Loop()
     // Reset ring for ME11 ab cases that are mismatched due to eta problem
     if (CSCRg1==4 && CSCTTyLc1 > -999.0 && CSCTTyLc1 > -31.25) { CSCRg1=1;} //std::cout << "Resetting ring" <<std::endl;
     if (CSCRg1==1 && CSCTTyLc1 > -999.0 && CSCTTyLc1 < -31.25) { CSCRg1=4;} //std::cout << "Resetting ring" <<std::endl;
-                                                                            //std::cout << "Resetting ring" <<std::endl;      
+                                                                            //std::cout << "Resetting ring" <<std::endl;
 
     Int_t ring1 = CSCRg1;
     if (ring1==4) ring1 = 0;
@@ -1947,64 +1895,64 @@ void CSCEffFast::Loop()
     bool badEntry4=false;
     for (int iiRange=0; iiRange<50; iiRange++){
       badEntry1 = badEntry1 || (badChamber[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1] &&
-        run_number>=badChamberRun[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0] &&
-        run_number<=badChamberRun[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1] &&
-        CSCTTsLc1>badChamberLCS[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0] &&
-        (CSCTTsLc1<badChamberLCS[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1] || badChamberLCS[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001)
-      );
+          run_number>=badChamberRun[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0] &&
+          run_number<=badChamberRun[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1] &&
+          CSCTTsLc1>badChamberLCS[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][0] &&
+          (CSCTTsLc1<badChamberLCS[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1] || badChamberLCS[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1][1]<0.00001)
+          );
       badEntry2 = badEntry2 || (badChamber[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1] &&
-        run_number>=badChamberRun[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0] &&
-        run_number<=badChamberRun[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1] &&
-        CSCTTsLc2>badChamberLCS[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0] &&
-        (CSCTTsLc2<badChamberLCS[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1] || badChamberLCS[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]<0.00001)
-      );
+          run_number>=badChamberRun[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0] &&
+          run_number<=badChamberRun[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1] &&
+          CSCTTsLc2>badChamberLCS[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][0] &&
+          (CSCTTsLc2<badChamberLCS[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1] || badChamberLCS[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1][1]<0.00001)
+          );
       badEntry3 = badEntry3 || (badChamber[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1] &&
-        run_number>=badChamberRun[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0] &&
-        run_number<=badChamberRun[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1] &&
-        CSCTTsLc3>badChamberLCS[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0] &&
-        (CSCTTsLc3<badChamberLCS[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1] || badChamberLCS[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]<0.00001)
-      );
+          run_number>=badChamberRun[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0] &&
+          run_number<=badChamberRun[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1] &&
+          CSCTTsLc3>badChamberLCS[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][0] &&
+          (CSCTTsLc3<badChamberLCS[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1] || badChamberLCS[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1][1]<0.00001)
+          );
       badEntry4 = badEntry4 || (badChamber[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1] &&
-        run_number>=badChamberRun[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0] &&
-        run_number<=badChamberRun[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1] &&
-        CSCTTsLc4>badChamberLCS[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0] &&
-        (CSCTTsLc4<badChamberLCS[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1] || badChamberLCS[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]<0.00001)
-      );
+          run_number>=badChamberRun[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0] &&
+          run_number<=badChamberRun[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1] &&
+          CSCTTsLc4>badChamberLCS[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][0] &&
+          (CSCTTsLc4<badChamberLCS[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1] || badChamberLCS[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1][1]<0.00001)
+          );
       if (!badChamber[iiRange][CSCEndCapPlus][1-1][ring1][CSCCh1-1] &&
-        !badChamber[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1] &&
-        !badChamber[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1] &&
-        !badChamber[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1]) break; //assumes ranges are put in sequentially. avoids unnecessary looping
+          !badChamber[iiRange][CSCEndCapPlus][2-1][ring2][CSCCh2-1] &&
+          !badChamber[iiRange][CSCEndCapPlus][3-1][ring3][CSCCh3-1] &&
+          !badChamber[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1]) break; //assumes ranges are put in sequentially. avoids unnecessary looping
     }
 
-    fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 && 
+    fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 &&
       CSCProjDistEdge1/CSCProjDistErrEdge1 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap1>cscDyProjHVGap && 
+      CSCDyProjHVGap1>cscDyProjHVGap &&
       CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
       !badEntry1;
     //new requirements, temp restrict eta range 2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15
     //fabs(CSCTTetaGc1) > 2.04345 && fabs(CSCTTetaGc1) < 2.15 &&
-    fiducial11 =   CSCProjDistEdge1<-1.0 &&  CSCProjDistEdge1> -100 && 
+    fiducial11 =   CSCProjDistEdge1<-1.0 &&  CSCProjDistEdge1> -100 &&
       CSCProjDistEdge1/CSCProjDistErrEdge1 < -5.0 &&
       CSCProjDistErrEdge1 < 1.0 &&
-      CSCDyProjHVGap1>cscDyProjHVGap && 
+      CSCDyProjHVGap1>cscDyProjHVGap &&
       CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
       fabs(CSCTTyLc1+31.25)>2.5 &&
       !badEntry1;
 
 
-    fiducial2 = CSCProjDistEdge2<cscProjDistEdge &&  CSCProjDistEdge2> -100 && 
+    fiducial2 = CSCProjDistEdge2<cscProjDistEdge &&  CSCProjDistEdge2> -100 &&
       CSCProjDistEdge2/CSCProjDistErrEdge2 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap2>cscDyProjHVGap && 
+      CSCDyProjHVGap2>cscDyProjHVGap &&
       CSCDyProjHVGap2/CSCDyErrProjHVGap2>sigmaCSCDyProjHVGap &&
       !badEntry2;
-    fiducial3 = CSCProjDistEdge3<cscProjDistEdge &&  CSCProjDistEdge3> -100 && 
+    fiducial3 = CSCProjDistEdge3<cscProjDistEdge &&  CSCProjDistEdge3> -100 &&
       CSCProjDistEdge2/CSCProjDistErrEdge3 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap3>cscDyProjHVGap && 
+      CSCDyProjHVGap3>cscDyProjHVGap &&
       CSCDyProjHVGap3/CSCDyErrProjHVGap3>sigmaCSCDyProjHVGap &&
       !badEntry3;
-    fiducial4 = CSCProjDistEdge4<cscProjDistEdge &&  CSCProjDistEdge4> -100 && 
+    fiducial4 = CSCProjDistEdge4<cscProjDistEdge &&  CSCProjDistEdge4> -100 &&
       CSCProjDistEdge4/CSCProjDistErrEdge4 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap4>cscDyProjHVGap && 
+      CSCDyProjHVGap4>cscDyProjHVGap &&
       CSCDyProjHVGap4/CSCDyErrProjHVGap4>sigmaCSCDyProjHVGap &&
       !badEntry4;
 
@@ -2020,16 +1968,16 @@ void CSCEffFast::Loop()
 
 
     // Found segments
-    foundSeg1 = ((CSCDxyTTSeg1<cscDxyTTSeg || 
+    foundSeg1 = ((CSCDxyTTSeg1<cscDxyTTSeg ||
           CSCDxyTTSeg1/CSCDxyErrTTSeg1<sigmaCSCDxyTTSeg) &&
         CSCDxyTTSeg1>0.);
-    foundSeg2 = ((CSCDxyTTSeg2<cscDxyTTSeg || 
+    foundSeg2 = ((CSCDxyTTSeg2<cscDxyTTSeg ||
           CSCDxyTTSeg2/CSCDxyErrTTSeg2<sigmaCSCDxyTTSeg) &&
         CSCDxyTTSeg2>0.);
-    foundSeg3 = ((CSCDxyTTSeg3<cscDxyTTSeg || 
+    foundSeg3 = ((CSCDxyTTSeg3<cscDxyTTSeg ||
           CSCDxyTTSeg3/CSCDxyErrTTSeg3<sigmaCSCDxyTTSeg) &&
         CSCDxyTTSeg3>0.);
-    foundSeg4 = ((CSCDxyTTSeg4<cscDxyTTSeg || 
+    foundSeg4 = ((CSCDxyTTSeg4<cscDxyTTSeg ||
           CSCDxyTTSeg4/CSCDxyErrTTSeg4<sigmaCSCDxyTTSeg) &&
         CSCDxyTTSeg4>0.);
 
@@ -2142,16 +2090,16 @@ void CSCEffFast::Loop()
 
 
     // Found LCT
-    foundLCT1 = ((CSCDxyTTLCT1<cscDxyTTLCT || 
+    foundLCT1 = ((CSCDxyTTLCT1<cscDxyTTLCT ||
           CSCDxyTTLCT1/CSCDxyErrTTLCT1<sigmaCSCDxyTTLCT) &&
         CSCDxyTTLCT1>0.);
-    foundLCT2 = ((CSCDxyTTLCT2<cscDxyTTLCT || 
+    foundLCT2 = ((CSCDxyTTLCT2<cscDxyTTLCT ||
           CSCDxyTTLCT2/CSCDxyErrTTLCT2<sigmaCSCDxyTTLCT) &&
         CSCDxyTTLCT2>0.);
-    foundLCT3 = ((CSCDxyTTLCT3<cscDxyTTLCT || 
+    foundLCT3 = ((CSCDxyTTLCT3<cscDxyTTLCT ||
           CSCDxyTTLCT3/CSCDxyErrTTLCT3<sigmaCSCDxyTTLCT) &&
         CSCDxyTTLCT3>0.);
-    foundLCT4 = ((CSCDxyTTLCT4<cscDxyTTLCT || 
+    foundLCT4 = ((CSCDxyTTLCT4<cscDxyTTLCT ||
           CSCDxyTTLCT4/CSCDxyErrTTLCT4<sigmaCSCDxyTTLCT) &&
         CSCDxyTTLCT4>0.);
 
@@ -2188,7 +2136,7 @@ void CSCEffFast::Loop()
     // Station, Ring, Chamber efficiencies
     if (goodTag) {
 
-      // Define histrogram bins	  
+      // Define histrogram bins
       Int_t pTBin = -1;
       if (tracks_pt>=ptBins[numPtBins]) pTBin = numPtBins;
       for (Int_t iiPt=0; iiPt< numPtBins; iiPt++){
@@ -2373,7 +2321,7 @@ void CSCEffFast::Loop()
               }
 
               if (CSCCh1%2 == 0 ) {totStationRing[1][0]++;totStationRingChamber[1][0][CSCCh1]++;totStationRingPt[1][0][pTBin]++;totStationRingEta[1][0][etaBin]++;totStationRingIso[1][0][isoBin]++;totStationRingPV[1][0][pvBin]++;totStationRingIL[1][0][ilBin]++;totStationRingRun[1][0][runBin]++;totStationRingChamberRun[1][0][CSCCh1][runBin]++;totStationRingLCY[1][0][lCYBin1]++;totStationRingLCYLCT[1][0][lC3YBin1]++;totStationRingLCS[1][0][lCSBin1]++;totStationRingLCSLCT[1][0][lC3SBin1]++;yySegStationRing[1][0]->Fill(CSCSegyLc1,CSCTTyLc1); totStationRingDCFEBChamberRun[1][0][dCFEBBin1][CSCCh1][runBin]++;}
-              else {totStationRing[1][3]++;totStationRingChamber[1][3][CSCCh1]++;totStationRingPt[1][3][pTBin]++;totStationRingEta[1][3][etaBin]++;totStationRingIso[1][3][isoBin]++;totStationRingPV[1][3][pvBin]++;totStationRingIL[1][3][ilBin]++;totStationRingRun[1][3][runBin]++;totStationRingChamberRun[1][3][CSCCh1][runBin]++;totStationRingLCY[1][3][lCYBin1]++;totStationRingLCYLCT[1][3][lC3YBin1]++;totStationRingLCS[1][3][lCSBin1]++;totStationRingLCSLCT[1][3][lC3SBin1]++;yySegStationRing[1][3]->Fill(CSCSegyLc1,CSCTTyLc1); totStationRingDCFEBChamberRun[1][3][dCFEBBin1][CSCCh1][runBin]++;} 
+              else {totStationRing[1][3]++;totStationRingChamber[1][3][CSCCh1]++;totStationRingPt[1][3][pTBin]++;totStationRingEta[1][3][etaBin]++;totStationRingIso[1][3][isoBin]++;totStationRingPV[1][3][pvBin]++;totStationRingIL[1][3][ilBin]++;totStationRingRun[1][3][runBin]++;totStationRingChamberRun[1][3][CSCCh1][runBin]++;totStationRingLCY[1][3][lCYBin1]++;totStationRingLCYLCT[1][3][lC3YBin1]++;totStationRingLCS[1][3][lCSBin1]++;totStationRingLCSLCT[1][3][lC3SBin1]++;yySegStationRing[1][3]->Fill(CSCSegyLc1,CSCTTyLc1); totStationRingDCFEBChamberRun[1][3][dCFEBBin1][CSCCh1][runBin]++;}
             }
             if (CSCRg1==1&&fiducial11) {totStationRing[0][1]++;totStationRingChamber[0][1][CSCCh1]++;totStationRingPt[0][1][pTBin]++;totStationRingEta[0][1][etaBin]++;totStationRingIso[0][1][isoBin]++;totStationRingPV[0][1][pvBin]++;totStationRingIL[0][1][ilBin]++;totStationRingRun[0][1][runBin]++;totStationRingChamberRun[0][1][CSCCh1][runBin]++;totStationRingLCY[0][1][lCYBin1]++;totStationRingLCYLCT[0][1][lC3YBin1]++;totStationRingLCS[0][1][lCSBin1]++;totStationRingLCSLCT[0][1][lC3SBin1]++;totStationRingChamberLCY[0][1][CSCCh1][lCYBin1]++;totStationRingChamberLCS[0][1][CSCCh1][lCSBin1]++;totStationRingChamberLCW[0][1][CSCCh1][lCWBin1]++;totStationRingChamberDCFEB[0][1][CSCCh1][dCFEBBin1]++;totStationRingChamberDCFEBLCT[0][1][CSCCh1][dCFEB3Bin1]++; totStationRingDCFEBChamberRun[0][1][dCFEBBin1][CSCCh1][runBin]++;
               if (inZMass) segDenStationRingChamberRun[0][1][CSCCh1]->Fill(run_number);
@@ -2447,7 +2395,7 @@ void CSCEffFast::Loop()
               }
               if (CSCRg1==1&&fiducial11) {passStationRingLCT[0][1]++;passStationRingChamberLCT[0][1][CSCCh1]++;passStationRingPtLCT[0][1][pTBin]++;passStationRingEtaLCT[0][1][etaBin]++;passStationRingIsoLCT[0][1][isoBin]++;passStationRingPVLCT[0][1][pvBin]++;passStationRingILLCT[0][1][ilBin]++;passStationRingRunLCT[0][1][runBin]++;passStationRingChamberRunLCT[0][1][CSCCh1][runBin]++;passStationRingLCYLCT[0][1][lC3YBin1]++;passStationRingLCSLCT[0][1][lC3SBin1]++;;passStationRingChamberLCYLCT[0][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[0][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[0][1][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[0][1][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[0][1][dCFEB3Bin1][CSCCh1][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[0][1][CSCCh1]->Fill(run_number);
-                zMassLCTNumStationRingPV[0][1][pvBin]->Fill(invMass);        
+                zMassLCTNumStationRingPV[0][1][pvBin]->Fill(invMass);
                 if (inZMass) bxLCTStationRingChamber[0][1][CSCCh1]->Fill(CSCLCTbx1);
                 if (inZMass) bxLCTStationRing[0][1]->Fill(CSCLCTbx1);
                 if (CSCCh1%2 == 0 ) {passStationRingLCT[2][0]++;passStationRingChamberLCT[2][0][CSCCh1]++;passStationRingPtLCT[2][0][pTBin]++;passStationRingEtaLCT[2][0][etaBin]++;passStationRingIsoLCT[2][0][isoBin]++;passStationRingPVLCT[2][0][pvBin]++;passStationRingILLCT[2][0][ilBin]++;passStationRingRunLCT[2][0][runBin]++;passStationRingChamberRunLCT[2][0][CSCCh1][runBin]++;passStationRingLCYLCT[2][0][lC3YBin1]++;passStationRingLCSLCT[2][0][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[2][0][dCFEB3Bin1][CSCCh1][runBin]++;}
@@ -2472,7 +2420,7 @@ void CSCEffFast::Loop()
             if (CSCRg2==1) {totStationRing[1][1]++;totStationRingChamber[1][1][CSCCh2]++;totStationRingPt[1][1][pTBin]++;totStationRingEta[1][1][etaBin2]++;totStationRingIso[1][1][isoBin]++;totStationRingPV[1][1][pvBin]++;totStationRingIL[1][1][ilBin]++;totStationRingRun[1][1][runBin]++;totStationRingChamberRun[1][1][CSCCh2][runBin]++;totStationRingLCY[1][1][lCYBin2]++;totStationRingLCYLCT[1][1][lC3YBin2]++;totStationRingLCS[1][1][lCSBin2]++;totStationRingLCSLCT[1][1][lC3SBin2]++;totStationRingChamberLCY[1][1][CSCCh2][lCYBin2]++;totStationRingChamberLCS[1][1][CSCCh2][lCSBin2]++;totStationRingChamberLCW[1][1][CSCCh2][lCWBin2]++;totStationRingChamberDCFEB[1][1][CSCCh2][dCFEBBin2]++;totStationRingChamberDCFEBLCT[1][1][CSCCh2][dCFEB3Bin2]++; totStationRingDCFEBChamberRun[1][1][dCFEBBin2][CSCCh2][runBin]++;
 
               if (ME21EvenOdd) {if ((CSCCh2%2 == 0)) {totStationRing[3][0]++;totStationRingChamber[3][0][CSCCh2]++;totStationRingPt[3][0][pTBin]++;totStationRingEta[3][0][etaBin]++;totStationRingIso[3][0][isoBin]++;totStationRingPV[3][0][pvBin]++;totStationRingIL[3][0][ilBin]++;totStationRingRun[3][0][runBin]++;totStationRingChamberRun[3][0][CSCCh2][runBin]++;totStationRingLCY[3][0][lCYBin2]++;totStationRingLCYLCT[3][0][lC3YBin2]++;totStationRingLCS[3][0][lCSBin2]++;totStationRingLCSLCT[3][0][lC3SBin2]++;yySegStationRing[3][0]->Fill(CSCSegyLc2,CSCTTyLc2); totStationRingDCFEBChamberRun[3][0][dCFEBBin2][CSCCh2][runBin]++;}
-                else {totStationRing[3][3]++;totStationRingChamber[3][3][CSCCh2]++;totStationRingPt[3][3][pTBin]++;totStationRingEta[3][3][etaBin]++;totStationRingIso[3][3][isoBin]++;totStationRingPV[3][3][pvBin]++;totStationRingIL[3][3][ilBin]++;totStationRingRun[3][3][runBin]++;totStationRingChamberRun[3][3][CSCCh2][runBin]++;totStationRingLCY[3][3][lCYBin2]++;totStationRingLCYLCT[3][3][lC3YBin2]++;totStationRingLCS[3][3][lCSBin2]++;totStationRingLCSLCT[3][3][lC3SBin2]++;yySegStationRing[3][3]->Fill(CSCSegyLc2,CSCTTyLc2); totStationRingDCFEBChamberRun[3][3][dCFEBBin2][CSCCh2][runBin]++;}} 
+                else {totStationRing[3][3]++;totStationRingChamber[3][3][CSCCh2]++;totStationRingPt[3][3][pTBin]++;totStationRingEta[3][3][etaBin]++;totStationRingIso[3][3][isoBin]++;totStationRingPV[3][3][pvBin]++;totStationRingIL[3][3][ilBin]++;totStationRingRun[3][3][runBin]++;totStationRingChamberRun[3][3][CSCCh2][runBin]++;totStationRingLCY[3][3][lCYBin2]++;totStationRingLCYLCT[3][3][lC3YBin2]++;totStationRingLCS[3][3][lCSBin2]++;totStationRingLCSLCT[3][3][lC3SBin2]++;yySegStationRing[3][3]->Fill(CSCSegyLc2,CSCTTyLc2); totStationRingDCFEBChamberRun[3][3][dCFEBBin2][CSCCh2][runBin]++;}}
 
                 if (inZMass) segDenStationRingChamberRun[1][1][CSCCh2]->Fill(run_number);
                 zMassSegDenStationRingChamber[1][1][CSCCh2]->Fill(invMass);
@@ -2533,7 +2481,7 @@ void CSCEffFast::Loop()
             if (CSCRg3==1) {totStationRing[2][1]++;totStationRingChamber[2][1][CSCCh3]++;totStationRingPt[2][1][pTBin]++;totStationRingEta[2][1][etaBin3]++;totStationRingIso[2][1][isoBin]++;totStationRingPV[2][1][pvBin]++;totStationRingIL[2][1][ilBin]++;totStationRingRun[2][1][runBin]++;totStationRingChamberRun[2][1][CSCCh3][runBin]++;totStationRingLCY[2][1][lCYBin3]++;totStationRingLCYLCT[2][1][lC3YBin3]++;totStationRingLCS[2][1][lCSBin3]++;totStationRingLCSLCT[2][1][lC3SBin3]++;totStationRingChamberLCY[2][1][CSCCh3][lCYBin3]++;totStationRingChamberLCS[2][1][CSCCh3][lCSBin3]++;totStationRingChamberLCW[2][1][CSCCh3][lCWBin3]++;totStationRingChamberDCFEB[2][1][CSCCh3][dCFEBBin3]++;totStationRingChamberDCFEBLCT[2][1][CSCCh3][dCFEB3Bin3]++; totStationRingDCFEBChamberRun[2][1][dCFEBBin3][CSCCh3][runBin]++;
 
               if (ME31EvenOdd) {if ((CSCCh3%2 == 0)) {totStationRing[3][0]++;totStationRingChamber[3][0][CSCCh3]++;totStationRingPt[3][0][pTBin]++;totStationRingEta[3][0][etaBin]++;totStationRingIso[3][0][isoBin]++;totStationRingPV[3][0][pvBin]++;totStationRingIL[3][0][ilBin]++;totStationRingRun[3][0][runBin]++;totStationRingChamberRun[3][0][CSCCh3][runBin]++;totStationRingLCY[3][0][lCYBin3]++;totStationRingLCYLCT[3][0][lC3YBin3]++;totStationRingLCS[3][0][lCSBin3]++;totStationRingLCSLCT[3][0][lC3SBin3]++;yySegStationRing[3][0]->Fill(CSCSegyLc3,CSCTTyLc3); totStationRingDCFEBChamberRun[3][0][dCFEBBin3][CSCCh3][runBin]++;}
-                else {totStationRing[3][3]++;totStationRingChamber[3][3][CSCCh3]++;totStationRingPt[3][3][pTBin]++;totStationRingEta[3][3][etaBin]++;totStationRingIso[3][3][isoBin]++;totStationRingPV[3][3][pvBin]++;totStationRingIL[3][3][ilBin]++;totStationRingRun[3][3][runBin]++;totStationRingChamberRun[3][3][CSCCh3][runBin]++;totStationRingLCY[3][3][lCYBin3]++;totStationRingLCYLCT[3][3][lC3YBin3]++;totStationRingLCS[3][3][lCSBin3]++;totStationRingLCSLCT[3][3][lC3SBin3]++;yySegStationRing[3][3]->Fill(CSCSegyLc3,CSCTTyLc3); totStationRingDCFEBChamberRun[3][3][dCFEBBin3][CSCCh3][runBin]++;}} 
+                else {totStationRing[3][3]++;totStationRingChamber[3][3][CSCCh3]++;totStationRingPt[3][3][pTBin]++;totStationRingEta[3][3][etaBin]++;totStationRingIso[3][3][isoBin]++;totStationRingPV[3][3][pvBin]++;totStationRingIL[3][3][ilBin]++;totStationRingRun[3][3][runBin]++;totStationRingChamberRun[3][3][CSCCh3][runBin]++;totStationRingLCY[3][3][lCYBin3]++;totStationRingLCYLCT[3][3][lC3YBin3]++;totStationRingLCS[3][3][lCSBin3]++;totStationRingLCSLCT[3][3][lC3SBin3]++;yySegStationRing[3][3]->Fill(CSCSegyLc3,CSCTTyLc3); totStationRingDCFEBChamberRun[3][3][dCFEBBin3][CSCCh3][runBin]++;}}
 
 
                 if (inZMass) segDenStationRingChamberRun[2][1][CSCCh3]->Fill(run_number);
@@ -2575,13 +2523,11 @@ void CSCEffFast::Loop()
                 if (inZMass) LCTNumStationRingChamberRun[2][1][CSCCh3]->Fill(run_number);
                 if (inZMass) bxLCTStationRingChamber[2][1][CSCCh3]->Fill(CSCLCTbx3);
                 if (inZMass) bxLCTStationRing[2][1]->Fill(CSCLCTbx3);
-
               }
               if (CSCRg3==2) {passStationRingLCT[2][2]++;passStationRingChamberLCT[2][2][CSCCh3]++;passStationRingPtLCT[2][2][pTBin]++;passStationRingEtaLCT[2][2][etaBin3]++;passStationRingIsoLCT[2][2][isoBin]++;passStationRingPVLCT[2][2][pvBin]++;passStationRingILLCT[2][2][ilBin]++;passStationRingRunLCT[2][2][runBin]++;passStationRingChamberRunLCT[2][2][CSCCh3][runBin]++;passStationRingLCYLCT[2][2][lC3YBin3]++;passStationRingLCSLCT[2][2][lC3SBin3]++;passStationRingChamberLCYLCT[2][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[2][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[2][2][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[2][2][CSCCh3][dCFEB3Bin3]++;passStationRingDCFEBChamberRunLCT[2][2][dCFEB3Bin3][CSCCh3][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[2][2][CSCCh3]->Fill(run_number);
-	        if (inZMass) bxLCTStationRingChamber[2][2][CSCCh3]->Fill(CSCLCTbx3);
+                if (inZMass) bxLCTStationRingChamber[2][2][CSCCh3]->Fill(CSCLCTbx3);
                 if (inZMass) bxLCTStationRing[2][2]->Fill(CSCLCTbx3);
-
               }
             }
           }
@@ -2718,14 +2664,14 @@ void CSCEffFast::Loop()
             if (foundLCT1) {
               passGlobalLCT++;
               if (CSCRg1==4&&fiducial11) {passStationRingLCT[4][0]++;passStationRingChamberLCT[4][0][CSCCh1]++;passStationRingPtLCT[4][0][pTBin]++;passStationRingEtaLCT[4][0][etaBin]++;passStationRingIsoLCT[4][0][isoBin]++;passStationRingPVLCT[4][0][pvBin]++;passStationRingILLCT[4][0][ilBin]++;passStationRingRunLCT[4][0][runBin]++;passStationRingChamberRunLCT[4][0][CSCCh1][runBin]++;passStationRingLCYLCT[4][0][lC3YBin1]++;passStationRingLCSLCT[4][0][lC3SBin1]++;passStationRingChamberLCYLCT[4][0][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][0][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][0][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][0][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[4][0][dCFEB3Bin1][CSCCh1][runBin]++;
-                if (inZMass) LCTNumStationRingChamberRun[4][0][CSCCh1]->Fill(run_number);        
+                if (inZMass) LCTNumStationRingChamberRun[4][0][CSCCh1]->Fill(run_number);
                 if (inZMass) bxLCTStationRingChamber[4][0][CSCCh1]->Fill(CSCLCTbx1);
                 if (inZMass) bxLCTStationRing[4][0]->Fill(CSCLCTbx1);
                 if (CSCCh1%2 == 0 ) {passStationRingLCT[5][0]++;passStationRingChamberLCT[5][0][CSCCh1]++;passStationRingPtLCT[5][0][pTBin]++;passStationRingEtaLCT[5][0][etaBin]++;passStationRingIsoLCT[5][0][isoBin]++;passStationRingPVLCT[5][0][pvBin]++;passStationRingILLCT[5][0][ilBin]++;passStationRingRunLCT[5][0][runBin]++;passStationRingChamberRunLCT[5][0][CSCCh1][runBin]++;passStationRingLCYLCT[5][0][lC3YBin1]++;passStationRingLCSLCT[5][0][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[5][0][dCFEB3Bin1][CSCCh1][runBin]++;}
                 else {passStationRingLCT[5][3]++;passStationRingChamberLCT[5][3][CSCCh1]++;passStationRingPtLCT[5][3][pTBin]++;passStationRingEtaLCT[5][3][etaBin]++;;passStationRingIsoLCT[5][3][isoBin]++;passStationRingPVLCT[5][3][pvBin]++;passStationRingILLCT[5][3][ilBin]++;passStationRingRunLCT[5][3][runBin]++;passStationRingChamberRunLCT[5][3][CSCCh1][runBin]++;passStationRingLCYLCT[5][3][lC3YBin1]++;passStationRingLCSLCT[5][3][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[5][3][dCFEB3Bin1][CSCCh1][runBin]++;}
               }
               if (CSCRg1==1&&fiducial11) {passStationRingLCT[4][1]++;passStationRingChamberLCT[4][1][CSCCh1]++;passStationRingPtLCT[4][1][pTBin]++;passStationRingEtaLCT[4][1][etaBin]++;passStationRingIsoLCT[4][1][isoBin]++;passStationRingPVLCT[4][1][pvBin]++;passStationRingILLCT[4][1][ilBin]++;passStationRingRunLCT[4][1][runBin]++;passStationRingChamberRunLCT[4][1][CSCCh1][runBin]++;passStationRingLCYLCT[4][1][lC3YBin1]++;passStationRingLCSLCT[4][1][lC3SBin1]++;passStationRingChamberLCYLCT[4][1][CSCCh1][lCYBin1]++;passStationRingChamberLCSLCT[4][1][CSCCh1][lCSBin1]++;passStationRingChamberLCWLCT[4][1][CSCCh1][lCWBin1]++;passStationRingChamberDCFEBLCT[4][1][CSCCh1][dCFEB3Bin1]++;passStationRingDCFEBChamberRunLCT[4][1][dCFEB3Bin1][CSCCh1][runBin]++;
-                if (inZMass) LCTNumStationRingChamberRun[4][1][CSCCh1]->Fill(run_number);        
+                if (inZMass) LCTNumStationRingChamberRun[4][1][CSCCh1]->Fill(run_number);
                 if (inZMass) bxLCTStationRingChamber[4][1][CSCCh1]->Fill(CSCLCTbx1);
                 if (inZMass) bxLCTStationRing[4][1]->Fill(CSCLCTbx1);
                 if (CSCCh1%2 == 0 ) {passStationRingLCT[6][0]++;passStationRingChamberLCT[6][0][CSCCh1]++;passStationRingPtLCT[6][0][pTBin]++;passStationRingEtaLCT[6][0][etaBin]++;passStationRingIsoLCT[6][0][isoBin]++;passStationRingPVLCT[6][0][pvBin]++;passStationRingILLCT[6][0][ilBin]++;passStationRingRunLCT[6][0][runBin]++;passStationRingChamberRunLCT[6][0][CSCCh1][runBin]++;passStationRingLCYLCT[6][0][lC3YBin1]++;passStationRingLCSLCT[6][0][lC3SBin1]++;passStationRingDCFEBChamberRunLCT[6][0][dCFEB3Bin1][CSCCh1][runBin]++;}
@@ -2793,7 +2739,7 @@ void CSCEffFast::Loop()
                 if (inZMass) LCTNumStationRingChamberRun[5][2][CSCCh2]->Fill(run_number);
                 if (inZMass) bxLCTStationRingChamber[5][2][CSCCh2]->Fill(CSCLCTbx2);
                 if (inZMass) bxLCTStationRing[5][2]->Fill(CSCLCTbx2);
-             }
+              }
             }
           }
           if (fiducial3){
@@ -2843,7 +2789,7 @@ void CSCEffFast::Loop()
                 if (inZMass) LCTNumStationRingChamberRun[6][1][CSCCh3]->Fill(run_number);
                 if (inZMass) bxLCTStationRingChamber[6][1][CSCCh3]->Fill(CSCLCTbx3);
                 if (inZMass) bxLCTStationRing[6][1]->Fill(CSCLCTbx3);
-             }
+              }
               if (CSCRg3==2) {passStationRingLCT[6][2]++;passStationRingChamberLCT[6][2][CSCCh3]++;passStationRingPtLCT[6][2][pTBin]++;passStationRingEtaLCT[6][2][etaBin3]++;passStationRingIsoLCT[6][2][isoBin]++;passStationRingPVLCT[6][2][pvBin]++;passStationRingILLCT[6][2][ilBin]++;passStationRingRunLCT[6][2][runBin]++;passStationRingChamberRunLCT[6][2][CSCCh3][runBin]++;passStationRingLCYLCT[6][2][lC3YBin3]++;passStationRingLCSLCT[6][2][lC3SBin3]++;passStationRingChamberLCYLCT[6][2][CSCCh3][lCYBin3]++;passStationRingChamberLCSLCT[6][2][CSCCh3][lCSBin3]++;passStationRingChamberLCWLCT[6][2][CSCCh3][lCWBin3]++;passStationRingChamberDCFEBLCT[6][2][CSCCh3][dCFEB3Bin3]++;passStationRingDCFEBChamberRunLCT[6][2][dCFEB3Bin3][CSCCh3][runBin]++;
                 if (inZMass) LCTNumStationRingChamberRun[6][2][CSCCh3]->Fill(run_number);
                 if (inZMass) bxLCTStationRingChamber[6][2][CSCCh3]->Fill(CSCLCTbx3);
@@ -2908,7 +2854,6 @@ void CSCEffFast::Loop()
                 if (inZMass) LCTNumStationRingChamberRun[7][2][CSCCh4]->Fill(run_number);
                 if (inZMass) bxLCTStationRingChamber[7][2][CSCCh4]->Fill(CSCLCTbx4);
                 if (inZMass) bxLCTStationRing[7][2]->Fill(CSCLCTbx4);
-		
               }
             }
           }
@@ -2994,7 +2939,7 @@ void CSCEffFast::Loop()
             if (foundLCT1) {
               passSBGlobalLCT++;
               if (CSCRg1==4&&fiducial11) {passSBStationRingLCT[0][0]++;passSBStationRingChamberLCT[0][0][CSCCh1]++;passSBStationRingPtLCT[0][0][pTBin]++;passSBStationRingEtaLCT[0][0][etaBin]++;passSBStationRingIsoLCT[0][0][isoBin]++;passSBStationRingPVLCT[0][0][pvBin]++;passSBStationRingILLCT[0][0][ilBin]++;passSBStationRingRunLCT[0][0][runBin]++;passSBStationRingChamberRunLCT[0][0][CSCCh1][runBin]++;passSBStationRingLCYLCT[0][0][lC3YBin1]++;passSBStationRingLCSLCT[0][0][lC3SBin1]++;passSBStationRingChamberLCYLCT[0][0][CSCCh1][lCYBin1]++;passSBStationRingChamberLCSLCT[0][0][CSCCh1][lCSBin1]++;passSBStationRingChamberLCWLCT[0][0][CSCCh1][lCWBin1]++;passSBStationRingDCFEBChamberRunLCT[0][0][dCFEB3Bin1][CSCCh1][runBin]++;
-                zMassLCTNumStationRingPV[0][0][pvBin]->Fill(invMass);        
+                zMassLCTNumStationRingPV[0][0][pvBin]->Fill(invMass);
                 if (CSCCh1%2 == 0 ) {passSBStationRingLCT[1][0]++;passSBStationRingChamberLCT[1][0][CSCCh1]++;passSBStationRingPtLCT[1][0][pTBin]++;passSBStationRingEtaLCT[1][0][etaBin]++;passSBStationRingIsoLCT[1][0][isoBin]++;passSBStationRingPVLCT[1][0][pvBin]++;passSBStationRingILLCT[1][0][ilBin]++;passSBStationRingRunLCT[1][0][runBin]++;passSBStationRingChamberRunLCT[1][0][CSCCh1][runBin]++;passSBStationRingLCYLCT[1][0][lC3YBin1]++;passSBStationRingLCSLCT[1][0][lC3SBin1]++;passSBStationRingDCFEBChamberRunLCT[1][0][dCFEB3Bin1][CSCCh1][runBin]++;}
                 else {passSBStationRingLCT[1][3]++;passSBStationRingChamberLCT[1][3][CSCCh1]++;passSBStationRingPtLCT[1][3][pTBin]++;passSBStationRingEtaLCT[1][3][etaBin]++;passSBStationRingIsoLCT[1][3][isoBin]++;passSBStationRingPVLCT[1][3][pvBin]++;passSBStationRingILLCT[1][3][ilBin]++;passSBStationRingRunLCT[1][3][runBin]++;passSBStationRingChamberRunLCT[1][3][CSCCh1][runBin]++;passSBStationRingLCYLCT[1][3][lC3YBin1]++;passSBStationRingLCSLCT[1][3][lC3SBin1]++;passSBStationRingDCFEBChamberRunLCT[1][3][dCFEB3Bin1][CSCCh1][runBin]++;}
               }
@@ -3503,7 +3448,7 @@ void CSCEffFast::Loop()
         else totDCFEBs = 5;
         if (cond1 && cond2 && iiChamber != 0){
           segEffCSCs->Fill(effStationRingChamberSeg[iiStation][iiRing][iiChamber]*100);
-          LCTEffCSCs->Fill(effStationRingChamberLCT[iiStation][iiRing][iiChamber]*100); 
+          LCTEffCSCs->Fill(effStationRingChamberLCT[iiStation][iiRing][iiChamber]*100);
         }
 
 
@@ -3540,6 +3485,18 @@ void CSCEffFast::Loop()
         LCTEff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
         LCTEff2DStationRingChamber->SetBinError(iiChamber,ybin,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
 
+<<<<<<< automation
+        segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
+        segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
+
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segNumStationRingChamberRun[iiStation][iiRing][iiChamber],segDenStationRingChamberRun[iiStation][iiRing][iiChamber],1,1,"B");
+        //segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
+
+        LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
+        LCTDenStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
+
+
+=======
 	segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
 	segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
 
@@ -3554,6 +3511,7 @@ void CSCEffFast::Loop()
 
 	//        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
 	//        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
+>>>>>>> master
         LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber],segDenStationRingChamberRun[iiStation][iiRing][iiChamber],1,1,"B");
         //LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
@@ -3696,8 +3654,8 @@ void CSCEffFast::Loop()
             if (iiRun == numRunBins-1) {
               //std::cout << "2D run hisot info: " << iiStation << " " << iiRing << " " << iiChamber << " passing probes: " << passStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] << "/" << totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] << std::endl;
             }
-            passSBStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = 0; 
-            passSBStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = 0; 
+            passSBStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = 0;
+            passSBStationRingDCFEBChamberRunLCT[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = 0;
             if ((totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]>0.5)&&((totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])>0.5)) {
               effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = (passStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passSBStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])/(totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
               effSigmaStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun] = sqrt(((passStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]+passSBStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])*(1.-effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])*(1.-effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]))+ ((totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])+(totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-passSBStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]))*effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]*effStationRingDCFEBChamberRunSeg[iiStation][iiRing][iiDCFEB][iiChamber][iiRun])/(totStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]-totSBStationRingDCFEBChamberRun[iiStation][iiRing][iiDCFEB][iiChamber][iiRun]);
@@ -3886,7 +3844,7 @@ void CSCEffFast::Loop()
         //  LCTEffStationCRingIso[iiStation][iiRing]->Write();
         //}
 
-      }     
+      }
 
       if (!LowStats){
 
@@ -3996,7 +3954,7 @@ void CSCEffFast::Loop()
 
 
 
-      }       
+      }
 
       for (Int_t iiRun=0; iiRun< numRunBins; iiRun++){
         //if (totStationRingRun[iiStation][iiRing][iiRun]>0.5)  effStationRingRunSeg[iiStation][iiRing][iiRun] = passStationRingRunSeg[iiStation][iiRing][iiRun]/totStationRingRun[iiStation][iiRing][iiRun];
@@ -4069,7 +4027,7 @@ void CSCEffFast::Loop()
       // 	   effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW] = (passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
       // 	   effSigmaStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW] = sqrt(((passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]+passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])*(1.-effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]))+ ((totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])+(totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-passSBStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]))*effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW]*effStationRingChamberLCWLCT[iiStation][iiRing][iiChamber][iiLCW])/(totStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]-totSBStationRingChamberLCW[iiStation][iiRing][iiChamber][iiLCW]);
 
-      // 	 }	 
+      // 	 }
 
       // 	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinContent(iiLCW+1,effStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]);
       // 	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->SetBinError(iiLCW+1,effSigmaStationRingChamberLCWSeg[iiStation][iiRing][iiChamber][iiLCW]);
@@ -4083,13 +4041,13 @@ void CSCEffFast::Loop()
       //     // LCTEffStationRingLCW[iiStation][iiRing]->Write();
       //     // if (iiStation < 4){
       //     // segEffStationCRingLCW[iiStation][iiRing]->Write();
-      //     // LCTEffStationCRingLCW[iiStation][iiRing]->Write(); 
+      //     // LCTEffStationCRingLCW[iiStation][iiRing]->Write();
       //     // }
 
       //     for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
       // 	 segEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->Write();
       // 	 LCTEffStationRingChamberLCW[iiStation][iiRing][iiChamber]->Write();
-      //     }       
+      //     }
 
       for (Int_t iiLCY=0; iiLCY< numLCYBins; iiLCY++){
         // 	 //if (totStationRingLCY[iiStation][iiRing][iiLCY]>0.5)  effStationRingLCYSeg[iiStation][iiRing][iiLCY] = passStationRingLCYSeg[iiStation][iiRing][iiLCY]/totStationRingLCY[iiStation][iiRing][iiLCY];
@@ -4135,7 +4093,7 @@ void CSCEffFast::Loop()
 
             effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = (passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
             effSigmaStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY] = sqrt(((passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]+passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])*(1.-effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))+ ((totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])+(totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-passSBStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]))*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY]*effStationRingChamberLCYLCT[iiStation][iiRing][iiChamber][iiLCY])/(totStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]-totSBStationRingChamberLCY[iiStation][iiRing][iiChamber][iiLCY]);
-          }	 
+          }
 
           segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinContent(iiLCY+1,effStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
           segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->SetBinError(iiLCY+1,effSigmaStationRingChamberLCYSeg[iiStation][iiRing][iiChamber][iiLCY]);
@@ -4155,7 +4113,7 @@ void CSCEffFast::Loop()
         //for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
         //  segEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
         //  LCTEffStationRingChamberLCY[iiStation][iiRing][iiChamber]->Write();
-        //}      
+        //}
 
       for (Int_t iiLCS=0; iiLCS< numLCSBins; iiLCS++){
         // 	 //if (totStationRingLCS[iiStation][iiRing][iiLCS]>0.5)  effStationRingLCSSeg[iiStation][iiRing][iiLCS] = passStationRingLCSSeg[iiStation][iiRing][iiLCS]/totStationRingLCS[iiStation][iiRing][iiLCS];
@@ -4201,7 +4159,7 @@ void CSCEffFast::Loop()
 
             effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = (passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
             effSigmaStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS] = sqrt(((passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]+passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])*(1.-effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))+ ((totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])+(totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-passSBStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]))*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS]*effStationRingChamberLCSLCT[iiStation][iiRing][iiChamber][iiLCS])/(totStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]-totSBStationRingChamberLCS[iiStation][iiRing][iiChamber][iiLCS]);
-          }	 
+          }
 
           segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinContent(iiLCS+1,effStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
           segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->SetBinError(iiLCS+1,effSigmaStationRingChamberLCSSeg[iiStation][iiRing][iiChamber][iiLCS]);
@@ -4221,11 +4179,11 @@ void CSCEffFast::Loop()
         //for (Int_t iiChamber=0; iiChamber < 37; iiChamber++){
         //  segEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
         //  LCTEffStationRingChamberLCS[iiStation][iiRing][iiChamber]->Write();
-        //}      
+        //}
 
 
 
-    } // end loop over rings 
+    } // end loop over rings
   } // end loop over stations
 
   // segEff2DStationRingChamber->Write();
