@@ -6,8 +6,12 @@
 #include <TF1.h>
 #include <TStyle.h>
 #include <TCanvas.h>
+<<<<<<< automation
 
 #define autoRemoval false
+=======
+#define autoRemoval false 
+>>>>>>> master
 #if autoRemoval
 #include "BadChambers.h"
 #endif
@@ -3481,6 +3485,7 @@ void CSCEffFast::Loop()
         LCTEff2DStationRingChamber->SetBinContent(iiChamber,ybin,effStationRingChamberLCT[iiStation][iiRing][iiChamber]);
         LCTEff2DStationRingChamber->SetBinError(iiChamber,ybin,effSigmaStationRingChamberLCT[iiStation][iiRing][iiChamber]);
 
+<<<<<<< automation
         segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
         segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
 
@@ -3491,6 +3496,22 @@ void CSCEffFast::Loop()
         LCTDenStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
 
 
+=======
+	segNumStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
+	segDenStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
+
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(segNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
+        segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segNumStationRingChamberRun[iiStation][iiRing][iiChamber],segDenStationRingChamberRun[iiStation][iiRing][iiChamber],1,1,"B");
+	//segEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
+
+	LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
+	LCTDenStationRingChamberRun[iiStation][iiRing][iiChamber]->Sumw2(1);
+
+
+	//        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Add(LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber]);
+	//        LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(segDenStationRingChamberRun[iiStation][iiRing][iiChamber]);
+>>>>>>> master
         LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Divide(LCTNumStationRingChamberRun[iiStation][iiRing][iiChamber],segDenStationRingChamberRun[iiStation][iiRing][iiChamber],1,1,"B");
         //LCTEffStationRingChamberRun[iiStation][iiRing][iiChamber]->Write();
 
