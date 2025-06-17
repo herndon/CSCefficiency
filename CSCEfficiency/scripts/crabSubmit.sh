@@ -1,5 +1,5 @@
 if [[ -z $1 ]]; then
-  echo "usage: $0 JOB ..."
+  echo "usage: $(basename $0) JOB ..."
   echo
   echo " JOB: the name of a section in settings.cfg with the desired options for CRAB job"
   echo " ...: additional section(s)"
