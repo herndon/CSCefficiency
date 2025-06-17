@@ -11,7 +11,8 @@ Before submitting any jobs, make sure to authenticate your grid certificate. If 
 visit [this page](https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid#ObtainingCert). 
 To authenticate the grid certificate, run `voms-proxy-init -voms cms -valid 192:00`.
 
-To submit CRAB jobs, move to the [`submit/`](../submit/) directory and run `crabSubmit.sh`. To customize the job that is submitted (such as dataset, 
+To submit CRAB jobs, move to the [`submit/`](../submit/) directory and run `crabSubmit.sh`. For a quick summary of the script, run 
+`crabSubmit.sh --help`. To customize the job that is submitted (such as dataset, 
 request name, etc.) edit the [`settings.cfg`](../submit/settings.cfg) file appropriately. If you want to submit a job with a pre-existing section's settings,
 you can run the following:
 
