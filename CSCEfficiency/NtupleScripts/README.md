@@ -136,12 +136,22 @@ Set up by running the following commands:
 
 ```bash
 export NEWPATH=$HOME/.local/bin:$PATH
-export PATH=$HOME/.local/bin/:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH
-pip3 install --user brilws
+export PATH=$HOME/.local/bin/:/cvmfs/cms-bril.cern.ch/brilconda310/bin:$PATH
+pip install --user brilws
 export PATH=$NEWPATH
 ```
 
-At the time of writing this, newer versions are available but do not work properly on the server. This works perfectly for what we need.
+**NOTE**: At this time, `brilcalc` crashes when run off-site (e.g. on this server). For the moment, you will need to do the following. Feel free to
+change the input filename as you need.
+
+1. Use `calcLumis.py` to print out the command you need to run. This can be done using the `--norun` flag. For example, `./calcLumis.py --infile
+cscEffHistoFile.root --norun`. The command will be printed out in the last line. 
+2. In a different terminal session, `ssh` to the CERN lxplus server and run the command. 
+(If it doesn't work, run the commands above to install `brilws` on that server!)
+3. Check the output `lumi.csv` file. At the end of the file, copy the number under "Total recorded". This is the luminosity we want.
+4. Back in the UW server, run the following command to write and store the desired luminosity: `./calcLumis.py --infile cscEffHistoFile.root --lumi
+<LUMI>`. Of course, replace `<LUMI>` with the luminosity you recorded in the previous step.
+5. Save changes to the `lumi.csv` file to avoid re-calculating in the future, if desired.
 
 ## Saving Final Plots
 
