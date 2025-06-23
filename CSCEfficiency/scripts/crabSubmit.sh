@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 while true; do
   if [[ ! -f settings.cfg ]]; then
     echo "settings.cfg not found"
