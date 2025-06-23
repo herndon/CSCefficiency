@@ -7,7 +7,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 
-#define autoRemoval true 
+#define autoRemoval false
 #if autoRemoval
 #include "BadChambers_auto.h"
 #endif
