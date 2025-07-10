@@ -76,11 +76,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   //bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on (old run analysis printout)
   bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
   bool DCFEBAnalysis = true; // Run DCFEB analysis for specific run ranges
-  bool bxAnalysis = false;
+  bool bxAnalysis = true;
   bool segmentAnalysis = false; // Segment plots for debugging
+  bool processLCY = true;
 
+  
   // Constants
-  float deadDCFEBThreshold = 0.10; // Efficiency threshold for dead (D)CFEBs.
+  float deadDCFEBThreshold = 0.20; // Efficiency threshold for dead (D)CFEBs.
   float effThreshold = 0.50; // Efficiency threshold for old file readouts.
   float maxRemovalThreshold = 0.20; // Efficiency threshold for maximal removal of low efficiency DCFEBs
   float runDepEffThreshold = 0.20; // Efficiency threshold for run-dependent chamber failures
@@ -1598,7 +1600,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation2Ring1->GetXaxis()->SetTitle("BX");
       //bxLCTStation2Ring1->GetYaxis()->SetTitle("CSC LCT BX ");
       //bxLCTStation2Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-      bxLCTStation2Ring1->GetXaxis()->SetRangeUser(-3.0,3.0);
+      bxLCTStation2Ring1->GetXaxis()->SetRangeUser(-10.0,10.0);
       bxLCTStation2Ring1->SetDrawOption("L");
       bxLCTStation2Ring1->SetLineColor(kRed);
       bxLCTStation2Ring1->SetMarkerColor(kRed);
@@ -1659,7 +1661,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation6Ring1->GetXaxis()->SetTitle("BX");
       //bxLCTStation6Ring1->GetYaxis()->SetTitle("CSC LCT BX ");
       //bxLCTStation6Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-      bxLCTStation6Ring1->GetXaxis()->SetRangeUser(-3.0,3.0);
+      bxLCTStation6Ring1->GetXaxis()->SetRangeUser(-10.0,10.0);
       bxLCTStation6Ring1->SetDrawOption("G");
       bxLCTStation6Ring1->SetLineColor(kRed);
       bxLCTStation6Ring1->SetMarkerColor(kRed);
@@ -1858,7 +1860,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           segEffChamberLCS->Draw("PE1");
           c1.Print(file);
 
-
+	  
+	  if (processLCY) {
           // Drawing CSC Segment Efficiency vs. Y LC
           sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
           sprintf(title,"Segment Efficiency vs Y LC for %s/%d",label,iiChamber);
@@ -1878,8 +1881,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           segEffChamberLCY->SetMarkerSize(0.75);
           segEffChamberLCY->Draw("PE1");
           c1.Print(file);
-
-
+	  }
+	  
           // Drawing CSC Segment Efficiency vs. Run
           sprintf(name,"segEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
           sprintf(title,"Segment Efficiency vs Run for %s/%d",label,iiChamber);
@@ -1957,7 +1960,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           LCTEffChamberLCS->Draw("PE1");
           c1.Print(file);
 
-
+	  if (processLCY) {
+ 
           // Drawing LCT Efficiency vs. Y LC
           sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
           sprintf(title,"LCT Efficiency vs Y LC for %s/%d",label,iiChamber);
@@ -1977,7 +1981,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           LCTEffChamberLCY->SetMarkerSize(0.75);
           LCTEffChamberLCY->Draw("PE1");
           c1.Print(file);
-
+	  }
 
 
           // Drawing LCT Efficiency vs. Run
@@ -2038,7 +2042,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
             LCTBXChamber->GetXaxis()->SetTickLength(0.015);
             LCTBXChamber->GetYaxis()->SetTickLength(0.015);
             //LCTBXChamber->GetYaxis()->SetRangeUser(0.0,1.05);
-            LCTBXChamber->GetXaxis()->SetRangeUser(-3.5,3.5);
+            LCTBXChamber->GetXaxis()->SetRangeUser(-10.5,10.5);
             LCTBXChamber->SetLineColor(kBlack);
             LCTBXChamber->SetMarkerColor(kBlack);
             LCTBXChamber->SetMarkerStyle(8);
@@ -2050,7 +2054,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
             //BX analysis
             sprintf(name,"%s/%d: ",label,iiChamber);
             //bxAnalysisOutput << name << LCTBXChamber->GetBinContent(9)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(10)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(11)/LCTBXChamber->Integral() << "  "<< LCTBXCha
-            bxAnalysisOutput << name << LCTBXChamber->GetBinContent(9) << " " << LCTBXChamber->GetBinContent(10) << " " << LCTBXChamber->GetBinContent(11) << endl;
+            bxAnalysisOutput << name << " -1: " << LCTBXChamber->GetBinContent(9) << " 0: " << LCTBXChamber->GetBinContent(10) << " 1: " << LCTBXChamber->GetBinContent(11) << " 2: " << LCTBXChamber->GetBinContent(12) << " 3: " << LCTBXChamber->GetBinContent(13) << " 4: " << LCTBXChamber->GetBinContent(14) << " 5: " << LCTBXChamber->GetBinContent(15) << " 6: " << LCTBXChamber->GetBinContent(16) << " 7: " << LCTBXChamber->GetBinContent(17) << " 8: " << LCTBXChamber->GetBinContent(18) << " 9: " << LCTBXChamber->GetBinContent(19) << " 10: " << LCTBXChamber->GetBinContent(20) << " 11: " << LCTBXChamber->GetBinContent(21) << endl;
           }
 
         }
