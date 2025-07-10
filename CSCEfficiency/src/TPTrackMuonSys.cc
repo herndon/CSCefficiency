@@ -1584,7 +1584,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
         /*LCT characteristics*/
         CSCLCTxLc[j] = -9999.;
         CSCLCTyLc[j] = -9999.;
-        CSCLCTbx[j] = -9999;
+        CSCLCTbx[j] = 0;
         N_seg_inChamber[j]=-9999;
         /*Distance from the Extrapolated Tracks to LCT, 9999. for no LCT found*/
         //        for (int jj=0;jj<2;j++)
@@ -1773,12 +1773,31 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
           CSCSegChisqProb[st] = ChiSquaredProbability( double( (*cscSegOut).chi2() ), nDOFCSC );
           /* Extract layers for hits */
           CSCnSegHits[st] = 0;
-          for (std::vector<CSCRecHit2D>::const_iterator itRH = cscSegOut->specificRecHits().begin(); itRH != cscSegOut->specificRecHits().end(); ++itRH) {
+	  //std::cout << "CSC station: " << +st << " ring " << +CSCRg[st] << " chamber " << +CSCChCand[st];
+	  //std::cout << " bunchX: " << bunchX;
+	  CSCLCTbx[st] = 0;
+	  int wireBX = -999;
+	  for (std::vector<CSCRecHit2D>::const_iterator itRH = cscSegOut->specificRecHits().begin(); itRH != cscSegOut->specificRecHits().end(); ++itRH) {
             const CSCRecHit2D* recHit = &(*itRH);
             int layer = recHit->cscDetId().layer();
             CSCnSegHits[st] |= 1 << (layer-1);
-          }
+	    if (wireBX != -999 && wireBX != recHit->wgroupsBX()) std::cout << "Non matching wire group BX" << "Rec hit layer: " << layer << " wire group BX " << recHit->wgroupsBX() << std::endl;
+	    wireBX = recHit->wgroupsBX();
 
+	    //std::cout << "Rec hit layer: " << layer << " wire group BX " << recHit->wgroupsBX();
+	  }
+          // displaced by bunchX - wireBX = 162 or -3402 or one more for me11
+          int BXoffset = 162; 
+	  if ((bunchX-wireBX) < 0) BXoffset = - 3402;
+          if ((+st) == 0 && ((+CSCRg[st])==1 || (+CSCRg[st])==4)) BXoffset = BXoffset+1;
+
+	  if ((bunchX - wireBX -  BXoffset) != 0 ) {
+	    std::cout << " Segement Wires BX: " << (bunchX - wireBX -  BXoffset)*(-1) << std::endl;
+	    if  ((bunchX - wireBX -  BXoffset)*(-1) > 0 ) CSCLCTbx[st] = CSCLCTbx[st] + 4;
+	    if  ((bunchX - wireBX -  BXoffset)*(-1) < 0 ) CSCLCTbx[st] = CSCLCTbx[st] + 8;
+	  }
+
+	    
           /* Save the difference between the ex-tracker track and the segment */
           const GeomDet* gdet=cscGeom->idToDet(id);
           LocalPoint localpCSC = gdet->surface().toLocal(TrajToSeg->freeState()->position());
@@ -2424,10 +2443,17 @@ LocalPoint * TPTrackMuonSys::matchTTwithLCTs(Float_t xPos, Float_t yPos, UChar_t
         delete interSect;
         interSect=new LocalPoint(interSect_);
         dRTrkLCT =  DeltaR_ ;
-        lctBX = (*mpcIt).getBX() - (*mpcIt).getBX0();
+        if ((*mpcIt).getBX()>0) lctBX = lctBX + 1;
+        if ((*mpcIt).getBX0()>0) lctBX = lctBX + 2;
         //if (me11a) rg=4;
         //else rg=id.ring();
-        //cout << "1: BX = " << (*mpcIt).getBX() << " BX0 = " << (*mpcIt).getBX0() << std::endl;
+	//if (bunchX % 2 != 0) {cout << "bunchX odd:" << bunchX << std::endl;}
+        if ((*mpcIt).getBX() !=0 || (*mpcIt).getBX0()  !=0  || (*mpcIt).getALCT().getFullBX()  !=0 || (*mpcIt).getCLCT().getFullBX()  !=0 ) {
+	  //std::cout << "CSC station: " << +st << " ring " << id.ring() << " chamber " << id.chamber() << std::endl;
+	  //cout << "bunchX: " << bunchX << " BX = " << (*mpcIt).getBX() << " BX0 = " << (*mpcIt).getBX0() << std::endl;
+	  //cout << "aLCT BX: " << (*mpcIt).getALCT().getBX() << " cLCT BX: " << (*mpcIt).getCLCT().getBX() << std::endl;
+	  //cout << "full aLCT BX: " << (*mpcIt).getALCT().getFullBX() << " full cLCT BX: " << (*mpcIt).getCLCT().getFullBX() << std::endl;
+	}
       } // for the matching if statement...
         //	if (me11a) strip_id+=16;
         //	else break;
