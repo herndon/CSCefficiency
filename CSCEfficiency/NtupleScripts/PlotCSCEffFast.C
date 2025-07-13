@@ -117,18 +117,24 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     }
   }
 
-  // BX analysis
+  //BX analysis
   ofstream bxAnalysisOutput;
-  bxAnalysisOutput.open("bxAnalysis.txt");
-
+  string bxAnalysisFile = plotdir + "bxAnalysis.txt";
+  if (bxAnalysis) bxAnalysisOutput.open(bxAnalysisFile.c_str());
+  
   // Efficiency Check text files
   if (verbose < 2) gErrorIgnoreLevel = kWarning;
   ofstream cscRunEffData; 
   //if (runAnalysis) cscRunEffData.open("cscRunEffData.txt");
   ofstream cscEffCheck, cscEffCheckSimple, badChambersHeader;
+  string  cscEffCheckFile = plotdir + "cscEffCheck.txt";
+  string  cscEffCheckSimpleFile = plotdir + "cscEffCheckSimple.txt";
+  string  badChambersHeaderFile = plotdir + "BadChambers_auto.h";
+
   if (effCheck){
-    cscEffCheck.open("cscEffCheck.txt");
-    cscEffCheckSimple.open("cscEffCheckSimple.txt");
+
+    cscEffCheck.open(cscEffCheckFile.c_str());
+    cscEffCheckSimple.open(cscEffCheckSimpleFile.c_str());
 
     stringstream ssEffSummary;
     if (dataset != "") ssEffSummary << dataset << ": ";
@@ -142,7 +148,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     cscEffCheck << Printout("Thresholds", ssEffSummary.str());
     cscEffCheckSimple << Printout("Thresholds", ssEffSummary.str());
 
-    badChambersHeader.open("BadChambers_auto.h");
+    badChambersHeader.open(badChambersHeaderFile.c_str());
     badChambersHeader << "#ifndef BadChambers_h" << endl;
     badChambersHeader << "#define BadChambers_h" << endl << endl;
     if (dataset != "") badChambersHeader << "// " << dataset << endl;
@@ -197,6 +203,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     c1.Print((plotdir + "zMassRun3.png").c_str());
 
 
+  
 
     if (segmentAnalysis){
       // Drawing Muon Segments
@@ -528,6 +535,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
 
     // Drawing 2D CSC Segment Efficiency
+
     TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
 
     //sprintf(title, "CSC Seg. Eff.     Run 3%s", dataInfo.c_str());
@@ -549,6 +557,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
 
     // Drawing 2D CSC LCT Efficiency
+
     TH2F * LCTEff2DStationRingChamber = (TH2F*)file0->Get("LCTEff2DStationRingChamber");
 
     //sprintf(title, "CSC LCT Eff.     Run 3%s", dataInfo.c_str());
@@ -570,6 +579,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     // Drawing 2D CSC Seg-LCT Efficiency
 
+    //TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
+
     segEff2DStationRingChamber->Add(LCTEff2DStationRingChamber,-1.0);
     segEff2DStationRingChamber->SetTitle("");
     segEff2DStationRingChamber->SetMarkerSize(0.75);
@@ -581,6 +592,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     c1.Print((plotdir + "CSCSeg-LCTEffRun3Data2DRingChamber.png").c_str());
 
 
+    
 
     // Drawing CSC Segment Efficiency vs. pT
     TH1F * segEffPTStation1CRing0 = (TH1F*)file0->Get("segEffPTStation1CRing0");
@@ -997,6 +1009,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     legendSegPV4->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME+234vsPV.png").c_str());
+
 
 
     // Drawing CSC LCT Efficiency vs. pT
@@ -1703,6 +1716,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     }
 
 
+
+
     // Drawing 2D CSC Efficiency Plots
     for (Int_t iiStation=0; iiStation<8; iiStation++){
       for (Int_t iiRing=0; iiRing<4; iiRing++){
@@ -1822,8 +1837,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
         // Check for chamber plot directory
         {
-          DIR *chdir = opendir((plotdir + GetMELabel(iiStation, iiRing)).c_str());
-          if (!chdir) mkdir((plotdir + GetMELabel(iiStation, iiRing)).c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+          DIR *chdir = opendir((plotdir + "ChamberPlots/" + GetMELabel(iiStation, iiRing)).c_str());
+          if (!chdir) mkdir((plotdir + + "ChamberPlots/" + GetMELabel(iiStation, iiRing)).c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
           else closedir(chdir);
         }
 
@@ -1917,6 +1932,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           c1.Print(file);
 
 
+
           // Old Printing to Text File
           // first run 355100
           /*
@@ -1972,6 +1988,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           LCTEffChamberLCY->Draw("PE1");
           c1.Print(file);
 	  }
+
 
           // Drawing LCT Efficiency vs. Run
           sprintf(name,"LCTEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
@@ -2045,6 +2062,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
             //bxAnalysisOutput << name << LCTBXChamber->GetBinContent(9)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(10)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(11)/LCTBXChamber->Integral() << "  "<< LCTBXCha
             bxAnalysisOutput << name << " -1: " << LCTBXChamber->GetBinContent(9) << " 0: " << LCTBXChamber->GetBinContent(10) << " 1: " << LCTBXChamber->GetBinContent(11) << " 2: " << LCTBXChamber->GetBinContent(12) << " 3: " << LCTBXChamber->GetBinContent(13) << " 4: " << LCTBXChamber->GetBinContent(14) << " 5: " << LCTBXChamber->GetBinContent(15) << " 6: " << LCTBXChamber->GetBinContent(16) << " 7: " << LCTBXChamber->GetBinContent(17) << " 8: " << LCTBXChamber->GetBinContent(18) << " 9: " << LCTBXChamber->GetBinContent(19) << " 10: " << LCTBXChamber->GetBinContent(20) << " 11: " << LCTBXChamber->GetBinContent(21) << endl;
           }
+
         }
       }
     }
