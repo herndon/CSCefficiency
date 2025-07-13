@@ -1513,7 +1513,6 @@ CSCEffFast::CSCEffFast() : fChain(0)
       for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
         if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024I0_1_241007_1/241009_145815/0000/CSCeff_Muon_2024I_1_%d.root",fileNum))){
           chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024I0_1_241007_1/241009_145815/0000/CSCeff_Muon_2024I_1_%d.root",fileNum));
-
           numberFiles++;
         }
       }
@@ -1575,7 +1574,6 @@ CSCEffFast::CSCEffFast() : fChain(0)
           numberFiles++;
         }
       }
-
 
       for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
         if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024I1_2_241202_1/241202_192337/0000/CSCeff_Muon_2024I_1_%d.root",fileNum))){
