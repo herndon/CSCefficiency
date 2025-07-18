@@ -1456,14 +1456,14 @@ void CSCEffFast::Loop()
       //if (CSCTT3yLc3>=lCWBins[numLCWBins]) lC3WBin3 = numLCWBins;
       //if (CSCTT3yLc4>=lCWBins[numLCWBins]) lC3WBin4 = numLCWBins;
       for (Int_t iiLCW=0; iiLCW< numLCWBins; iiLCW++){
-        if (CSCTTyLc1>=lCWBins[iiLCW]&&CSCTTyLc1<lCWBins[iiLCW+1]) lCWBin1 = iiLCW;
-        if (CSCTTyLc2>=lCWBins[iiLCW]&&CSCTTyLc2<lCWBins[iiLCW+1]) lCWBin2 = iiLCW;
-        if (CSCTTyLc3>=lCWBins[iiLCW]&&CSCTTyLc3<lCWBins[iiLCW+1]) lCWBin3 = iiLCW;
-        if (CSCTTyLc4>=lCWBins[iiLCW]&&CSCTTyLc4<lCWBins[iiLCW+1]) lCWBin4 = iiLCW;
-        if (CSCTT3yLc1>=lCWBins[iiLCW]&&CSCTT3yLc1<lCWBins[iiLCW+1]) lC3WBin1 = iiLCW;
-        if (CSCTT3yLc2>=lCWBins[iiLCW]&&CSCTT3yLc2<lCWBins[iiLCW+1]) lC3WBin2 = iiLCW;
-        if (CSCTT3yLc3>=lCWBins[iiLCW]&&CSCTT3yLc3<lCWBins[iiLCW+1]) lC3WBin3 = iiLCW;
-        if (CSCTT3yLc4>=lCWBins[iiLCW]&&CSCTT3yLc4<lCWBins[iiLCW+1]) lC3WBin4 = iiLCW;
+        if (CSCTTwLc1>=lCWBins[iiLCW]&&CSCTTwLc1<lCWBins[iiLCW+1]) lCWBin1 = iiLCW;
+        if (CSCTTwLc2>=lCWBins[iiLCW]&&CSCTTwLc2<lCWBins[iiLCW+1]) lCWBin2 = iiLCW;
+        if (CSCTTwLc3>=lCWBins[iiLCW]&&CSCTTwLc3<lCWBins[iiLCW+1]) lCWBin3 = iiLCW;
+        if (CSCTTwLc4>=lCWBins[iiLCW]&&CSCTTwLc4<lCWBins[iiLCW+1]) lCWBin4 = iiLCW;
+        if (CSCTT3wLc1>=lCWBins[iiLCW]&&CSCTT3wLc1<lCWBins[iiLCW+1]) lC3WBin1 = iiLCW;
+        if (CSCTT3wLc2>=lCWBins[iiLCW]&&CSCTT3wLc2<lCWBins[iiLCW+1]) lC3WBin2 = iiLCW;
+        if (CSCTT3wLc3>=lCWBins[iiLCW]&&CSCTT3wLc3<lCWBins[iiLCW+1]) lC3WBin3 = iiLCW;
+        if (CSCTT3wLc4>=lCWBins[iiLCW]&&CSCTT3wLc4<lCWBins[iiLCW+1]) lC3WBin4 = iiLCW;
       }
       //TODO: Temporary fix for LCW out-of-bounds errors.
       //Currently just changes out-of-bounds values to 0 since the histograms aren't being written at the moment.
@@ -2065,7 +2065,7 @@ void CSCEffFast::Loop()
                 if (inZMass) segNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
                 zMassSegNumStationRingChamber[7][1][CSCCh4]->Fill(invMass);
               }
-              if (CSCRg4==2) {passStationRingSeg[7][2]++;passStationRingChamberSeg[7][2][CSCCh4]++;passStationRingPtSeg[7][2][pTBin]++;passStationRingEtaSeg[7][2][etaBin4]++;passStationRingIsoSeg[7][2][isoBin]++;passStationRingPVSeg[7][2][pvBin]++;passStationRingILSeg[7][2][ilBin]++;passStationRingRunSeg[7][2][runBin]++;passStationRingChamberRunSeg[7][2][CSCCh4][runBin]++;passStationRingLCYSeg[7][2][lCYBin4]++;passStationRingLCSSeg[7][2][lCSBin4]++;passStationRingChamberLCYSeg[7][2][CSCCh1][lCYBin1]++;passStationRingChamberLCSSeg[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[7][2][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBSeg[7][2][CSCCh4][dCFEBBin4]++;passStationRingDCFEBChamberRunSeg[7][2][dCFEBBin4][CSCCh4][runBin]++;
+              if (CSCRg4==2) {passStationRingSeg[7][2]++;passStationRingChamberSeg[7][2][CSCCh4]++;passStationRingPtSeg[7][2][pTBin]++;passStationRingEtaSeg[7][2][etaBin4]++;passStationRingIsoSeg[7][2][isoBin]++;passStationRingPVSeg[7][2][pvBin]++;passStationRingILSeg[7][2][ilBin]++;passStationRingRunSeg[7][2][runBin]++;passStationRingChamberRunSeg[7][2][CSCCh4][runBin]++;passStationRingLCYSeg[7][2][lCYBin4]++;passStationRingLCSSeg[7][2][lCSBin4]++;passStationRingChamberLCYSeg[7][2][CSCCh4][lCYBin4]++;passStationRingChamberLCSSeg[7][2][CSCCh4][lCSBin4]++;passStationRingChamberLCWSeg[7][2][CSCCh4][lCWBin4]++;passStationRingChamberDCFEBSeg[7][2][CSCCh4][dCFEBBin4]++;passStationRingDCFEBChamberRunSeg[7][2][dCFEBBin4][CSCCh4][runBin]++;
                 if (inZMass) segNumStationRingChamberRun[7][2][CSCCh4]->Fill(run_number);
                 zMassSegNumStationRingChamber[7][2][CSCCh4]->Fill(invMass);
               }
@@ -2225,7 +2225,7 @@ void CSCEffFast::Loop()
               if (CSCRg2==1) {passSBStationRingLCT[1][1]++;passSBStationRingChamberLCT[1][1][CSCCh2]++;passSBStationRingPtLCT[1][1][pTBin]++;passSBStationRingEtaLCT[1][1][etaBin2]++;passSBStationRingIsoLCT[1][1][isoBin]++;passSBStationRingPVLCT[1][1][pvBin]++;passSBStationRingILLCT[1][1][ilBin]++;passSBStationRingRunLCT[1][1][runBin]++;passSBStationRingChamberRunLCT[1][1][CSCCh2][runBin]++;passSBStationRingLCYLCT[1][1][lC3YBin1]++;passSBStationRingLCSLCT[1][1][lC3SBin1]++;passSBStationRingChamberLCYLCT[1][1][CSCCh2][lCYBin2]++;passSBStationRingChamberLCSLCT[1][1][CSCCh2][lCSBin2]++;passSBStationRingChamberLCWLCT[1][1][CSCCh2][lCWBin2]++;passSBStationRingDCFEBChamberRunLCT[1][1][dCFEB3Bin2][CSCCh2][runBin]++;
                 zMassLCTNumStationRingPV[1][1][pvBin]->Fill(invMass);
               }
-              if (CSCRg2==2) {passSBStationRingLCT[1][2]++;passSBStationRingChamberLCT[1][2][CSCCh2]++;passSBStationRingPtLCT[1][2][pTBin]++;passSBStationRingEtaLCT[1][2][etaBin2]++;passSBStationRingIsoLCT[1][2][isoBin]++;passSBStationRingPVLCT[1][2][pvBin]++;passSBStationRingILLCT[1][2][ilBin]++;passSBStationRingRunLCT[1][2][runBin]++;passSBStationRingChamberRunLCT[1][2][CSCCh2][runBin]++;passSBStationRingLCYLCT[1][2][lC3YBin1]++;passSBStationRingLCSLCT[1][2][lC3SBin1]++;passSBStationRingChamberLCYLCT[1][2][CSCCh2][lCYBin2]++;passSBStationRingChamberLCSLCT[1][2][CSCCh2][lCSBin2]++;passSBStationRingChamberLCWLCT[1][2][CSCCh2][lCWBin2]++;passSBStationRingDCFEBChamberRunLCT[1][2][dCFEB3Bin2][CSCCh2][runBin]++;
+              if (CSCRg2==2) {passSBStationRingLCT[1][2]++;passSBStationRingChamberLCT[1][2][CSCCh2]++;passSBStationRingPtLCT[1][2][pTBin]++;passSBStationRingEtaLCT[1][2][etaBin2]++;passSBStationRingIsoLCT[1][2][isoBin]++;passSBStationRingPVLCT[1][2][pvBin]++;passSBStationRingILLCT[1][2][ilBin]++;passSBStationRingRunLCT[1][2][runBin]++;passSBStationRingChamberRunLCT[1][2][CSCCh2][runBin]++;passSBStationRingLCYLCT[1][2][lC3YBin2]++;passSBStationRingLCSLCT[1][2][lC3SBin2]++;passSBStationRingChamberLCYLCT[1][2][CSCCh2][lCYBin2]++;passSBStationRingChamberLCSLCT[1][2][CSCCh2][lCSBin2]++;passSBStationRingChamberLCWLCT[1][2][CSCCh2][lCWBin2]++;passSBStationRingDCFEBChamberRunLCT[1][2][dCFEB3Bin2][CSCCh2][runBin]++;
                 zMassLCTNumStationRingPV[1][2][pvBin]->Fill(invMass);
               }
             }
@@ -2487,7 +2487,7 @@ void CSCEffFast::Loop()
                 if (inZMass) segNumStationRingChamberRun[7][1][CSCCh4]->Fill(run_number);
                 zMassSegNumStationRingChamber[7][1][CSCCh4]->Fill(invMass);
               }
-              if (CSCRg4==2) {passSBStationRingSeg[7][2]++;passSBStationRingChamberSeg[7][2][CSCCh4]++;passSBStationRingPtSeg[7][2][pTBin]++;passSBStationRingEtaSeg[7][2][etaBin4]++;passSBStationRingIsoSeg[7][2][isoBin]++;passSBStationRingPVSeg[7][2][pvBin]++;passSBStationRingILSeg[7][2][ilBin]++;passSBStationRingRunSeg[7][2][runBin]++;passSBStationRingChamberRunSeg[7][2][CSCCh4][runBin]++;passSBStationRingLCYSeg[7][2][lCYBin4]++;passSBStationRingLCSSeg[7][2][lCSBin4]++;passSBStationRingChamberLCYSeg[7][2][CSCCh1][lCYBin1]++;passSBStationRingChamberLCSSeg[7][2][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWSeg[7][2][CSCCh4][lCWBin4]++;passSBStationRingDCFEBChamberRunSeg[7][2][dCFEBBin4][CSCCh4][runBin]++;
+              if (CSCRg4==2) {passSBStationRingSeg[7][2]++;passSBStationRingChamberSeg[7][2][CSCCh4]++;passSBStationRingPtSeg[7][2][pTBin]++;passSBStationRingEtaSeg[7][2][etaBin4]++;passSBStationRingIsoSeg[7][2][isoBin]++;passSBStationRingPVSeg[7][2][pvBin]++;passSBStationRingILSeg[7][2][ilBin]++;passSBStationRingRunSeg[7][2][runBin]++;passSBStationRingChamberRunSeg[7][2][CSCCh4][runBin]++;passSBStationRingLCYSeg[7][2][lCYBin4]++;passSBStationRingLCSSeg[7][2][lCSBin4]++;passSBStationRingChamberLCYSeg[7][2][CSCCh4][lCYBin4]++;passSBStationRingChamberLCSSeg[7][2][CSCCh4][lCSBin4]++;passSBStationRingChamberLCWSeg[7][2][CSCCh4][lCWBin4]++;passSBStationRingDCFEBChamberRunSeg[7][2][dCFEBBin4][CSCCh4][runBin]++;
                 if (inZMass) segNumStationRingChamberRun[7][2][CSCCh4]->Fill(run_number);
                 zMassSegNumStationRingChamber[7][2][CSCCh4]->Fill(invMass);
               }
