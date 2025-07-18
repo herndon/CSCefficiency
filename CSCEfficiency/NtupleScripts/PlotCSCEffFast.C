@@ -590,6 +590,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEff2DStationRingChamber->Draw("COLZ TEXT");
     DrawCMSLumi(dataInfo);
     c1.Print((plotdir + "CSCSeg-LCTEffRun3Data2DRingChamber.png").c_str());
+    segEff2DStationRingChamber->Add(LCTEff2DStationRingChamber);
 
 
     
