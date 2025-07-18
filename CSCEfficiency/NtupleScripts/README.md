@@ -145,7 +145,7 @@ export PATH=$NEWPATH
 change the input filename as you need.
 
 1. Use `calcLumis.py` to print out the command you need to run. This can be done using the `--norun` flag. For example, `./calcLumis.py --infile
-cscEffHistoFile.root --norun`. The command will be printed out in the last line. 
+cscEffHistoFile.root --noweb --norun`. The command will be printed out in the last line. 
 2. In a different terminal session, `ssh` to the CERN lxplus server and run the command. 
 (If it doesn't work, run the commands above to install `brilws` on that server!)
 3. Check the output `lumi.csv` file. At the end of the file, copy the number under "Total recorded". This is the luminosity we want.
