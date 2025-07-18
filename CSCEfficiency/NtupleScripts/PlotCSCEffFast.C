@@ -1514,7 +1514,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation1Ring0->SetTitle("");
       bxLCTStation1Ring0->GetXaxis()->SetTitle("BX");
       //bxLCTStation1Ring0->GetYaxis()->SetRangeUser(lowEff,highEff);
-      bxLCTStation1Ring0->GetXaxis()->SetRangeUser(-10.0,10.0);
+      //bxLCTStation1Ring0->GetXaxis()->SetRangeUser(-10.0,10.0);
       bxLCTStation1Ring0->SetLineColor(kRed);
       bxLCTStation1Ring0->SetMarkerColor(kRed);
       bxLCTStation1Ring0->SetMarkerStyle(8);
@@ -1557,7 +1557,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation5Ring0->SetTitle("");
       bxLCTStation5Ring0->GetXaxis()->SetTitle("BX");
       //bxLCTStation5Ring0->GetYaxis()->SetRangeUser(lowEff,highEff);
-      bxLCTStation5Ring0->GetXaxis()->SetRangeUser(-10.0,10.0);
+      //bxLCTStation5Ring0->GetXaxis()->SetRangeUser(-10.0,10.0);
       bxLCTStation5Ring0->SetLineColor(kRed);
       bxLCTStation5Ring0->SetMarkerColor(kRed);
       bxLCTStation5Ring0->SetMarkerStyle(8);
@@ -1607,7 +1607,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation2Ring1->GetXaxis()->SetTitle("BX");
       //bxLCTStation2Ring1->GetYaxis()->SetTitle("CSC LCT BX ");
       //bxLCTStation2Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-      bxLCTStation2Ring1->GetXaxis()->SetRangeUser(-10.0,10.0);
+      //bxLCTStation2Ring1->GetXaxis()->SetRangeUser(-10.0,10.0);
       bxLCTStation2Ring1->SetDrawOption("L");
       bxLCTStation2Ring1->SetLineColor(kRed);
       bxLCTStation2Ring1->SetMarkerColor(kRed);
@@ -1668,7 +1668,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation6Ring1->GetXaxis()->SetTitle("BX");
       //bxLCTStation6Ring1->GetYaxis()->SetTitle("CSC LCT BX ");
       //bxLCTStation6Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-      bxLCTStation6Ring1->GetXaxis()->SetRangeUser(-10.0,10.0);
+      //bxLCTStation6Ring1->GetXaxis()->SetRangeUser(-10.0,10.0);
       bxLCTStation6Ring1->SetDrawOption("G");
       bxLCTStation6Ring1->SetLineColor(kRed);
       bxLCTStation6Ring1->SetMarkerColor(kRed);
@@ -1903,7 +1903,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           segEffChamberRun->GetXaxis()->SetTickLength(0.015);
           segEffChamberRun->GetYaxis()->SetTickLength(0.015);
           segEffChamberRun->GetYaxis()->SetRangeUser(0.0,1.05);
-          segEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
+          //segEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
           segEffChamberRun->SetLineColor(kBlack);
           segEffChamberRun->SetMarkerColor(kBlack);
           segEffChamberRun->SetMarkerStyle(8);
@@ -1924,7 +1924,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           segNumChamberRun->GetYaxis()->SetTitleOffset(1.45);
           segNumChamberRun->GetXaxis()->SetTickLength(0.015);
           segNumChamberRun->GetYaxis()->SetTickLength(0.015);
-          segNumChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
+          //segNumChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
           segNumChamberRun->SetLineColor(kBlack);
           segNumChamberRun->SetMarkerColor(kBlack);
           segNumChamberRun->SetMarkerStyle(8);
@@ -2004,7 +2004,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           LCTEffChamberRun->GetXaxis()->SetTickLength(0.015);
           LCTEffChamberRun->GetYaxis()->SetTickLength(0.015);
           LCTEffChamberRun->GetYaxis()->SetRangeUser(0.0,1.05);
-          LCTEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
+          //LCTEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
           LCTEffChamberRun->SetLineColor(kBlack);
           LCTEffChamberRun->SetMarkerColor(kBlack);
           LCTEffChamberRun->SetMarkerStyle(8);
@@ -2025,7 +2025,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           LCTNumChamberRun->GetYaxis()->SetTitleOffset(1.45); 
           LCTNumChamberRun->GetXaxis()->SetTickLength(0.015); 
           LCTNumChamberRun->GetYaxis()->SetTickLength(0.015); 
-          LCTNumChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun); 
+          //LCTNumChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun); 
           LCTNumChamberRun->SetLineColor(kBlack); 
           LCTNumChamberRun->SetMarkerColor(kBlack); 
           LCTNumChamberRun->SetMarkerStyle(8); 
@@ -2049,7 +2049,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
             LCTBXChamber->GetXaxis()->SetTickLength(0.015);
             LCTBXChamber->GetYaxis()->SetTickLength(0.015);
             //LCTBXChamber->GetYaxis()->SetRangeUser(0.0,1.05);
-            LCTBXChamber->GetXaxis()->SetRangeUser(-10.5,10.5);
+            //LCTBXChamber->GetXaxis()->SetRangeUser(-10.5,10.5);
             LCTBXChamber->SetLineColor(kBlack);
             LCTBXChamber->SetMarkerColor(kBlack);
             LCTBXChamber->SetMarkerStyle(8);
