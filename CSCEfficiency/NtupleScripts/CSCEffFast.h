@@ -57,11 +57,12 @@ class CSCEffFast {
     static constexpr dataset d2025Bv1 = {391548, 392112, "2025Bv1"};
     static constexpr dataset d2025Cv1 = {392159, 393100, "2025Cv1"};
     static constexpr dataset d2025Cv2 = {393111, 393600, "2025Cv2"};
+    static constexpr dataset d2025Dv1 = {394300, 395000, "2025Dv1"};
 #if newData
     //static constexpr dataset firstSet = d2025all;
     //static constexpr dataset lastSet  = d2025all;
-    static constexpr dataset firstSet = d2025Cv1;
-    static constexpr dataset lastSet  = d2025Cv2;
+    static constexpr dataset firstSet = d2025Dv1;
+    static constexpr dataset lastSet  = d2025Dv1;
 #else
     static const Int_t firstSet = d2022all;
     static const Int_t lastSet  = d2022all;
@@ -733,7 +734,7 @@ CSCEffFast::CSCEffFast() : fChain(0)
   //std::cout << "Analyzing " << (newData? "2023 or 2024" : "2022") << " data." << std::endl;
   std::string name = "";
   std::cout << "Analyzing ";
-  if (firstSet.firstRun == firstRun && lastSet.lastRun == lastRun){
+  if (firstSet.firstRun <= firstRun && lastSet.lastRun >= lastRun){
     TString first(firstSet.id), last(lastSet.id), period = first(0,first.First('v'));
     char v1 = first[first.Length()-1], v2 = last[last.Length()-1];
     if (last.BeginsWith(period)){
@@ -921,6 +922,29 @@ CSCEffFast::CSCEffFast() : fChain(0)
       for (int fileNum=2000; fileNum<3000; fileNum++){//Muon1
         if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2025C1_2_250707_2/250707_195405/0002/CSCeff_Muon_2025C_1_%d.root",fileNum))){
           chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2025C1_2_250707_2/250707_195405/0002/CSCeff_Muon_2025C_1_%d.root",fileNum));
+          numberFiles++;
+        }
+      }
+    }
+
+    // 2025D v1
+    if (firstRun <= d2025Dv1.firstRun && lastRun >= d2025Dv1.lastRun){
+      for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2025D0_1_250729_2/250729_164823/0000/CSCeff_Muon_2025D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2025D0_1_250729_2/250729_164823/0000/CSCeff_Muon_2025D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+      }
+      for (int fileNum=1000; fileNum<1100; fileNum++){//Muon0
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2025D0_1_250729_2/250729_164823/0001/CSCeff_Muon_2025D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2025D0_1_250729_2/250729_164823/0001/CSCeff_Muon_2025D_1_%d.root",fileNum));
+          numberFiles++;
+        }
+      }
+
+      for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
+        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2025D1_1_250729_2/250729_165108/0000/CSCeff_Muon_2025D_1_%d.root",fileNum))){
+          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2025D1_1_250729_2/250729_165108/0000/CSCeff_Muon_2025D_1_%d.root",fileNum));
           numberFiles++;
         }
       }
