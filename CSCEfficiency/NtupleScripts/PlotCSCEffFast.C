@@ -587,6 +587,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(-0.2,0.3);
     segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment - LCT Efficiency ");
+    segEff2DStationRingChamber->GetZaxis()->SetLabelSize(0.025);
     segEff2DStationRingChamber->Draw("COLZ TEXT");
     DrawCMSLumi(dataInfo);
     c1.Print((plotdir + "CSCSeg-LCTEffRun3Data2DRingChamber.png").c_str());
