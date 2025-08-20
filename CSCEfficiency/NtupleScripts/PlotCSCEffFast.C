@@ -850,7 +850,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation2CRing1->SetTitle("");
     segEffPVStation2CRing1->GetYaxis()->SetTitle("CSC Segment Efficiency ");
     segEffPVStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,100.0);
+    segEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,70.0);
     segEffPVStation2CRing1->SetLineColor(kRed);
     segEffPVStation2CRing1->SetMarkerColor(kRed);
     segEffPVStation2CRing1->SetMarkerStyle(8);
@@ -1268,7 +1268,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation2CRing1->SetTitle("");
     LCTEffPVStation2CRing1->GetYaxis()->SetTitle("CSC LCT Efficiency ");
     LCTEffPVStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,100.0);
+    LCTEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,70.0);
     LCTEffPVStation2CRing1->SetLineColor(kRed);
     LCTEffPVStation2CRing1->SetMarkerColor(kRed);
     LCTEffPVStation2CRing1->SetMarkerStyle(8);
