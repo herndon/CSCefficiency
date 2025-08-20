@@ -928,24 +928,22 @@ CSCEffFast::CSCEffFast() : fChain(0)
     }
 
     // 2025D v1
-    if (firstRun <= d2025Dv1.firstRun && lastRun >= d2025Dv1.lastRun){
-      for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2025D0_1_250729_2/250729_164823/0000/CSCeff_Muon_2025D_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2025D0_1_250729_2/250729_164823/0000/CSCeff_Muon_2025D_1_%d.root",fileNum));
-          numberFiles++;
-        }
-      }
-      for (int fileNum=1000; fileNum<1100; fileNum++){//Muon0
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2025D0_1_250729_2/250729_164823/0001/CSCeff_Muon_2025D_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2025D0_1_250729_2/250729_164823/0001/CSCeff_Muon_2025D_1_%d.root",fileNum));
-          numberFiles++;
-        }
-      }
-
-      for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2025D1_1_250729_2/250729_165108/0000/CSCeff_Muon_2025D_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2025D1_1_250729_2/250729_165108/0000/CSCeff_Muon_2025D_1_%d.root",fileNum));
-          numberFiles++;
+    if (firstRun <= d2025Dv1.lastRun && d2025Dv1.firstRun <= lastRun){
+      std::cout << "Within d2025Dv1" << std::endl;
+      std::string filename0;
+      std::string filename1;
+      for (int dirNum=0; dirNum<=9; dirNum++){
+        for (int fileNum=dirNum*1000; fileNum<(dirNum+1)*1000; fileNum++){
+          filename0 = Form("/hdfs/store/user/marquez/Muon0/CSCEff2025D0v1/250819_163115/%04d/CSCEff2025D0v1_%d.root", dirNum, fileNum);
+          filename1 = Form("/hdfs/store/user/marquez/Muon1/CSCEff2025D1v1/250819_163143/%04d/CSCEff2025D1v1_%d.root", dirNum, fileNum);
+          if (!gSystem->AccessPathName(filename0.c_str())){//Muon0
+            chain->Add(filename0.c_str());
+            numberFiles++;
+          }
+          if (!gSystem->AccessPathName(filename1.c_str())){//Muon1
+            chain->Add(filename1.c_str());
+            numberFiles++;
+          }
         }
       }
     }
