@@ -929,22 +929,8 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
     // 2025D v1
     if (firstRun <= d2025Dv1.lastRun && d2025Dv1.firstRun <= lastRun){
-      std::string filename0;
-      std::string filename1;
-      for (int dirNum=0; dirNum<=9; dirNum++){
-        for (int fileNum=dirNum*1000; fileNum<(dirNum+1)*1000; fileNum++){
-          filename0 = Form("/hdfs/store/user/marquez/Muon0/CSCEff2025D0v1/250819_163115/%04d/CSCEff2025D0v1_%d.root", dirNum, fileNum);
-          filename1 = Form("/hdfs/store/user/marquez/Muon1/CSCEff2025D1v1/250819_163143/%04d/CSCEff2025D1v1_%d.root", dirNum, fileNum);
-          if (!gSystem->AccessPathName(filename0.c_str())){//Muon0
-            chain->Add(filename0.c_str());
-            numberFiles++;
-          }
-          if (!gSystem->AccessPathName(filename1.c_str())){//Muon1
-            chain->Add(filename1.c_str());
-            numberFiles++;
-          }
-        }
-      }
+      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025D0v1/250819_163115/*/*.root");
+      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025D1v1/250819_163143/*/*.root");
     }
     
     // 2024C v1
