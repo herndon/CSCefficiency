@@ -929,7 +929,6 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
     // 2025D v1
     if (firstRun <= d2025Dv1.lastRun && d2025Dv1.firstRun <= lastRun){
-      std::cout << "Within d2025Dv1" << std::endl;
       std::string filename0;
       std::string filename1;
       for (int dirNum=0; dirNum<=9; dirNum++){
