@@ -67,10 +67,15 @@ class CSCEffFast {
     static const Int_t firstSet = d2022all;
     static const Int_t lastSet  = d2022all;
 #endif
+    // These can be different from the sets' run ranges.
+    // If specified, any datasets within the run range will have
+    // their full set of files included for the script, but only
+    // those in the run range will be included in the efficiency
+    // calculation.
     static const Int_t firstRun = firstSet.firstRun;
     static const Int_t lastRun  = lastSet.lastRun;
-    TNamed *setName, *setRuns;
 
+    TNamed *setName, *setRuns;
 
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
     Int_t           fCurrent; //!current Tree number in a TChain
