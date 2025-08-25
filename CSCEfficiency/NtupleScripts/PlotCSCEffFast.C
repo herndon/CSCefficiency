@@ -37,7 +37,7 @@ string Printout(const string& title, string info, bool legend=false);
 int GetRingIndex(Int_t station, Int_t ring);
 string GetRingIdentifier(Int_t station, Int_t ring);
 
-void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
+void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
   // Initializing
   TFile * file0 = TFile::Open(filename.c_str());
   if (!file0 || file0->IsZombie()) return;
@@ -63,6 +63,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     dataInfo += (lumi != "")? " " + lumi + " fb^{-1}" : "";
     dataInfo += " (13.6 TeV)";
   }
+  if (dirname == "") dirname = (dataset != "")? dataset : "dataset";
 
   char file[100];
   char name[50];
@@ -106,16 +107,15 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   }
 
   string plotdir = "plots/";
-  plotdir += (dataset != ""? dataset : "dataset") + "/";
+  plotdir += dirname + "/";
   if (summaryPlots || chamberPlots || DCFEBAnalysis){
     DIR *tempdir = opendir("plots");
     if (!tempdir) mkdir("plots", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     else closedir(tempdir);
-    if (dataset != ""){
-      tempdir = opendir(plotdir.c_str());
-      if (!tempdir) mkdir(plotdir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-      else closedir(tempdir);
-    }
+
+    tempdir = opendir(plotdir.c_str());
+    if (!tempdir) mkdir(plotdir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    else closedir(tempdir);
   }
 
   //BX analysis
@@ -1875,27 +1875,27 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           c1.Print(file);
 
 
-	  if (processLCY) {
-          // Drawing CSC Segment Efficiency vs. Y LC
-          sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          sprintf(title,"Segment Efficiency vs Y LC for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
-          sprintf(file,(plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
+          if (processLCY) {
+            // Drawing CSC Segment Efficiency vs. Y LC
+            sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+            sprintf(title,"Segment Efficiency vs Y LC for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
+            sprintf(file,(plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
 
-          TH1F * segEffChamberLCY = (TH1F*)file0->Get(name);
-          segEffChamberLCY->SetTitle(title);
-          segEffChamberLCY->GetXaxis()->SetTitle("Y Local Coordinate");
-          segEffChamberLCY->GetYaxis()->SetTitle("CSC Segment Reconstuction Efficiency");
-          segEffChamberLCY->GetYaxis()->SetTitleOffset(1.45);
-          segEffChamberLCY->GetXaxis()->SetTickLength(0.015);
-          segEffChamberLCY->GetYaxis()->SetTickLength(0.015);
-          segEffChamberLCY->GetYaxis()->SetRangeUser(0.0,1.05);
-          segEffChamberLCY->SetLineColor(kBlack);
-          segEffChamberLCY->SetMarkerColor(kBlack);
-          segEffChamberLCY->SetMarkerStyle(8);
-          segEffChamberLCY->SetMarkerSize(0.75);
-          segEffChamberLCY->Draw("PE1");
-          c1.Print(file);
-	  }
+            TH1F * segEffChamberLCY = (TH1F*)file0->Get(name);
+            segEffChamberLCY->SetTitle(title);
+            segEffChamberLCY->GetXaxis()->SetTitle("Y Local Coordinate");
+            segEffChamberLCY->GetYaxis()->SetTitle("CSC Segment Reconstuction Efficiency");
+            segEffChamberLCY->GetYaxis()->SetTitleOffset(1.45);
+            segEffChamberLCY->GetXaxis()->SetTickLength(0.015);
+            segEffChamberLCY->GetYaxis()->SetTickLength(0.015);
+            segEffChamberLCY->GetYaxis()->SetRangeUser(0.0,1.05);
+            segEffChamberLCY->SetLineColor(kBlack);
+            segEffChamberLCY->SetMarkerColor(kBlack);
+            segEffChamberLCY->SetMarkerStyle(8);
+            segEffChamberLCY->SetMarkerSize(0.75);
+            segEffChamberLCY->Draw("PE1");
+            c1.Print(file);
+          }
 
           // Drawing CSC Segment Efficiency vs. Run
           sprintf(name,"segEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
@@ -1974,28 +1974,27 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           LCTEffChamberLCS->Draw("PE1");
           c1.Print(file);
 
-	  if (processLCY) {
+          if (processLCY) {
+            // Drawing LCT Efficiency vs. Y LC
+            sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+            sprintf(title,"LCT Efficiency vs Y LC for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
+            sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
 
-          // Drawing LCT Efficiency vs. Y LC
-          sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          sprintf(title,"LCT Efficiency vs Y LC for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
-          sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
-
-          TH1F * LCTEffChamberLCY = (TH1F*)file0->Get(name);
-          LCTEffChamberLCY->SetTitle(title);
-          LCTEffChamberLCY->GetXaxis()->SetTitle("Y Local Coordinate");
-          LCTEffChamberLCY->GetYaxis()->SetTitle("CSC LCT Reconstuction Efficiency");
-          LCTEffChamberLCY->GetYaxis()->SetTitleOffset(1.45);
-          LCTEffChamberLCY->GetXaxis()->SetTickLength(0.015);
-          LCTEffChamberLCY->GetYaxis()->SetTickLength(0.015);
-          LCTEffChamberLCY->GetYaxis()->SetRangeUser(0.0,1.05);
-          LCTEffChamberLCY->SetLineColor(kBlack);
-          LCTEffChamberLCY->SetMarkerColor(kBlack);
-          LCTEffChamberLCY->SetMarkerStyle(8);
-          LCTEffChamberLCY->SetMarkerSize(0.75);
-          LCTEffChamberLCY->Draw("PE1");
-          c1.Print(file);
-	  }
+            TH1F * LCTEffChamberLCY = (TH1F*)file0->Get(name);
+            LCTEffChamberLCY->SetTitle(title);
+            LCTEffChamberLCY->GetXaxis()->SetTitle("Y Local Coordinate");
+            LCTEffChamberLCY->GetYaxis()->SetTitle("CSC LCT Reconstuction Efficiency");
+            LCTEffChamberLCY->GetYaxis()->SetTitleOffset(1.45);
+            LCTEffChamberLCY->GetXaxis()->SetTickLength(0.015);
+            LCTEffChamberLCY->GetYaxis()->SetTickLength(0.015);
+            LCTEffChamberLCY->GetYaxis()->SetRangeUser(0.0,1.05);
+            LCTEffChamberLCY->SetLineColor(kBlack);
+            LCTEffChamberLCY->SetMarkerColor(kBlack);
+            LCTEffChamberLCY->SetMarkerStyle(8);
+            LCTEffChamberLCY->SetMarkerSize(0.75);
+            LCTEffChamberLCY->Draw("PE1");
+            c1.Print(file);
+          }
 
 
           // Drawing LCT Efficiency vs. Run
@@ -2938,17 +2937,20 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
   c1.Close();
   file0->Close();
+  if (bxAnalysis) bxAnalysisOutput.close();
 }
 
 #ifndef __CLING__
 int main(int argc, char *argv[]){
-  if (argc > 2){
+  if (argc > 3){
     cerr << "Too many arguments." << endl;
     return 1;
   }
-  string filename="cscEffHistoFile.root";
-  if (argc == 2) filename = argv[1];
-  PlotCSCEffFast(filename);
+  string filename = "cscEffHistoFile.root";
+  string dirname  = "";
+  if (argc >= 2) filename = argv[1];
+  if (argc == 3) dirname  = argv[2];
+  PlotCSCEffFast(filename, dirname);
   return 0;
 }
 #endif
