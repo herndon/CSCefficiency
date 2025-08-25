@@ -595,6 +595,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEff2DStationRingChamber->Add(LCTEff2DStationRingChamber);
 
 
+    c1.SetRightMargin(oldRightMargin);
 
 
     // Drawing CSC Segment Efficiency vs. pT
@@ -628,11 +629,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPTStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPT = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPT->AddEntry(segEffPTStation1CRing0,"ME #pm 1/1a");
-    legendSegPT->AddEntry(segEffPTStation1CRing1,"ME #pm 1/1b");
-    legendSegPT->AddEntry(segEffPTStation1CRing2,"ME #pm 1/2");
-    legendSegPT->AddEntry(segEffPTStation1CRing3,"ME #pm 1/3");
+    TLegend *legendSegPT = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPT->AddEntry(segEffPTStation1CRing0,"ME#pm1/1a");
+    legendSegPT->AddEntry(segEffPTStation1CRing1,"ME#pm1/1b");
+    legendSegPT->AddEntry(segEffPTStation1CRing2,"ME#pm1/2");
+    legendSegPT->AddEntry(segEffPTStation1CRing3,"ME#pm1/3");
     legendSegPT->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME1vsPt.png").c_str());
@@ -684,13 +685,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPTStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPT2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPT2->AddEntry(segEffPTStation2CRing1,"ME #pm 2/1");
-    legendSegPT2->AddEntry(segEffPTStation3CRing1,"ME #pm 3/1");
-    legendSegPT2->AddEntry(segEffPTStation4CRing1,"ME #pm 4/1");
-    legendSegPT2->AddEntry(segEffPTStation2CRing2,"ME #pm 2/2");
-    legendSegPT2->AddEntry(segEffPTStation3CRing2,"ME #pm 3/2");
-    legendSegPT2->AddEntry(segEffPTStation4CRing2,"ME #pm 4/2");
+    TLegend *legendSegPT2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPT2->AddEntry(segEffPTStation2CRing1,"ME#pm2/1");
+    legendSegPT2->AddEntry(segEffPTStation3CRing1,"ME#pm3/1");
+    legendSegPT2->AddEntry(segEffPTStation4CRing1,"ME#pm4/1");
+    legendSegPT2->AddEntry(segEffPTStation2CRing2,"ME#pm2/2");
+    legendSegPT2->AddEntry(segEffPTStation3CRing2,"ME#pm3/2");
+    legendSegPT2->AddEntry(segEffPTStation4CRing2,"ME#pm4/2");
     legendSegPT2->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME234vsPt.png").c_str());
@@ -728,11 +729,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffEtaStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegEta = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegEta->AddEntry(segEffEtaStation1CRing0,"ME #pm 1/1a");
-    legendSegEta->AddEntry(segEffEtaStation1CRing1,"ME #pm 1/1b");
-    legendSegEta->AddEntry(segEffEtaStation1CRing2,"ME #pm 1/2");
-    legendSegEta->AddEntry(segEffEtaStation1CRing3,"ME #pm 1/3");
+    TLegend *legendSegEta = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegEta->AddEntry(segEffEtaStation1CRing0,"ME#pm1/1a");
+    legendSegEta->AddEntry(segEffEtaStation1CRing1,"ME#pm1/1b");
+    legendSegEta->AddEntry(segEffEtaStation1CRing2,"ME#pm1/2");
+    legendSegEta->AddEntry(segEffEtaStation1CRing3,"ME#pm1/3");
     legendSegEta->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME1vsEta.png").c_str());
@@ -784,13 +785,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffEtaStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegEta2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegEta2->AddEntry(segEffEtaStation2CRing1,"ME #pm 2/1");
-    legendSegEta2->AddEntry(segEffEtaStation3CRing1,"ME #pm 3/1");
-    legendSegEta2->AddEntry(segEffEtaStation4CRing1,"ME #pm 4/1");
-    legendSegEta2->AddEntry(segEffEtaStation2CRing2,"ME #pm 2/2");
-    legendSegEta2->AddEntry(segEffEtaStation3CRing2,"ME #pm 3/2");
-    legendSegEta2->AddEntry(segEffEtaStation4CRing2,"ME #pm 4/2");
+    TLegend *legendSegEta2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegEta2->AddEntry(segEffEtaStation2CRing1,"ME#pm2/1");
+    legendSegEta2->AddEntry(segEffEtaStation3CRing1,"ME#pm3/1");
+    legendSegEta2->AddEntry(segEffEtaStation4CRing1,"ME#pm4/1");
+    legendSegEta2->AddEntry(segEffEtaStation2CRing2,"ME#pm2/2");
+    legendSegEta2->AddEntry(segEffEtaStation3CRing2,"ME#pm3/2");
+    legendSegEta2->AddEntry(segEffEtaStation4CRing2,"ME#pm4/2");
     legendSegEta2->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME234vsEta.png").c_str());
@@ -828,11 +829,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPV = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPV->AddEntry(segEffPVStation1CRing0,"ME #pm 1/1a");
-    legendSegPV->AddEntry(segEffPVStation1CRing1,"ME #pm 1/1b");
-    legendSegPV->AddEntry(segEffPVStation1CRing2,"ME #pm 1/2");
-    legendSegPV->AddEntry(segEffPVStation1CRing3,"ME #pm 1/3");
+    TLegend *legendSegPV = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPV->AddEntry(segEffPVStation1CRing0,"ME#pm1/1a");
+    legendSegPV->AddEntry(segEffPVStation1CRing1,"ME#pm1/1b");
+    legendSegPV->AddEntry(segEffPVStation1CRing2,"ME#pm1/2");
+    legendSegPV->AddEntry(segEffPVStation1CRing3,"ME#pm1/3");
     legendSegPV->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME1vsPV.png").c_str());
@@ -884,13 +885,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPV2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPV2->AddEntry(segEffPVStation2CRing1,"ME #pm 2/1");
-    legendSegPV2->AddEntry(segEffPVStation3CRing1,"ME #pm 3/1");
-    legendSegPV2->AddEntry(segEffPVStation4CRing1,"ME #pm 4/1");
-    legendSegPV2->AddEntry(segEffPVStation2CRing2,"ME #pm 2/2");
-    legendSegPV2->AddEntry(segEffPVStation3CRing2,"ME #pm 3/2");
-    legendSegPV2->AddEntry(segEffPVStation4CRing2,"ME #pm 4/2");
+    TLegend *legendSegPV2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPV2->AddEntry(segEffPVStation2CRing1,"ME#pm2/1");
+    legendSegPV2->AddEntry(segEffPVStation3CRing1,"ME#pm3/1");
+    legendSegPV2->AddEntry(segEffPVStation4CRing1,"ME#pm4/1");
+    legendSegPV2->AddEntry(segEffPVStation2CRing2,"ME#pm2/2");
+    legendSegPV2->AddEntry(segEffPVStation3CRing2,"ME#pm3/2");
+    legendSegPV2->AddEntry(segEffPVStation4CRing2,"ME#pm4/2");
     legendSegPV2->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME234vsPV.png").c_str());
@@ -943,7 +944,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation4Ring2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPV3 = new TLegend(0.88,0.7,0.98,0.9);
+    TLegend *legendSegPV3 = new TLegend(0.15,0.15,0.3,0.4);
     legendSegPV3->AddEntry(segEffPVStation2Ring1,"ME-2/1");
     legendSegPV3->AddEntry(segEffPVStation3Ring1,"ME-3/1");
     legendSegPV3->AddEntry(segEffPVStation4Ring1,"ME-4/1");
@@ -953,6 +954,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     legendSegPV3->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME-234vsPV.png").c_str());
+    c1.Print((plotdir + "CSCSegEffRun3DataME-234vsPV.pdf").c_str());
 
 
 
@@ -1002,7 +1004,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation8Ring2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPV4 = new TLegend(0.88,0.7,0.98,0.9);
+    TLegend *legendSegPV4 = new TLegend(0.15,0.15,0.3,0.4);
     legendSegPV4->AddEntry(segEffPVStation6Ring1,"ME+2/1");
     legendSegPV4->AddEntry(segEffPVStation7Ring1,"ME+3/1");
     legendSegPV4->AddEntry(segEffPVStation8Ring1,"ME+4/1");
@@ -1046,11 +1048,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPTStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPT = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPT->AddEntry(LCTEffPTStation1CRing0,"ME #pm 1/1a");
-    legendLCTPT->AddEntry(LCTEffPTStation1CRing1,"ME #pm 1/1b");
-    legendLCTPT->AddEntry(LCTEffPTStation1CRing2,"ME #pm 1/2");
-    legendLCTPT->AddEntry(LCTEffPTStation1CRing3,"ME #pm 1/3");
+    TLegend *legendLCTPT = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPT->AddEntry(LCTEffPTStation1CRing0,"ME#pm1/1a");
+    legendLCTPT->AddEntry(LCTEffPTStation1CRing1,"ME#pm1/1b");
+    legendLCTPT->AddEntry(LCTEffPTStation1CRing2,"ME#pm1/2");
+    legendLCTPT->AddEntry(LCTEffPTStation1CRing3,"ME#pm1/3");
     legendLCTPT->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPt.png").c_str());
@@ -1102,13 +1104,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPTStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPT2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPT2->AddEntry(LCTEffPTStation2CRing1,"ME #pm 2/1");
-    legendLCTPT2->AddEntry(LCTEffPTStation3CRing1,"ME #pm 3/1");
-    legendLCTPT2->AddEntry(LCTEffPTStation4CRing1,"ME #pm 4/1");
-    legendLCTPT2->AddEntry(LCTEffPTStation2CRing2,"ME #pm 2/2");
-    legendLCTPT2->AddEntry(LCTEffPTStation3CRing2,"ME #pm 3/2");
-    legendLCTPT2->AddEntry(LCTEffPTStation4CRing2,"ME #pm 4/2");
+    TLegend *legendLCTPT2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPT2->AddEntry(LCTEffPTStation2CRing1,"ME#pm2/1");
+    legendLCTPT2->AddEntry(LCTEffPTStation3CRing1,"ME#pm3/1");
+    legendLCTPT2->AddEntry(LCTEffPTStation4CRing1,"ME#pm4/1");
+    legendLCTPT2->AddEntry(LCTEffPTStation2CRing2,"ME#pm2/2");
+    legendLCTPT2->AddEntry(LCTEffPTStation3CRing2,"ME#pm3/2");
+    legendLCTPT2->AddEntry(LCTEffPTStation4CRing2,"ME#pm4/2");
     legendLCTPT2->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME234vsPt.png").c_str());
@@ -1146,11 +1148,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffEtaStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTEta = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTEta->AddEntry(LCTEffEtaStation1CRing0,"ME #pm 1/1a");
-    legendLCTEta->AddEntry(LCTEffEtaStation1CRing1,"ME #pm 1/1b");
-    legendLCTEta->AddEntry(LCTEffEtaStation1CRing2,"ME #pm 1/2");
-    legendLCTEta->AddEntry(LCTEffEtaStation1CRing3,"ME #pm 1/3");
+    TLegend *legendLCTEta = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTEta->AddEntry(LCTEffEtaStation1CRing0,"ME#pm1/1a");
+    legendLCTEta->AddEntry(LCTEffEtaStation1CRing1,"ME#pm1/1b");
+    legendLCTEta->AddEntry(LCTEffEtaStation1CRing2,"ME#pm1/2");
+    legendLCTEta->AddEntry(LCTEffEtaStation1CRing3,"ME#pm1/3");
     legendLCTEta->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME1vsEta.png").c_str());
@@ -1202,13 +1204,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffEtaStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTEta2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTEta2->AddEntry(LCTEffEtaStation2CRing1,"ME #pm 2/1");
-    legendLCTEta2->AddEntry(LCTEffEtaStation3CRing1,"ME #pm 3/1");
-    legendLCTEta2->AddEntry(LCTEffEtaStation4CRing1,"ME #pm 4/1");
-    legendLCTEta2->AddEntry(LCTEffEtaStation2CRing2,"ME #pm 2/2");
-    legendLCTEta2->AddEntry(LCTEffEtaStation3CRing2,"ME #pm 3/2");
-    legendLCTEta2->AddEntry(LCTEffEtaStation4CRing2,"ME #pm 4/2");
+    TLegend *legendLCTEta2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTEta2->AddEntry(LCTEffEtaStation2CRing1,"ME#pm2/1");
+    legendLCTEta2->AddEntry(LCTEffEtaStation3CRing1,"ME#pm3/1");
+    legendLCTEta2->AddEntry(LCTEffEtaStation4CRing1,"ME#pm4/1");
+    legendLCTEta2->AddEntry(LCTEffEtaStation2CRing2,"ME#pm2/2");
+    legendLCTEta2->AddEntry(LCTEffEtaStation3CRing2,"ME#pm3/2");
+    legendLCTEta2->AddEntry(LCTEffEtaStation4CRing2,"ME#pm4/2");
     legendLCTEta2->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME234vsEta.png").c_str());
@@ -1246,11 +1248,11 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPV = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPV->AddEntry(LCTEffPVStation1CRing0,"ME #pm 1/1a");
-    legendLCTPV->AddEntry(LCTEffPVStation1CRing1,"ME #pm 1/1b");
-    legendLCTPV->AddEntry(LCTEffPVStation1CRing2,"ME #pm 1/2");
-    legendLCTPV->AddEntry(LCTEffPVStation1CRing3,"ME #pm 1/3");
+    TLegend *legendLCTPV = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPV->AddEntry(LCTEffPVStation1CRing0,"ME#pm1/1a");
+    legendLCTPV->AddEntry(LCTEffPVStation1CRing1,"ME#pm1/1b");
+    legendLCTPV->AddEntry(LCTEffPVStation1CRing2,"ME#pm1/2");
+    legendLCTPV->AddEntry(LCTEffPVStation1CRing3,"ME#pm1/3");
     legendLCTPV->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPV.png").c_str());
@@ -1302,13 +1304,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPV2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPV2->AddEntry(LCTEffPVStation2CRing1,"ME #pm 2/1");
-    legendLCTPV2->AddEntry(LCTEffPVStation3CRing1,"ME #pm 3/1");
-    legendLCTPV2->AddEntry(LCTEffPVStation4CRing1,"ME #pm 4/1");
-    legendLCTPV2->AddEntry(LCTEffPVStation2CRing2,"ME #pm 2/2");
-    legendLCTPV2->AddEntry(LCTEffPVStation3CRing2,"ME #pm 3/2");
-    legendLCTPV2->AddEntry(LCTEffPVStation4CRing2,"ME #pm 4/2");
+    TLegend *legendLCTPV2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPV2->AddEntry(LCTEffPVStation2CRing1,"ME#pm2/1");
+    legendLCTPV2->AddEntry(LCTEffPVStation3CRing1,"ME#pm3/1");
+    legendLCTPV2->AddEntry(LCTEffPVStation4CRing1,"ME#pm4/1");
+    legendLCTPV2->AddEntry(LCTEffPVStation2CRing2,"ME#pm2/2");
+    legendLCTPV2->AddEntry(LCTEffPVStation3CRing2,"ME#pm3/2");
+    legendLCTPV2->AddEntry(LCTEffPVStation4CRing2,"ME#pm4/2");
     legendLCTPV2->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME234vsPV.png").c_str());
@@ -1361,7 +1363,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation4Ring2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPV3 = new TLegend(0.88,0.7,0.98,0.9);
+    TLegend *legendLCTPV3 = new TLegend(0.15,0.15,0.3,0.4);
     legendLCTPV3->AddEntry(LCTEffPVStation2Ring1,"ME-2/1");
     legendLCTPV3->AddEntry(LCTEffPVStation3Ring1,"ME-3/1");
     legendLCTPV3->AddEntry(LCTEffPVStation4Ring1,"ME-4/1");
@@ -1420,7 +1422,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation8Ring2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPV4 = new TLegend(0.88,0.7,0.98,0.9);
+    TLegend *legendLCTPV4 = new TLegend(0.15,0.15,0.3,0.4);
     legendLCTPV4->AddEntry(LCTEffPVStation6Ring1,"ME+2/1");
     legendLCTPV4->AddEntry(LCTEffPVStation7Ring1,"ME+3/1");
     legendLCTPV4->AddEntry(LCTEffPVStation8Ring1,"ME+4/1");
@@ -1432,6 +1434,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     c1.Print((plotdir + "CSCLCTEffRun3DataME+234vsPV.png").c_str());
 
 
+    c1.SetRightMargin(0.125);
 
 
     // Drawing Detector Efficiency Plots
@@ -1506,6 +1509,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     if (bxAnalysis){
       gPad->SetLogy(1);
 
+      if (verbose) cout << "Drawing bx analysis plots..." << endl;
+
       // Drawing CSC LCT BX (Ring)
       TH1F * bxLCTStation1Ring0 = (TH1F*)file0->Get("bxLCTStation1Ring0");
       TH1F * bxLCTStation1Ring1 = (TH1F*)file0->Get("bxLCTStation1Ring1");
@@ -1537,7 +1542,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation1Ring3->Draw("PE1 SAME");
       DrawCMSLumi(dataInfo);
 
-      TLegend *legendLCTbx1 = new TLegend(0.88,0.7,0.98,0.9);
+      TLegend *legendLCTbx1 = new TLegend(0.15,0.15,0.3,0.4);
       legendLCTbx1->AddEntry(bxLCTStation1Ring0,"ME-1/1a");
       legendLCTbx1->AddEntry(bxLCTStation1Ring1,"ME-1/1b");
       legendLCTbx1->AddEntry(bxLCTStation1Ring2,"ME-1/2");
@@ -1580,7 +1585,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation5Ring3->Draw("PE1 SAME");
       DrawCMSLumi(dataInfo);
 
-      TLegend *legendLCTbx2 = new TLegend(0.88,0.7,0.98,0.9);
+      TLegend *legendLCTbx2 = new TLegend(0.15,0.15,0.3,0.4);
       legendLCTbx2->AddEntry(bxLCTStation5Ring0,"ME+1/1a");
       legendLCTbx2->AddEntry(bxLCTStation5Ring1,"ME+1/1b");
       legendLCTbx2->AddEntry(bxLCTStation5Ring2,"ME+1/2");
@@ -1643,7 +1648,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       bxLCTStation4Ring2->Draw("PE1 SAME");
       DrawCMSLumi(dataInfo);
 
-      TLegend *legendLCTbx3 = new TLegend(0.88,0.7,0.98,0.9);
+      TLegend *legendLCTbx3 = new TLegend(0.15,0.15,0.3,0.4);
       legendLCTbx3->AddEntry(bxLCTStation2Ring1,"ME-2/1");
       legendLCTbx3->AddEntry(bxLCTStation3Ring1,"ME-3/1");
       legendLCTbx3->AddEntry(bxLCTStation4Ring1,"ME-4/1");
@@ -1705,7 +1710,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       DrawCMSLumi(dataInfo);
 
 
-      TLegend *legendLCTbx4 = new TLegend(0.88,0.7,0.98,0.9);
+      TLegend *legendLCTbx4 = new TLegend(0.15,0.15,0.3,0.4);
       legendLCTbx4->AddEntry(bxLCTStation6Ring1,"ME+2/1");
       legendLCTbx4->AddEntry(bxLCTStation7Ring1,"ME+3/1");
       legendLCTbx4->AddEntry(bxLCTStation8Ring1,"ME+4/1");
