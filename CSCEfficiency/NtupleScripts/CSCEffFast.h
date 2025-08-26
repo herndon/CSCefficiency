@@ -75,7 +75,7 @@ class CSCEffFast {
     static const Int_t firstRun = firstSet.firstRun;
     static const Int_t lastRun  = lastSet.lastRun;
 
-    TNamed *setName, *setRuns;
+    TNamed *setName, *setRuns, *setRunsTrue;
 
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
     Int_t           fCurrent; //!current Tree number in a TChain
@@ -1901,6 +1901,7 @@ CSCEffFast::~CSCEffFast()
   if (fChain) delete fChain->GetCurrentFile();
   delete setName;
   delete setRuns;
+  if (setRunsTrue) delete setRunsTrue;
 }
 
 Int_t CSCEffFast::GetEntry(Long64_t entry)

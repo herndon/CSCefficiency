@@ -64,6 +64,14 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
     dataInfo += " (13.6 TeV)";
   }
   if (dirname == "") dirname = (dataset != "")? dataset : "dataset";
+  {
+    TNamed *setRuns = (TNamed*)file0->Get("setRuns");
+    TNamed *setRunsTrue = (TNamed*)file0->Get("setRunsTrue");
+    if (setRuns != nullptr && setRunsTrue != nullptr && setRuns->GetTitle() != setRunsTrue->GetTitle()){
+      cout << "warning: Requested run range and processed run ranges differ. Consider updating CSCEffFast" << endl;
+      cout << "         " << setRuns->GetTitle() << " vs. " << setRunsTrue->GetTitle() << endl;
+    }
+  }
 
   char file[100];
   char name[50];
