@@ -82,7 +82,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
   // Flags
   int verbose = 1; // 0: None. 1: Simple printouts. 2: Simple printouts and ROOT drawing statements
   bool summaryPlots = true; // Efficiency plot per ring or for the full system
-  bool chamberPlots = true; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
+  bool chamberPlots = false; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
   //bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on (old run analysis printout)
   bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
   bool DCFEBAnalysis = true; // Run DCFEB analysis for specific run ranges
