@@ -1045,6 +1045,7 @@ void CSCEffFast::Loop()
 
 
   Long64_t nbytes = 0, nb = 0;
+  Int_t minRun = lastRun, maxRun = firstRun;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) {
@@ -1056,6 +1057,8 @@ void CSCEffFast::Loop()
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     if ((jentry % 100000) ==0) std::cout << jentry << " of " << nentries << " - Number good Candidates: " << nCands << " - Number of Zs: " << nZs << std::endl;
 
+    if (run_number < minRun) minRun = run_number;
+    else if (run_number > maxRun) maxRun = run_number;
 
     // if (Cut(ientry) < 0) continue;
     // Probe and dimuon requirements
@@ -2508,6 +2511,8 @@ void CSCEffFast::Loop()
 
 
   } // end loop over jentry
+  setRunsTrue = new TNamed("setRunsTrue", TString::Format("%i %i", minRun, maxRun).Data());
+  setRunsTrue->Write();
   Float_t binVal;
 
 

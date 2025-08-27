@@ -46,6 +46,14 @@ def main():
     firstRun = lastRun = 0
     if infile.GetListOfKeys().Contains("setRuns"):
       firstRun,lastRun = infile.Get("setRuns").GetTitle().split()
+      if infile.GetListOfKeys().Contains("setRunsTrue"):
+        minRun,maxRun = infile.Get("setRunsTrue").GetTitle().split()
+        if minRun != firstRun or maxRun != lastRun:
+          print(f'WARNING: Processed range ({minRun}-{maxRun}) does not '
+              f'match reported range ({firstRun}-{lastRun}). Consider '
+              'changing values for dataset in CSCEffFast.h')
+          firstRun = minRun
+          lastRun  = maxRun
     elif infile.GetListOfKeys().Contains("segEff2DStation1Ring1ChamberRun"):
       htemp = infile.Get("segEff2DStation1Ring1ChamberRun")
       firstRun = int(htemp.GetYaxis().GetBinLowEdge(1))
