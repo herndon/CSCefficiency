@@ -1057,9 +1057,6 @@ void CSCEffFast::Loop()
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     if ((jentry % 100000) ==0) std::cout << jentry << " of " << nentries << " - Number good Candidates: " << nCands << " - Number of Zs: " << nZs << std::endl;
 
-    if (run_number < minRun) minRun = run_number;
-    else if (run_number > maxRun) maxRun = run_number;
-
     // if (Cut(ientry) < 0) continue;
     // Probe and dimuon requirements
     //if (LowStats&&invMass>zMassMin&&invMass<zMassMax) invMass = 91.0;
@@ -1101,7 +1098,11 @@ void CSCEffFast::Loop()
 
 
 
-    if (goodTag) nCands++;
+    if (goodTag){
+      nCands++;
+      if (run_number < minRun) minRun = run_number;
+      else if (run_number > maxRun) maxRun = run_number;
+    }
 
     // Reset ring for ME11 ab cases that are mismatched due to eta problem
     if (CSCRg1==4 && CSCTTyLc1 > -999.0 && CSCTTyLc1 > -31.25) { CSCRg1=1;} //std::cout << "Resetting ring" <<std::endl;
