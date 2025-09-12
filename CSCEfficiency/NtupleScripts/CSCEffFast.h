@@ -58,7 +58,7 @@ class CSCEffFast {
     static constexpr dataset d2025Cv1 = {392175, 393087, "2025Cv1"};
     static constexpr dataset d2025Cv2 = {393111, 393516, "2025Cv2"};
     static constexpr dataset d2025Dv1 = {394637, 395899, "2025Dv1"};
-    static constexpr dataset d2025Ev1 = {395968, 396597, "2025Ev1"};
+    static constexpr dataset d2025Ev1 = {395982, 396422, "2025Ev1"};
 #if newData
     //static constexpr dataset firstSet = d2025all;
     //static constexpr dataset lastSet  = d2025all;
