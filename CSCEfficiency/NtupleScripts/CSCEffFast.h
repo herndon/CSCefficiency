@@ -943,7 +943,7 @@ CSCEffFast::CSCEffFast() : fChain(0)
     // 2025E v1
     if (firstRun <= d2025Ev1.lastRun && d2025Ev1.firstRun <= lastRun){
       numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025E0v1/250909_161359/*/*.root");
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025E0v1/250909_161425/*/*.root");
+      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025E1v1/250909_161425/*/*.root");
     }
     
     // 2024C v1
