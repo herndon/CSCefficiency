@@ -67,7 +67,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
   {
     TNamed *setRuns = (TNamed*)file0->Get("setRuns");
     TNamed *setRunsTrue = (TNamed*)file0->Get("setRunsTrue");
-    if (setRuns != nullptr && setRunsTrue != nullptr && setRuns->GetTitle() != setRunsTrue->GetTitle()){
+    if (setRuns != nullptr && setRunsTrue != nullptr && (string)setRuns->GetTitle() != (string)setRunsTrue->GetTitle()){
       cout << "warning: Requested run range and processed run ranges differ. Consider updating CSCEffFast" << endl;
       cout << "         " << setRuns->GetTitle() << " vs. " << setRunsTrue->GetTitle() << endl;
     }
@@ -2819,7 +2819,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
   }
 
   if (DCFEBAnalysis && (TH2F*)file0->Get("segEff2DStation1Ring1DCFEB1ChamberRun") != NULL){
-    if (verbose) cout << "Analyzing DCFEB plots..." << endl;
+    if (verbose) cout << "Analyzing (D)CFEB plots..." << endl;
     // Check for plots/DCFEBAnalysis directory
     {
       DIR *tempdir = opendir((plotdir + "DCFEBAnalysis").c_str());
@@ -2869,12 +2869,12 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
           hcompactSeg->GetXaxis()->SetTitleSize(0.035);
           hcompactSeg->GetYaxis()->SetTickLength(0.01);
           hcompactSeg->GetYaxis()->SetLabelSize(0.026);
-          hcompactSeg->GetYaxis()->SetTitle("Run + #DCFEB ");
+          hcompactSeg->GetYaxis()->SetTitle("Run + #(D)CFEB ");
           hcompactSeg->GetYaxis()->SetTitleFont(42);
           hcompactSeg->GetYaxis()->SetTitleSize(0.035);
           hcompactSeg->GetYaxis()->SetTitleOffset(1.5);
           hcompactSeg->GetZaxis()->SetRangeUser(0,1.0);
-          hcompactSeg->GetZaxis()->SetTitle("Segment DCFEB Efficiency ");
+          hcompactSeg->GetZaxis()->SetTitle("Segment (D)CFEB Efficiency ");
           hcompactSeg->GetZaxis()->SetTitleFont(42);
           hcompactSeg->GetZaxis()->SetTitleSize(0.035);
           hcompactSeg->GetZaxis()->SetTitleOffset(1.1);
@@ -2920,12 +2920,12 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
           hcompactLCT->GetXaxis()->SetTitleSize(0.035);
           hcompactLCT->GetYaxis()->SetTickLength(0.01);
           hcompactLCT->GetYaxis()->SetLabelSize(0.026);
-          hcompactLCT->GetYaxis()->SetTitle("Run + #DCFEB ");
+          hcompactLCT->GetYaxis()->SetTitle("Run + #(D)CFEB ");
           hcompactLCT->GetYaxis()->SetTitleFont(42);
           hcompactLCT->GetYaxis()->SetTitleSize(0.035);
           hcompactLCT->GetYaxis()->SetTitleOffset(1.5);
           hcompactLCT->GetZaxis()->SetRangeUser(0,1.0);
-          hcompactLCT->GetZaxis()->SetTitle("LCT DCFEB Efficiency ");
+          hcompactLCT->GetZaxis()->SetTitle("LCT (D)CFEB Efficiency ");
           hcompactLCT->GetZaxis()->SetTitleFont(42);
           hcompactLCT->GetZaxis()->SetTitleSize(0.035);
           hcompactLCT->GetZaxis()->SetTitleOffset(1.1);
