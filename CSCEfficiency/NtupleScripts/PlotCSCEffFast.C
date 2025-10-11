@@ -89,6 +89,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
   bool bxAnalysis = true;
   bool segmentAnalysis = false; // Segment plots for debugging
   bool processLCY = true;
+  bool highPrecision2D = false;
 
 
   // Constants
@@ -541,7 +542,9 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
 
 
     c1.SetRightMargin(0.125);
-
+    string oldPaintTextFormat = gStyle->GetPaintTextFormat();
+    if (highPrecision2D)
+      gStyle->SetPaintTextFormat("3.3f");
 
     // Drawing 2D CSC Segment Efficiency
 
@@ -549,7 +552,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
 
     //sprintf(title, "CSC Seg. Eff.     Run 3%s", dataInfo.c_str());
     segEff2DStationRingChamber->SetTitle("");
-    segEff2DStationRingChamber->SetMarkerSize(0.75);
+    segEff2DStationRingChamber->SetMarkerSize(highPrecision2D? 0.55 : 0.75);
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment Efficiency ");
@@ -571,7 +574,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
 
     //sprintf(title, "CSC LCT Eff.     Run 3%s", dataInfo.c_str());
     LCTEff2DStationRingChamber->SetTitle("");
-    LCTEff2DStationRingChamber->SetMarkerSize(0.75);
+    LCTEff2DStationRingChamber->SetMarkerSize(highPrecision2D? 0.55 : 0.75);
     LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
     LCTEff2DStationRingChamber->GetZaxis()->SetTitle("CSC LCT Efficiency ");
@@ -592,7 +595,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
 
     segEff2DStationRingChamber->Add(LCTEff2DStationRingChamber,-1.0);
     segEff2DStationRingChamber->SetTitle("");
-    segEff2DStationRingChamber->SetMarkerSize(0.75);
+    segEff2DStationRingChamber->SetMarkerSize(highPrecision2D? 0.55 : 0.75);
     segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
     segEff2DStationRingChamber->GetZaxis()->SetRangeUser(-0.2,0.3);
     segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment - LCT Efficiency ");
@@ -604,6 +607,8 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
 
 
     c1.SetRightMargin(oldRightMargin);
+    if (highPrecision2D)
+      gStyle->SetPaintTextFormat(oldPaintTextFormat.c_str());
 
 
     // Drawing CSC Segment Efficiency vs. pT
