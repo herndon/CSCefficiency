@@ -1152,37 +1152,55 @@ void CSCEffFast::Loop()
           !badChamber[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1]) break; //assumes ranges are put in sequentially. avoids unnecessary looping
     }
 
-    fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 &&
-      CSCProjDistEdge1/CSCProjDistErrEdge1 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap1>cscDyProjHVGap &&
-      CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
-      !badEntry1;
-    //new requirements, temp restrict eta range 2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15
-    //fabs(CSCTTetaGc1) > 2.04345 && fabs(CSCTTetaGc1) < 2.15 &&
-    fiducial11 =   CSCProjDistEdge1<-1.0 &&  CSCProjDistEdge1> -100 &&
-      CSCProjDistEdge1/CSCProjDistErrEdge1 < -5.0 &&
-      CSCProjDistErrEdge1 < 1.0 &&
-      CSCDyProjHVGap1>cscDyProjHVGap &&
-      CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
-      fabs(CSCTTyLc1+31.25)>2.5 &&
-      !badEntry1;
+    bool loose_fiducial = false;
+    if (!loose_fiducial){
+      fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 &&
+        CSCProjDistEdge1/CSCProjDistErrEdge1 < sigmaCSCProjDistEdge &&
+        CSCDyProjHVGap1>cscDyProjHVGap &&
+        CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
+        !badEntry1;
+      //new requirements, temp restrict eta range 2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15
+      //fabs(CSCTTetaGc1) > 2.04345 && fabs(CSCTTetaGc1) < 2.15 &&
+      fiducial11 =   CSCProjDistEdge1<-1.0 &&  CSCProjDistEdge1> -100 &&
+        CSCProjDistEdge1/CSCProjDistErrEdge1 < -5.0 &&
+        CSCProjDistErrEdge1 < 1.0 &&
+        CSCDyProjHVGap1>cscDyProjHVGap &&
+        CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
+        fabs(CSCTTyLc1+31.25)>2.5 &&
+        !badEntry1;
 
 
-    fiducial2 = CSCProjDistEdge2<cscProjDistEdge &&  CSCProjDistEdge2> -100 &&
-      CSCProjDistEdge2/CSCProjDistErrEdge2 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap2>cscDyProjHVGap &&
-      CSCDyProjHVGap2/CSCDyErrProjHVGap2>sigmaCSCDyProjHVGap &&
-      !badEntry2;
-    fiducial3 = CSCProjDistEdge3<cscProjDistEdge &&  CSCProjDistEdge3> -100 &&
-      CSCProjDistEdge2/CSCProjDistErrEdge3 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap3>cscDyProjHVGap &&
-      CSCDyProjHVGap3/CSCDyErrProjHVGap3>sigmaCSCDyProjHVGap &&
-      !badEntry3;
-    fiducial4 = CSCProjDistEdge4<cscProjDistEdge &&  CSCProjDistEdge4> -100 &&
-      CSCProjDistEdge4/CSCProjDistErrEdge4 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap4>cscDyProjHVGap &&
-      CSCDyProjHVGap4/CSCDyErrProjHVGap4>sigmaCSCDyProjHVGap &&
-      !badEntry4;
+      fiducial2 = CSCProjDistEdge2<cscProjDistEdge &&  CSCProjDistEdge2> -100 &&
+        CSCProjDistEdge2/CSCProjDistErrEdge2 < sigmaCSCProjDistEdge &&
+        CSCDyProjHVGap2>cscDyProjHVGap &&
+        CSCDyProjHVGap2/CSCDyErrProjHVGap2>sigmaCSCDyProjHVGap &&
+        !badEntry2;
+      fiducial3 = CSCProjDistEdge3<cscProjDistEdge &&  CSCProjDistEdge3> -100 &&
+        CSCProjDistEdge2/CSCProjDistErrEdge3 < sigmaCSCProjDistEdge &&
+        CSCDyProjHVGap3>cscDyProjHVGap &&
+        CSCDyProjHVGap3/CSCDyErrProjHVGap3>sigmaCSCDyProjHVGap &&
+        !badEntry3;
+      fiducial4 = CSCProjDistEdge4<cscProjDistEdge &&  CSCProjDistEdge4> -100 &&
+        CSCProjDistEdge4/CSCProjDistErrEdge4 < sigmaCSCProjDistEdge &&
+        CSCDyProjHVGap4>cscDyProjHVGap &&
+        CSCDyProjHVGap4/CSCDyErrProjHVGap4>sigmaCSCDyProjHVGap &&
+        !badEntry4;
+    }
+    else{
+      cscProjDistEdge = 10.0;
+      fiducial1 = CSCProjDistEdge1 < cscProjDistEdge && CSCProjDistEdge1 > -100
+        && !badEntry1;
+      fiducial11 = CSCProjDistEdge1 < cscProjDistEdge && CSCProjDistEdge1 > -100
+        && CSCProjDistErrEdge1 < 1.0
+        //&& fabs(CSCTTyLc1+31.25)>2.5
+        && !badEntry1;
+      fiducial2 = CSCProjDistEdge2 < cscProjDistEdge && CSCProjDistEdge2 > -100
+        && !badEntry2;
+      fiducial3 = CSCProjDistEdge3 < cscProjDistEdge && CSCProjDistEdge3 > -100
+        && !badEntry3;
+      fiducial4 = CSCProjDistEdge4 < cscProjDistEdge && CSCProjDistEdge4 > -100
+        && !badEntry4;
+    }
 
     // fiducial1 = true;
     // fiducial11 = true;
