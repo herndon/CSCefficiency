@@ -42,6 +42,7 @@ void CSCEffFast::Loop()
 
   // Define Efficiency Histogram parameters
 
+  bool loose_fiducial = false;
   bool DoubleMuGun = false;
   bool LowStats = false;
   bool noTrig = true; //false 2022, true when necessary 2023
@@ -1152,7 +1153,6 @@ void CSCEffFast::Loop()
           !badChamber[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1]) break; //assumes ranges are put in sequentially. avoids unnecessary looping
     }
 
-    bool loose_fiducial = false;
     if (!loose_fiducial){
       fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 &&
         CSCProjDistEdge1/CSCProjDistErrEdge1 < sigmaCSCProjDistEdge &&
