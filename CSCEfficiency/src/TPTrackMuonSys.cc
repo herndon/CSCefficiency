@@ -1338,7 +1338,8 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
       MuProbenHitsTrkSys  = itTrack->hitPattern().numberOfValidTrackerHits();
       MuProbenHitsPixSys  = itTrack->hitPattern().numberOfValidPixelHits();
 
-      goodTrack = ( fabs(itTrack->eta())< 2.4 && fabs(tracks_dz)< 24.0 && 
+      // Extend range to 2.5 to get edge of ME11
+      goodTrack = ( fabs(itTrack->eta())< 2.5 && fabs(tracks_dz)< 24.0 && 
           fabs(tracks_dxy)< 2.0 && tracks_chi2> 0.0 &&  tracks_chi2< 4.0 && MuProbenHitsTrkSys > 7 );
       // goodTrack = ( fabs(itTrack->eta())< 2.4 && fabs(tracks_dz)< 100.0 && 
       //		    fabs(tracks_dxy)< 10.0 && tracks_chi2> 0.0 &&  tracks_chi2< 10.0 && MuProbenHitsTrkSys > 3 );
@@ -1402,8 +1403,8 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
         tracks_isCaloMuTrk=false;
         tracks_isTrackerMuTrk=false;
       }
-
-      Bool_t trQuality = (fabs(MuTagEta) < 2.4 && fabs(tracks_eta) > 0.9 && fabs(tracks_eta) < 2.4 
+      // Extend eta cut to include edge of ME11
+      Bool_t trQuality = (fabs(MuTagEta) < 2.4 && fabs(tracks_eta) > 0.9 && fabs(tracks_eta) < 2.5 
           && tracks_etaError < 0.003 && tracks_phiError < 0.003 
           && tracks_ptError/tracks_pt < 0.05 && tracks_numberOfValidHits > 7); // cuts removed from the SkimDPG.C file and put here...
 
@@ -2989,7 +2990,8 @@ Int_t TPTrackMuonSys::ringCandidate(Int_t station, Float_t feta, Float_t phi){
       if(fabs(feta)>1.5 && fabs(feta)<2.1){//ME11
         return 1;
       }
-      if(fabs(feta)>=2.1 && fabs(feta)<2.45){//ME11
+      // Extend here also to 2.55 to get more of ME11
+      if(fabs(feta)>=2.1 && fabs(feta)<2.55){//ME11
         return 4;
       }
       break;
