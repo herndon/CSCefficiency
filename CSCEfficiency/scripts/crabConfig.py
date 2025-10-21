@@ -24,6 +24,7 @@ configParams = [
     "CRAB=1",
     "globalTag=%s" % sectionSettings["globalTag"],
     "outputFile=%s" % sectionSettings["outputFile"],
+    "numThreads=%s" % sectionSettings["numCores"],
 ]
 
 jobAttempt = 1

@@ -42,6 +42,7 @@ void CSCEffFast::Loop()
 
   // Define Efficiency Histogram parameters
 
+  bool loose_fiducial = false;
   bool DoubleMuGun = false;
   bool LowStats = false;
   bool noTrig = true; //false 2022, true when necessary 2023
@@ -1057,9 +1058,6 @@ void CSCEffFast::Loop()
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     if ((jentry % 100000) ==0) std::cout << jentry << " of " << nentries << " - Number good Candidates: " << nCands << " - Number of Zs: " << nZs << std::endl;
 
-    if (run_number < minRun) minRun = run_number;
-    else if (run_number > maxRun) maxRun = run_number;
-
     // if (Cut(ientry) < 0) continue;
     // Probe and dimuon requirements
     //if (LowStats&&invMass>zMassMin&&invMass<zMassMax) invMass = 91.0;
@@ -1101,7 +1099,11 @@ void CSCEffFast::Loop()
 
 
 
-    if (goodTag) nCands++;
+    if (goodTag){
+      nCands++;
+      if (run_number < minRun) minRun = run_number;
+      else if (run_number > maxRun) maxRun = run_number;
+    }
 
     // Reset ring for ME11 ab cases that are mismatched due to eta problem
     if (CSCRg1==4 && CSCTTyLc1 > -999.0 && CSCTTyLc1 > -31.25) { CSCRg1=1;} //std::cout << "Resetting ring" <<std::endl;
@@ -1151,37 +1153,54 @@ void CSCEffFast::Loop()
           !badChamber[iiRange][CSCEndCapPlus][4-1][ring4][CSCCh4-1]) break; //assumes ranges are put in sequentially. avoids unnecessary looping
     }
 
-    fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 &&
-      CSCProjDistEdge1/CSCProjDistErrEdge1 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap1>cscDyProjHVGap &&
-      CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
-      !badEntry1;
-    //new requirements, temp restrict eta range 2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15
-    //fabs(CSCTTetaGc1) > 2.04345 && fabs(CSCTTetaGc1) < 2.15 &&
-    fiducial11 =   CSCProjDistEdge1<-1.0 &&  CSCProjDistEdge1> -100 &&
-      CSCProjDistEdge1/CSCProjDistErrEdge1 < -5.0 &&
-      CSCProjDistErrEdge1 < 1.0 &&
-      CSCDyProjHVGap1>cscDyProjHVGap &&
-      CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
-      fabs(CSCTTyLc1+31.25)>2.5 &&
-      !badEntry1;
+    if (!loose_fiducial){
+      fiducial1 = CSCProjDistEdge1<cscProjDistEdge &&  CSCProjDistEdge1> -100 &&
+        CSCProjDistEdge1/CSCProjDistErrEdge1 < sigmaCSCProjDistEdge &&
+        CSCDyProjHVGap1>cscDyProjHVGap &&
+        CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
+        !badEntry1;
+      //new requirements, temp restrict eta range 2.04345,2.0568,2.07015,2.0835,2.09685,2.1102,2.12355,2.1369,2.15
+      //fabs(CSCTTetaGc1) > 2.04345 && fabs(CSCTTetaGc1) < 2.15 &&
+      fiducial11 =   CSCProjDistEdge1<-1.0 &&  CSCProjDistEdge1> -100 &&
+        CSCProjDistEdge1/CSCProjDistErrEdge1 < -5.0 &&
+        CSCProjDistErrEdge1 < 1.0 &&
+        CSCDyProjHVGap1>cscDyProjHVGap &&
+        CSCDyProjHVGap1/CSCDyErrProjHVGap1>sigmaCSCDyProjHVGap &&
+        fabs(CSCTTyLc1+31.25)>2.5 &&
+        !badEntry1;
 
 
-    fiducial2 = CSCProjDistEdge2<cscProjDistEdge &&  CSCProjDistEdge2> -100 &&
-      CSCProjDistEdge2/CSCProjDistErrEdge2 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap2>cscDyProjHVGap &&
-      CSCDyProjHVGap2/CSCDyErrProjHVGap2>sigmaCSCDyProjHVGap &&
-      !badEntry2;
-    fiducial3 = CSCProjDistEdge3<cscProjDistEdge &&  CSCProjDistEdge3> -100 &&
-      CSCProjDistEdge2/CSCProjDistErrEdge3 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap3>cscDyProjHVGap &&
-      CSCDyProjHVGap3/CSCDyErrProjHVGap3>sigmaCSCDyProjHVGap &&
-      !badEntry3;
-    fiducial4 = CSCProjDistEdge4<cscProjDistEdge &&  CSCProjDistEdge4> -100 &&
-      CSCProjDistEdge4/CSCProjDistErrEdge4 < sigmaCSCProjDistEdge &&
-      CSCDyProjHVGap4>cscDyProjHVGap &&
-      CSCDyProjHVGap4/CSCDyErrProjHVGap4>sigmaCSCDyProjHVGap &&
-      !badEntry4;
+      fiducial2 = CSCProjDistEdge2<cscProjDistEdge &&  CSCProjDistEdge2> -100 &&
+        CSCProjDistEdge2/CSCProjDistErrEdge2 < sigmaCSCProjDistEdge &&
+        CSCDyProjHVGap2>cscDyProjHVGap &&
+        CSCDyProjHVGap2/CSCDyErrProjHVGap2>sigmaCSCDyProjHVGap &&
+        !badEntry2;
+      fiducial3 = CSCProjDistEdge3<cscProjDistEdge &&  CSCProjDistEdge3> -100 &&
+        CSCProjDistEdge2/CSCProjDistErrEdge3 < sigmaCSCProjDistEdge &&
+        CSCDyProjHVGap3>cscDyProjHVGap &&
+        CSCDyProjHVGap3/CSCDyErrProjHVGap3>sigmaCSCDyProjHVGap &&
+        !badEntry3;
+      fiducial4 = CSCProjDistEdge4<cscProjDistEdge &&  CSCProjDistEdge4> -100 &&
+        CSCProjDistEdge4/CSCProjDistErrEdge4 < sigmaCSCProjDistEdge &&
+        CSCDyProjHVGap4>cscDyProjHVGap &&
+        CSCDyProjHVGap4/CSCDyErrProjHVGap4>sigmaCSCDyProjHVGap &&
+        !badEntry4;
+    }
+    else{
+      cscProjDistEdge = 10.0;
+      fiducial1 = CSCProjDistEdge1 < cscProjDistEdge && CSCProjDistEdge1 > -100
+        && !badEntry1;
+      fiducial11 = CSCProjDistEdge1 < cscProjDistEdge && CSCProjDistEdge1 > -100
+        && CSCProjDistErrEdge1 < 1.0
+        //&& fabs(CSCTTyLc1+31.25)>2.5
+        && !badEntry1;
+      fiducial2 = CSCProjDistEdge2 < cscProjDistEdge && CSCProjDistEdge2 > -100
+        && !badEntry2;
+      fiducial3 = CSCProjDistEdge3 < cscProjDistEdge && CSCProjDistEdge3 > -100
+        && !badEntry3;
+      fiducial4 = CSCProjDistEdge4 < cscProjDistEdge && CSCProjDistEdge4 > -100
+        && !badEntry4;
+    }
 
     // fiducial1 = true;
     // fiducial11 = true;

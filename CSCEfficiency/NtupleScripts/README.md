@@ -74,38 +74,12 @@ CSCEffFast::CSCEffFast() : fChain(0)
     // ...
 
     // make sure to enclose the list of files with the following conditional
-    //  of course, change the name of the dataset struct as needed
-    if (firstRun <= d2024Iv2.firstRun && lastRun >= d2024Iv2.lastRun){
-      // list the files. this is done one-by-one to keep an accurate count of the number of files loaded
-      //  of course, change the source directory and final filename for the ntuples as needed
-      for (int fileNum=0; fileNum<1000; fileNum++){//Muon0
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024I0_1_241007_1/241009_145815/0000/CSCeff_Muon_2024I_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024I0_1_241007_1/241009_145815/0000/CSCeff_Muon_2024I_1_%d.root",fileNum));
-          numberFiles++;
-        }
-      }
-      for (int fileNum=1000; fileNum<1300; fileNum++){//Muon0
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024I0_1_241007_1/241009_145815/0001/CSCeff_Muon_2024I_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon0/CSCEff2024I0_1_241007_1/241009_145815/0001/CSCeff_Muon_2024I_1_%d.root",fileNum));
-          numberFiles++;
-        }
-      }
-
-      for (int fileNum=0; fileNum<1000; fileNum++){//Muon1
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024I1_1_241007_1/241009_151524/0000/CSCeff_Muon_2024I_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024I1_1_241007_1/241009_151524/0000/CSCeff_Muon_2024I_1_%d.root",fileNum));
-          numberFiles++;
-        }
-      }
-      for (int fileNum=1000; fileNum<1320; fileNum++){//Muon1
-        if (!gSystem->AccessPathName(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024I1_1_241007_1/241009_151524/0001/CSCeff_Muon_2024I_1_%d.root",fileNum))){
-          chain->Add(Form("/hdfs/store/user/herndon/Muon1/CSCEff2024I1_1_241007_1/241009_151524/0001/CSCeff_Muon_2024I_1_%d.root",fileNum));
-          numberFiles++;
-        }
-      }
-
-      // ...
+    if (firstRun <= d2024Iv2.lastRun && d2025Iv2.firstRun <= lastRun){
+      // list the files. of course, change the source directory and final filename for the ntuples as needed
+      numberFiles += chain->Add("/hdfs/store/user/herndon/Muon0/CSCEff2024I0_1_241007_1/241009_145815/*/*.root"); //Muon0
+      numberFiles += chain->Add("/hdfs/store/user/herndon/Muon1/CSCEff2024I1_1_241007_1/241009_151524/*/*.root"); //Muon1
     }
+
   // ...
 }
 ```
