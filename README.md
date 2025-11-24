@@ -2,7 +2,7 @@
 
 ====================
 
-This package has been tested in `CMSSW_15_0_6`, the release needed to run the 2025 dataset. Important details about the package are as follows:
+This package has been tested in `CMSSW_15_0_15_patch4`, the release needed to run the 2025 dataset. Important details about the package are as follows:
 
 * This package is based on the tag-and-probe method using the Z pole or the J/ψ pol.
 * The efficiency obtained is the CSC detector efficiency times the efficiency that the muon is not scattered.
@@ -18,8 +18,8 @@ This package has been tested in `CMSSW_15_0_6`, the release needed to run the 20
 
 ## Installation
 ```bash
-cmsrel CMSSW_15_0_6
-cd CMSSW_15_0_6/src
+cmsrel CMSSW_15_0_15_patch4
+cd CMSSW_15_0_15_patch4/src
 cmsenv
 #git cms-init
 git clone https://github.com/herndon/CSCefficiency
