@@ -53,20 +53,16 @@ class CSCEffFast {
     static constexpr dataset d2024Iv1 = {386409, 386797, "2024Iv1"};
     static constexpr dataset d2024Iv2 = {386798, 387000, "2024Iv2"};
 
-    static constexpr dataset d2025all = {391658, 395899, "2025"};
-    static constexpr dataset d2025Bv1 = {391658, 392112, "2025Bv1"};
-    static constexpr dataset d2025Cv1 = {392175, 393087, "2025Cv1"};
-    static constexpr dataset d2025Cv2 = {393111, 393516, "2025Cv2"};
-    static constexpr dataset d2025Dv1 = {394637, 395899, "2025Dv1"};
-    static constexpr dataset d2025Ev1 = {395982, 396422, "2025Ev1"};
-    static constexpr dataset d2025Fv1 = {396725, 397596, "2025Fv1"};
-    static constexpr dataset d2025Fv2 = {397619, 397817, "2025Fv2"};
-    static constexpr dataset d2025Gv1 = {397954, 398903, "2025Gv1"};
+    static constexpr dataset d2025all = {391548, 396000, "2025"};
+    static constexpr dataset d2025Bv1 = {391548, 392112, "2025Bv1"};
+    static constexpr dataset d2025Cv1 = {392159, 393100, "2025Cv1"};
+    static constexpr dataset d2025Cv2 = {393111, 393600, "2025Cv2"};
+    static constexpr dataset d2025Dv1 = {394300, 396000, "2025Dv1"};
 #if newData
-    //static constexpr dataset firstSet = d2025all;
-    //static constexpr dataset lastSet  = d2025all;
-    static constexpr dataset firstSet = d2025Gv1;
-    static constexpr dataset lastSet  = d2025Gv1;
+    static constexpr dataset firstSet = d2025all;
+    static constexpr dataset lastSet  = d2025all;
+    //static constexpr dataset firstSet = d2025Dv1;
+    //static constexpr dataset lastSet  = d2025Dv1;
 #else
     static const Int_t firstSet = d2022all;
     static const Int_t lastSet  = d2022all;
@@ -939,32 +935,9 @@ CSCEffFast::CSCEffFast() : fChain(0)
 
     // 2025D v1
     if (firstRun <= d2025Dv1.lastRun && d2025Dv1.firstRun <= lastRun){
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025D0v1/250819_163115/*/*.root");
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025D1v1/250819_163143/*/*.root");
-    }
-
-    // 2025E v1
-    if (firstRun <= d2025Ev1.lastRun && d2025Ev1.firstRun <= lastRun){
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025E0v1/250909_161359/*/*.root");
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025E1v1/250909_161425/*/*.root");
-    }
-
-    // 2025F v1
-    if (firstRun <= d2025Fv1.lastRun && d2025Fv1.firstRun <= lastRun){
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025F0v1/251008_175444/*/*.root");
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025F1v1/251008_175506/*/*.root");
-    }
-
-    // 2025F v2
-    if (firstRun <= d2025Fv2.lastRun && d2025Fv2.firstRun <= lastRun){
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025F0v2/251013_214811/*/*.root");
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025F1v2/251013_214837/*/*.root");
-    }
-
-    // 2025G v1
-    if (firstRun <= d2025Gv1.lastRun && d2025Gv1.firstRun <= lastRun){
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025G0v1/251117_175909/*/*.root");
-      numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025G1v1/251117_175939/*/*.root");
+            numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025D0v1/250819_163115/*/*.root");
+            numberFiles += chain->Add("/hdfs/store/user/marquez/Muon1/CSCEff2025D1v1/250819_163143/*/*.root");
+	    //numberFiles += chain->Add("/hdfs/store/user/marquez/Muon0/CSCEff2025D0v1/250819_163115/0003/*.root");
     }
     
     // 2024C v1
