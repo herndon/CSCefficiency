@@ -31,7 +31,7 @@ TPTrackMuonSys::TPTrackMuonSys(const edm::ParameterSet& Conf) : theDbConditions(
 
   edm::ConsumesCollector iC = consumesCollector();
 
-  cout <<"\t\t TPTrackMuonSys::TPTrackMuonSys..."<<endl;
+  //cout <<"\t\t TPTrackMuonSys::TPTrackMuonSys..."<<endl;
 
   ///////////////////////////////
   // Various input parameters.
@@ -678,9 +678,9 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
   event.getByToken(seg_token, cscSegments); 
 
 
-  if (run_number == 356004 && event_number == 14788293) {
-    std::cout << "Bad event Segment and RecHits size "<< cscSegments->size() << " " << recHits->size() << std::endl;
-  }
+  //if (run_number == 356004 && event_number == 14788293) {
+  //  std::cout << "Bad event Segment and RecHits size "<< cscSegments->size() << " " << recHits->size() << std::endl;
+  //}
   //std::cout << "run event "<< run_number << " " << event_number << std::endl;
   // std::cout << "Segment and RecHits size "<< cscSegments->size() << " " << recHits->size() << std::endl;
 
@@ -884,6 +884,9 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
   /*-----------End getting HLT results------------*/ 
 
+  if (gTracks->size() > 1500) std::cout <<"TPTrackMuonSys::analyze: # tracks: " << gTracks->size() <<std::endl;
+
+  
   if(!gTracks.isValid() ) return;
   if(!muons.isValid() ) return;
   if (gTracks->size() > MAXNTRACKS) return;
@@ -1793,7 +1796,7 @@ TPTrackMuonSys::analyze(const edm::Event& event, const edm::EventSetup& setup){
           if ((+st) == 0 && ((+CSCRg[st])==1 || (+CSCRg[st])==4)) BXoffset = BXoffset+1;
 
 	  if ((bunchX - wireBX -  BXoffset) != 0 ) {
-	    std::cout << " Segement Wires BX: " << (bunchX - wireBX -  BXoffset)*(-1) << std::endl;
+	    //std::cout << " Segement Wires BX: " << (bunchX - wireBX -  BXoffset)*(-1) << std::endl;
 	    if  ((bunchX - wireBX -  BXoffset)*(-1) > 0 ) CSCLCTbx[st] = CSCLCTbx[st] + 4;
 	    if  ((bunchX - wireBX -  BXoffset)*(-1) < 0 ) CSCLCTbx[st] = CSCLCTbx[st] + 8;
 	  }

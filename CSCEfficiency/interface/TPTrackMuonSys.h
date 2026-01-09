@@ -141,7 +141,7 @@ using namespace std;
 using namespace edm::one;
 using namespace reco;
 
-#define MAXNTRACKS 1500
+#define MAXNTRACKS 15000
 
 //Chambers positions                   1/1,4      1/2         1/3       2/1,2    3/1,2      4/1,2
 //const Float_t MEZOdd[6]      ={615.95, 711.76, 694.16, 839.96, 924.04, 1013.5}; // 839.96

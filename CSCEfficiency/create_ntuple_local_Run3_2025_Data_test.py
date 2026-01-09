@@ -34,7 +34,7 @@ process.maxEvents = cms.untracked.PSet(
 #process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'root://cms-xrd-global.cern.ch//store/data/Run2025B/Muon0/RAW-RECO/ZMu-PromptReco-v1/000/391/668/00000/b7adfb3e-c0f3-4c04-9908-b4a5cbacad1a.root'),
+'root://cms-xrd-global.cern.ch//store/data/Run2025G/Muon0/RAW-RECO/ZMu-PromptReco-v1/000/397/962/00000/3f7dc4f8-3dd3-4419-9534-68c7872bff6f.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -180,6 +180,6 @@ process = customiseEarlyDelete(process)
 # End adding early deletion
 # Output
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string('CSCeff_Muon_202B1_1_test.root')
+    fileName = cms.string('CSCeff_Muon_2025G_1_test.root')
 #    fileName = cms.string('test.root')
 )   
