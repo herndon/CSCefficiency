@@ -11,10 +11,12 @@
 #include "TStyle.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH2Poly.h"
 #include "TLatex.h"
 #include "TFrame.h"
 #include "TCanvas.h"
 #include "TGraphErrors.h"
+#include "TGraphAsymmErrors.h"
 #include "TMarker.h"
 #include "TLine.h"
 #include "TBox.h"
@@ -23,16 +25,20 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TError.h"
+#include "Math/Vector2D.h"
 
 using namespace std;
+using ROOT::Math::Polar2DVector;
 
 const int NUM_BAD_RANGES=50;
 
-string GetMELabel(Int_t station, Int_t ring, Int_t chamber=-1);
+string GetMELabel(Int_t station, Int_t ring=-1, Int_t chamber=-1);
 void DrawCMSLumi(string lumi);
 string Printout(const string& title, string info, bool legend=false);
+int GetRingIndex(Int_t station, Int_t ring);
+string GetRingIdentifier(Int_t station, Int_t ring);
 
-void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
+void PlotCSCEffFast(string filename="cscEffHistoFile.root", string dirname=""){
   // Initializing
   TFile * file0 = TFile::Open(filename.c_str());
   if (!file0 || file0->IsZombie()) return;
@@ -43,10 +49,10 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   {
     TNamed *setName = (TNamed*)file0->Get("setName");
     if (setName != nullptr) dataset = setName->GetTitle();
-    
+
     TNamed *lumiInfo = (TNamed*)file0->Get("lumi");
     stringstream ssLumi;
-    if (lumiInfo == nullptr) cout << "Luminosity not stored in file." << endl;
+    if (lumiInfo == nullptr) cout << "warning: Luminosity not stored in file." << endl;
     else{
       ssLumi << lumiInfo->GetTitle();
       float tempLumi; ssLumi >> tempLumi;
@@ -54,9 +60,18 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       ssLumi << fixed << setprecision(1) << tempLumi;
       lumi = ssLumi.str();
     }
-    if (dataset == "" || lumi == "") dataInfo = "Run 3";
-    else dataInfo = dataset + " " + lumi + " fb^{-1}";
+    dataInfo = (dataset != "")? dataset : "Run 3";
+    dataInfo += (lumi != "")? " " + lumi + " fb^{-1}" : "";
     dataInfo += " (13.6 TeV)";
+  }
+  if (dirname == "") dirname = (dataset != "")? dataset : "dataset";
+  {
+    TNamed *setRuns = (TNamed*)file0->Get("setRuns");
+    TNamed *setRunsTrue = (TNamed*)file0->Get("setRunsTrue");
+    if (setRuns != nullptr && setRunsTrue != nullptr && setRuns->GetTitle() != setRunsTrue->GetTitle()){
+      cout << "warning: Requested run range and processed run ranges differ. Consider updating CSCEffFast" << endl;
+      cout << "         " << setRuns->GetTitle() << " vs. " << setRunsTrue->GetTitle() << endl;
+    }
   }
 
   char file[100];
@@ -68,23 +83,25 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   // Flags
   int verbose = 1; // 0: None. 1: Simple printouts. 2: Simple printouts and ROOT drawing statements
   bool summaryPlots = true; // Efficiency plot per ring or for the full system
-  bool chamberPlots = true; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
+  bool chamberPlots = false; // Plots of run, LCT, LCY efficiency per chamber.  Plot printing time is lengthy
   //bool runAnalysis = false; // Run Analysis per chamber wont get done unless chamber plots are on (old run analysis printout)
   bool effCheck = true; // Run efficiency check analysis, right now only an analysis of DCFEBs
   bool DCFEBAnalysis = true; // Run DCFEB analysis for specific run ranges
+  bool bxAnalysis = true;
   bool segmentAnalysis = false; // Segment plots for debugging
+  bool processLCY = true;
+
 
   // Constants
-  float deadDCFEBThreshold = 0.10; // Efficiency threshold for dead (D)CFEBs.
+  float deadDCFEBThreshold = 0.20; // Efficiency threshold for dead (D)CFEBs.
   float effThreshold = 0.50; // Efficiency threshold for old file readouts.
   float maxRemovalThreshold = 0.20; // Efficiency threshold for maximal removal of low efficiency DCFEBs
   float runDepEffThreshold = 0.20; // Efficiency threshold for run-dependent chamber failures
   float lowEffChamberThreshold = 0.90; // Efficiency threshold for low efficiency chamber printouts
   float DCFEBRanges[5][2] = { {-2.0,18.0}, {14.0,34.0}, {30.0,50.0}, {46.0,66.0},{62.0,82.0}};
-  double lowEff = 0.90;
+  double lowEff = 0.8;
   double highEff = 1.02;
-  double lowEff2D = 0.8;
-  
+
   Int_t numRunBins, firstRun, lastRun;
   {
     TH2F *htemp = (TH2F*)file0->Get("segEff2DStation1Ring1ChamberRun");
@@ -99,51 +116,55 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   }
 
   string plotdir = "plots/";
-  plotdir += (dataset != ""? dataset : "dataset") + "/";
+  plotdir += dirname + "/";
   if (summaryPlots || chamberPlots || DCFEBAnalysis){
     DIR *tempdir = opendir("plots");
     if (!tempdir) mkdir("plots", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     else closedir(tempdir);
-    if (dataset != ""){
-      tempdir = opendir(plotdir.c_str());
-      if (!tempdir) mkdir(plotdir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-      else closedir(tempdir);
-    }
+
+    tempdir = opendir(plotdir.c_str());
+    if (!tempdir) mkdir(plotdir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    else closedir(tempdir);
   }
 
-  // BX analysis
-  ofstream bxAnalysis;
-  bxAnalysis.open("bxAnalysis.txt");
+  //BX analysis
+  ofstream bxAnalysisOutput;
+  string bxAnalysisFile = plotdir + "bxAnalysis.txt";
+  if (bxAnalysis) bxAnalysisOutput.open(bxAnalysisFile.c_str());
 
-  
   // Efficiency Check text files
   if (verbose < 2) gErrorIgnoreLevel = kWarning;
-  ofstream cscRunEffData; 
+  ofstream cscRunEffData;
   //if (runAnalysis) cscRunEffData.open("cscRunEffData.txt");
   ofstream cscEffCheck, cscEffCheckSimple, badChambersHeader;
+  string  cscEffCheckFile = plotdir + "cscEffCheck.txt";
+  string  cscEffCheckSimpleFile = plotdir + "cscEffCheckSimple.txt";
+  string  badChambersHeaderFile = plotdir + "BadChambers_auto.h";
+
   if (effCheck){
-    cscEffCheck.open("cscEffCheck.txt");
-    cscEffCheckSimple.open("cscEffCheckSimple.txt");
-    
+
+    cscEffCheck.open(cscEffCheckFile.c_str());
+    cscEffCheckSimple.open(cscEffCheckSimpleFile.c_str());
+
     stringstream ssEffSummary;
     if (dataset != "") ssEffSummary << dataset << ": ";
     ssEffSummary << firstRun << "-" << lastRun << endl;
     ssEffSummary << "Dead DCFEB: " << int(deadDCFEBThreshold*100) << "%" << endl;
     ssEffSummary << "Efficiency Threshold: " << int(maxRemovalThreshold*100) << "%" << endl;
-    ssEffSummary << "Low Efficiency Chamber Range: " << int(maxRemovalThreshold*100) 
-      << "% < eff < " << int(lowEffChamberThreshold*100) << "%" << endl; 
+    ssEffSummary << "Low Efficiency Chamber Range: " << int(maxRemovalThreshold*100)
+      << "% < eff < " << int(lowEffChamberThreshold*100) << "%" << endl;
     if (runDepEffThreshold != maxRemovalThreshold)
       ssEffSummary << " Run-Dependent Efficiency Threshold: " << int(runDepEffThreshold*100) << "%" << endl;
     cscEffCheck << Printout("Thresholds", ssEffSummary.str());
     cscEffCheckSimple << Printout("Thresholds", ssEffSummary.str());
 
-    badChambersHeader.open("BadChambers_auto.h");
+    badChambersHeader.open(badChambersHeaderFile.c_str());
     badChambersHeader << "#ifndef BadChambers_h" << endl;
     badChambersHeader << "#define BadChambers_h" << endl << endl;
     if (dataset != "") badChambersHeader << "// " << dataset << endl;
-    badChambersHeader << "void SetBadChambers(Bool_t badChamber[" << NUM_BAD_RANGES 
-      << "][2][4][4][36], Int_t badChamberRun[" << NUM_BAD_RANGES 
-      << "][2][4][4][36][2], Float_t badChamberLCS[" << NUM_BAD_RANGES 
+    badChambersHeader << "void SetBadChambers(Bool_t badChamber[" << NUM_BAD_RANGES
+      << "][2][4][4][36], Int_t badChamberRun[" << NUM_BAD_RANGES
+      << "][2][4][4][36][2], Float_t badChamberLCS[" << NUM_BAD_RANGES
       << "][2][4][4][36][2]){" << endl;
     badChambersHeader << "    // endcap 0- 1+, station 0-3 = 1-4, ring 0-3 0 is me11a, chamber 0-35 = 1-36" << endl;
     if (dataset != "") badChambersHeader << "    // " << dataset << endl;
@@ -182,7 +203,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       if (!tempdir) mkdir((plotdir + "Run").c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
       else closedir(tempdir);
     }
-    
+
     if (verbose) cout << "Drawing summary plots..." << endl;
 
     // Z Mass
@@ -191,6 +212,18 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     zMassAll->Draw();
     c1.Print((plotdir + "zMassRun3.png").c_str());
 
+    // Z Mass
+
+    TH1F * nPVAll = (TH1F*)file0->Get("nPVAll");
+    nPVAll->GetXaxis()->SetRangeUser(0.0,240.0);
+    nPVAll->GetXaxis()->SetRangeUser(0.0,240.0);
+    c1.SetLogy(1);
+
+    nPVAll->Draw();
+    c1.Print((plotdir + "nPVRun3.png").c_str());
+    c1.SetLogy(0);
+
+    //    gPad->SetLinx(1);
 
 
     if (segmentAnalysis){
@@ -381,7 +414,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
       segmentsNoME21->Draw();
       c1.Print((plotdir + "segmentsNoME21.png").c_str());
 
-      segmentsWithME21->Scale(factor/segmentsWithME21->GetEntries());
+     segmentsWithME21->Scale(factor/segmentsWithME21->GetEntries());
       segmentsNoME21->Scale(factor/segmentsNoME21->GetEntries());
       segmentsWithME21->SetTitle("Number of CSC Segments w vs w/0 ME21 cases");
       segmentsWithME21->Draw();
@@ -392,7 +425,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
 
     // Setting New Stat Block
-    gStyle->SetOptStat(0);  
+    gStyle->SetOptStat(0);
 
     // Efficiency vs. CSCs
     gPad->SetTicks();
@@ -425,7 +458,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     }
     c1.Print((plotdir + "segEffCSCs.png").c_str());
     c1.Print((plotdir + "segEffCSCs.pdf").c_str());
-    
+
     TH1F * LCTEffCSCs = (TH1F*)file0->Get("LCTEffCSCs");
     LCTEffCSCs->SetTitle("");
     LCTEffCSCs->GetXaxis()->SetRangeUser(70.0, 102.0);
@@ -456,6 +489,71 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     c1.Print((plotdir + "LCTEffCSCs.png").c_str());
     c1.Print((plotdir + "LCTEffCSCs.pdf").c_str());
 
+
+    // Efficiency vs. ME11 CSCs
+    gPad->SetTicks();
+    TH1F * segEffME11CSCs = (TH1F*)file0->Get("segEffME11CSCs");
+    segEffME11CSCs->SetTitle("");
+    segEffME11CSCs->GetXaxis()->SetRangeUser(70.0, 102.0);
+    segEffME11CSCs->GetXaxis()->SetTitle("ME11 Segment Efficiency (%)");
+    segEffME11CSCs->GetYaxis()->SetTitle("Number of CSCs ");
+    segEffME11CSCs->GetYaxis()->SetTickSize(0.02);
+    segEffME11CSCs->Draw("hist");
+    DrawCMSLumi(dataInfo);
+    {
+      float leftMargin = gPad->GetLeftMargin(), topMargin = gPad->GetTopMargin();
+      TLatex textStats;
+      textStats.SetTextSize(0.03);
+      textStats.SetTextAlign(kHAlignLeft+kVAlignBottom);
+      textStats.DrawLatexNDC(leftMargin+0.1, 1-1.3*topMargin-0.1,  "Entries:");
+      textStats.DrawLatexNDC(leftMargin+0.1, 1-1.3*topMargin-0.15, "Mean:");
+      textStats.DrawLatexNDC(leftMargin+0.1, 1-1.3*topMargin-0.2,  "RMS:");
+      textStats.DrawLatexNDC(leftMargin+0.1, 1-1.3*topMargin-0.25, "Underflow:");
+      textStats.SetTextAlign(kHAlignRight+kVAlignBottom);
+      textStats.DrawLatexNDC(leftMargin+0.3, 1-1.3*topMargin-0.1,
+          TString::Format("%.0f", segEffME11CSCs->GetEntries()));
+      textStats.DrawLatexNDC(leftMargin+0.3, 1-1.3*topMargin-0.15,
+          TString::Format("%.1f", segEffME11CSCs->GetMean()));
+      textStats.DrawLatexNDC(leftMargin+0.3, 1-1.3*topMargin-0.2,
+          TString::Format("%.1f", segEffME11CSCs->GetRMS()));
+      textStats.DrawLatexNDC(leftMargin+0.3, 1-1.3*topMargin-0.25,
+          TString::Format("%.0f", segEffME11CSCs->GetBinContent(0)));
+    }
+    c1.Print((plotdir + "segEffME11CSCs.png").c_str());
+    c1.Print((plotdir + "segEffME11CSCs.pdf").c_str());
+
+    TH1F * LCTEffME11CSCs = (TH1F*)file0->Get("LCTEffME11CSCs");
+    LCTEffME11CSCs->SetTitle("");
+    LCTEffME11CSCs->GetXaxis()->SetRangeUser(70.0, 102.0);
+    LCTEffME11CSCs->GetXaxis()->SetTitle("ME11 LCT Efficiency (%)");
+    LCTEffME11CSCs->GetYaxis()->SetTitle("Number of CSCs ");
+    LCTEffME11CSCs->GetYaxis()->SetTickSize(0.02);
+    LCTEffME11CSCs->Draw("hist");
+    DrawCMSLumi(dataInfo);
+    {
+      float leftMargin = gPad->GetLeftMargin(), topMargin = gPad->GetTopMargin();
+      TLatex textStats;
+      textStats.SetTextSize(0.03);
+      textStats.SetTextAlign(kHAlignLeft+kVAlignBottom);
+      textStats.DrawLatexNDC(leftMargin+0.1, 1-1.3*topMargin-0.1,  "Entries:");
+      textStats.DrawLatexNDC(leftMargin+0.1, 1-1.3*topMargin-0.15, "Mean:");
+      textStats.DrawLatexNDC(leftMargin+0.1, 1-1.3*topMargin-0.2,  "RMS:");
+      textStats.DrawLatexNDC(leftMargin+0.1, 1-1.3*topMargin-0.25, "Underflow:");
+      textStats.SetTextAlign(kHAlignRight+kVAlignBottom);
+      textStats.DrawLatexNDC(leftMargin+0.3, 1-1.3*topMargin-0.1,
+          TString::Format("%.0f", LCTEffME11CSCs->GetEntries()));
+      textStats.DrawLatexNDC(leftMargin+0.3, 1-1.3*topMargin-0.15,
+          TString::Format("%.1f", LCTEffME11CSCs->GetMean()));
+      textStats.DrawLatexNDC(leftMargin+0.3, 1-1.3*topMargin-0.2,
+          TString::Format("%.1f", LCTEffME11CSCs->GetRMS()));
+      textStats.DrawLatexNDC(leftMargin+0.3, 1-1.3*topMargin-0.25,
+          TString::Format("%.0f", LCTEffME11CSCs->GetBinContent(0)));
+    }
+    c1.Print((plotdir + "LCTEffME11CSCs.png").c_str());
+    c1.Print((plotdir + "LCTEffME11CSCs.pdf").c_str());
+
+
+    
     // Efficiency vs. DCFEBs
     TH1F * segEffDCFEBs = (TH1F*)file0->Get("segEffDCFEBs");
     segEffDCFEBs->SetTitle("");
@@ -486,7 +584,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     }
     c1.Print((plotdir + "segEffDCFEBs.png").c_str());
     c1.Print((plotdir + "segEffDCFEBs.pdf").c_str());
-    
+
     TH1F * LCTEffDCFEBs = (TH1F*)file0->Get("LCTEffDCFEBs");
     LCTEffDCFEBs->SetTitle("");
     LCTEffDCFEBs->GetXaxis()->SetRangeUser(70.0, 102.0);
@@ -521,6 +619,70 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
     c1.SetRightMargin(0.125);
 
+
+    // Drawing 2D CSC Segment Efficiency
+
+    TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
+
+    //sprintf(title, "CSC Seg. Eff.     Run 3%s", dataInfo.c_str());
+    segEff2DStationRingChamber->SetTitle("");
+    segEff2DStationRingChamber->SetMarkerSize(0.75);
+    segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
+    segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
+    segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment Efficiency ");
+    segEff2DStationRingChamber->Draw("COLZ TEXT");
+    DrawCMSLumi(dataInfo);
+    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.png").c_str());
+    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.pdf").c_str());
+
+
+    segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.5,1.005);
+    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber50-100.png").c_str());
+    segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.8,1.005);
+    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber80-100.png").c_str());
+
+
+    // Drawing 2D CSC LCT Efficiency
+
+    TH2F * LCTEff2DStationRingChamber = (TH2F*)file0->Get("LCTEff2DStationRingChamber");
+
+    //sprintf(title, "CSC LCT Eff.     Run 3%s", dataInfo.c_str());
+    LCTEff2DStationRingChamber->SetTitle("");
+    LCTEff2DStationRingChamber->SetMarkerSize(0.75);
+    LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
+    LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
+    LCTEff2DStationRingChamber->GetZaxis()->SetTitle("CSC LCT Efficiency ");
+    LCTEff2DStationRingChamber->Draw("COLZ TEXT");
+    DrawCMSLumi(dataInfo);
+    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.png").c_str());
+    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.pdf").c_str());
+
+    LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.5,1.005);
+    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber50-100.png").c_str());
+    LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.8,1.005);
+    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber80-100.png").c_str());
+
+
+    // Drawing 2D CSC Seg-LCT Efficiency
+
+    //TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
+
+    segEff2DStationRingChamber->Add(LCTEff2DStationRingChamber,-1.0);
+    segEff2DStationRingChamber->SetTitle("");
+    segEff2DStationRingChamber->SetMarkerSize(0.75);
+    segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
+    segEff2DStationRingChamber->GetZaxis()->SetRangeUser(-0.2,0.3);
+    segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment - LCT Efficiency ");
+    segEff2DStationRingChamber->GetZaxis()->SetLabelSize(0.025);
+    segEff2DStationRingChamber->Draw("COLZ TEXT");
+    DrawCMSLumi(dataInfo);
+    c1.Print((plotdir + "CSCSeg-LCTEffRun3Data2DRingChamber.png").c_str());
+    segEff2DStationRingChamber->Add(LCTEff2DStationRingChamber);
+
+
+    c1.SetRightMargin(oldRightMargin);
+
+
     // Drawing CSC Segment Efficiency vs. pT
     TH1F * segEffPTStation1CRing0 = (TH1F*)file0->Get("segEffPTStation1CRing0");
     TH1F * segEffPTStation1CRing1 = (TH1F*)file0->Get("segEffPTStation1CRing1");
@@ -552,14 +714,14 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPTStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPT = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPT->AddEntry(segEffPTStation1CRing0,"ME11a");
-    legendSegPT->AddEntry(segEffPTStation1CRing1,"ME11b");
-    legendSegPT->AddEntry(segEffPTStation1CRing2,"ME12");
-    legendSegPT->AddEntry(segEffPTStation1CRing3,"ME13");
+    TLegend *legendSegPT = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPT->AddEntry(segEffPTStation1CRing0,"ME1/1a");
+    legendSegPT->AddEntry(segEffPTStation1CRing1,"ME1/1b");
+    legendSegPT->AddEntry(segEffPTStation1CRing2,"ME1/2");
+    legendSegPT->AddEntry(segEffPTStation1CRing3,"ME1/3");
     legendSegPT->Draw();
 
-    c1.Print((plotdir + "CSCSegEffRun3DataME1vsPt.png").c_str());  
+    c1.Print((plotdir + "CSCSegEffRun3DataME1vsPt.png").c_str());
 
 
 
@@ -608,13 +770,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPTStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPT2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPT2->AddEntry(segEffPTStation2CRing1,"ME21");
-    legendSegPT2->AddEntry(segEffPTStation3CRing1,"ME31");
-    legendSegPT2->AddEntry(segEffPTStation4CRing1,"ME41");
-    legendSegPT2->AddEntry(segEffPTStation2CRing2,"ME22");
-    legendSegPT2->AddEntry(segEffPTStation3CRing2,"ME32");
-    legendSegPT2->AddEntry(segEffPTStation4CRing2,"ME42");
+    TLegend *legendSegPT2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPT2->AddEntry(segEffPTStation2CRing1,"ME2/1");
+    legendSegPT2->AddEntry(segEffPTStation3CRing1,"ME3/1");
+    legendSegPT2->AddEntry(segEffPTStation4CRing1,"ME4/1");
+    legendSegPT2->AddEntry(segEffPTStation2CRing2,"ME2/2");
+    legendSegPT2->AddEntry(segEffPTStation3CRing2,"ME3/2");
+    legendSegPT2->AddEntry(segEffPTStation4CRing2,"ME4/2");
     legendSegPT2->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME234vsPt.png").c_str());
@@ -652,14 +814,14 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffEtaStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegEta = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegEta->AddEntry(segEffEtaStation1CRing0,"ME11a");
-    legendSegEta->AddEntry(segEffEtaStation1CRing1,"ME11b");
-    legendSegEta->AddEntry(segEffEtaStation1CRing2,"ME12");
-    legendSegEta->AddEntry(segEffEtaStation1CRing3,"ME13");
+    TLegend *legendSegEta = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegEta->AddEntry(segEffEtaStation1CRing0,"ME1/1a");
+    legendSegEta->AddEntry(segEffEtaStation1CRing1,"ME1/1b");
+    legendSegEta->AddEntry(segEffEtaStation1CRing2,"ME1/2");
+    legendSegEta->AddEntry(segEffEtaStation1CRing3,"ME1/3");
     legendSegEta->Draw();
 
-    c1.Print((plotdir + "CSCSegEffRun3DataME1vsEta.png").c_str());  
+    c1.Print((plotdir + "CSCSegEffRun3DataME1vsEta.png").c_str());
 
 
 
@@ -708,13 +870,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffEtaStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegEta2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegEta2->AddEntry(segEffEtaStation2CRing1,"ME21");
-    legendSegEta2->AddEntry(segEffEtaStation3CRing1,"ME31");
-    legendSegEta2->AddEntry(segEffEtaStation4CRing1,"ME41");
-    legendSegEta2->AddEntry(segEffEtaStation2CRing2,"ME22");
-    legendSegEta2->AddEntry(segEffEtaStation3CRing2,"ME32");
-    legendSegEta2->AddEntry(segEffEtaStation4CRing2,"ME42");
+    TLegend *legendSegEta2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegEta2->AddEntry(segEffEtaStation2CRing1,"ME2/1");
+    legendSegEta2->AddEntry(segEffEtaStation3CRing1,"ME3/1");
+    legendSegEta2->AddEntry(segEffEtaStation4CRing1,"ME4/1");
+    legendSegEta2->AddEntry(segEffEtaStation2CRing2,"ME2/2");
+    legendSegEta2->AddEntry(segEffEtaStation3CRing2,"ME3/2");
+    legendSegEta2->AddEntry(segEffEtaStation4CRing2,"ME4/2");
     legendSegEta2->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME234vsEta.png").c_str());
@@ -731,17 +893,23 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation1CRing0->SetTitle("");
     segEffPVStation1CRing0->GetYaxis()->SetTitle("CSC Segment Efficiency ");
     segEffPVStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,100.0);
+    segEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,240.0);
     segEffPVStation1CRing0->SetLineColor(kRed);
     segEffPVStation1CRing0->SetMarkerColor(kRed);
     segEffPVStation1CRing0->SetMarkerStyle(8);
     segEffPVStation1CRing0->SetMarkerSize(0.75);
     segEffPVStation1CRing0->Draw("PE1");
+    //segEffPVStation1CRing0->Fit("pol1");
+    segEffPVStation1CRing0->Fit("pol1","","",0.01,240.0);
+    segEffPVStation1CRing0->GetFunction("pol1")->SetLineColor(kRed);
     segEffPVStation1CRing1->SetLineColor(kOrange-3);
     segEffPVStation1CRing1->SetMarkerColor(kOrange-3);
     segEffPVStation1CRing1->SetMarkerStyle(8);
     segEffPVStation1CRing1->SetMarkerSize(0.75);
     segEffPVStation1CRing1->Draw("PE1 SAME");
+    segEffPVStation1CRing1->Fit("pol1");
+    //segEffPVStation1CRing1->Fit("pol1","","",40.0,240.0);
+    segEffPVStation1CRing1->GetFunction("pol1")->SetLineColor(kOrange-3);
     segEffPVStation1CRing2->SetLineColor(kBlue);
     segEffPVStation1CRing2->SetMarkerColor(kBlue);
     segEffPVStation1CRing2->SetMarkerStyle(8);
@@ -752,16 +920,75 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPV = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPV->AddEntry(segEffPVStation1CRing0,"ME11a");
-    legendSegPV->AddEntry(segEffPVStation1CRing1,"ME11b");
-    legendSegPV->AddEntry(segEffPVStation1CRing2,"ME12");
-    legendSegPV->AddEntry(segEffPVStation1CRing3,"ME13");
+    TLegend *legendSegPV = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPV->AddEntry(segEffPVStation1CRing0,"ME1/1a");
+    legendSegPV->AddEntry(segEffPVStation1CRing1,"ME1/1b");
+    legendSegPV->AddEntry(segEffPVStation1CRing2,"ME1/2");
+    legendSegPV->AddEntry(segEffPVStation1CRing3,"ME1/3");
     legendSegPV->Draw();
 
-    c1.Print((plotdir + "CSCSegEffRun3DataME1vsPV.png").c_str());  
+    c1.Print((plotdir + "CSCSegEffRun3DataME1vsPV.png").c_str());
 
 
+    // Drawing CSC Segment Efficiency vs. PV (CRing) Assym errors
+    TGraphAsymmErrors * segEffPVStation1CRing0Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation1CRing0Graph");
+    TGraphAsymmErrors * segEffPVStation1CRing1Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation1CRing1Graph");
+    TGraphAsymmErrors * segEffPVStation1CRing2Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation1CRing2Graph");
+    TGraphAsymmErrors * segEffPVStation1CRing3Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation1CRing3Graph");
+
+    //segEffPVStation1CRing0Graph->SetTitle("     CSC Segment Efficiency vs PV         Run 3 Data");
+    segEffPVStation1CRing0Graph->SetTitle("");
+    segEffPVStation1CRing0Graph->GetYaxis()->SetTitle("CSC Segment Efficiency ");
+    segEffPVStation1CRing0Graph->GetYaxis()->SetRangeUser(lowEff,highEff);
+    segEffPVStation1CRing0Graph->GetXaxis()->SetRangeUser(0.0,240.0);
+    segEffPVStation1CRing0Graph->SetLineColor(kRed);
+    segEffPVStation1CRing0Graph->SetMarkerColor(kRed);
+    segEffPVStation1CRing0Graph->SetMarkerStyle(8);
+    segEffPVStation1CRing0Graph->SetMarkerSize(0.75);
+    segEffPVStation1CRing0Graph->Draw("ap");
+    //segEffPVStation1CRing0Graph->Fit("pol1");
+    segEffPVStation1CRing0Graph->Fit("pol1","","",0.00,240.0);
+    segEffPVStation1CRing0Graph->GetFunction("pol1")->SetLineColor(kRed);
+    segEffPVStation1CRing1Graph->SetLineColor(kOrange-3);
+    segEffPVStation1CRing1Graph->SetMarkerColor(kOrange-3);
+    segEffPVStation1CRing1Graph->SetMarkerStyle(8);
+    segEffPVStation1CRing1Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      segEffPVStation1CRing1Graph->SetPointX(iiPV,segEffPVStation1CRing1Graph->GetPointX(iiPV)+1.0);
+    }
+    segEffPVStation1CRing1Graph->Draw("p SAME");
+    //segEffPVStation1CRing1Graph->Fit("pol1");
+    segEffPVStation1CRing1Graph->Fit("pol1","","",0.0,240.0);
+    segEffPVStation1CRing1Graph->GetFunction("pol1")->SetLineColor(kOrange-3);
+    segEffPVStation1CRing2Graph->SetLineColor(kBlue);
+    segEffPVStation1CRing2Graph->SetMarkerColor(kBlue);
+    segEffPVStation1CRing2Graph->SetMarkerStyle(8);
+    segEffPVStation1CRing2Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      segEffPVStation1CRing2Graph->SetPointX(iiPV,segEffPVStation1CRing2Graph->GetPointX(iiPV)+2.0);
+    }
+    segEffPVStation1CRing2Graph->Draw("p SAME");
+    segEffPVStation1CRing3Graph->SetMarkerStyle(8);
+    segEffPVStation1CRing3Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      segEffPVStation1CRing3Graph->SetPointX(iiPV,segEffPVStation1CRing3Graph->GetPointX(iiPV)+3.0);
+    }
+    segEffPVStation1CRing3Graph->Draw("p SAME");
+    DrawCMSLumi(dataInfo);
+
+    TLegend *legendSegPVGraph = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPVGraph->AddEntry(segEffPVStation1CRing0Graph,"ME1/1a");
+    legendSegPVGraph->AddEntry(segEffPVStation1CRing1Graph,"ME1/1b");
+    legendSegPVGraph->AddEntry(segEffPVStation1CRing2Graph,"ME1/2");
+    legendSegPVGraph->AddEntry(segEffPVStation1CRing3Graph,"ME1/3");
+    legendSegPVGraph->Draw();
+
+    c1.Print((plotdir + "CSCSegEffRun3DataME1vsPVGraph.png").c_str());
+
+
+
+
+    
 
     // Drawing CSC Segment Efficiency vs. PV (CRing)
     TH1F * segEffPVStation2CRing1 = (TH1F*)file0->Get("segEffPVStation2CRing1");
@@ -775,17 +1002,21 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation2CRing1->SetTitle("");
     segEffPVStation2CRing1->GetYaxis()->SetTitle("CSC Segment Efficiency ");
     segEffPVStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,100.0);
+    segEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,240.0);
     segEffPVStation2CRing1->SetLineColor(kRed);
     segEffPVStation2CRing1->SetMarkerColor(kRed);
     segEffPVStation2CRing1->SetMarkerStyle(8);
     segEffPVStation2CRing1->SetMarkerSize(0.75);
     segEffPVStation2CRing1->Draw("PE1");
+    segEffPVStation2CRing1->Fit("pol1");
+    segEffPVStation2CRing1->GetFunction("pol1")->SetLineColor(kRed);
     segEffPVStation3CRing1->SetLineColor(kOrange-3);
     segEffPVStation3CRing1->SetMarkerColor(kOrange-3);
     segEffPVStation3CRing1->SetMarkerStyle(8);
     segEffPVStation3CRing1->SetMarkerSize(0.75);
     segEffPVStation3CRing1->Draw("PE1 SAME");
+    segEffPVStation3CRing1->Fit("pol1");
+    segEffPVStation3CRing1->GetFunction("pol1")->SetLineColor(kOrange-3);
     segEffPVStation4CRing1->SetLineColor(kOrange);
     segEffPVStation4CRing1->SetMarkerColor(kOrange);
     segEffPVStation4CRing1->SetMarkerStyle(8);
@@ -808,19 +1039,108 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPV2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPV2->AddEntry(segEffPVStation2CRing1,"ME21");
-    legendSegPV2->AddEntry(segEffPVStation3CRing1,"ME31");
-    legendSegPV2->AddEntry(segEffPVStation4CRing1,"ME41");
-    legendSegPV2->AddEntry(segEffPVStation2CRing2,"ME22");
-    legendSegPV2->AddEntry(segEffPVStation3CRing2,"ME32");
-    legendSegPV2->AddEntry(segEffPVStation4CRing2,"ME42");
+    TLegend *legendSegPV2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPV2->AddEntry(segEffPVStation2CRing1,"ME2/1");
+    legendSegPV2->AddEntry(segEffPVStation3CRing1,"ME3/1");
+    legendSegPV2->AddEntry(segEffPVStation4CRing1,"ME4/1");
+    legendSegPV2->AddEntry(segEffPVStation2CRing2,"ME2/2");
+    legendSegPV2->AddEntry(segEffPVStation3CRing2,"ME3/2");
+    legendSegPV2->AddEntry(segEffPVStation4CRing2,"ME4/2");
     legendSegPV2->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME234vsPV.png").c_str());
 
 
 
+
+
+
+    
+
+    // Drawing CSC Segment Efficiency vs. PV (CRing)
+    TGraphAsymmErrors * segEffPVStation2CRing1Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation2CRing1Graph");
+    TGraphAsymmErrors * segEffPVStation2CRing2Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation2CRing2Graph");
+    TGraphAsymmErrors * segEffPVStation3CRing1Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation3CRing1Graph");
+    TGraphAsymmErrors * segEffPVStation3CRing2Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation3CRing2Graph");
+    TGraphAsymmErrors * segEffPVStation4CRing1Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation4CRing1Graph");
+    TGraphAsymmErrors * segEffPVStation4CRing2Graph = (TGraphAsymmErrors*)file0->Get("segEffPVStation4CRing2Graph");
+
+    //segEffPVStation2CRing1Graph->SetTitle("     CSC Segment Efficiency vs PV         Run 3 Data");
+    segEffPVStation2CRing1Graph->SetTitle("");
+    segEffPVStation2CRing1Graph->GetYaxis()->SetTitle("CSC Segment Efficiency ");
+    segEffPVStation2CRing1Graph->GetYaxis()->SetRangeUser(lowEff,highEff);
+    segEffPVStation2CRing1Graph->GetXaxis()->SetRangeUser(0.0,240.0);
+    segEffPVStation2CRing1Graph->SetLineColor(kRed);
+    segEffPVStation2CRing1Graph->SetMarkerColor(kRed);
+    segEffPVStation2CRing1Graph->SetMarkerStyle(8);
+    segEffPVStation2CRing1Graph->SetMarkerSize(0.75);
+    segEffPVStation2CRing1Graph->Draw("ap");
+    segEffPVStation2CRing1Graph->Fit("pol1");
+    segEffPVStation2CRing1Graph->GetFunction("pol1")->SetLineColor(kRed);
+    segEffPVStation3CRing1Graph->SetLineColor(kOrange-3);
+    segEffPVStation3CRing1Graph->SetMarkerColor(kOrange-3);
+    segEffPVStation3CRing1Graph->SetMarkerStyle(8);
+    segEffPVStation3CRing1Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      segEffPVStation3CRing1Graph->SetPointX(iiPV,segEffPVStation3CRing1Graph->GetPointX(iiPV)+1.0);
+    }
+    segEffPVStation3CRing1Graph->Draw("p SAME");
+    segEffPVStation3CRing1Graph->Fit("pol1");
+    segEffPVStation3CRing1Graph->GetFunction("pol1")->SetLineColor(kOrange-3);
+    segEffPVStation4CRing1Graph->SetLineColor(kOrange);
+    segEffPVStation4CRing1Graph->SetMarkerColor(kOrange);
+    segEffPVStation4CRing1Graph->SetMarkerStyle(8);
+    segEffPVStation4CRing1Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      segEffPVStation4CRing1Graph->SetPointX(iiPV,segEffPVStation2CRing1Graph->GetPointX(iiPV)+2.0);
+    }
+    segEffPVStation4CRing1Graph->Draw("p SAME");
+    segEffPVStation2CRing2Graph->SetLineColor(kAzure+6);
+    segEffPVStation2CRing2Graph->SetMarkerColor(kAzure+6);
+    segEffPVStation2CRing2Graph->SetMarkerStyle(8);
+    segEffPVStation2CRing2Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      segEffPVStation2CRing2Graph->SetPointX(iiPV,segEffPVStation2CRing2Graph->GetPointX(iiPV)+3.0);
+    }
+    segEffPVStation2CRing2Graph->Draw("p SAME");
+    segEffPVStation3CRing2Graph->SetLineColor(kBlue);
+    segEffPVStation3CRing2Graph->SetMarkerColor(kBlue);
+    segEffPVStation3CRing2Graph->SetMarkerStyle(8);
+    segEffPVStation3CRing2Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      segEffPVStation3CRing2Graph->SetPointX(iiPV,segEffPVStation2CRing2Graph->GetPointX(iiPV)+4.0);
+    }
+    segEffPVStation3CRing2Graph->Draw("p SAME");
+    segEffPVStation4CRing2Graph->SetLineColor(kBlue+2);
+    segEffPVStation4CRing2Graph->SetMarkerColor(kBlue+2);
+    segEffPVStation4CRing2Graph->SetMarkerStyle(8);
+    segEffPVStation4CRing2Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      segEffPVStation4CRing2Graph->SetPointX(iiPV,segEffPVStation4CRing2Graph->GetPointX(iiPV)+5.0);
+    }
+    segEffPVStation4CRing2Graph->Draw("p SAME");
+    DrawCMSLumi(dataInfo);
+
+    TLegend *legendSegPV2Graph = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPV2Graph->AddEntry(segEffPVStation2CRing1Graph,"ME2/1");
+    legendSegPV2Graph->AddEntry(segEffPVStation3CRing1Graph,"ME3/1");
+    legendSegPV2Graph->AddEntry(segEffPVStation4CRing1Graph,"ME4/1");
+    legendSegPV2Graph->AddEntry(segEffPVStation2CRing2Graph,"ME2/2");
+    legendSegPV2Graph->AddEntry(segEffPVStation3CRing2Graph,"ME3/2");
+    legendSegPV2Graph->AddEntry(segEffPVStation4CRing2Graph,"ME4/2");
+    legendSegPV2Graph->Draw();
+
+    c1.Print((plotdir + "CSCSegEffRun3DataME234vsPVGraph.png").c_str());
+
+
+
+
+
+
+    
+
+
+    
     // Drawing CSC Segment Efficiency vs. PV (Ring)
     TH1F * segEffPVStation2Ring1 = (TH1F*)file0->Get("segEffPVStation2Ring1");
     TH1F * segEffPVStation2Ring2 = (TH1F*)file0->Get("segEffPVStation2Ring2");
@@ -834,7 +1154,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation2Ring1->GetXaxis()->SetTitle("Number of Primary Vertices");
     segEffPVStation2Ring1->GetYaxis()->SetTitle("CSC Segment Efficiency ");
     segEffPVStation2Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffPVStation2Ring1->GetXaxis()->SetRangeUser(10.0,70.0);
+    segEffPVStation2Ring1->GetXaxis()->SetRangeUser(0.0,240.0);
     segEffPVStation2Ring1->SetLineColor(kRed);
     segEffPVStation2Ring1->SetMarkerColor(kRed);
     segEffPVStation2Ring1->SetMarkerStyle(8);
@@ -867,16 +1187,17 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation4Ring2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPV3 = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPV3->AddEntry(segEffPVStation2Ring1,"ME-21");
-    legendSegPV3->AddEntry(segEffPVStation3Ring1,"ME-31");
-    legendSegPV3->AddEntry(segEffPVStation4Ring1,"ME-41");
-    legendSegPV3->AddEntry(segEffPVStation2Ring2,"ME-22");
-    legendSegPV3->AddEntry(segEffPVStation3Ring2,"ME-32");
-    legendSegPV3->AddEntry(segEffPVStation4Ring2,"ME-42");
+    TLegend *legendSegPV3 = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPV3->AddEntry(segEffPVStation2Ring1,"ME-2/1");
+    legendSegPV3->AddEntry(segEffPVStation3Ring1,"ME-3/1");
+    legendSegPV3->AddEntry(segEffPVStation4Ring1,"ME-4/1");
+    legendSegPV3->AddEntry(segEffPVStation2Ring2,"ME-2/2");
+    legendSegPV3->AddEntry(segEffPVStation3Ring2,"ME-3/2");
+    legendSegPV3->AddEntry(segEffPVStation4Ring2,"ME-4/2");
     legendSegPV3->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME-234vsPV.png").c_str());
+    c1.Print((plotdir + "CSCSegEffRun3DataME-234vsPV.pdf").c_str());
 
 
 
@@ -893,7 +1214,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation6Ring1->GetXaxis()->SetTitle("Number of Primary Vertices");
     segEffPVStation6Ring1->GetYaxis()->SetTitle("CSC Segment Efficiency ");
     segEffPVStation6Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    segEffPVStation6Ring1->GetXaxis()->SetRangeUser(10.0,70.0);
+    segEffPVStation6Ring1->GetXaxis()->SetRangeUser(0.0,240.0);
     segEffPVStation6Ring1->SetLineColor(kRed);
     segEffPVStation6Ring1->SetMarkerColor(kRed);
     segEffPVStation6Ring1->SetMarkerStyle(8);
@@ -926,39 +1247,18 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     segEffPVStation8Ring2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendSegPV4 = new TLegend(0.88,0.7,0.98,0.9);
-    legendSegPV4->AddEntry(segEffPVStation6Ring1,"ME+21");
-    legendSegPV4->AddEntry(segEffPVStation7Ring1,"ME+31");
-    legendSegPV4->AddEntry(segEffPVStation8Ring1,"ME+41");
-    legendSegPV4->AddEntry(segEffPVStation6Ring2,"ME+22");
-    legendSegPV4->AddEntry(segEffPVStation7Ring2,"ME+32");
-    legendSegPV4->AddEntry(segEffPVStation8Ring2,"ME+42");
+    TLegend *legendSegPV4 = new TLegend(0.15,0.15,0.3,0.4);
+    legendSegPV4->AddEntry(segEffPVStation6Ring1,"ME+2/1");
+    legendSegPV4->AddEntry(segEffPVStation7Ring1,"ME+3/1");
+    legendSegPV4->AddEntry(segEffPVStation8Ring1,"ME+4/1");
+    legendSegPV4->AddEntry(segEffPVStation6Ring2,"ME+2/2");
+    legendSegPV4->AddEntry(segEffPVStation7Ring2,"ME+3/2");
+    legendSegPV4->AddEntry(segEffPVStation8Ring2,"ME+4/2");
     legendSegPV4->Draw();
 
     c1.Print((plotdir + "CSCSegEffRun3DataME+234vsPV.png").c_str());
 
 
-
-    // Drawing 2D CSC Segment Efficiency
-    TH2F * segEff2DStationRingChamber = (TH2F*)file0->Get("segEff2DStationRingChamber");
-
-    //sprintf(title, "CSC Seg. Eff.     Run 3%s", dataInfo.c_str());
-    segEff2DStationRingChamber->SetTitle("");
-    segEff2DStationRingChamber->SetMarkerSize(0.75);
-    segEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
-    segEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
-    segEff2DStationRingChamber->GetZaxis()->SetTitle("CSC Segment Efficiency ");
-    segEff2DStationRingChamber->Draw("COLZ TEXT");
-    DrawCMSLumi(dataInfo);
-    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.png").c_str());
-    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber.pdf").c_str());
-
-
-    segEff2DStationRingChamber->GetZaxis()->SetRangeUser(lowEff2D,1.005);
-    c1.Print((plotdir + "CSCSegEffRun3Data2DRingChamber50-100.png").c_str());
- 
-
-    
 
     // Drawing CSC LCT Efficiency vs. pT
     TH1F * LCTEffPTStation1CRing0 = (TH1F*)file0->Get("LCTEffPTStation1CRing0");
@@ -991,14 +1291,14 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPTStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPT = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPT->AddEntry(LCTEffPTStation1CRing0,"ME11a");
-    legendLCTPT->AddEntry(LCTEffPTStation1CRing1,"ME11b");
-    legendLCTPT->AddEntry(LCTEffPTStation1CRing2,"ME12");
-    legendLCTPT->AddEntry(LCTEffPTStation1CRing3,"ME13");
+    TLegend *legendLCTPT = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPT->AddEntry(LCTEffPTStation1CRing0,"ME1/1a");
+    legendLCTPT->AddEntry(LCTEffPTStation1CRing1,"ME1/1b");
+    legendLCTPT->AddEntry(LCTEffPTStation1CRing2,"ME1/2");
+    legendLCTPT->AddEntry(LCTEffPTStation1CRing3,"ME1/3");
     legendLCTPT->Draw();
 
-    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPt.png").c_str());  
+    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPt.png").c_str());
 
 
 
@@ -1047,13 +1347,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPTStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPT2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPT2->AddEntry(LCTEffPTStation2CRing1,"ME21");
-    legendLCTPT2->AddEntry(LCTEffPTStation3CRing1,"ME31");
-    legendLCTPT2->AddEntry(LCTEffPTStation4CRing1,"ME41");
-    legendLCTPT2->AddEntry(LCTEffPTStation2CRing2,"ME22");
-    legendLCTPT2->AddEntry(LCTEffPTStation3CRing2,"ME32");
-    legendLCTPT2->AddEntry(LCTEffPTStation4CRing2,"ME42");
+    TLegend *legendLCTPT2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPT2->AddEntry(LCTEffPTStation2CRing1,"ME2/1");
+    legendLCTPT2->AddEntry(LCTEffPTStation3CRing1,"ME3/1");
+    legendLCTPT2->AddEntry(LCTEffPTStation4CRing1,"ME4/1");
+    legendLCTPT2->AddEntry(LCTEffPTStation2CRing2,"ME2/2");
+    legendLCTPT2->AddEntry(LCTEffPTStation3CRing2,"ME3/2");
+    legendLCTPT2->AddEntry(LCTEffPTStation4CRing2,"ME4/2");
     legendLCTPT2->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME234vsPt.png").c_str());
@@ -1091,14 +1391,14 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffEtaStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTEta = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTEta->AddEntry(LCTEffEtaStation1CRing0,"ME11a");
-    legendLCTEta->AddEntry(LCTEffEtaStation1CRing1,"ME11b");
-    legendLCTEta->AddEntry(LCTEffEtaStation1CRing2,"ME12");
-    legendLCTEta->AddEntry(LCTEffEtaStation1CRing3,"ME13");
+    TLegend *legendLCTEta = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTEta->AddEntry(LCTEffEtaStation1CRing0,"ME1/1a");
+    legendLCTEta->AddEntry(LCTEffEtaStation1CRing1,"ME1/1b");
+    legendLCTEta->AddEntry(LCTEffEtaStation1CRing2,"ME1/2");
+    legendLCTEta->AddEntry(LCTEffEtaStation1CRing3,"ME1/3");
     legendLCTEta->Draw();
 
-    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsEta.png").c_str());  
+    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsEta.png").c_str());
 
 
 
@@ -1147,13 +1447,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffEtaStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTEta2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTEta2->AddEntry(LCTEffEtaStation2CRing1,"ME21");
-    legendLCTEta2->AddEntry(LCTEffEtaStation3CRing1,"ME31");
-    legendLCTEta2->AddEntry(LCTEffEtaStation4CRing1,"ME41");
-    legendLCTEta2->AddEntry(LCTEffEtaStation2CRing2,"ME22");
-    legendLCTEta2->AddEntry(LCTEffEtaStation3CRing2,"ME32");
-    legendLCTEta2->AddEntry(LCTEffEtaStation4CRing2,"ME42");
+    TLegend *legendLCTEta2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTEta2->AddEntry(LCTEffEtaStation2CRing1,"ME2/1");
+    legendLCTEta2->AddEntry(LCTEffEtaStation3CRing1,"ME3/1");
+    legendLCTEta2->AddEntry(LCTEffEtaStation4CRing1,"ME4/1");
+    legendLCTEta2->AddEntry(LCTEffEtaStation2CRing2,"ME2/2");
+    legendLCTEta2->AddEntry(LCTEffEtaStation3CRing2,"ME3/2");
+    legendLCTEta2->AddEntry(LCTEffEtaStation4CRing2,"ME4/2");
     legendLCTEta2->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME234vsEta.png").c_str());
@@ -1170,17 +1470,24 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation1CRing0->SetTitle("");
     LCTEffPVStation1CRing0->GetYaxis()->SetTitle("CSC LCT Efficiency ");
     LCTEffPVStation1CRing0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,100.0);
+    LCTEffPVStation1CRing0->GetXaxis()->SetRangeUser(0.0,240.0);
     LCTEffPVStation1CRing0->SetLineColor(kRed);
     LCTEffPVStation1CRing0->SetMarkerColor(kRed);
     LCTEffPVStation1CRing0->SetMarkerStyle(8);
     LCTEffPVStation1CRing0->SetMarkerSize(0.75);
     LCTEffPVStation1CRing0->Draw("PE1");
+    LCTEffPVStation1CRing0->Fit("pol1");
+    //LCTEffPVStation1CRing0->Fit("pol1","","",40.0,240.0);
+    LCTEffPVStation1CRing0->GetFunction("pol1")->SetLineColor(kRed);
     LCTEffPVStation1CRing1->SetLineColor(kOrange-3);
     LCTEffPVStation1CRing1->SetMarkerColor(kOrange-3);
     LCTEffPVStation1CRing1->SetMarkerStyle(8);
     LCTEffPVStation1CRing1->SetMarkerSize(0.75);
     LCTEffPVStation1CRing1->Draw("PE1 SAME");
+    LCTEffPVStation1CRing1->Fit("pol1");
+    LCTEffPVStation1CRing1->GetFunction("pol1")->SetRange(40,240);
+    LCTEffPVStation1CRing1->Fit("pol","R");
+    LCTEffPVStation1CRing1->GetFunction("pol1")->SetLineColor(kOrange-3);
     LCTEffPVStation1CRing2->SetLineColor(kBlue);
     LCTEffPVStation1CRing2->SetMarkerColor(kBlue);
     LCTEffPVStation1CRing2->SetMarkerStyle(8);
@@ -1191,14 +1498,70 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation1CRing3->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPV = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPV->AddEntry(LCTEffPVStation1CRing0,"ME11a");
-    legendLCTPV->AddEntry(LCTEffPVStation1CRing1,"ME11b");
-    legendLCTPV->AddEntry(LCTEffPVStation1CRing2,"ME12");
-    legendLCTPV->AddEntry(LCTEffPVStation1CRing3,"ME13");
+    TLegend *legendLCTPV = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPV->AddEntry(LCTEffPVStation1CRing0,"ME1/1a");
+    legendLCTPV->AddEntry(LCTEffPVStation1CRing1,"ME1/1b");
+    legendLCTPV->AddEntry(LCTEffPVStation1CRing2,"ME1/2");
+    legendLCTPV->AddEntry(LCTEffPVStation1CRing3,"ME1/3");
     legendLCTPV->Draw();
 
-    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPV.png").c_str());  
+    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPV.png").c_str());
+
+        // Drawing CSC LCT Efficiency vs. PV (CRing) Assym errors
+    TGraphAsymmErrors * LCTEffPVStation1CRing0Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation1CRing0Graph");
+    TGraphAsymmErrors * LCTEffPVStation1CRing1Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation1CRing1Graph");
+    TGraphAsymmErrors * LCTEffPVStation1CRing2Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation1CRing2Graph");
+    TGraphAsymmErrors * LCTEffPVStation1CRing3Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation1CRing3Graph");
+
+    //LCTEffPVStation1CRing0Graph->SetTitle("     CSC LCT Efficiency vs PV         Run 3 Data");
+    LCTEffPVStation1CRing0Graph->SetTitle("");
+    LCTEffPVStation1CRing0Graph->GetYaxis()->SetTitle("CSC LCT Efficiency ");
+    LCTEffPVStation1CRing0Graph->GetYaxis()->SetRangeUser(lowEff,highEff);
+    LCTEffPVStation1CRing0Graph->GetXaxis()->SetRangeUser(0.0,240.0);
+    LCTEffPVStation1CRing0Graph->SetLineColor(kRed);
+    LCTEffPVStation1CRing0Graph->SetMarkerColor(kRed);
+    LCTEffPVStation1CRing0Graph->SetMarkerStyle(8);
+    LCTEffPVStation1CRing0Graph->SetMarkerSize(0.75);
+    LCTEffPVStation1CRing0Graph->Draw("ap");
+    //LCTEffPVStation1CRing0Graph->Fit("pol1");
+    LCTEffPVStation1CRing0Graph->Fit("pol1","","",0.00,240.0);
+    LCTEffPVStation1CRing0Graph->GetFunction("pol1")->SetLineColor(kRed);
+    LCTEffPVStation1CRing1Graph->SetLineColor(kOrange-3);
+    LCTEffPVStation1CRing1Graph->SetMarkerColor(kOrange-3);
+    LCTEffPVStation1CRing1Graph->SetMarkerStyle(8);
+    LCTEffPVStation1CRing1Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      LCTEffPVStation1CRing1Graph->SetPointX(iiPV,LCTEffPVStation1CRing1Graph->GetPointX(iiPV)+1.0);
+    }
+    LCTEffPVStation1CRing1Graph->Draw("p SAME");
+    //LCTEffPVStation1CRing1Graph->Fit("pol1");
+    LCTEffPVStation1CRing1Graph->Fit("pol1","","",0.0,240.0);
+    LCTEffPVStation1CRing1Graph->GetFunction("pol1")->SetLineColor(kOrange-3);
+    LCTEffPVStation1CRing2Graph->SetLineColor(kBlue);
+    LCTEffPVStation1CRing2Graph->SetMarkerColor(kBlue);
+    LCTEffPVStation1CRing2Graph->SetMarkerStyle(8);
+    LCTEffPVStation1CRing2Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      LCTEffPVStation1CRing2Graph->SetPointX(iiPV,LCTEffPVStation1CRing2Graph->GetPointX(iiPV)+2.0);
+    }
+    LCTEffPVStation1CRing2Graph->Draw("p SAME");
+    LCTEffPVStation1CRing3Graph->SetMarkerStyle(8);
+    LCTEffPVStation1CRing3Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      LCTEffPVStation1CRing3Graph->SetPointX(iiPV,LCTEffPVStation1CRing3Graph->GetPointX(iiPV)+3.0);
+    }
+    LCTEffPVStation1CRing3Graph->Draw("p SAME");
+    DrawCMSLumi(dataInfo);
+
+    TLegend *legendLCTPVGraph = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPVGraph->AddEntry(LCTEffPVStation1CRing0Graph,"ME1/1a");
+    legendLCTPVGraph->AddEntry(LCTEffPVStation1CRing1Graph,"ME1/1b");
+    legendLCTPVGraph->AddEntry(LCTEffPVStation1CRing2Graph,"ME1/2");
+    legendLCTPVGraph->AddEntry(LCTEffPVStation1CRing3Graph,"ME1/3");
+    legendLCTPVGraph->Draw();
+
+    c1.Print((plotdir + "CSCLCTEffRun3DataME1vsPVGraph.png").c_str());
+
 
 
 
@@ -1214,17 +1577,21 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation2CRing1->SetTitle("");
     LCTEffPVStation2CRing1->GetYaxis()->SetTitle("CSC LCT Efficiency ");
     LCTEffPVStation2CRing1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,100.0);
+    LCTEffPVStation2CRing1->GetXaxis()->SetRangeUser(0.0,240.0);
     LCTEffPVStation2CRing1->SetLineColor(kRed);
     LCTEffPVStation2CRing1->SetMarkerColor(kRed);
     LCTEffPVStation2CRing1->SetMarkerStyle(8);
     LCTEffPVStation2CRing1->SetMarkerSize(0.75);
     LCTEffPVStation2CRing1->Draw("PE1");
+    LCTEffPVStation2CRing1->Fit("pol1");
+    LCTEffPVStation2CRing1->GetFunction("pol1")->SetLineColor(kRed);
     LCTEffPVStation3CRing1->SetLineColor(kOrange-3);
     LCTEffPVStation3CRing1->SetMarkerColor(kOrange-3);
     LCTEffPVStation3CRing1->SetMarkerStyle(8);
     LCTEffPVStation3CRing1->SetMarkerSize(0.75);
     LCTEffPVStation3CRing1->Draw("PE1 SAME");
+    LCTEffPVStation3CRing1->Fit("pol1");
+    LCTEffPVStation3CRing1->GetFunction("pol1")->SetLineColor(kOrange-3);
     LCTEffPVStation4CRing1->SetLineColor(kOrange);
     LCTEffPVStation4CRing1->SetMarkerColor(kOrange);
     LCTEffPVStation4CRing1->SetMarkerStyle(8);
@@ -1247,18 +1614,100 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation4CRing2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPV2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPV2->AddEntry(LCTEffPVStation2CRing1,"ME21");
-    legendLCTPV2->AddEntry(LCTEffPVStation3CRing1,"ME31");
-    legendLCTPV2->AddEntry(LCTEffPVStation4CRing1,"ME41");
-    legendLCTPV2->AddEntry(LCTEffPVStation2CRing2,"ME22");
-    legendLCTPV2->AddEntry(LCTEffPVStation3CRing2,"ME32");
-    legendLCTPV2->AddEntry(LCTEffPVStation4CRing2,"ME42");
+    TLegend *legendLCTPV2 = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPV2->AddEntry(LCTEffPVStation2CRing1,"ME2/1");
+    legendLCTPV2->AddEntry(LCTEffPVStation3CRing1,"ME3/1");
+    legendLCTPV2->AddEntry(LCTEffPVStation4CRing1,"ME4/1");
+    legendLCTPV2->AddEntry(LCTEffPVStation2CRing2,"ME2/2");
+    legendLCTPV2->AddEntry(LCTEffPVStation3CRing2,"ME3/2");
+    legendLCTPV2->AddEntry(LCTEffPVStation4CRing2,"ME4/2");
     legendLCTPV2->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME234vsPV.png").c_str());
 
 
+
+   // Drawing CSC LCT Efficiency vs. PV (CRing)
+    TGraphAsymmErrors * LCTEffPVStation2CRing1Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation2CRing1Graph");
+    TGraphAsymmErrors * LCTEffPVStation2CRing2Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation2CRing2Graph");
+    TGraphAsymmErrors * LCTEffPVStation3CRing1Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation3CRing1Graph");
+    TGraphAsymmErrors * LCTEffPVStation3CRing2Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation3CRing2Graph");
+    TGraphAsymmErrors * LCTEffPVStation4CRing1Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation4CRing1Graph");
+    TGraphAsymmErrors * LCTEffPVStation4CRing2Graph = (TGraphAsymmErrors*)file0->Get("LCTEffPVStation4CRing2Graph");
+
+    //LCTEffPVStation2CRing1Graph->SetTitle("     CSC LCT Efficiency vs PV         Run 3 Data");
+    LCTEffPVStation2CRing1Graph->SetTitle("");
+    LCTEffPVStation2CRing1Graph->GetYaxis()->SetTitle("CSC LCT Efficiency ");
+    LCTEffPVStation2CRing1Graph->GetYaxis()->SetRangeUser(lowEff,highEff);
+    LCTEffPVStation2CRing1Graph->GetXaxis()->SetRangeUser(0.0,240.0);
+    LCTEffPVStation2CRing1Graph->SetLineColor(kRed);
+    LCTEffPVStation2CRing1Graph->SetMarkerColor(kRed);
+    LCTEffPVStation2CRing1Graph->SetMarkerStyle(8);
+    LCTEffPVStation2CRing1Graph->SetMarkerSize(0.75);
+    LCTEffPVStation2CRing1Graph->Draw("ap");
+    LCTEffPVStation2CRing1Graph->Fit("pol1");
+    LCTEffPVStation2CRing1Graph->GetFunction("pol1")->SetLineColor(kRed);
+    LCTEffPVStation3CRing1Graph->SetLineColor(kOrange-3);
+    LCTEffPVStation3CRing1Graph->SetMarkerColor(kOrange-3);
+    LCTEffPVStation3CRing1Graph->SetMarkerStyle(8);
+    LCTEffPVStation3CRing1Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      LCTEffPVStation3CRing1Graph->SetPointX(iiPV,LCTEffPVStation3CRing1Graph->GetPointX(iiPV)+1.0);
+    }
+    LCTEffPVStation3CRing1Graph->Draw("p SAME");
+    LCTEffPVStation3CRing1Graph->Fit("pol1");
+    LCTEffPVStation3CRing1Graph->GetFunction("pol1")->SetLineColor(kOrange-3);
+    LCTEffPVStation4CRing1Graph->SetLineColor(kOrange);
+    LCTEffPVStation4CRing1Graph->SetMarkerColor(kOrange);
+    LCTEffPVStation4CRing1Graph->SetMarkerStyle(8);
+    LCTEffPVStation4CRing1Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      LCTEffPVStation4CRing1Graph->SetPointX(iiPV,LCTEffPVStation2CRing1Graph->GetPointX(iiPV)+2.0);
+    }
+    LCTEffPVStation4CRing1Graph->Draw("p SAME");
+    LCTEffPVStation2CRing2Graph->SetLineColor(kAzure+6);
+    LCTEffPVStation2CRing2Graph->SetMarkerColor(kAzure+6);
+    LCTEffPVStation2CRing2Graph->SetMarkerStyle(8);
+    LCTEffPVStation2CRing2Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      LCTEffPVStation2CRing2Graph->SetPointX(iiPV,LCTEffPVStation2CRing2Graph->GetPointX(iiPV)+3.0);
+    }
+    LCTEffPVStation2CRing2Graph->Draw("p SAME");
+    LCTEffPVStation3CRing2Graph->SetLineColor(kBlue);
+    LCTEffPVStation3CRing2Graph->SetMarkerColor(kBlue);
+    LCTEffPVStation3CRing2Graph->SetMarkerStyle(8);
+    LCTEffPVStation3CRing2Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      LCTEffPVStation3CRing2Graph->SetPointX(iiPV,LCTEffPVStation2CRing2Graph->GetPointX(iiPV)+4.0);
+    }
+    LCTEffPVStation3CRing2Graph->Draw("p SAME");
+    LCTEffPVStation4CRing2Graph->SetLineColor(kBlue+2);
+    LCTEffPVStation4CRing2Graph->SetMarkerColor(kBlue+2);
+    LCTEffPVStation4CRing2Graph->SetMarkerStyle(8);
+    LCTEffPVStation4CRing2Graph->SetMarkerSize(0.75);
+    for (Int_t iiPV=1; iiPV< 13;iiPV++){
+      LCTEffPVStation4CRing2Graph->SetPointX(iiPV,LCTEffPVStation4CRing2Graph->GetPointX(iiPV)+5.0);
+    }
+    LCTEffPVStation4CRing2Graph->Draw("p SAME");
+    DrawCMSLumi(dataInfo);
+
+    TLegend *legendLCTPV2Graph = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPV2Graph->AddEntry(LCTEffPVStation2CRing1Graph,"ME2/1");
+    legendLCTPV2Graph->AddEntry(LCTEffPVStation3CRing1Graph,"ME3/1");
+    legendLCTPV2Graph->AddEntry(LCTEffPVStation4CRing1Graph,"ME4/1");
+    legendLCTPV2Graph->AddEntry(LCTEffPVStation2CRing2Graph,"ME2/2");
+    legendLCTPV2Graph->AddEntry(LCTEffPVStation3CRing2Graph,"ME3/2");
+    legendLCTPV2Graph->AddEntry(LCTEffPVStation4CRing2Graph,"ME4/2");
+    legendLCTPV2Graph->Draw();
+
+    c1.Print((plotdir + "CSCLCTEffRun3DataME234vsPVGraph.png").c_str());
+
+
+
+
+    
+
+    
 
     // Drawing CSC LCT Efficiency vs. PV (Ring)
     TH1F * LCTEffPVStation2Ring1 = (TH1F*)file0->Get("LCTEffPVStation2Ring1");
@@ -1273,7 +1722,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation2Ring1->GetXaxis()->SetTitle("Number of Primary Vertices");
     LCTEffPVStation2Ring1->GetYaxis()->SetTitle("CSC LCT Efficiency ");
     LCTEffPVStation2Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffPVStation2Ring1->GetXaxis()->SetRangeUser(10.0,70.0);
+    LCTEffPVStation2Ring1->GetXaxis()->SetRangeUser(0.0,240.0);
     LCTEffPVStation2Ring1->SetLineColor(kRed);
     LCTEffPVStation2Ring1->SetMarkerColor(kRed);
     LCTEffPVStation2Ring1->SetMarkerStyle(8);
@@ -1306,13 +1755,13 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation4Ring2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPV3 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPV3->AddEntry(LCTEffPVStation2Ring1,"ME-21");
-    legendLCTPV3->AddEntry(LCTEffPVStation3Ring1,"ME-31");
-    legendLCTPV3->AddEntry(LCTEffPVStation4Ring1,"ME-41");
-    legendLCTPV3->AddEntry(LCTEffPVStation2Ring2,"ME-22");
-    legendLCTPV3->AddEntry(LCTEffPVStation3Ring2,"ME-32");
-    legendLCTPV3->AddEntry(LCTEffPVStation4Ring2,"ME-42");
+    TLegend *legendLCTPV3 = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPV3->AddEntry(LCTEffPVStation2Ring1,"ME-2/1");
+    legendLCTPV3->AddEntry(LCTEffPVStation3Ring1,"ME-3/1");
+    legendLCTPV3->AddEntry(LCTEffPVStation4Ring1,"ME-4/1");
+    legendLCTPV3->AddEntry(LCTEffPVStation2Ring2,"ME-2/2");
+    legendLCTPV3->AddEntry(LCTEffPVStation3Ring2,"ME-3/2");
+    legendLCTPV3->AddEntry(LCTEffPVStation4Ring2,"ME-4/2");
     legendLCTPV3->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME-234vsPV.png").c_str());
@@ -1332,7 +1781,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation6Ring1->GetXaxis()->SetTitle("Number of Primary Vertices");
     LCTEffPVStation6Ring1->GetYaxis()->SetTitle("CSC LCT Efficiency ");
     LCTEffPVStation6Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    LCTEffPVStation6Ring1->GetXaxis()->SetRangeUser(10.0,70.0);
+    LCTEffPVStation6Ring1->GetXaxis()->SetRangeUser(0.0,240.0);
     LCTEffPVStation6Ring1->SetLineColor(kRed);
     LCTEffPVStation6Ring1->SetMarkerColor(kRed);
     LCTEffPVStation6Ring1->SetMarkerStyle(8);
@@ -1365,272 +1814,315 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     LCTEffPVStation8Ring2->Draw("PE1 SAME");
     DrawCMSLumi(dataInfo);
 
-    TLegend *legendLCTPV4 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTPV4->AddEntry(LCTEffPVStation6Ring1,"ME+21");
-    legendLCTPV4->AddEntry(LCTEffPVStation7Ring1,"ME+31");
-    legendLCTPV4->AddEntry(LCTEffPVStation8Ring1,"ME+41");
-    legendLCTPV4->AddEntry(LCTEffPVStation6Ring2,"ME+22");
-    legendLCTPV4->AddEntry(LCTEffPVStation7Ring2,"ME+32");
-    legendLCTPV4->AddEntry(LCTEffPVStation8Ring2,"ME+42");
+    TLegend *legendLCTPV4 = new TLegend(0.15,0.15,0.3,0.4);
+    legendLCTPV4->AddEntry(LCTEffPVStation6Ring1,"ME+2/1");
+    legendLCTPV4->AddEntry(LCTEffPVStation7Ring1,"ME+3/1");
+    legendLCTPV4->AddEntry(LCTEffPVStation8Ring1,"ME+4/1");
+    legendLCTPV4->AddEntry(LCTEffPVStation6Ring2,"ME+2/2");
+    legendLCTPV4->AddEntry(LCTEffPVStation7Ring2,"ME+3/2");
+    legendLCTPV4->AddEntry(LCTEffPVStation8Ring2,"ME+4/2");
     legendLCTPV4->Draw();
 
     c1.Print((plotdir + "CSCLCTEffRun3DataME+234vsPV.png").c_str());
 
 
+    c1.SetRightMargin(0.125);
+
+
+    // Drawing Detector Efficiency Plots
+    {
+      // Define constants
+      struct Ring {
+        double inner, outer;
+        Ring(double i=0, double o=0) : inner(i), outer(o){}
+      };
+      //const Ring RADII_ME1[3]   = {Ring(101,260), Ring(281.49,455.99), Ring(511.99,676.15)};
+      const Ring RADII_ME1[4]   = {Ring(71,161), Ring(161,260), Ring(281.49,455.99), Ring(511.99,676.15)};
+      const Ring RADII_ME234[2] = {Ring(146.9,336.56), Ring(364.02,687.08)};
+      const double PHI_START = 0.; //degrees
+      const double DEG_TO_RAD = M_PI/180.0;
+
+      for (int iiStation=0; iiStation < 8; iiStation++){
+        bool isME1 = (iiStation == 0 || iiStation == 4);
+        TH2Poly *detplot = new TH2Poly(
+            ("csc" + GetMELabel(iiStation)).c_str(), "",
+            -750, 750, -750, 750);
+        for (int iiRing=0; iiRing < 4; iiRing++){
+          if (!isME1 && (iiRing == 0 || iiRing == 3)) continue;
+
+          int numChambers = (!isME1 && iiRing == 1) ? 18 : 36;
+          for (int iiChamber=1; iiChamber<=numChambers; iiChamber++){
+            // Get appropriate ring struct
+            Ring ring;
+            if (!isME1) ring = RADII_ME234[iiRing-1];
+            else ring = RADII_ME1[iiRing];
+            //else if (iiRing == 0) continue; //ring = RADII_ME1[0];
+            //else ring = RADII_ME1[iiRing-1];
+
+            // Get phi
+            double dPhi = (360.0/numChambers)*DEG_TO_RAD;
+            double phi = PHI_START*DEG_TO_RAD + dPhi*(iiChamber-1);
+
+            // Get coordinates
+            Polar2DVector v1(ring.inner, phi);
+            Polar2DVector v2(ring.inner, phi+dPhi);
+            Polar2DVector v3(ring.outer, phi+dPhi);
+            Polar2DVector v4(ring.outer, phi);
+
+            // Add chamber bin
+            double x[4] = {v1.X(), v2.X(), v3.X(), v4.X()};
+            double y[4] = {v1.Y(), v2.Y(), v3.Y(), v4.Y()};
+            int binnum = detplot->AddBin(4, x, y);
+            //cout << GetMELabel(iiStation, iiRing, iiChamber) << " " << binnum << endl;
+
+            // Get "center" coordinate
+            Polar2DVector center(ring.inner + 0.01, phi + 0.01);
+            int findbin = detplot->FindBin(center.X(), center.Y());
+            if (findbin != binnum){
+              cout << "Misidentified bin (ID, bin): " << GetMELabel(iiStation, iiRing, iiChamber) << " " << findbin << endl;
+              continue;
+            }
+            //if (isME1 && iiRing <= 1) continue;
+            detplot->Fill(center.X(), center.Y(), segEff2DStationRingChamber->GetBinContent(iiChamber, GetRingIndex(iiStation, iiRing)));
+          }
+        }
+        detplot->GetZaxis()->SetLabelSize(0.035);
+        detplot->GetZaxis()->SetLabelFont(42);
+        detplot->GetZaxis()->SetTitleSize(0.035);
+        detplot->GetZaxis()->SetTitleFont(42);
+        detplot->GetZaxis()->SetTitle((GetMELabel(iiStation) + " Segment Efficiency ").c_str());
+        detplot->GetZaxis()->SetRangeUser(0.0,1.005);
+        detplot->Draw("COLZ L");
+        DrawCMSLumi(dataInfo);
+        c1.Print((plotdir + GetMELabel(iiStation) + ".png").c_str());
+      }
+    }
+
+    if (bxAnalysis){
+      gPad->SetLogy(1);
+
+      if (verbose) cout << "Drawing bx analysis plots..." << endl;
+
+      // Drawing CSC LCT BX (Ring)
+      TH1F * bxLCTStation1Ring0 = (TH1F*)file0->Get("bxLCTStation1Ring0");
+      TH1F * bxLCTStation1Ring1 = (TH1F*)file0->Get("bxLCTStation1Ring1");
+      TH1F * bxLCTStation1Ring2 = (TH1F*)file0->Get("bxLCTStation1Ring2");
+      TH1F * bxLCTStation1Ring3 = (TH1F*)file0->Get("bxLCTStation1Ring3");
+
+      //bxLCTStation1Ring0->SetTitle("     CSC LCT BX         Run 3 Data");
+      bxLCTStation1Ring0->SetTitle("");
+      bxLCTStation1Ring0->GetXaxis()->SetTitle("BX");
+      //bxLCTStation1Ring0->GetYaxis()->SetRangeUser(lowEff,highEff);
+      //bxLCTStation1Ring0->GetXaxis()->SetRangeUser(-10.0,10.0);
+      bxLCTStation1Ring0->SetLineColor(kRed);
+      bxLCTStation1Ring0->SetMarkerColor(kRed);
+      bxLCTStation1Ring0->SetMarkerStyle(8);
+      bxLCTStation1Ring0->SetMarkerSize(0.75);
+      bxLCTStation1Ring0->Draw("PE1");
+      bxLCTStation1Ring1->SetLineColor(kOrange-3);
+      bxLCTStation1Ring1->SetMarkerColor(kOrange-3);
+      bxLCTStation1Ring1->SetMarkerStyle(8);
+      bxLCTStation1Ring1->SetMarkerSize(0.75);
+      bxLCTStation1Ring1->Draw("PE1 SAME");
+      bxLCTStation1Ring2->SetLineColor(kBlue);
+      bxLCTStation1Ring2->SetMarkerColor(kBlue);
+      bxLCTStation1Ring2->SetMarkerStyle(8);
+      bxLCTStation1Ring2->SetMarkerSize(0.75);
+      bxLCTStation1Ring2->Draw("PE1 SAME");
+      bxLCTStation1Ring3->SetMarkerStyle(8);
+      bxLCTStation1Ring3->SetMarkerSize(0.75);
+      bxLCTStation1Ring3->Draw("PE1 SAME");
+      DrawCMSLumi(dataInfo);
+
+      TLegend *legendLCTbx1 = new TLegend(0.15,0.15,0.3,0.4);
+      legendLCTbx1->AddEntry(bxLCTStation1Ring0,"ME-1/1a");
+      legendLCTbx1->AddEntry(bxLCTStation1Ring1,"ME-1/1b");
+      legendLCTbx1->AddEntry(bxLCTStation1Ring2,"ME-1/2");
+      legendLCTbx1->AddEntry(bxLCTStation1Ring3,"ME-1/3");
+      legendLCTbx1->Draw();
+
+      c1.Print((plotdir + "CSCLCTBXRun3DataME-1.png").c_str());
+
+
+
+
+      // Drawing CSC LCT BX (Ring)
+      TH1F * bxLCTStation5Ring0 = (TH1F*)file0->Get("bxLCTStation5Ring0");
+      TH1F * bxLCTStation5Ring1 = (TH1F*)file0->Get("bxLCTStation5Ring1");
+      TH1F * bxLCTStation5Ring2 = (TH1F*)file0->Get("bxLCTStation5Ring2");
+      TH1F * bxLCTStation5Ring3 = (TH1F*)file0->Get("bxLCTStation5Ring3");
+
+      //bxLCTStation5Ring0->SetTitle("     CSC LCT BX         Run 3 Data");
+      bxLCTStation5Ring0->SetTitle("");
+      bxLCTStation5Ring0->GetXaxis()->SetTitle("BX");
+      //bxLCTStation5Ring0->GetYaxis()->SetRangeUser(lowEff,highEff);
+      //bxLCTStation5Ring0->GetXaxis()->SetRangeUser(-10.0,10.0);
+      bxLCTStation5Ring0->SetLineColor(kRed);
+      bxLCTStation5Ring0->SetMarkerColor(kRed);
+      bxLCTStation5Ring0->SetMarkerStyle(8);
+      bxLCTStation5Ring0->SetMarkerSize(0.75);
+      bxLCTStation5Ring0->Draw("PE1");
+      bxLCTStation5Ring1->SetLineColor(kOrange-3);
+      bxLCTStation5Ring1->SetMarkerColor(kOrange-3);
+      bxLCTStation5Ring1->SetMarkerStyle(8);
+      bxLCTStation5Ring1->SetMarkerSize(0.75);
+      bxLCTStation5Ring1->Draw("PE1 SAME");
+      bxLCTStation5Ring2->SetLineColor(kBlue);
+      bxLCTStation5Ring2->SetMarkerColor(kBlue);
+      bxLCTStation5Ring2->SetMarkerStyle(8);
+      bxLCTStation5Ring2->SetMarkerSize(0.75);
+      bxLCTStation5Ring2->Draw("PE1 SAME");
+      bxLCTStation5Ring3->SetMarkerStyle(8);
+      bxLCTStation5Ring3->SetMarkerSize(0.75);
+      bxLCTStation5Ring3->Draw("PE1 SAME");
+      DrawCMSLumi(dataInfo);
+
+      TLegend *legendLCTbx2 = new TLegend(0.15,0.15,0.3,0.4);
+      legendLCTbx2->AddEntry(bxLCTStation5Ring0,"ME+1/1a");
+      legendLCTbx2->AddEntry(bxLCTStation5Ring1,"ME+1/1b");
+      legendLCTbx2->AddEntry(bxLCTStation5Ring2,"ME+1/2");
+      legendLCTbx2->AddEntry(bxLCTStation5Ring3,"ME+1/3");
+      legendLCTbx2->Draw();
+
+      c1.Print((plotdir + "CSCLCTBXRun3DataME+1.png").c_str());
+
+      gPad->SetLogy(0);
 
 
 
 
 
+      // Drawing CSC LCT BX
+      TH1F * bxLCTStation2Ring1 = (TH1F*)file0->Get("bxLCTStation2Ring1");
+      TH1F * bxLCTStation2Ring2 = (TH1F*)file0->Get("bxLCTStation2Ring2");
+      TH1F * bxLCTStation3Ring1 = (TH1F*)file0->Get("bxLCTStation3Ring1");
+      TH1F * bxLCTStation3Ring2 = (TH1F*)file0->Get("bxLCTStation3Ring2");
+      TH1F * bxLCTStation4Ring1 = (TH1F*)file0->Get("bxLCTStation4Ring1");
+      TH1F * bxLCTStation4Ring2 = (TH1F*)file0->Get("bxLCTStation4Ring2");
 
-    gPad->SetLogy(1);
+      gPad->SetLogy(1);
+      //bxLCTStation2Ring1->SetTitle("     CSC LCT BX        Run 3 Data");
+      bxLCTStation2Ring1->SetTitle("");
+      bxLCTStation2Ring1->GetXaxis()->SetTitle("BX");
+      //bxLCTStation2Ring1->GetYaxis()->SetTitle("CSC LCT BX ");
+      //bxLCTStation2Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
+      //bxLCTStation2Ring1->GetXaxis()->SetRangeUser(-10.0,10.0);
+      bxLCTStation2Ring1->SetDrawOption("L");
+      bxLCTStation2Ring1->SetLineColor(kRed);
+      bxLCTStation2Ring1->SetMarkerColor(kRed);
+      bxLCTStation2Ring1->SetMarkerStyle(8);
+      bxLCTStation2Ring1->SetMarkerSize(0.75);
+      bxLCTStation2Ring1->Draw("PE1");
+      bxLCTStation3Ring1->SetLineColor(kOrange-3);
+      bxLCTStation3Ring1->SetMarkerColor(kOrange-3);
+      bxLCTStation3Ring1->SetMarkerStyle(8);
+      bxLCTStation3Ring1->SetMarkerSize(0.75);
+      bxLCTStation3Ring1->Draw("PE1 SAME");
+      bxLCTStation4Ring1->SetLineColor(kOrange);
+      bxLCTStation4Ring1->SetMarkerColor(kOrange);
+      bxLCTStation4Ring1->SetMarkerStyle(8);
+      bxLCTStation4Ring1->SetMarkerSize(0.75);
+      bxLCTStation4Ring1->Draw("PE1 SAME");
+      bxLCTStation2Ring2->SetLineColor(kAzure+6);
+      bxLCTStation2Ring2->SetMarkerColor(kAzure+6);
+      bxLCTStation2Ring2->SetMarkerStyle(8);
+      bxLCTStation2Ring2->SetMarkerSize(0.75);
+      bxLCTStation2Ring2->Draw("PE1 SAME");
+      bxLCTStation3Ring2->SetLineColor(kBlue);
+      bxLCTStation3Ring2->SetMarkerColor(kBlue);
+      bxLCTStation3Ring2->SetMarkerStyle(8);
+      bxLCTStation3Ring2->SetMarkerSize(0.75);
+      bxLCTStation3Ring2->Draw("PE1 SAME");
+      bxLCTStation4Ring2->SetLineColor(kBlue+2);
+      bxLCTStation4Ring2->SetMarkerColor(kBlue+2);
+      bxLCTStation4Ring2->SetMarkerStyle(8);
+      bxLCTStation4Ring2->SetMarkerSize(0.75);
+      bxLCTStation4Ring2->Draw("PE1 SAME");
+      DrawCMSLumi(dataInfo);
 
-    // Drawing CSC LCT BX (Ring)
-    TH1F * bxLCTStation1Ring0 = (TH1F*)file0->Get("bxLCTStation1Ring0");
-    TH1F * bxLCTStation1Ring1 = (TH1F*)file0->Get("bxLCTStation1Ring1");
-    TH1F * bxLCTStation1Ring2 = (TH1F*)file0->Get("bxLCTStation1Ring2");
-    TH1F * bxLCTStation1Ring3 = (TH1F*)file0->Get("bxLCTStation1Ring3");
+      TLegend *legendLCTbx3 = new TLegend(0.15,0.15,0.3,0.4);
+      legendLCTbx3->AddEntry(bxLCTStation2Ring1,"ME-2/1");
+      legendLCTbx3->AddEntry(bxLCTStation3Ring1,"ME-3/1");
+      legendLCTbx3->AddEntry(bxLCTStation4Ring1,"ME-4/1");
+      legendLCTbx3->AddEntry(bxLCTStation2Ring2,"ME-2/2");
+      legendLCTbx3->AddEntry(bxLCTStation3Ring2,"ME-3/2");
+      legendLCTbx3->AddEntry(bxLCTStation4Ring2,"ME-4/2");
+      legendLCTbx3->Draw();
 
-    //bxLCTStation1Ring0->SetTitle("     CSC LCT BX         Run 3 Data");
-    bxLCTStation1Ring0->SetTitle("");
-    bxLCTStation1Ring0->GetXaxis()->SetTitle("BX");
-    //bxLCTStation1Ring0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    bxLCTStation1Ring0->GetXaxis()->SetRangeUser(-10.0,10.0);
-    bxLCTStation1Ring0->SetLineColor(kRed);
-    bxLCTStation1Ring0->SetMarkerColor(kRed);
-    bxLCTStation1Ring0->SetMarkerStyle(8);
-    bxLCTStation1Ring0->SetMarkerSize(0.75);
-    bxLCTStation1Ring0->Draw("PE1");
-    bxLCTStation1Ring1->SetLineColor(kOrange-3);
-    bxLCTStation1Ring1->SetMarkerColor(kOrange-3);
-    bxLCTStation1Ring1->SetMarkerStyle(8);
-    bxLCTStation1Ring1->SetMarkerSize(0.75);
-    bxLCTStation1Ring1->Draw("PE1 SAME");
-    bxLCTStation1Ring2->SetLineColor(kBlue);
-    bxLCTStation1Ring2->SetMarkerColor(kBlue);
-    bxLCTStation1Ring2->SetMarkerStyle(8);
-    bxLCTStation1Ring2->SetMarkerSize(0.75);
-    bxLCTStation1Ring2->Draw("PE1 SAME");
-    bxLCTStation1Ring3->SetMarkerStyle(8);
-    bxLCTStation1Ring3->SetMarkerSize(0.75);
-    bxLCTStation1Ring3->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo);
-
-    TLegend *legendLCTbx1 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTbx1->AddEntry(bxLCTStation1Ring0,"ME-11a");
-    legendLCTbx1->AddEntry(bxLCTStation1Ring1,"ME-11b");
-    legendLCTbx1->AddEntry(bxLCTStation1Ring2,"ME-12");
-    legendLCTbx1->AddEntry(bxLCTStation1Ring3,"ME-13");
-    legendLCTbx1->Draw();
-
-    c1.Print((plotdir + "CSCLCTBXRun3DataME-1.png").c_str());  
-
-
-
-
-    // Drawing CSC LCT BX (Ring)
-    TH1F * bxLCTStation5Ring0 = (TH1F*)file0->Get("bxLCTStation5Ring0");
-    TH1F * bxLCTStation5Ring1 = (TH1F*)file0->Get("bxLCTStation5Ring1");
-    TH1F * bxLCTStation5Ring2 = (TH1F*)file0->Get("bxLCTStation5Ring2");
-    TH1F * bxLCTStation5Ring3 = (TH1F*)file0->Get("bxLCTStation5Ring3");
-
-    //bxLCTStation5Ring0->SetTitle("     CSC LCT BX         Run 3 Data");
-    bxLCTStation5Ring0->SetTitle("");
-    bxLCTStation5Ring0->GetXaxis()->SetTitle("BX");
-    //bxLCTStation5Ring0->GetYaxis()->SetRangeUser(lowEff,highEff);
-    bxLCTStation5Ring0->GetXaxis()->SetRangeUser(-10.0,10.0);
-    bxLCTStation5Ring0->SetLineColor(kRed);
-    bxLCTStation5Ring0->SetMarkerColor(kRed);
-    bxLCTStation5Ring0->SetMarkerStyle(8);
-    bxLCTStation5Ring0->SetMarkerSize(0.75);
-    bxLCTStation5Ring0->Draw("PE1");
-    bxLCTStation5Ring1->SetLineColor(kOrange-3);
-    bxLCTStation5Ring1->SetMarkerColor(kOrange-3);
-    bxLCTStation5Ring1->SetMarkerStyle(8);
-    bxLCTStation5Ring1->SetMarkerSize(0.75);
-    bxLCTStation5Ring1->Draw("PE1 SAME");
-    bxLCTStation5Ring2->SetLineColor(kBlue);
-    bxLCTStation5Ring2->SetMarkerColor(kBlue);
-    bxLCTStation5Ring2->SetMarkerStyle(8);
-    bxLCTStation5Ring2->SetMarkerSize(0.75);
-    bxLCTStation5Ring2->Draw("PE1 SAME");
-    bxLCTStation5Ring3->SetMarkerStyle(8);
-    bxLCTStation5Ring3->SetMarkerSize(0.75);
-    bxLCTStation5Ring3->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo);
-
-    TLegend *legendLCTbx2 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTbx2->AddEntry(bxLCTStation5Ring0,"ME+11a");
-    legendLCTbx2->AddEntry(bxLCTStation5Ring1,"ME+11b");
-    legendLCTbx2->AddEntry(bxLCTStation5Ring2,"ME+12");
-    legendLCTbx2->AddEntry(bxLCTStation5Ring3,"ME+13");
-    legendLCTbx2->Draw();
-
-    c1.Print((plotdir + "CSCLCTBXRun3DataME+1.png").c_str());  
-
-    gPad->SetLogy(0);
+      c1.Print((plotdir + "CSCLCTBXRun3DataME-234.png").c_str());
+      gPad->SetLogy(0);
 
 
+      gPad->SetLogy(1);
+      // Drawing CSC LCT Efficiency vs. PV (Ring)
+      TH1F * bxLCTStation6Ring1 = (TH1F*)file0->Get("bxLCTStation6Ring1");
+      TH1F * bxLCTStation6Ring2 = (TH1F*)file0->Get("bxLCTStation6Ring2");
+      TH1F * bxLCTStation7Ring1 = (TH1F*)file0->Get("bxLCTStation7Ring1");
+      TH1F * bxLCTStation7Ring2 = (TH1F*)file0->Get("bxLCTStation7Ring2");
+      TH1F * bxLCTStation8Ring1 = (TH1F*)file0->Get("bxLCTStation8Ring1");
+      TH1F * bxLCTStation8Ring2 = (TH1F*)file0->Get("bxLCTStation8Ring2");
+
+      //bxLCTStation6Ring1->SetTitle("     CSC LCT BX         Run 3 Data");
+      bxLCTStation6Ring1->SetTitle("");
+      bxLCTStation6Ring1->GetXaxis()->SetTitle("BX");
+      //bxLCTStation6Ring1->GetYaxis()->SetTitle("CSC LCT BX ");
+      //bxLCTStation6Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
+      //bxLCTStation6Ring1->GetXaxis()->SetRangeUser(-10.0,10.0);
+      bxLCTStation6Ring1->SetDrawOption("G");
+      bxLCTStation6Ring1->SetLineColor(kRed);
+      bxLCTStation6Ring1->SetMarkerColor(kRed);
+      bxLCTStation6Ring1->SetMarkerStyle(8);
+      bxLCTStation6Ring1->SetMarkerSize(0.75);
+      bxLCTStation6Ring1->Draw("PE1");
+      bxLCTStation7Ring1->SetLineColor(kOrange-3);
+      bxLCTStation7Ring1->SetMarkerColor(kOrange-3);
+      bxLCTStation7Ring1->SetMarkerStyle(8);
+      bxLCTStation7Ring1->SetMarkerSize(0.75);
+      bxLCTStation7Ring1->Draw("PE1 SAME");
+      bxLCTStation8Ring1->SetLineColor(kOrange);
+      bxLCTStation8Ring1->SetMarkerColor(kOrange);
+      bxLCTStation8Ring1->SetMarkerStyle(8);
+      bxLCTStation8Ring1->SetMarkerSize(0.75);
+      bxLCTStation8Ring1->Draw("PE1 SAME");
+      bxLCTStation6Ring2->SetLineColor(kAzure+6);
+      bxLCTStation6Ring2->SetMarkerColor(kAzure+6);
+      bxLCTStation6Ring2->SetMarkerStyle(8);
+      bxLCTStation6Ring2->SetMarkerSize(0.75);
+      bxLCTStation6Ring2->Draw("PE1 SAME");
+      bxLCTStation7Ring2->SetLineColor(kBlue);
+      bxLCTStation7Ring2->SetMarkerColor(kBlue);
+      bxLCTStation7Ring2->SetMarkerStyle(8);
+      bxLCTStation7Ring2->SetMarkerSize(0.75);
+      bxLCTStation7Ring2->Draw("PE1 SAME");
+      bxLCTStation8Ring2->SetLineColor(kBlue+2);
+      bxLCTStation8Ring2->SetMarkerColor(kBlue+2);
+      bxLCTStation8Ring2->SetMarkerStyle(8);
+      bxLCTStation8Ring2->SetMarkerSize(0.75);
+      bxLCTStation8Ring2->Draw("PE1 SAME");
+      DrawCMSLumi(dataInfo);
 
 
+      TLegend *legendLCTbx4 = new TLegend(0.15,0.15,0.3,0.4);
+      legendLCTbx4->AddEntry(bxLCTStation6Ring1,"ME+2/1");
+      legendLCTbx4->AddEntry(bxLCTStation7Ring1,"ME+3/1");
+      legendLCTbx4->AddEntry(bxLCTStation8Ring1,"ME+4/1");
+      legendLCTbx4->AddEntry(bxLCTStation6Ring2,"ME+2/2");
+      legendLCTbx4->AddEntry(bxLCTStation7Ring2,"ME+3/2");
+      legendLCTbx4->AddEntry(bxLCTStation8Ring2,"ME+4/2");
+      legendLCTbx4->Draw();
 
-    // Drawing CSC LCT BX
-    TH1F * bxLCTStation2Ring1 = (TH1F*)file0->Get("bxLCTStation2Ring1");
-    TH1F * bxLCTStation2Ring2 = (TH1F*)file0->Get("bxLCTStation2Ring2");
-    TH1F * bxLCTStation3Ring1 = (TH1F*)file0->Get("bxLCTStation3Ring1");
-    TH1F * bxLCTStation3Ring2 = (TH1F*)file0->Get("bxLCTStation3Ring2");
-    TH1F * bxLCTStation4Ring1 = (TH1F*)file0->Get("bxLCTStation4Ring1");
-    TH1F * bxLCTStation4Ring2 = (TH1F*)file0->Get("bxLCTStation4Ring2");
-
-    gPad->SetLogy(1);
-    //bxLCTStation2Ring1->SetTitle("     CSC LCT BX        Run 3 Data");
-    bxLCTStation2Ring1->SetTitle("");
-    bxLCTStation2Ring1->GetXaxis()->SetTitle("BX");
-    //bxLCTStation2Ring1->GetYaxis()->SetTitle("CSC LCT BX ");
-    //bxLCTStation2Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    bxLCTStation2Ring1->GetXaxis()->SetRangeUser(-3.0,3.0);
-    bxLCTStation2Ring1->SetDrawOption("L");
-    bxLCTStation2Ring1->SetLineColor(kRed);
-    bxLCTStation2Ring1->SetMarkerColor(kRed);
-    bxLCTStation2Ring1->SetMarkerStyle(8);
-    bxLCTStation2Ring1->SetMarkerSize(0.75);
-    bxLCTStation2Ring1->Draw("PE1");
-    bxLCTStation3Ring1->SetLineColor(kOrange-3);
-    bxLCTStation3Ring1->SetMarkerColor(kOrange-3);
-    bxLCTStation3Ring1->SetMarkerStyle(8);
-    bxLCTStation3Ring1->SetMarkerSize(0.75);
-    bxLCTStation3Ring1->Draw("PE1 SAME");
-    bxLCTStation4Ring1->SetLineColor(kOrange);
-    bxLCTStation4Ring1->SetMarkerColor(kOrange);
-    bxLCTStation4Ring1->SetMarkerStyle(8);
-    bxLCTStation4Ring1->SetMarkerSize(0.75);
-    bxLCTStation4Ring1->Draw("PE1 SAME");
-    bxLCTStation2Ring2->SetLineColor(kAzure+6);
-    bxLCTStation2Ring2->SetMarkerColor(kAzure+6);
-    bxLCTStation2Ring2->SetMarkerStyle(8);
-    bxLCTStation2Ring2->SetMarkerSize(0.75);
-    bxLCTStation2Ring2->Draw("PE1 SAME");
-    bxLCTStation3Ring2->SetLineColor(kBlue);
-    bxLCTStation3Ring2->SetMarkerColor(kBlue);
-    bxLCTStation3Ring2->SetMarkerStyle(8);
-    bxLCTStation3Ring2->SetMarkerSize(0.75);
-    bxLCTStation3Ring2->Draw("PE1 SAME");
-    bxLCTStation4Ring2->SetLineColor(kBlue+2);
-    bxLCTStation4Ring2->SetMarkerColor(kBlue+2);
-    bxLCTStation4Ring2->SetMarkerStyle(8);
-    bxLCTStation4Ring2->SetMarkerSize(0.75);
-    bxLCTStation4Ring2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo);
-
-    TLegend *legendLCTbx3 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTbx3->AddEntry(bxLCTStation2Ring1,"ME-21");
-    legendLCTbx3->AddEntry(bxLCTStation3Ring1,"ME-31");
-    legendLCTbx3->AddEntry(bxLCTStation4Ring1,"ME-41");
-    legendLCTbx3->AddEntry(bxLCTStation2Ring2,"ME-22");
-    legendLCTbx3->AddEntry(bxLCTStation3Ring2,"ME-32");
-    legendLCTbx3->AddEntry(bxLCTStation4Ring2,"ME-42");
-    legendLCTbx3->Draw();
-
-    c1.Print((plotdir + "CSCLCTBXRun3DataME-234.png").c_str());
-    gPad->SetLogy(0);
-
-
-    gPad->SetLogy(1);
-    // Drawing CSC LCT Efficiency vs. PV (Ring)
-    TH1F * bxLCTStation6Ring1 = (TH1F*)file0->Get("bxLCTStation6Ring1");
-    TH1F * bxLCTStation6Ring2 = (TH1F*)file0->Get("bxLCTStation6Ring2");
-    TH1F * bxLCTStation7Ring1 = (TH1F*)file0->Get("bxLCTStation7Ring1");
-    TH1F * bxLCTStation7Ring2 = (TH1F*)file0->Get("bxLCTStation7Ring2");
-    TH1F * bxLCTStation8Ring1 = (TH1F*)file0->Get("bxLCTStation8Ring1");
-    TH1F * bxLCTStation8Ring2 = (TH1F*)file0->Get("bxLCTStation8Ring2");
-
-    //bxLCTStation6Ring1->SetTitle("     CSC LCT BX         Run 3 Data");
-    bxLCTStation6Ring1->SetTitle("");
-    bxLCTStation6Ring1->GetXaxis()->SetTitle("BX");
-    //bxLCTStation6Ring1->GetYaxis()->SetTitle("CSC LCT BX ");
-    //bxLCTStation6Ring1->GetYaxis()->SetRangeUser(lowEff,highEff);
-    bxLCTStation6Ring1->GetXaxis()->SetRangeUser(-3.0,3.0);
-    bxLCTStation6Ring1->SetDrawOption("G");
-    bxLCTStation6Ring1->SetLineColor(kRed);
-    bxLCTStation6Ring1->SetMarkerColor(kRed);
-    bxLCTStation6Ring1->SetMarkerStyle(8);
-    bxLCTStation6Ring1->SetMarkerSize(0.75);
-    bxLCTStation6Ring1->Draw("PE1");
-    bxLCTStation7Ring1->SetLineColor(kOrange-3);
-    bxLCTStation7Ring1->SetMarkerColor(kOrange-3);
-    bxLCTStation7Ring1->SetMarkerStyle(8);
-    bxLCTStation7Ring1->SetMarkerSize(0.75);
-    bxLCTStation7Ring1->Draw("PE1 SAME");
-    bxLCTStation8Ring1->SetLineColor(kOrange);
-    bxLCTStation8Ring1->SetMarkerColor(kOrange);
-    bxLCTStation8Ring1->SetMarkerStyle(8);
-    bxLCTStation8Ring1->SetMarkerSize(0.75);
-    bxLCTStation8Ring1->Draw("PE1 SAME");
-    bxLCTStation6Ring2->SetLineColor(kAzure+6);
-    bxLCTStation6Ring2->SetMarkerColor(kAzure+6);
-    bxLCTStation6Ring2->SetMarkerStyle(8);
-    bxLCTStation6Ring2->SetMarkerSize(0.75);
-    bxLCTStation6Ring2->Draw("PE1 SAME");
-    bxLCTStation7Ring2->SetLineColor(kBlue);
-    bxLCTStation7Ring2->SetMarkerColor(kBlue);
-    bxLCTStation7Ring2->SetMarkerStyle(8);
-    bxLCTStation7Ring2->SetMarkerSize(0.75);
-    bxLCTStation7Ring2->Draw("PE1 SAME");
-    bxLCTStation8Ring2->SetLineColor(kBlue+2);
-    bxLCTStation8Ring2->SetMarkerColor(kBlue+2);
-    bxLCTStation8Ring2->SetMarkerStyle(8);
-    bxLCTStation8Ring2->SetMarkerSize(0.75);
-    bxLCTStation8Ring2->Draw("PE1 SAME");
-    DrawCMSLumi(dataInfo);
-
-    TLegend *legendLCTbx4 = new TLegend(0.88,0.7,0.98,0.9);
-    legendLCTbx4->AddEntry(bxLCTStation6Ring1,"ME+21");
-    legendLCTbx4->AddEntry(bxLCTStation7Ring1,"ME+31");
-    legendLCTbx4->AddEntry(bxLCTStation8Ring1,"ME+41");
-    legendLCTbx4->AddEntry(bxLCTStation6Ring2,"ME+22");
-    legendLCTbx4->AddEntry(bxLCTStation7Ring2,"ME+32");
-    legendLCTbx4->AddEntry(bxLCTStation8Ring2,"ME+42");
-    legendLCTbx4->Draw();
-
-    c1.Print((plotdir + "CSCLCTBXRun3DataME+234.png").c_str());
-    gPad->SetLogy(0);
+      c1.Print((plotdir + "CSCLCTBXRun3DataME+234.png").c_str());
+      gPad->SetLogy(0);
+    }
 
 
 
 
-
-
-
-
-
-
-
-    
-
-    // Drawing 2D CSC LCT Efficiency
-    TH2F * LCTEff2DStationRingChamber = (TH2F*)file0->Get("LCTEff2DStationRingChamber");
-
-    //sprintf(title, "CSC LCT Eff.     Run 3%s", dataInfo.c_str());
-    LCTEff2DStationRingChamber->SetTitle("");
-    LCTEff2DStationRingChamber->SetMarkerSize(0.75);
-    LCTEff2DStationRingChamber->GetYaxis()->SetTickLength(0.0015);
-    LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(0.0,1.005);
-    LCTEff2DStationRingChamber->GetZaxis()->SetTitle("CSC LCT Efficiency ");
-    LCTEff2DStationRingChamber->Draw("COLZ TEXT");
-    DrawCMSLumi(dataInfo);
-    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.png").c_str());
-    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber.pdf").c_str());
-
-    LCTEff2DStationRingChamber->GetZaxis()->SetRangeUser(lowEff2D,1.005);
-    c1.Print((plotdir + "CSCLCTEffRun3Data2DRingChamber50-100.png").c_str());
-
-
-    
     // Drawing 2D CSC Efficiency Plots
     for (Int_t iiStation=0; iiStation<8; iiStation++){
       for (Int_t iiRing=0; iiRing<4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
-        sprintf(label, "%s", GetMELabel(iiStation, iiRing).c_str());
+        sprintf(label, "%s", GetRingIdentifier(iiStation, iiRing).c_str());
 
         // Drawing 2D CSC Segment Efficiency and Run
         sprintf(name, "segEff2DStation%dRing%dChamberRun", iiStation+1, iiRing);
@@ -1673,7 +2165,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
         // Drawing 2D CSC Segment Efficiency and DCFEB
         sprintf(name, "segEff2DStation%dRing%dChamberDCFEB", iiStation+1, iiRing);
         //sprintf(title, "CSC Segment Efficiency vs Chamber and DCFEB %s", label);
-        sprintf(file, (plotdir + "DCFEB/CSCSegEffRun3Data2DChamberDCFEB%s.png").c_str(), GetMELabel(iiStation, iiRing).c_str());
+        sprintf(file, (plotdir + "DCFEB/CSCSegEffRun3Data2DChamberDCFEB%s.png").c_str(), label);
         TH2F * segEff2DStationRingChamberDCFEB = (TH2F*)file0->Get(name);
         segEff2DStationRingChamberDCFEB->SetTitle("");
         segEff2DStationRingChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
@@ -1711,7 +2203,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
         // Drawing 2D CSC LCT Efficiency and DCFEB
         sprintf(name, "LCTEff2DStation%dRing%dChamberDCFEB", iiStation+1, iiRing);
         //sprintf(title, "CSC LCT Efficiency vs Chamber and DCFEB %s", label);
-        sprintf(file, (plotdir + "DCFEB/CSCLCTEffRun3Data2DChamberDCFEB%s.png").c_str(), GetMELabel(iiStation, iiRing).c_str());
+        sprintf(file, (plotdir + "DCFEB/CSCLCTEffRun3Data2DChamberDCFEB%s.png").c_str(), label);
         TH2F * LCTEff2DStationRingChamberDCFEB = (TH2F*)file0->Get(name);
         LCTEff2DStationRingChamberDCFEB->SetTitle("");
         LCTEff2DStationRingChamberDCFEB->GetXaxis()->SetTitle("Chamber #");
@@ -1745,18 +2237,18 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
         // Check for chamber plot directory
         {
-          DIR *chdir = opendir((plotdir + GetMELabel(iiStation, iiRing)).c_str());
-          if (!chdir) mkdir((plotdir + GetMELabel(iiStation, iiRing)).c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+          DIR *chdir = opendir((plotdir + "ChamberPlots/" + GetRingIdentifier(iiStation, iiRing)).c_str());
+          if (!chdir) mkdir((plotdir + + "ChamberPlots/" + GetRingIdentifier(iiStation, iiRing)).c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
           else closedir(chdir);
         }
 
-        sprintf(label, "%s", GetMELabel(iiStation, iiRing).c_str());
+        sprintf(label, "%s", GetRingIdentifier(iiStation, iiRing).c_str());
         for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){
           if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
 
           // Drawing CSC Segment Efficiency vs. Strip LC
           sprintf(name,"segEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          sprintf(title, "Segment Efficiency vs Strip LC for %s/%d",label,iiChamber);
+          sprintf(title, "Segment Efficiency vs Strip LC for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
           sprintf(file, (plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dLCS.png").c_str(),label,label,iiChamber);
 
           TH1F * segEffChamberLCS = (TH1F*)file0->Get(name);
@@ -1775,30 +2267,31 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           c1.Print(file);
 
 
-          // Drawing CSC Segment Efficiency vs. Y LC
-          sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          sprintf(title,"Segment Efficiency vs Y LC for %s/%d",label,iiChamber);
-          sprintf(file,(plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
+          if (processLCY) {
+            // Drawing CSC Segment Efficiency vs. Y LC
+            sprintf(name,"segEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+            sprintf(title,"Segment Efficiency vs Y LC for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
+            sprintf(file,(plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
 
-          TH1F * segEffChamberLCY = (TH1F*)file0->Get(name);
-          segEffChamberLCY->SetTitle(title);
-          segEffChamberLCY->GetXaxis()->SetTitle("Y Local Coordinate");
-          segEffChamberLCY->GetYaxis()->SetTitle("CSC Segment Reconstuction Efficiency");
-          segEffChamberLCY->GetYaxis()->SetTitleOffset(1.45);
-          segEffChamberLCY->GetXaxis()->SetTickLength(0.015);
-          segEffChamberLCY->GetYaxis()->SetTickLength(0.015);
-          segEffChamberLCY->GetYaxis()->SetRangeUser(0.0,1.05);
-          segEffChamberLCY->SetLineColor(kBlack);
-          segEffChamberLCY->SetMarkerColor(kBlack);
-          segEffChamberLCY->SetMarkerStyle(8);
-          segEffChamberLCY->SetMarkerSize(0.75);
-          segEffChamberLCY->Draw("PE1");
-          c1.Print(file);
-
+            TH1F * segEffChamberLCY = (TH1F*)file0->Get(name);
+            segEffChamberLCY->SetTitle(title);
+            segEffChamberLCY->GetXaxis()->SetTitle("Y Local Coordinate");
+            segEffChamberLCY->GetYaxis()->SetTitle("CSC Segment Reconstuction Efficiency");
+            segEffChamberLCY->GetYaxis()->SetTitleOffset(1.45);
+            segEffChamberLCY->GetXaxis()->SetTickLength(0.015);
+            segEffChamberLCY->GetYaxis()->SetTickLength(0.015);
+            segEffChamberLCY->GetYaxis()->SetRangeUser(0.0,1.05);
+            segEffChamberLCY->SetLineColor(kBlack);
+            segEffChamberLCY->SetMarkerColor(kBlack);
+            segEffChamberLCY->SetMarkerStyle(8);
+            segEffChamberLCY->SetMarkerSize(0.75);
+            segEffChamberLCY->Draw("PE1");
+            c1.Print(file);
+          }
 
           // Drawing CSC Segment Efficiency vs. Run
           sprintf(name,"segEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-          sprintf(title,"Segment Efficiency vs Run for %s/%d",label,iiChamber);
+          sprintf(title,"Segment Efficiency vs Run for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
           sprintf(file,(plotdir + "ChamberPlots/%s/cscSegEffRun3Data%s-%dRun.png").c_str(),label,label,iiChamber);
 
           TH1F * segEffChamberRun = (TH1F*)file0->Get(name);
@@ -1809,13 +2302,36 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           segEffChamberRun->GetXaxis()->SetTickLength(0.015);
           segEffChamberRun->GetYaxis()->SetTickLength(0.015);
           segEffChamberRun->GetYaxis()->SetRangeUser(0.0,1.05);
-          segEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
+          //segEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
           segEffChamberRun->SetLineColor(kBlack);
           segEffChamberRun->SetMarkerColor(kBlack);
           segEffChamberRun->SetMarkerStyle(8);
           segEffChamberRun->SetMarkerSize(0.75);
-          segEffChamberRun->Draw("HIST P");
+          segEffChamberRun->Draw("HIST PE1");
+
           c1.Print(file);
+
+          // Drawing CSC Segment Efficiency vs. Run
+          sprintf(name,"segNumStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
+          sprintf(title,"Segment Num vs Run for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
+          sprintf(file,(plotdir + "ChamberPlots/%s/cscSegNumRun3Data%s-%dRun.png").c_str(),label,label,iiChamber);
+
+          TH1F * segNumChamberRun = (TH1F*)file0->Get(name);
+          segNumChamberRun->SetTitle(title);
+          segNumChamberRun->GetXaxis()->SetTitle("Run Number");
+          segNumChamberRun->GetYaxis()->SetTitle("CSC Segment Num counts");
+          segNumChamberRun->GetYaxis()->SetTitleOffset(1.45);
+          segNumChamberRun->GetXaxis()->SetTickLength(0.015);
+          segNumChamberRun->GetYaxis()->SetTickLength(0.015);
+          //segNumChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
+          segNumChamberRun->SetLineColor(kBlack);
+          segNumChamberRun->SetMarkerColor(kBlack);
+          segNumChamberRun->SetMarkerStyle(8);
+          segNumChamberRun->SetMarkerSize(0.75);
+          segNumChamberRun->Draw("HIST");
+          c1.Print(file);
+
+
 
           // Old Printing to Text File
           // first run 355100
@@ -1832,7 +2348,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
           // Drawing LCT Efficiency vs. Strip LC
           sprintf(name,"LCTEffLCSStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          sprintf(title,"LCT Efficiency vs Strip LC for %s/%d",label,iiChamber);
+          sprintf(title,"LCT Efficiency vs Strip LC for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
           sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dLCS.png").c_str(),label,label,iiChamber);
 
           TH1F * LCTEffChamberLCS = (TH1F*)file0->Get(name);
@@ -1850,31 +2366,32 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           LCTEffChamberLCS->Draw("PE1");
           c1.Print(file);
 
+          if (processLCY) {
+            // Drawing LCT Efficiency vs. Y LC
+            sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+            sprintf(title,"LCT Efficiency vs Y LC for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
+            sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
 
-          // Drawing LCT Efficiency vs. Y LC
-          sprintf(name,"LCTEffLCYStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          sprintf(title,"LCT Efficiency vs Y LC for %s/%d",label,iiChamber);
-          sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dLCY.png").c_str(),label,label,iiChamber);
-
-          TH1F * LCTEffChamberLCY = (TH1F*)file0->Get(name);
-          LCTEffChamberLCY->SetTitle(title);
-          LCTEffChamberLCY->GetXaxis()->SetTitle("Y Local Coordinate");
-          LCTEffChamberLCY->GetYaxis()->SetTitle("CSC LCT Reconstuction Efficiency");
-          LCTEffChamberLCY->GetYaxis()->SetTitleOffset(1.45);
-          LCTEffChamberLCY->GetXaxis()->SetTickLength(0.015);
-          LCTEffChamberLCY->GetYaxis()->SetTickLength(0.015);
-          LCTEffChamberLCY->GetYaxis()->SetRangeUser(0.0,1.05);
-          LCTEffChamberLCY->SetLineColor(kBlack);
-          LCTEffChamberLCY->SetMarkerColor(kBlack);
-          LCTEffChamberLCY->SetMarkerStyle(8);
-          LCTEffChamberLCY->SetMarkerSize(0.75);
-          LCTEffChamberLCY->Draw("PE1");
-          c1.Print(file);
+            TH1F * LCTEffChamberLCY = (TH1F*)file0->Get(name);
+            LCTEffChamberLCY->SetTitle(title);
+            LCTEffChamberLCY->GetXaxis()->SetTitle("Y Local Coordinate");
+            LCTEffChamberLCY->GetYaxis()->SetTitle("CSC LCT Reconstuction Efficiency");
+            LCTEffChamberLCY->GetYaxis()->SetTitleOffset(1.45);
+            LCTEffChamberLCY->GetXaxis()->SetTickLength(0.015);
+            LCTEffChamberLCY->GetYaxis()->SetTickLength(0.015);
+            LCTEffChamberLCY->GetYaxis()->SetRangeUser(0.0,1.05);
+            LCTEffChamberLCY->SetLineColor(kBlack);
+            LCTEffChamberLCY->SetMarkerColor(kBlack);
+            LCTEffChamberLCY->SetMarkerStyle(8);
+            LCTEffChamberLCY->SetMarkerSize(0.75);
+            LCTEffChamberLCY->Draw("PE1");
+            c1.Print(file);
+          }
 
 
           // Drawing LCT Efficiency vs. Run
           sprintf(name,"LCTEffStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
-          sprintf(title,"LCT Efficiency vs Run for %s/%d",label,iiChamber);
+          sprintf(title,"LCT Efficiency vs Run for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
           sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTEffRun3Data%s-%dRun.png").c_str(),label,label,iiChamber);
 
           TH1F * LCTEffChamberRun = (TH1F*)file0->Get(name);
@@ -1885,43 +2402,66 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           LCTEffChamberRun->GetXaxis()->SetTickLength(0.015);
           LCTEffChamberRun->GetYaxis()->SetTickLength(0.015);
           LCTEffChamberRun->GetYaxis()->SetRangeUser(0.0,1.05);
-          LCTEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
+          //LCTEffChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
           LCTEffChamberRun->SetLineColor(kBlack);
           LCTEffChamberRun->SetMarkerColor(kBlack);
           LCTEffChamberRun->SetMarkerStyle(8);
           LCTEffChamberRun->SetMarkerSize(0.75);
-          LCTEffChamberRun->Draw("HIST P");
+          LCTEffChamberRun->Draw("HIST PE1");
           c1.Print(file);
 
-	  gPad->SetLogy(1);
-          // Drawing LCT BX
-          sprintf(name,"bxLCTStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
-          sprintf(title,"LCT BX for %s/%d",label,iiChamber);
-          sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTBXRun3Data%s-%d.png").c_str(),label,label,iiChamber);
 
-          TH1F * LCTBXChamber = (TH1F*)file0->Get(name);
-          LCTBXChamber->SetTitle(title);
-          LCTBXChamber->GetXaxis()->SetTitle("BX Number");
-          //LCTBXChamber->GetYaxis()->SetTitle("");
-          LCTBXChamber->GetYaxis()->SetTitleOffset(1.45);
-          LCTBXChamber->GetXaxis()->SetTickLength(0.015);
-          LCTBXChamber->GetYaxis()->SetTickLength(0.015);
-          //LCTBXChamber->GetYaxis()->SetRangeUser(0.0,1.05);
-          LCTBXChamber->GetXaxis()->SetRangeUser(-3.5,3.5);
-          LCTBXChamber->SetLineColor(kBlack);
-          LCTBXChamber->SetMarkerColor(kBlack);
-          LCTBXChamber->SetMarkerStyle(8);
-          LCTBXChamber->SetMarkerSize(0.75);
-          LCTBXChamber->Draw("HIST");
+          // Drawing CSC LCT Efficiency vs. Run
+          sprintf(name,"LCTNumStation%dRing%dChamber%dRun",iiStation+1,iiRing,iiChamber);
+          sprintf(title,"LCT Num vs Run for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
+          sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTNumRun3Data%s-%dRun.png").c_str(),label,label,iiChamber);
+
+          TH1F * LCTNumChamberRun = (TH1F*)file0->Get(name);
+          LCTNumChamberRun->SetTitle(title);
+          LCTNumChamberRun->GetXaxis()->SetTitle("Run Number");
+          LCTNumChamberRun->GetYaxis()->SetTitle("CSC LCT Num counts");
+          LCTNumChamberRun->GetYaxis()->SetTitleOffset(1.45);
+          LCTNumChamberRun->GetXaxis()->SetTickLength(0.015);
+          LCTNumChamberRun->GetYaxis()->SetTickLength(0.015);
+          //LCTNumChamberRun->GetXaxis()->SetRangeUser(firstRun,lastRun);
+          LCTNumChamberRun->SetLineColor(kBlack);
+          LCTNumChamberRun->SetMarkerColor(kBlack);
+          LCTNumChamberRun->SetMarkerStyle(8);
+          LCTNumChamberRun->SetMarkerSize(0.75);
+          LCTNumChamberRun->Draw("HIST");
           c1.Print(file);
-	  gPad->SetLogy(0);
-
-          //BX analysis
- 	  sprintf(name,"%s/%d: ",label,iiChamber);
-	  bxAnalysis << name << LCTBXChamber->GetBinContent(9)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(10)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(11)/LCTBXChamber->Integral() << "  "<< LCTBXChamber->Integral() << endl;
 
 
-	  
+          if (bxAnalysis) {
+            gPad->SetLogy(1);
+            // Drawing LCT BX
+            sprintf(name,"bxLCTStation%dRing%dChamber%d",iiStation+1,iiRing,iiChamber);
+            sprintf(title,"LCT BX for %s", GetMELabel(iiStation, iiRing, iiChamber).c_str());
+            sprintf(file,(plotdir + "ChamberPlots/%s/cscLCTBXRun3Data%s-%d.png").c_str(),label,label,iiChamber);
+
+            TH1F * LCTBXChamber = (TH1F*)file0->Get(name);
+            LCTBXChamber->SetTitle(title);
+            LCTBXChamber->GetXaxis()->SetTitle("BX Number");
+            //LCTBXChamber->GetYaxis()->SetTitle("");
+            LCTBXChamber->GetYaxis()->SetTitleOffset(1.45);
+            LCTBXChamber->GetXaxis()->SetTickLength(0.015);
+            LCTBXChamber->GetYaxis()->SetTickLength(0.015);
+            //LCTBXChamber->GetYaxis()->SetRangeUser(0.0,1.05);
+            //LCTBXChamber->GetXaxis()->SetRangeUser(-10.5,10.5);
+            LCTBXChamber->SetLineColor(kBlack);
+            LCTBXChamber->SetMarkerColor(kBlack);
+            LCTBXChamber->SetMarkerStyle(8);
+            LCTBXChamber->SetMarkerSize(0.75);
+            LCTBXChamber->Draw("HIST");
+            c1.Print(file);
+            gPad->SetLogy(0);
+
+            //BX analysis
+            sprintf(name,"%s: ", GetMELabel(iiStation, iiRing, iiChamber).c_str());
+            //bxAnalysisOutput << name << LCTBXChamber->GetBinContent(9)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(10)/LCTBXChamber->Integral() << " " << LCTBXChamber->GetBinContent(11)/LCTBXChamber->Integral() << "  "<< LCTBXCha
+            bxAnalysisOutput << name << " -1: " << LCTBXChamber->GetBinContent(9) << " 0: " << LCTBXChamber->GetBinContent(10) << " 1: " << LCTBXChamber->GetBinContent(11) << " 2: " << LCTBXChamber->GetBinContent(12) << " 3: " << LCTBXChamber->GetBinContent(13) << " 4: " << LCTBXChamber->GetBinContent(14) << " 5: " << LCTBXChamber->GetBinContent(15) << " 6: " << LCTBXChamber->GetBinContent(16) << " 7: " << LCTBXChamber->GetBinContent(17) << " 8: " << LCTBXChamber->GetBinContent(18) << " 9: " << LCTBXChamber->GetBinContent(19) << " 10: " << LCTBXChamber->GetBinContent(20) << " 11: " << LCTBXChamber->GetBinContent(21) << endl;
+          }
+
         }
       }
     }
@@ -1932,7 +2472,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
   if (effCheck){
     if (verbose) cout << "Checking efficiencies..." << endl;
     bool bBadDCFEBs[8][4][36][5] = {0};
-    string sAutoHeaderChambers[8][4][36]; 
+    string sAutoHeaderChambers[8][4][36];
     bool runDepAnalysis = ((TH2F*)file0->Get("segEff2DStation1Ring1DCFEB1ChamberRun") != NULL);
     stringstream ssDeadChambers, ssDeadDCFEBs, ssDeadDCFEBsWithEff, ssLowEffChambers;
     stringstream ssRunDepChamberSeg, ssRunDepChamberLCT;
@@ -2114,7 +2654,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
               ssLowEffChambers << endl;
             }
             else if (numIneffDCFEBsLCT == totDCFEBs)
-              ssLowEffChambers << GetMELabel(iiStation, iiRing, iiChamber) << ": (" 
+              ssLowEffChambers << GetMELabel(iiStation, iiRing, iiChamber) << ": ("
                 << (lowEffChamberAvgSeg/totDCFEBs)*100 << "%, " << (lowEffChamberAvgLCT/totDCFEBs)*100 << "%) **" << endl;
           }
 
@@ -2180,7 +2720,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                   ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunSeg << ";  ";
                   ssAutoHeader << endl << endl;
                 }
-                else if (verbose) 
+                else if (verbose)
                   cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
 
                 // Save the run range for the chambers
@@ -2234,7 +2774,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                   ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunLCT << ";  ";
                   ssAutoHeader << endl << endl;
                 }
-                else if (verbose) 
+                else if (verbose)
                   cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
                 */
 
@@ -2267,7 +2807,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
               ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunSeg << ";  ";
               ssAutoHeader << endl << endl;
             }
-            else if (verbose) 
+            else if (verbose)
               cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunSeg << "-" << badChamberLastRunSeg << endl;
 
             // Save the run range for the chambers
@@ -2294,7 +2834,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
               ssAutoHeader << "badChamberRun[" << rangeIndex++ << indexstr << "[1] = " << badChamberLastRunLCT << ";  ";
               ssAutoHeader << endl << endl;
             }
-            else if (verbose) 
+            else if (verbose)
               cout << "Low Efficiency Chamber " << GetMELabel(iiStation, iiRing, iiChamber) << " run " << badChamberFirstRunLCT << "-" << badChamberLastRunLCT << endl;
             */
 
@@ -2425,7 +2965,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                   ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
                   ssTempAutoHeader << endl << endl;
                 }
-                else if (verbose) 
+                else if (verbose)
                   cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << endl;
 
                 // Save the run range for the DCFEBs
@@ -2507,7 +3047,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                   ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
                   ssTempAutoHeader << endl << endl;
                 }
-                else if (verbose) 
+                else if (verbose)
                   cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << endl;
                 */
 
@@ -2539,7 +3079,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                 ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
                 ssTempAutoHeader << endl << endl;
               }
-              else if (verbose) 
+              else if (verbose)
                 cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunSeg << "-" << badDCFEBLastRunSeg << endl;
 
               // Save the run range for the DCFEBs
@@ -2583,7 +3123,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
                 ssTempAutoHeader << "badChamberLCS[" << rangeIndex++ << indexstr << "[1] = " << DCFEBRanges[iiDCFEB-1][1] << ";";
                 ssTempAutoHeader << endl << endl;
               }
-              else if (verbose) 
+              else if (verbose)
                 cout << "Low Efficiency DCFEB " << GetMELabel(iiStation, iiRing, iiChamber) << " " << iiDCFEB << " run " << badDCFEBFirstRunLCT << "-" << badDCFEBLastRunLCT << endl;
               */
 
@@ -2676,29 +3216,32 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
     for (Int_t iiStation = 0; iiStation < 8; iiStation++){
       for (Int_t iiRing = 0; iiRing < 4; iiRing++){
         if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&(iiRing==0||iiRing==3)) continue;
+        int numChambers = (iiStation != 0 && iiStation != 4 && iiRing == 1) ? 18 : 36;
+        Int_t totDCFEBs = 5;
+        if (iiRing==0) totDCFEBs = 3;
+        else if ((iiStation == 0 || iiStation == 4) && (iiRing == 1 || iiRing == 3)) totDCFEBs = 4;
 
         //sprintf(title, "Segment DCFEB Analysis %s", GetMELabel(iiStation, iiRing).c_str());
-        sprintf(file, (plotdir + "DCFEBAnalysis/CSCSegEffRun3Data2DChamberRunCompact%s.pdf").c_str(), GetMELabel(iiStation,iiRing).c_str());
+        sprintf(file, (plotdir + "DCFEBAnalysis/CSCSegEffRun3Data2DChamberRunCompact%s.pdf").c_str(), GetRingIdentifier(iiStation,iiRing).c_str());
         c1.Print(((string)file + "[").c_str());
         for (Int_t iiPage=0; iiPage*10<numRunBins; iiPage++){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
 
           sprintf(name, "segEff2DStation%dRing%dDCFEBChamberRunCompact%d", iiStation+1, iiRing, iiPage);
-          TH2F * hcompactSeg = new TH2F(name, "", 36, 0.5, 36.5, numBins*5, 0, numBins*5);
-          for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){ 
+          TH2F * hcompactSeg = new TH2F(name, "", numChambers, 0.5, numChambers+0.5, numBins*totDCFEBs, 0, numBins*totDCFEBs);
+          for (Int_t iiChamber=1; iiChamber <= numChambers; iiChamber++){
             hcompactSeg->GetXaxis()->SetBinLabel(iiChamber, to_string(iiChamber).c_str());
-            if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
             for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-              for (Int_t iiDCFEB=1; iiDCFEB < 6; iiDCFEB++){
+              for (Int_t iiDCFEB=1; iiDCFEB <= totDCFEBs; iiDCFEB++){
                 sprintf(name, "segEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
                 Float_t segEff = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin+1+iiPage*10);
                 Int_t iiRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1+iiPage*10);
 
-                if (segEff != -1) hcompactSeg->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, segEff);
-                if (iiDCFEB == 3)
-                  hcompactSeg->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
+                if (segEff != -1) hcompactSeg->SetBinContent(iiChamber, totDCFEBs*iiRunBin + iiDCFEB, segEff);
+                if (iiDCFEB == totDCFEBs/2+1)
+                  hcompactSeg->GetYaxis()->SetBinLabel(totDCFEBs*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
                 else
-                  hcompactSeg->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
+                  hcompactSeg->GetYaxis()->SetBinLabel(totDCFEBs*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
               }
             }
           }
@@ -2721,7 +3264,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactSeg->GetZaxis()->SetTitleOffset(1.1);
           hcompactSeg->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+            TLine *line = new TLine(0.5-0.05*numChambers, totDCFEBs*iiRunBin + totDCFEBs,numChambers + 0.5,totDCFEBs*iiRunBin + totDCFEBs);
             line->Draw();
           }
           DrawCMSLumi(dataInfo);
@@ -2730,27 +3273,26 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
         c1.Print(((string)file + "]").c_str());
 
         //sprintf(title, "LCT DCFEB Analysis %s", GetMELabel(iiStation, iiRing).c_str());
-        sprintf(file, (plotdir + "DCFEBAnalysis/CSCLCTEffRun3Data2DChamberRunCompact%s.pdf").c_str(), GetMELabel(iiStation,iiRing).c_str());
+        sprintf(file, (plotdir + "DCFEBAnalysis/CSCLCTEffRun3Data2DChamberRunCompact%s.pdf").c_str(), GetRingIdentifier(iiStation,iiRing).c_str());
         c1.Print(((string)file + "[").c_str());
         for (Int_t iiPage=0; iiPage*10<numRunBins; iiPage++){
           Int_t numBins = (numRunBins-iiPage*10 > 10)? 10 : numRunBins-iiPage*10;
 
           sprintf(name, "LCTEff2DStation%dRing%dDCFEBChamberRunCompact%d", iiStation+1, iiRing, iiPage);
-          TH2F * hcompactLCT = new TH2F(name, "", 36, 0.5, 36.5, numBins*5, 0, numBins*5);
-          for (Int_t iiChamber=1; iiChamber < 37; iiChamber++){ 
+          TH2F * hcompactLCT = new TH2F(name, "", numChambers, 0.5, numChambers + 0.5, numBins*totDCFEBs, 0, numBins*totDCFEBs);
+          for (Int_t iiChamber=1; iiChamber <= numChambers; iiChamber++){
             hcompactLCT->GetXaxis()->SetBinLabel(iiChamber, to_string(iiChamber).c_str());
-            if ((iiStation==1||iiStation==2||iiStation==3||iiStation==5||iiStation==6||iiStation==7)&&iiRing==1&&iiChamber>18) continue;
             for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-              for (Int_t iiDCFEB=1; iiDCFEB < 6; iiDCFEB++){
+              for (Int_t iiDCFEB=1; iiDCFEB <= totDCFEBs; iiDCFEB++){
                 sprintf(name, "LCTEff2DStation%dRing%dDCFEB%dChamberRun", iiStation+1, iiRing, iiDCFEB);
                 Float_t LCTEff = ((TH2F*)file0->Get(name))->GetBinContent(iiChamber, iiRunBin+1+iiPage*10);
                 Int_t iiRun = ((TH2F*)file0->Get(name))->GetYaxis()->GetBinLowEdge(iiRunBin+1+iiPage*10);
 
-                if (LCTEff != -1) hcompactLCT->SetBinContent(iiChamber, 5*iiRunBin + iiDCFEB, LCTEff);
-                if (iiDCFEB == 3)
-                  hcompactLCT->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
+                if (LCTEff != -1) hcompactLCT->SetBinContent(iiChamber, totDCFEBs*iiRunBin + iiDCFEB, LCTEff);
+                if (iiDCFEB == totDCFEBs/2+1)
+                  hcompactLCT->GetYaxis()->SetBinLabel(totDCFEBs*iiRunBin + iiDCFEB, (to_string(iiRun) + " #" + to_string(iiDCFEB)).c_str());
                 else
-                  hcompactLCT->GetYaxis()->SetBinLabel(5*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
+                  hcompactLCT->GetYaxis()->SetBinLabel(totDCFEBs*iiRunBin + iiDCFEB, ("#" + to_string(iiDCFEB)).c_str());
               }
             }
           }
@@ -2773,7 +3315,7 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
           hcompactLCT->GetZaxis()->SetTitleOffset(1.1);
           hcompactLCT->Draw("COLZ TEXT");
           for (Int_t iiRunBin=0; iiRunBin < numBins; iiRunBin++){
-            TLine *line = new TLine(-1.5, 5*iiRunBin + 5,36.5,5*iiRunBin + 5);
+            TLine *line = new TLine(0.5-0.05*numChambers, totDCFEBs*iiRunBin + totDCFEBs,numChambers + 0.5,totDCFEBs*iiRunBin + totDCFEBs);
             line->Draw();
           }
           DrawCMSLumi(dataInfo);
@@ -2787,23 +3329,29 @@ void PlotCSCEffFast(string filename="cscEffHistoFile.root"){
 
   c1.Close();
   file0->Close();
+  if (bxAnalysis) bxAnalysisOutput.close();
 }
 
 #ifndef __CLING__
 int main(int argc, char *argv[]){
-  if (argc > 2){
+  if (argc > 3){
     cerr << "Too many arguments." << endl;
     return 1;
   }
-  string filename="cscEffHistoFile.root";
-  if (argc == 2) filename = argv[1];
-  PlotCSCEffFast(filename);
+  string filename = "cscEffHistoFile.root";
+  string dirname  = "";
+  if (argc >= 2) filename = argv[1];
+  if (argc == 3) dirname  = argv[2];
+  PlotCSCEffFast(filename, dirname);
   return 0;
 }
 #endif
 
 // Helper functions
 string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
+  //station: 0-7
+  //ring: 0-3
+  //chamber: 1-36
   string result = "";
   if ((station==1||station==2||station==3||station==5||station==6||station==7)&&(ring==0||ring==3)){
     cout << "Unexpected station/ring. Given " << station << "/" << ring << endl;
@@ -2817,25 +3365,26 @@ string GetMELabel(Int_t station, Int_t ring, Int_t chamber){
   if (station >= 4) station -= 4;
 
   result = "ME" + symb + to_string(station+1);
-  if (ring == 0) result += "1A";
-  else if (station == 0 && ring == 1) result += "1B";
-  else result += to_string(ring);
-
-  if (chamber != -1)
-    result += "/" + to_string(chamber);
+  if (ring != -1){
+    if (ring == 0) result += "1A";
+    else if (station == 0 && ring == 1) result += "1B";
+    else result += to_string(ring);
+    if (chamber != -1) result += "/" + to_string(chamber);
+  }
 
   return result;
 }
 
 void DrawCMSLumi(string lumi){
   gPad->Update();
+  Float_t size = 0.04;
   Double_t ycoord = (gPad->GetUymax()-gPad->GetUymin())/100 + gPad->GetUymax();
   TLatex textCMS(gPad->GetUxmin(), ycoord,
       "#font[61]{CMS}#scale[0.76]{#font[52]{ Preliminary}}");
-  textCMS.SetTextSize(0.03);
+  textCMS.SetTextSize(size);
   TLatex textInfo(gPad->GetUxmax(), ycoord,
       TString::Format("#font[42]{%s}", lumi.c_str()));
-  textInfo.SetTextSize(0.03 * 0.6/0.75);
+  textInfo.SetTextSize(size * 0.6/0.75);
   textInfo.SetTextAlign(kHAlignRight+kVAlignBottom);
   textCMS.DrawClone();
   textInfo.DrawClone();
@@ -2848,7 +3397,55 @@ string Printout(const string& title, string info, bool legend){
   string result = title + "\n";
   for (int i=0; i<title.size(); i++) result += "-";
   result += "\n" + info;
-  if (legend) result += "\n\n *  Segment Only\n ** LCT Only"; 
+  if (legend) result += "\n\n *  Segment Only\n ** LCT Only";
   result += "\n\n\n";
+  return result;
+}
+
+int GetRingIndex(int station, int ring){
+  //station: 0-7
+  //ring: 0-3
+  enum RingIndex {
+    MEm42, MEm41, MEm32, MEm31, MEm22, MEm21, MEm13, MEm12, MEm11b, MEm11a,
+    MEp11a, MEp11b, MEp12, MEp13, MEp21, MEp22, MEp31, MEp32, MEp41, MEp42
+  };
+  int index = -2;
+  if (station == 0){
+    if (ring == 0) index = MEm11a;
+    else if (ring == 1) index = MEm11b;
+    else if (ring == 2) index = MEm12;
+    else if (ring == 3) index = MEm13;
+  }
+  else if (station == 1) index = (ring == 1)? MEm21:MEm22;
+  else if (station == 2) index = (ring == 1)? MEm31:MEm32;
+  else if (station == 3) index = (ring == 1)? MEm41:MEm42;
+  else if (station == 4){
+    if (ring == 0) index = MEp11a;
+    else if (ring == 1) index = MEp11b;
+    else if (ring == 2) index = MEp12;
+    else if (ring == 3) index = MEp13;
+  }
+  else if (station == 5) index = (ring == 1)? MEp21:MEp22;
+  else if (station == 6) index = (ring == 1)? MEp31:MEp32;
+  else if (station == 7) index = (ring == 1)? MEp41:MEp42;
+  return index+1;
+}
+
+string GetRingIdentifier(Int_t station, Int_t ring){
+  //station: 0-7
+  //ring: 0-3
+  string result = "";
+  if ((station==1||station==2||station==3||station==5||station==6||station==7)&&(ring==0||ring==3)){
+    cout << "Unexpected station/ring. Given " << station << "/" << ring << endl;
+    return result;
+  }
+  string symb = (station < 4)? "-" : "+";
+  if (station >= 4) station -= 4;
+
+  result = "ME" + symb + to_string(station+1);
+  if (ring == 0) result += "1A";
+  else if (station == 0 && ring == 1) result += "1B";
+  else result += to_string(ring);
+
   return result;
 }
