@@ -34,7 +34,7 @@ Alternatively, you can use the scripts within the package directory [`CSCEfficie
 
 ### Local submission
 
-1. Modify the config file [`create_ntuple_local_Run3_2025_Data_test.py`](CSCEfficiency/create_ntuple_local_Run3_2025_Data_test.py). 
+1. Modify the config file [`create_ntuple_local_Run3_2026_Data_test.py`](CSCEfficiency/create_ntuple_local_Run3_2026_Data_test.py). 
 The output file name can be changed in the configuration of the `TFileService` for the process:
 
 ```python
@@ -57,8 +57,9 @@ To create scripts for more recent data, you may need to change the following thi
 * Global tag (for loading the correct configurations and calibrations for the data and release being used)
 
 ### CRAB submission
+This example for 2025.  There are examples for each year of Run 3
 
-There is a CRAB submission file [`CSCEfficiency/crabConfig_CSCEff2025B0_1.py`](CSCEfficiency/crabConfig_CSCEff2025B0_1.py) that runs the cmsRun script [`CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py`](CSCEfficiency/create_ntuple_crab_Run3Data_2025B_1.py). These scripts are running on data described at: https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2FMuon*%2FRun2025*-ZMu-PromptReco-v*%2FRAW-RECO.
+There is a CRAB submission file [`CSCEfficiency/PythonScripts/Run3/crabConfig_CSCEff2025B0_1.py`](CSCEfficiency/PythonScripts/Run3/crabConfig_CSCEff2025B0_1.py) that runs the cmsRun script [`CSCEfficiency/PythonScripts/Run3/create_ntuple_crab_Run3Data_2025B_1.py`](CSCEfficiency/PythonScripts/Run3/create_ntuple_crab_Run3Data_2025B_1.py). These scripts are running on data described at: https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2FMuon*%2FRun2025*-ZMu-PromptReco-v*%2FRAW-RECO.
 
 Note there you can click on `config` to see the release and global tag used to process the original data. The same release (or later in the same series, only updating the minor number) and global tag should be used. You can click on files to find file names that could be used in the local script. The commands to submit the CRAB job are below - note that again you may need to reauthenticate your grid certificate.
 
